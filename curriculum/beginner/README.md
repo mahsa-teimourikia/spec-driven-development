@@ -1,0 +1,16 @@
+# Beginner path: foundations and executable specifications
+
+The beginner path establishes the operating model and then builds the requirements-engineering skills agents need.
+
+1. [Why agentic coding changes the PDLC](01-why-agentic-coding-changes-pdlc/README.md) — **available**
+2. Specs vs prompts vs requirements vs design — planned
+3. The specification hierarchy — planned
+4. Company vs project vs feature requirements — planned
+5. Requirements engineering for agents — planned
+6. User stories, EARS, SHALL requirements, and scenarios — planned
+7. Acceptance criteria and invariants — planned
+8. Non-functional requirements — planned
+9. Architecture Decision Records — planned
+10. Requirement traceability — planned
+
+By the end of this path, learners can turn organizational and product intent into reviewable, testable, traceable specifications rather than isolated prompts.

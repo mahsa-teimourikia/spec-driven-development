@@ -1,0 +1,222 @@
+{
+  "version": 1,
+  "id": "enterprise-agentic-pdlc-control-loop",
+  "title": "Enterprise Agentic PDLC control loop",
+  "purpose": "Show how inherited enterprise constraints shape a bounded agentic delivery loop and how runtime evidence feeds the next specification revision.",
+  "output": {
+    "svg": "agentic-pdlc-control-loop.svg",
+    "medium": "course notebook and documentation",
+    "alt_text": "Two-layer diagram. Organization, platform, domain, project, feature, and implementation constraints inherit left to right into a delivery loop: change intent, clarify and specify, technical plan, work graph, bounded agents, verification, human and automated gates, deployment and observation, then feedback to the specification."
+  },
+  "canvas": {
+    "width": 1500,
+    "height": 1040,
+    "background": "#F7F9FC",
+    "margin": 60,
+    "grid": 10
+  },
+  "layout": {
+    "primary_flow": "left-to-right, then clockwise",
+    "min_node_gap": 40,
+    "min_layer_gap": 70,
+    "node_padding": { "x": 24, "y": 18 }
+  },
+  "style": {
+    "font_family": "Inter, Arial, sans-serif",
+    "title_color": "#16324F",
+    "semantic_colors": {
+      "governance": { "fill": "#E5F7F6", "stroke": "#087F7B" },
+      "process": { "fill": "#EAF1FF", "stroke": "#2F6BFF" },
+      "agent": { "fill": "#F0EEFF", "stroke": "#7667E8" },
+      "gate": { "fill": "#FFF1DF", "stroke": "#D97706" },
+      "operations": { "fill": "#FFFFFF", "stroke": "#52606D" }
+    }
+  },
+  "groups": [
+    {
+      "id": "context",
+      "label": "INHERITED SPECIFICATION CONTEXT",
+      "bounds": { "x": 60, "y": 125, "width": 1380, "height": 330 },
+      "fill": "#FFFFFF",
+      "stroke": "#D7DEE8"
+    },
+    {
+      "id": "delivery",
+      "label": "BOUNDED DELIVERY AND EVIDENCE LOOP",
+      "bounds": { "x": 60, "y": 525, "width": 1380, "height": 455 },
+      "fill": "#FFFFFF",
+      "stroke": "#D7DEE8"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "organization",
+      "group": "context",
+      "label": ["L0  Organization"],
+      "subtitle": "Policy and mandatory controls",
+      "type": "governance",
+      "bounds": { "x": 80, "y": 240, "width": 200, "height": 100 },
+      "padding": 18,
+      "ports": { "out": { "side": "right", "offset": 0.5 } }
+    },
+    {
+      "id": "platform",
+      "group": "context",
+      "label": ["L1  Platform"],
+      "subtitle": "Engineering standards",
+      "type": "governance",
+      "bounds": { "x": 300, "y": 240, "width": 200, "height": 100 },
+      "padding": 18,
+      "ports": { "in": { "side": "left", "offset": 0.5 }, "out": { "side": "right", "offset": 0.5 } }
+    },
+    {
+      "id": "domain",
+      "group": "context",
+      "label": ["L2  Product / Domain"],
+      "subtitle": "Shared domain obligations",
+      "type": "governance",
+      "bounds": { "x": 520, "y": 240, "width": 200, "height": 100 },
+      "padding": 18,
+      "ports": { "in": { "side": "left", "offset": 0.5 }, "out": { "side": "right", "offset": 0.5 } }
+    },
+    {
+      "id": "project",
+      "group": "context",
+      "label": ["L3  Project / System"],
+      "subtitle": "Architecture and conventions",
+      "type": "governance",
+      "bounds": { "x": 740, "y": 240, "width": 200, "height": 100 },
+      "padding": 18,
+      "ports": { "in": { "side": "left", "offset": 0.5 }, "out": { "side": "right", "offset": 0.5 } }
+    },
+    {
+      "id": "feature",
+      "group": "context",
+      "label": ["L4  Feature / Change"],
+      "subtitle": "Observable behavior",
+      "type": "governance",
+      "bounds": { "x": 960, "y": 240, "width": 200, "height": 100 },
+      "padding": 18,
+      "ports": { "in": { "side": "left", "offset": 0.5 }, "out": { "side": "right", "offset": 0.5 } }
+    },
+    {
+      "id": "implementation",
+      "group": "context",
+      "label": ["L5  Implementation"],
+      "subtitle": "Bounded local choices",
+      "type": "governance",
+      "bounds": { "x": 1180, "y": 240, "width": 200, "height": 100 },
+      "padding": 18,
+      "ports": { "in": { "side": "left", "offset": 0.5 }, "down": { "side": "bottom", "offset": 0.5 } }
+    },
+    {
+      "id": "intent",
+      "group": "delivery",
+      "label": ["Change intent"],
+      "subtitle": "Value, risk, affected users",
+      "type": "operations",
+      "bounds": { "x": 110, "y": 625, "width": 240, "height": 100 },
+      "padding": 18,
+      "ports": { "out": { "side": "right", "offset": 0.5 } }
+    },
+    {
+      "id": "specify",
+      "group": "delivery",
+      "label": ["Clarify + specify"],
+      "subtitle": "Resolve inherited context",
+      "type": "process",
+      "bounds": { "x": 430, "y": 625, "width": 240, "height": 100 },
+      "padding": 18,
+      "ports": {
+        "in": { "side": "left", "offset": 0.5 },
+        "context": { "side": "top", "offset": 0.5 },
+        "out": { "side": "right", "offset": 0.5 },
+        "feedback": { "side": "bottom", "offset": 0.75 }
+      }
+    },
+    {
+      "id": "plan",
+      "group": "delivery",
+      "label": ["Technical plan"],
+      "subtitle": "Design and bounded choices",
+      "type": "process",
+      "bounds": { "x": 750, "y": 625, "width": 240, "height": 100 },
+      "padding": 18,
+      "ports": { "in": { "side": "left", "offset": 0.5 }, "out": { "side": "right", "offset": 0.5 } }
+    },
+    {
+      "id": "work_graph",
+      "group": "delivery",
+      "label": ["Work graph"],
+      "subtitle": "Tasks, dependencies, budgets",
+      "type": "process",
+      "bounds": { "x": 1070, "y": 625, "width": 240, "height": 100 },
+      "padding": 18,
+      "ports": { "in": { "side": "left", "offset": 0.5 }, "down": { "side": "bottom", "offset": 0.5 } }
+    },
+    {
+      "id": "agents",
+      "group": "delivery",
+      "label": ["Bounded agents"],
+      "subtitle": "Scoped tools and repositories",
+      "type": "agent",
+      "bounds": { "x": 1070, "y": 825, "width": 240, "height": 100 },
+      "padding": 18,
+      "ports": { "up": { "side": "top", "offset": 0.5 }, "out": { "side": "left", "offset": 0.5 } }
+    },
+    {
+      "id": "verification",
+      "group": "delivery",
+      "label": ["Verification"],
+      "subtitle": "Tests, evals, policy evidence",
+      "type": "process",
+      "bounds": { "x": 750, "y": 825, "width": 240, "height": 100 },
+      "padding": 18,
+      "ports": { "in": { "side": "right", "offset": 0.5 }, "out": { "side": "left", "offset": 0.5 } }
+    },
+    {
+      "id": "gates",
+      "group": "delivery",
+      "label": ["Human + automated gates"],
+      "subtitle": "Approve, reject, or revise",
+      "type": "gate",
+      "bounds": { "x": 430, "y": 825, "width": 240, "height": 100 },
+      "padding": 18,
+      "ports": { "in": { "side": "right", "offset": 0.5 }, "out": { "side": "left", "offset": 0.5 } }
+    },
+    {
+      "id": "observe",
+      "group": "delivery",
+      "label": ["Deploy + observe"],
+      "subtitle": "Runtime signals and drift",
+      "type": "operations",
+      "bounds": { "x": 110, "y": 825, "width": 240, "height": 100 },
+      "padding": 18,
+      "ports": { "in": { "side": "right", "offset": 0.5 }, "feedback": { "side": "bottom", "offset": 0.5 } }
+    }
+  ],
+  "edges": [
+    { "id": "org-platform", "from": { "node": "organization", "port": "out" }, "to": { "node": "platform", "port": "in" }, "kind": "governance", "route": [[280, 290], [300, 290]] },
+    { "id": "platform-domain", "from": { "node": "platform", "port": "out" }, "to": { "node": "domain", "port": "in" }, "kind": "governance", "route": [[500, 290], [520, 290]] },
+    { "id": "domain-project", "from": { "node": "domain", "port": "out" }, "to": { "node": "project", "port": "in" }, "kind": "governance", "route": [[720, 290], [740, 290]] },
+    { "id": "project-feature", "from": { "node": "project", "port": "out" }, "to": { "node": "feature", "port": "in" }, "kind": "governance", "route": [[940, 290], [960, 290]] },
+    { "id": "feature-implementation", "from": { "node": "feature", "port": "out" }, "to": { "node": "implementation", "port": "in" }, "kind": "governance", "route": [[1160, 290], [1180, 290]] },
+    { "id": "context-spec", "from": { "node": "implementation", "port": "down" }, "to": { "node": "specify", "port": "context" }, "label": "effective constraints", "label_position": [865, 480], "kind": "governance", "route": [[1280, 340], [1280, 490], [550, 490], [550, 625]] },
+    { "id": "intent-spec", "from": { "node": "intent", "port": "out" }, "to": { "node": "specify", "port": "in" }, "kind": "primary", "route": [[350, 675], [430, 675]] },
+    { "id": "spec-plan", "from": { "node": "specify", "port": "out" }, "to": { "node": "plan", "port": "in" }, "kind": "primary", "route": [[670, 675], [750, 675]] },
+    { "id": "plan-work", "from": { "node": "plan", "port": "out" }, "to": { "node": "work_graph", "port": "in" }, "kind": "primary", "route": [[990, 675], [1070, 675]] },
+    { "id": "work-agents", "from": { "node": "work_graph", "port": "down" }, "to": { "node": "agents", "port": "up" }, "kind": "primary", "route": [[1190, 725], [1190, 825]] },
+    { "id": "agents-verify", "from": { "node": "agents", "port": "out" }, "to": { "node": "verification", "port": "in" }, "kind": "primary", "route": [[1070, 875], [990, 875]] },
+    { "id": "verify-gates", "from": { "node": "verification", "port": "out" }, "to": { "node": "gates", "port": "in" }, "kind": "primary", "route": [[750, 875], [670, 875]] },
+    { "id": "gates-observe", "from": { "node": "gates", "port": "out" }, "to": { "node": "observe", "port": "in" }, "kind": "primary", "route": [[430, 875], [350, 875]] },
+    { "id": "runtime-feedback", "from": { "node": "observe", "port": "feedback" }, "to": { "node": "specify", "port": "feedback" }, "label": "runtime feedback", "label_position": [455, 956], "kind": "feedback", "route": [[230, 925], [230, 950], [700, 950], [700, 770], [610, 770], [610, 725]] }
+  ],
+  "validation": {
+    "no_overlaps": true,
+    "route_around_nodes": true,
+    "min_text_padding": 18,
+    "min_connector_clearance": 12,
+    "verify_port_attachment": true,
+    "verify_contrast": true
+  }
+}

@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc" viewBox="0 0 1500 1040" width="1500" height="1040">
+<title id="title">Enterprise Agentic PDLC control loop</title>
+<desc id="desc">Two-layer diagram. Organization, platform, domain, project, feature, and implementation constraints inherit left to right into a delivery loop: change intent, clarify and specify, technical plan, work graph, bounded agents, verification, human and automated gates, deployment and observation, then feedback to the specification.</desc>
+<defs>
+          <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="4" stdDeviation="7" flood-color="#16324F" flood-opacity="0.09"/>
+          </filter>
+          <marker id="arrow-primary" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 Z" fill="#2F6BFF"/>
+          </marker>
+          <marker id="arrow-governance" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 Z" fill="#087F7B"/>
+          </marker>
+          <marker id="arrow-feedback" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 Z" fill="#D97706"/>
+          </marker>
+          <style>
+            text { font-family: Inter, Arial, sans-serif; fill: #16324F; }
+            .diagram-title { font-size: 30px; font-weight: 750; }
+            .diagram-subtitle { font-size: 16px; fill: #52606D; }
+            .group-label { font-size: 15px; font-weight: 750; letter-spacing: 1.8px; fill: #52606D; }
+            .node-label { font-size: 17px; font-weight: 700; }
+            .subtitle { font-size: 13px; fill: #52606D; }
+            .edge-label { font-size: 13px; font-weight: 650; fill: #52606D; paint-order: stroke; stroke: #F7F9FC; stroke-width: 8px; stroke-linejoin: round; }
+          </style>
+        </defs>
+<rect width="100%" height="100%" fill="#F7F9FC"/>
+<text x="60" y="58" class="diagram-title">Enterprise Agentic PDLC control loop</text>
+<text x="60" y="88" class="diagram-subtitle">Inherited intent constrains execution; evidence and runtime signals revise the next change.</text>
+<g id="group-context" filter="url(#shadow)"><rect x="60" y="125" width="1380" height="330" rx="18" fill="#FFFFFF" stroke="#D7DEE8" stroke-width="1.5"/></g><text x="90" y="167" class="group-label">INHERITED SPECIFICATION CONTEXT</text>
+<g id="group-delivery" filter="url(#shadow)"><rect x="60" y="525" width="1380" height="455" rx="18" fill="#FFFFFF" stroke="#D7DEE8" stroke-width="1.5"/></g><text x="90" y="567" class="group-label">BOUNDED DELIVERY AND EVIDENCE LOOP</text>
+<polyline id="edge-org-platform" points="280,290 300,290" fill="none" stroke="#087F7B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-governance)"/>
+<polyline id="edge-platform-domain" points="500,290 520,290" fill="none" stroke="#087F7B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-governance)"/>
+<polyline id="edge-domain-project" points="720,290 740,290" fill="none" stroke="#087F7B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-governance)"/>
+<polyline id="edge-project-feature" points="940,290 960,290" fill="none" stroke="#087F7B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-governance)"/>
+<polyline id="edge-feature-implementation" points="1160,290 1180,290" fill="none" stroke="#087F7B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-governance)"/>
+<polyline id="edge-context-spec" points="1280,340 1280,490 550,490 550,625" fill="none" stroke="#087F7B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-governance)"/>
+<text x="865" y="480" text-anchor="middle" class="edge-label">effective constraints</text>
+<polyline id="edge-intent-spec" points="350,675 430,675" fill="none" stroke="#2F6BFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-primary)"/>
+<polyline id="edge-spec-plan" points="670,675 750,675" fill="none" stroke="#2F6BFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-primary)"/>
+<polyline id="edge-plan-work" points="990,675 1070,675" fill="none" stroke="#2F6BFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-primary)"/>
+<polyline id="edge-work-agents" points="1190,725 1190,825" fill="none" stroke="#2F6BFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-primary)"/>
+<polyline id="edge-agents-verify" points="1070,875 990,875" fill="none" stroke="#2F6BFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-primary)"/>
+<polyline id="edge-verify-gates" points="750,875 670,875" fill="none" stroke="#2F6BFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-primary)"/>
+<polyline id="edge-gates-observe" points="430,875 350,875" fill="none" stroke="#2F6BFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-primary)"/>
+<polyline id="edge-runtime-feedback" points="230,925 230,950 700,950 700,770 610,770 610,725" fill="none" stroke="#D97706" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-feedback)"/>
+<text x="455" y="956" text-anchor="middle" class="edge-label">runtime feedback</text>
+<g id="node-organization"><rect x="80" y="240" width="200" height="100" rx="14" fill="#E5F7F6" stroke="#087F7B" stroke-width="2"/><text x="100" y="280" class="node-label"><tspan x="100" dy="0">L0  Organization</tspan></text><text x="100" y="310" class="subtitle">Policy and mandatory controls</text></g>
+<g id="node-platform"><rect x="300" y="240" width="200" height="100" rx="14" fill="#E5F7F6" stroke="#087F7B" stroke-width="2"/><text x="320" y="280" class="node-label"><tspan x="320" dy="0">L1  Platform</tspan></text><text x="320" y="310" class="subtitle">Engineering standards</text></g>
+<g id="node-domain"><rect x="520" y="240" width="200" height="100" rx="14" fill="#E5F7F6" stroke="#087F7B" stroke-width="2"/><text x="540" y="280" class="node-label"><tspan x="540" dy="0">L2  Product / Domain</tspan></text><text x="540" y="310" class="subtitle">Shared domain obligations</text></g>
+<g id="node-project"><rect x="740" y="240" width="200" height="100" rx="14" fill="#E5F7F6" stroke="#087F7B" stroke-width="2"/><text x="760" y="280" class="node-label"><tspan x="760" dy="0">L3  Project / System</tspan></text><text x="760" y="310" class="subtitle">Architecture and conventions</text></g>
+<g id="node-feature"><rect x="960" y="240" width="200" height="100" rx="14" fill="#E5F7F6" stroke="#087F7B" stroke-width="2"/><text x="980" y="280" class="node-label"><tspan x="980" dy="0">L4  Feature / Change</tspan></text><text x="980" y="310" class="subtitle">Observable behavior</text></g>
+<g id="node-implementation"><rect x="1180" y="240" width="200" height="100" rx="14" fill="#E5F7F6" stroke="#087F7B" stroke-width="2"/><text x="1200" y="280" class="node-label"><tspan x="1200" dy="0">L5  Implementation</tspan></text><text x="1200" y="310" class="subtitle">Bounded local choices</text></g>
+<g id="node-intent"><rect x="110" y="625" width="240" height="100" rx="14" fill="#FFFFFF" stroke="#52606D" stroke-width="2"/><text x="130" y="665" class="node-label"><tspan x="130" dy="0">Change intent</tspan></text><text x="130" y="695" class="subtitle">Value, risk, affected users</text></g>
+<g id="node-specify"><rect x="430" y="625" width="240" height="100" rx="14" fill="#EAF1FF" stroke="#2F6BFF" stroke-width="2"/><text x="450" y="665" class="node-label"><tspan x="450" dy="0">Clarify + specify</tspan></text><text x="450" y="695" class="subtitle">Resolve inherited context</text></g>
+<g id="node-plan"><rect x="750" y="625" width="240" height="100" rx="14" fill="#EAF1FF" stroke="#2F6BFF" stroke-width="2"/><text x="770" y="665" class="node-label"><tspan x="770" dy="0">Technical plan</tspan></text><text x="770" y="695" class="subtitle">Design and bounded choices</text></g>
+<g id="node-work_graph"><rect x="1070" y="625" width="240" height="100" rx="14" fill="#EAF1FF" stroke="#2F6BFF" stroke-width="2"/><text x="1090" y="665" class="node-label"><tspan x="1090" dy="0">Work graph</tspan></text><text x="1090" y="695" class="subtitle">Tasks, dependencies, budgets</text></g>
+<g id="node-agents"><rect x="1070" y="825" width="240" height="100" rx="14" fill="#F0EEFF" stroke="#7667E8" stroke-width="2"/><text x="1090" y="865" class="node-label"><tspan x="1090" dy="0">Bounded agents</tspan></text><text x="1090" y="895" class="subtitle">Scoped tools and repositories</text></g>
+<g id="node-verification"><rect x="750" y="825" width="240" height="100" rx="14" fill="#EAF1FF" stroke="#2F6BFF" stroke-width="2"/><text x="770" y="865" class="node-label"><tspan x="770" dy="0">Verification</tspan></text><text x="770" y="895" class="subtitle">Tests, evals, policy evidence</text></g>
+<g id="node-gates"><rect x="430" y="825" width="240" height="100" rx="14" fill="#FFF1DF" stroke="#D97706" stroke-width="2"/><text x="450" y="865" class="node-label"><tspan x="450" dy="0">Human + automated gates</tspan></text><text x="450" y="895" class="subtitle">Approve, reject, or revise</text></g>
+<g id="node-observe"><rect x="110" y="825" width="240" height="100" rx="14" fill="#FFFFFF" stroke="#52606D" stroke-width="2"/><text x="130" y="865" class="node-label"><tspan x="130" dy="0">Deploy + observe</tspan></text><text x="130" y="895" class="subtitle">Runtime signals and drift</text></g>
+</svg>

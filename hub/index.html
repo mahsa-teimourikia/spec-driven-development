@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A 38-course learning path for building a governed enterprise Agentic PDLC.">
+  <title>Enterprise Spec-Driven Development Learning Hub</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="hero">
+    <a class="brand" href="https://oneplusi.io" aria-label="Visit One+i">
+      <img src="../assets/one-plus-i.png" alt="One+i">
+      <span>Learning with One+i</span>
+    </a>
+    <p class="eyebrow">Intent → bounded autonomy → evidence</p>
+    <h1>Enterprise Spec-Driven Development</h1>
+    <p class="lede">Learn to design an Agentic PDLC in which durable specifications guide coding agents, policy constrains action, and evidence closes the loop.</p>
+    <div class="hero-actions">
+      <a class="button primary" href="#curriculum">Explore the curriculum</a>
+      <a class="button secondary" href="../quiz/">Take the knowledge check</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="intro" aria-labelledby="how-heading">
+      <div>
+        <p class="eyebrow">How the Hub works</p>
+        <h2 id="how-heading">Build an operating model, not a prompt collection</h2>
+      </div>
+      <p>Filter the 38-course roadmap by level, choose an available course, and move through Learn, Lab, and Checkpoint. Progress stays in this browser. Planned cards expose the full journey without presenting unfinished material as complete.</p>
+    </section>
+
+    <section id="curriculum" aria-labelledby="curriculum-heading">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Curriculum map</p>
+          <h2 id="curriculum-heading">From organizational intent to an Agentic PDLC</h2>
+        </div>
+        <p id="progress-summary" aria-live="polite"></p>
+      </div>
+      <nav class="filters" aria-label="Filter lessons by level">
+        <button class="active" data-level="all">All</button>
+        <button data-level="beginner">Beginner</button>
+        <button data-level="intermediate">Intermediate</button>
+        <button data-level="advanced">Advanced</button>
+        <button data-level="enterprise">Enterprise</button>
+      </nav>
+      <div id="lessons" class="lesson-grid"></div>
+    </section>
+
+    <section id="workspace" class="workspace" hidden aria-live="polite">
+      <button id="close-workspace" class="text-button">← Back to curriculum</button>
+      <div class="workspace-heading">
+        <div>
+          <p id="lesson-meta" class="eyebrow"></p>
+          <h2 id="lesson-title"></h2>
+          <p id="lesson-summary"></p>
+        </div>
+        <button id="complete-lesson" class="button primary"></button>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Lesson views">
+        <button class="active" role="tab" aria-selected="true" data-tab="learn">Learn</button>
+        <button role="tab" aria-selected="false" data-tab="lab">Lab</button>
+        <button role="tab" aria-selected="false" data-tab="checkpoint">Checkpoint</button>
+      </div>
+      <article id="learn" class="panel"></article>
+      <article id="lab" class="panel" hidden></article>
+      <article id="checkpoint" class="panel" hidden></article>
+    </section>
+
+    <section class="resources" aria-labelledby="resources-heading">
+      <p class="eyebrow">Keep exploring</p>
+      <h2 id="resources-heading">Course resources</h2>
+      <div class="resource-links">
+        <a href="../README.md">Course overview</a>
+        <a href="../COURSE_PLAN.md">Full course plan</a>
+        <a href="../curriculum/README.md">Curriculum navigation</a>
+        <a href="https://github.github.com/spec-kit/">GitHub Spec Kit</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>Enterprise Spec-Driven Development</span>
+    <a href="https://oneplusi.io">One+i · responsible AI, real-world impact ↗</a>
+  </footer>
+  <script src="lessons.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Spec-Driven Development Knowledge Check</title>
+  <style>
+    :root { --ink:#15233b; --muted:#59657a; --paper:#f7f5ef; --surface:#fff; --navy:#102543; --teal:#087f7b; --amber:#f4b740; --line:#d8dde5; }
+    * { box-sizing:border-box; } body { margin:0; color:var(--ink); background:var(--paper); font:16px/1.6 Inter,system-ui,sans-serif; }
+    header { padding:3rem max(5vw,1rem); color:white; background:linear-gradient(135deg,var(--navy),var(--teal)); }
+    header a { color:white; } h1 { max-width:780px; margin:.6rem 0; font-size:clamp(2.4rem,6vw,4.8rem); line-height:1.05; }
+    main { width:min(820px,calc(100% - 2rem)); margin:3rem auto; } .note { padding:1rem; border-left:6px solid var(--amber); background:var(--surface); }
+    .question { margin:1rem 0; padding:1.4rem; border:1px solid var(--line); border-radius:14px; background:var(--surface); }
+    .category { color:var(--teal); font-size:.76rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
+    label { display:block; margin:.5rem 0; padding:.65rem; border:1px solid var(--line); border-radius:8px; cursor:pointer; }
+    button { padding:.75rem 1rem; border:0; border-radius:9px; color:white; background:var(--teal); font:inherit; font-weight:750; cursor:pointer; }
+    button:focus-visible,a:focus-visible { outline:3px solid var(--amber); outline-offset:3px; }
+    #result { margin-top:1.5rem; padding:1rem; border-radius:12px; background:#e7f3f1; }
+    .explanation { color:var(--muted); } footer { padding:2rem max(5vw,1rem); color:white; background:var(--navy); }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="../hub/">← Learning Hub</a>
+    <h1>Knowledge check</h1>
+    <p>Check your judgment on the Course 01 enterprise Agentic PDLC.</p>
+  </header>
+  <main>
+    <p class="note">This 12-question assessment covers Course 01. It will grow into a cumulative assessment as complete courses are published.</p>
+    <form id="quiz"></form>
+    <button id="submit" type="button">Score answers</button>
+    <section id="result" hidden aria-live="polite"></section>
+  </main>
+  <footer>Learning with One+i · responsible AI, real-world impact.</footer>
+  <script src="questions.js"></script>
+  <script>
+    const form = document.querySelector('#quiz');
+    form.innerHTML = QUESTIONS.map((item, qIndex) => `<fieldset class="question"><legend><span class="category">${item.category}</span><br>${qIndex + 1}. ${item.question}</legend>${item.options.map((option, oIndex) => `<label><input type="radio" name="q${qIndex}" value="${oIndex}"> ${option}</label>`).join('')}<p id="e${qIndex}" class="explanation" hidden></p></fieldset>`).join('');
+    document.querySelector('#submit').addEventListener('click', () => {
+      const data = new FormData(form); let score = 0;
+      QUESTIONS.forEach((item, index) => {
+        const selected = data.get(`q${index}`); const correct = Number(selected) === item.answer;
+        if (correct) score += 1;
+        const explanation = document.querySelector(`#e${index}`); explanation.hidden = false;
+        explanation.textContent = `${selected === null ? 'Unanswered. ' : correct ? 'Correct. ' : 'Not yet. '}${item.explanation}`;
+      });
+      const result = document.querySelector('#result'); result.hidden = false;
+      result.innerHTML = `<strong>${score} / ${QUESTIONS.length}</strong><p>Review the explanations, then return to the lesson where the evidence is unclear.</p>`;
+      result.scrollIntoView({behavior:'smooth'});
+    });
+  </script>
+</body>
+</html>
