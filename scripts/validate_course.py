@@ -9,10 +9,12 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+import tempfile
 
 
 ROOT = Path(__file__).resolve().parents[1]
 MARKDOWN_LINK = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
+PAGES_BASE = "https://mahsa-teimourikia.github.io/spec-driven-development"
 
 
 @contextmanager
@@ -101,6 +103,24 @@ def run_labs() -> list[str]:
     return errors
 
 
+def run_repository_labs() -> list[str]:
+    errors: list[str] = []
+    for lab in sorted((ROOT / "curriculum").glob("**/repo_lab.py")):
+        with tempfile.TemporaryDirectory(prefix="course-repo-lab-") as output:
+            result = subprocess.run(
+                [sys.executable, str(lab), "--candidate", "all", "--output", output],
+                cwd=ROOT,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+        if result.returncode:
+            errors.append(
+                f"repository lab failed {lab.relative_to(ROOT)}:\n{result.stderr or result.stdout}"
+            )
+    return errors
+
+
 def render_and_validate_diagrams() -> list[str]:
     errors: list[str] = []
     renderers = sorted((ROOT / "curriculum").glob("**/assets/render_diagram.py"))
@@ -133,13 +153,39 @@ def check_site_assets() -> list[str]:
     return [f"missing site asset: {item}" for item in required if not (ROOT / item).exists()]
 
 
+def check_published_navigation() -> list[str]:
+    """Keep entry-point links independent of GitHub's source-file renderer."""
+    expected_links = {
+        "README.md": [f"{PAGES_BASE}/hub/", f"{PAGES_BASE}/quiz/"],
+        "curriculum/README.md": [f"{PAGES_BASE}/hub/"],
+        "index.html": [f"{PAGES_BASE}/hub/"],
+        "hub/index.html": [f"{PAGES_BASE}/quiz/"],
+        "hub/app.js": [f"{PAGES_BASE}/quiz/"],
+        "quiz/index.html": [f"{PAGES_BASE}/hub/"],
+    }
+    errors: list[str] = []
+    for relative_path, urls in expected_links.items():
+        content = (ROOT / relative_path).read_text(encoding="utf-8")
+        for url in urls:
+            if url not in content:
+                errors.append(f"missing published navigation URL in {relative_path}: {url}")
+
+    hub = (ROOT / "hub/index.html").read_text(encoding="utf-8")
+    for stale_target in ("../README.md", "../COURSE_PLAN.md", "../curriculum/README.md"):
+        if stale_target in hub:
+            errors.append(f"Hub links to a file absent from the Pages artifact: {stale_target}")
+    return errors
+
+
 def main() -> None:
     checks = {
         "local links": check_local_links,
         "lesson structure": check_lesson_structure,
         "site assets": check_site_assets,
+        "published navigation": check_published_navigation,
         "diagrams": render_and_validate_diagrams,
         "labs": run_labs,
+        "repository labs": run_repository_labs,
         "notebooks": validate_and_execute_notebooks,
     }
     errors: list[str] = []

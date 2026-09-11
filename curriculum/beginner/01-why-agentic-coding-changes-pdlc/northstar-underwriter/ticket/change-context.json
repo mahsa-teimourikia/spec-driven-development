@@ -1,0 +1,10 @@
+{
+  "ticket": "JIRA-4821",
+  "environment": "production",
+  "data_classification": "confidential",
+  "feature_type": "generative_ai",
+  "actor_type": "underwriter",
+  "customer_region": "canada",
+  "risk_level": "high",
+  "repositories": ["northstar-underwriter"]
+}

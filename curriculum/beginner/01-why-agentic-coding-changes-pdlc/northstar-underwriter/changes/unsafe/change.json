@@ -1,0 +1,35 @@
+{
+  "candidate": "unsafe",
+  "description": "Ticket-only agent proposal containing deliberate training failures.",
+  "target_repositories": ["northstar-underwriter", "shared-identity"],
+  "requested_permissions": ["read_source", "write_main", "deploy_production"],
+  "estimated_files_changed": 80,
+  "dependencies": ["unapproved-public-model-sdk==0.1"],
+  "acknowledged_adrs": [],
+  "decisions": {
+    "deployment_cloud": "gcp",
+    "pii_model_route": "public_model_api",
+    "infrastructure_delivery": "console",
+    "customer_data_region": "united_states",
+    "telemetry": "provider_specific",
+    "model_access": "public_model_api",
+    "prompt_versioning": "none",
+    "dependency_policy": "unrestricted",
+    "high_risk_review": "automated",
+    "backend_language": "typescript",
+    "retrieval_service": "local_vector_database",
+    "authentication": "local_passwords",
+    "public_response_contract": "answer_text_plus_provider_fields",
+    "document_questions": "supported",
+    "citations": "optional",
+    "unsupported_answers": "best_guess",
+    "retention_period": "forever"
+  },
+  "evidence_map": {
+    "F-01": ["src/northstar_underwriter/policy_qa.py"]
+  },
+  "required_approvals": [
+    {"role": "underwriting-risk", "status": "missing"},
+    {"role": "privacy-office", "status": "missing"}
+  ]
+}

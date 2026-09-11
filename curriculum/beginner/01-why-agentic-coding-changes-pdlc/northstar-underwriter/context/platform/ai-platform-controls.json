@@ -1,0 +1,62 @@
+[
+  {
+    "id": "P-01",
+    "layer": "platform",
+    "control": "telemetry",
+    "expected_value": "opentelemetry",
+    "statement": "Generative-AI telemetry uses OpenTelemetry.",
+    "owner": "developer-platform",
+    "status": "active",
+    "effective_from": "2026-02-01",
+    "mandatory": true,
+    "scope": {"environments": ["production", "staging"]},
+    "applies_when": {"feature_type": ["generative_ai"]},
+    "exceptions": {"allowed": true, "approval": "platform-owner"},
+    "source": {"repository": "ai-platform", "path": "standards/telemetry.json", "version": "2.0", "commit": "119bd82"}
+  },
+  {
+    "id": "P-02",
+    "layer": "platform",
+    "control": "model_access",
+    "expected_value": "approved_ai_gateway",
+    "statement": "Production model calls use the approved AI gateway.",
+    "owner": "ai-platform-architecture",
+    "status": "active",
+    "effective_from": "2026-04-01",
+    "mandatory": true,
+    "scope": {"environments": ["production"]},
+    "applies_when": {"feature_type": ["generative_ai"]},
+    "exceptions": {"allowed": true, "approval": "ai-platform-architecture"},
+    "source": {"repository": "ai-platform", "path": "standards/model-access.json", "version": "2.1", "commit": "7f31c2a"}
+  },
+  {
+    "id": "P-03",
+    "layer": "platform",
+    "control": "prompt_versioning",
+    "expected_value": "required",
+    "statement": "Production prompts carry a version identifier.",
+    "owner": "ai-platform",
+    "status": "active",
+    "effective_from": "2026-04-01",
+    "mandatory": true,
+    "scope": {"environments": ["production", "staging"]},
+    "applies_when": {"feature_type": ["generative_ai"]},
+    "exceptions": {"allowed": false, "approval": null},
+    "source": {"repository": "ai-platform", "path": "standards/prompt-lifecycle.json", "version": "1.8", "commit": "3a9e5d0"}
+  },
+  {
+    "id": "P-04",
+    "layer": "platform",
+    "control": "dependency_policy",
+    "expected_value": "approved_allowlist",
+    "statement": "New runtime dependencies must be on the approved allowlist.",
+    "owner": "software-supply-chain",
+    "status": "active",
+    "effective_from": "2026-01-15",
+    "mandatory": true,
+    "scope": {"environments": ["production"]},
+    "applies_when": {},
+    "exceptions": {"allowed": true, "approval": "supply-chain-owner"},
+    "source": {"repository": "developer-platform", "path": "policy/dependencies.json", "version": "8.3", "commit": "0f47dea"}
+  }
+]

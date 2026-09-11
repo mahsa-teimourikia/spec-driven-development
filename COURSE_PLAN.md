@@ -37,7 +37,32 @@ Project:      Underwriter Assistant architecture and conventions
 Feature:      observable behavior for one change
 ```
 
-Closely related courses preserve Northstar so learners can observe accumulated decisions and drift. Shorter scenarios may be used when they reveal a technique more clearly.
+Closely related courses preserve Northstar so learners can observe accumulated decisions and drift. By Course 20, learners inherit company policies, platform standards, project architecture, prior ADRs and specifications, known debt, existing CI, agent instructions, approved exceptions, and production telemetry. Shorter scenarios may be used when they reveal a technique more clearly.
+
+### Practical environment progression
+
+| Stage | Learner environment |
+| --- | --- |
+| Beginner | Deterministic primitives, structured requirements, traceability, and increasingly realistic repository fixtures |
+| Intermediate | Real Git changes, framework artifacts, executable tests, agent instructions, and reviewable PR sequences |
+| Advanced | Multiple repositories, policy-as-code, CI enforcement, architecture/security controls, orchestration, evaluation, and observability |
+| Capstone | Product, platform, policy, infrastructure, and specification repositories governed as one Agentic PDLC |
+
+Simulations remain useful for exposing internals, but they are not sufficient evidence of professional competence. The progression intentionally moves toward actual artifacts and delivery boundaries.
+
+### Standard course design
+
+Each future course follows this learning arc, adapted where the subject demands it:
+
+1. why the problem exists and the enterprise scenario;
+2. theory, mechanics, and failure patterns;
+3. technology/framework choices and practical decision guidance;
+4. Lab A for an isolated, observable primitive;
+5. Lab B for a realistic repository or system artifact;
+6. deliberate failure injection and mitigation;
+7. evaluation, evidence limitations, and production design;
+8. anti-patterns, exercises, checkpoint, and quiz coverage; and
+9. for advanced work, operating-model ownership, metrics, and audit evidence.
 
 ## Outcomes by level
 
@@ -50,10 +75,10 @@ Closely related courses preserve Northstar so learners can observe accumulated d
 
 | Course | Level folder | Topic | Status | Prerequisite | Learner evidence |
 | --- | --- | --- | --- | --- | --- |
-| 01 | beginner/01 | Why agentic coding changes the PDLC | **Available** | None | Control-plane model, prompt-vs-layered evaluation, workflow routing, conflict stop |
+| 01 | beginner/01 | Why agentic coding changes the PDLC | **Available** | None | Control-plane simulation plus real repository change, applicability/provenance decisions, independent gates, evidence bundle |
 | 02 | beginner/02 | Specs vs prompts vs requirements vs design | Planned | C01 | Artifact classification and repaired mixed artifact |
-| 03 | beginner/03 | The specification hierarchy | Planned | C01–C02 | Precedence/provenance model and exception path |
-| 04 | beginner/04 | Company vs project vs feature requirements | Planned | C03 | Ownership/RACI and applicability matrix |
+| 03 | beginner/03 | The specification hierarchy | Planned | C01–C02 | Precedence, provenance, freshness, and exception model |
+| 04 | beginner/04 | Company vs project vs feature requirements | Planned | C03 | Requirement-location matrix, separate owner/RACI, applicability and enforcement map |
 
 ## Part II — Writing executable specifications
 
@@ -70,9 +95,9 @@ Closely related courses preserve Northstar so learners can observe accumulated d
 
 | Course | Level folder | Topic | Status | Prerequisite | Learner evidence |
 | --- | --- | --- | --- | --- | --- |
-| 11 | intermediate/01 | GitHub Spec Kit | Planned | Part I–II | Constitution-to-convergence change with quality gates |
-| 12 | intermediate/02 | OpenSpec | Planned | C10 | Brownfield current-truth/change-delta workflow |
-| 13 | intermediate/03 | Kiro Specs | Planned | C06–C10 | Requirements/design/tasks flow and Quick Spec comparison |
+| 11 | intermediate/01 | GitHub Spec Kit | Planned | Part I–II | Constitution-to-convergence change plus flow-forward/living/flow-back persistence decision |
+| 12 | intermediate/02 | OpenSpec | Planned | C10 | Brownfield case where spec says A, code/tests add B, and ticket requests C; current-truth/change-delta resolution |
+| 13 | intermediate/03 | Kiro Specs | Planned | C06–C10 | Requirements/design/tasks flow plus defended routing of typo, export, API-contract, and AI-underwriting changes through direct, Quick Spec, Feature Spec, or specialist review |
 | 14 | intermediate/04 | Agent instructions such as `AGENTS.md` | Planned | C03–C04 | Scoped cross-agent instructions and conflict tests |
 | 15 | intermediate/05 | Comparing and choosing frameworks | Planned | C11–C14 | Weighted selection backed by scenario evidence |
 | 16 | intermediate/06 | Custom enterprise extensions | Planned | C11–C15 | Organization-specific template/gate extension with upgrade path |
@@ -86,7 +111,7 @@ Closely related courses preserve Northstar so learners can observe accumulated d
 | 19 | intermediate/09 | Bug fixes and small changes | Planned | C17–C18 | Proportional triage, minimal fix, regression evidence |
 | 20 | intermediate/10 | Multi-repository development | Planned | C10, C17 | Cross-repo change graph and staged integration |
 | 21 | intermediate/11 | Parallel agents | Planned | C17, C20 | Partitioned work, ownership leases, merge evidence |
-| 22 | intermediate/12 | PR and review strategy | Planned | C17–C21 | Small reviewable PR series and decision-focused review |
+| 22 | intermediate/12 | PR and review strategy | Planned | C17–C21 | Spec → design → implementation PR series compared with a mega-PR using latency, depth, rework, conflict, exception, and size evidence |
 | 23 | intermediate/13 | Human approval gates | Planned | C04, C22 | Risk-tiered approvals, expiry, revocation, audit trail |
 
 ## Part V — Enterprise controls
@@ -177,7 +202,13 @@ The initial scaffold contained a narrower lesson, “From idea to verifiable spe
 - **Replace:** FieldFlow reservation rules as Course 01's main scenario, because they teach feature contracts but not why agentic coding changes the enterprise PDLC.
 - **Add:** Northstar Mutual scenario, six-layer control hierarchy, autonomy gradient, execution boundaries/budgets, conflict precedence, context ablation, current framework landscape, empirical delivery evidence, and enterprise operating-model progression.
 
-The old lesson files are removed from the available curriculum rather than appended to or presented as a second Course 01.
+The old lesson files are removed from the available curriculum rather than appended to or presented as a second Course 01. A second improvement audit retained Lab A and added:
+
+- **Applicability before precedence:** applicable/not-applicable/uncertain decisions with fail-closed clarification.
+- **Full provenance:** owner, source repository/path, version, commit, status, effective date, and exception authority.
+- **Lab B:** a miniature Northstar repository with a terse ticket, distributed context, ADR, existing code/tests/infra, unsafe and governed candidate implementations, and temporary-workspace execution.
+- **Independent evidence:** specification, policy, architecture, real unit-test, traceability, reviewer, and approval outputs in a release bundle, including explicit unverified risks.
+- **Specification persistence:** change specification, living system truth, and decision-history distinctions tied to current Spec Kit and OpenSpec practice.
 
 ## Risk boundaries
 
@@ -192,3 +223,4 @@ The old lesson files are removed from the available curriculum rather than appen
 
 A topic becomes **Available** only when its chapter, primary notebook, reusable `lab.py`, focused checkpoint, Hub entry, and quiz questions form one coherent scenario and pass local validation. It must include a baseline, instrumentation, multiple meaningful experiments, failure injection and mitigation, evaluation with explicit limitations, production upgrade path, exercises, primary/official sources, and adjacent-course links.
 
+Every intermediate and advanced course must also modify or evaluate a realistic software artifact—not only simulate the idea. Its learning package must connect theory, controlled implementation, repository work, failure behavior, and evidence. Beginner courses introduce this pattern progressively; Course 01 includes both a simulation and repository lab so learners see the destination from the start.

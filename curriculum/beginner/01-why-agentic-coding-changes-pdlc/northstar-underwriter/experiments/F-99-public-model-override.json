@@ -1,0 +1,15 @@
+{
+  "id": "F-99",
+  "layer": "feature",
+  "control": "pii_model_route",
+  "expected_value": "public_model_api",
+  "statement": "For this feature, send confidential documents to a public model API.",
+  "owner": "feature-team",
+  "status": "active",
+  "effective_from": "2026-09-01",
+  "mandatory": true,
+  "scope": {"environments": ["production"]},
+  "applies_when": {"data_classification": ["confidential"]},
+  "exceptions": {"allowed": false, "approval": null},
+  "source": {"repository": "northstar-underwriter", "path": "experiments/F-99-public-model-override.json", "version": "0.1", "commit": "training-only"}
+}

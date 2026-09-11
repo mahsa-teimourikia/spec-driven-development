@@ -6,27 +6,31 @@ const availableLesson = {
   summary: 'Model agentic delivery as an enterprise control loop: durable intent, bounded autonomy, enforceable policy, human authority, and auditable evidence.',
   outcomes: [
     'Explain why the constraint, review, and evidence bottlenecks move when implementation becomes cheap.',
-    'Compose organization, platform, domain, project, feature, and implementation requirements without silent overrides.',
-    'Evaluate an agent proposal and choose a delivery workflow in proportion to risk.'
+    'Discover distributed requirements, evaluate applicability, and preserve owner/version/source provenance.',
+    'Run unsafe and governed candidate code through specification, policy, architecture, test, traceability, review, and approval gates.',
+    'Produce an evidence bundle, identify residual risk, and choose a delivery workflow in proportion to impact.'
   ],
   readme: `${REPO}/blob/main/curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md`,
   notebook: `${REPO}/blob/main/curriculum/beginner/01-why-agentic-coding-changes-pdlc/agentic_pdlc.ipynb`,
   lab: `${REPO}/blob/main/curriculum/beginner/01-why-agentic-coding-changes-pdlc/lab.py`,
+  repoLab: `${REPO}/blob/main/curriculum/beginner/01-why-agentic-coding-changes-pdlc/repo_lab.py`,
+  repoFixture: `${REPO}/tree/main/curriculum/beginner/01-why-agentic-coding-changes-pdlc/northstar-underwriter`,
   run: 'python3 curriculum/beginner/01-why-agentic-coding-changes-pdlc/lab.py',
+  runRepo: 'python3 curriculum/beginner/01-why-agentic-coding-changes-pdlc/repo_lab.py --candidate all',
   references: [
     ['GitHub Spec Kit: Agentic SDD', 'https://github.github.com/spec-kit/reference/agentic-sdd.html'],
     ['NIST Secure Software Development Framework', 'https://csrc.nist.gov/pubs/sp/800/218/final'],
     ['DORA 2025 report', 'https://dora.dev/research/ai/gen-ai-report/dora-impact-of-generative-ai-in-software-development.pdf']
   ],
   checkpoint: {
-    question: 'A feature-level rule conflicts with mandatory organization privacy policy. What should the control plane do?',
+    question: 'A privacy rule applies to confidential data, but JIRA-4821 does not state the data classification. What should the control plane do?',
     options: [
-      'Stop and route an explicit exception or waiver; the higher-level control remains effective.',
-      'Let the feature rule win because it is closest to the code.',
-      'Ask the agent to choose whichever rule is easier to implement.'
+      'Mark applicability uncertain and stop for clarification before implementation.',
+      'Treat the privacy rule as not applicable because the ticket omitted the field.',
+      'Let the coding agent infer the classification from its proposed architecture.'
     ],
     answer: 0,
-    explanation: 'Lower-level specifications may specialize higher-level policy, but they cannot silently weaken it. A conflict requires an authorized exception path and a durable decision record.'
+    explanation: 'Missing applicability evidence is not evidence that a policy does not apply. The control plane must fail closed, obtain an authoritative classification, and record the decision.'
   }
 };
 
@@ -35,7 +39,7 @@ function planned(course, level, part, title, summary) {
     id: `c${String(course).padStart(2, '0')}`, course, level, part,
     status: 'planned', title, summary,
     outcomes: ['Outcomes will be published with the complete chapter, notebook, lab, checkpoint, and evidence package.'],
-    readme: null, notebook: null, lab: null,
+    readme: null, notebook: null, lab: null, repoLab: null, repoFixture: null,
     references: [['Course plan', `${REPO}/blob/main/COURSE_PLAN.md`]], checkpoint: null
   };
 }

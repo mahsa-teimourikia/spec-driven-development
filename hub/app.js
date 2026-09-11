@@ -60,10 +60,14 @@ function openLesson(id) {
     <h3>References</h3>
     <ul>${selectedLesson.references.map(([name, url]) => `<li><a href="${url}">${name}</a></li>`).join('')}</ul>`;
   document.querySelector('#lab').innerHTML = `
-    <h3>Run the reusable implementation</h3>
-    <p>The default lab is deterministic, credential-free, and uses only the Python standard library.</p>
+    <h3>Lab A — Simulate the control plane</h3>
+    <p>Inspect typed requirements, conflicts, bounded proposals, evidence coverage, and proportional workflow routing.</p>
     <pre><code>${selectedLesson.run}</code></pre>
-    <div class="link-list">${link('View lab.py', selectedLesson.lab)}${link('Use the guided notebook', selectedLesson.notebook)}</div>`;
+    <div class="link-list">${link('View Lab A', selectedLesson.lab)}${link('Use the guided notebook', selectedLesson.notebook)}</div>
+    <h3>Lab B — Run a repository change</h3>
+    <p>Discover distributed context, apply actual unsafe and governed candidates in temporary workspaces, run independent gates, and generate release evidence.</p>
+    <pre><code>${selectedLesson.runRepo}</code></pre>
+    <div class="link-list">${link('View Lab B runner', selectedLesson.repoLab)}${link('Explore the repository fixture', selectedLesson.repoFixture)}</div>`;
   renderCheckpoint();
   updateCompleteButton();
   selectTab('learn');
@@ -80,7 +84,7 @@ function renderCheckpoint() {
       <button class="button primary" type="submit">Check answer</button>
     </form>
     <p id="checkpoint-feedback" class="feedback" hidden></p>
-    <p><a href="../quiz/">Continue to the course knowledge check →</a></p>`;
+    <p><a href="https://mahsa-teimourikia.github.io/spec-driven-development/quiz/">Continue to the course knowledge check →</a></p>`;
 }
 
 function selectTab(tabName) {

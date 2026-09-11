@@ -1,0 +1,17 @@
+[
+  {
+    "id": "D-01",
+    "layer": "domain",
+    "control": "high_risk_review",
+    "expected_value": "human_required",
+    "statement": "High-risk underwriting recommendations require human review.",
+    "owner": "underwriting-risk",
+    "status": "active",
+    "effective_from": "2025-09-01",
+    "mandatory": true,
+    "scope": {"environments": ["production"]},
+    "applies_when": {"risk_level": ["high"]},
+    "exceptions": {"allowed": false, "approval": null},
+    "source": {"repository": "insurance-domain", "path": "underwriting/human-review.json", "version": "4.6", "commit": "dcb881e"}
+  }
+]

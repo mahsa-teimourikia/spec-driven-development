@@ -1,0 +1,62 @@
+[
+  {
+    "id": "PR-01",
+    "layer": "project",
+    "control": "backend_language",
+    "expected_value": "python",
+    "statement": "The Underwriter Assistant backend uses Python.",
+    "owner": "underwriter-assistant-team",
+    "status": "active",
+    "effective_from": "2025-06-01",
+    "mandatory": true,
+    "scope": {"environments": ["production", "staging", "development"]},
+    "applies_when": {},
+    "exceptions": {"allowed": true, "approval": "project-architect"},
+    "source": {"repository": "northstar-underwriter", "path": "context/project/underwriter-assistant-controls.json", "version": "1.9", "commit": "bb7d501"}
+  },
+  {
+    "id": "PR-02",
+    "layer": "project",
+    "control": "retrieval_service",
+    "expected_value": "bedrock_knowledge_bases",
+    "statement": "Policy retrieval uses Amazon Bedrock Knowledge Bases.",
+    "owner": "underwriter-assistant-architect",
+    "status": "active",
+    "effective_from": "2026-05-20",
+    "mandatory": true,
+    "scope": {"environments": ["production"]},
+    "applies_when": {"feature_type": ["generative_ai"]},
+    "exceptions": {"allowed": true, "approval": "project-architect"},
+    "source": {"repository": "northstar-underwriter", "path": "context/project/underwriter-assistant-controls.json", "version": "1.9", "commit": "bb7d501"}
+  },
+  {
+    "id": "PR-03",
+    "layer": "project",
+    "control": "authentication",
+    "expected_value": "corporate_sso",
+    "statement": "Underwriters authenticate through corporate SSO.",
+    "owner": "identity-platform",
+    "status": "active",
+    "effective_from": "2025-11-01",
+    "mandatory": true,
+    "scope": {"environments": ["production", "staging"]},
+    "applies_when": {"actor_type": ["underwriter"]},
+    "exceptions": {"allowed": false, "approval": null},
+    "source": {"repository": "identity-platform", "path": "consumers/underwriter-assistant.json", "version": "7.0", "commit": "14f70a2"}
+  },
+  {
+    "id": "PR-04",
+    "layer": "project",
+    "control": "public_response_contract",
+    "expected_value": "answer_citations_status",
+    "statement": "The response contains answer, citations, and evidence status fields.",
+    "owner": "underwriter-assistant-team",
+    "status": "active",
+    "effective_from": "2026-05-20",
+    "mandatory": true,
+    "scope": {"environments": ["production", "staging", "development"]},
+    "applies_when": {},
+    "exceptions": {"allowed": true, "approval": "api-owner"},
+    "source": {"repository": "northstar-underwriter", "path": "context/project/underwriter-assistant-controls.json", "version": "1.9", "commit": "bb7d501"}
+  }
+]

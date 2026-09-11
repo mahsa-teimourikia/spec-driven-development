@@ -13,18 +13,20 @@ By the end of this course, you can:
 1. distinguish code completion, conversational assistance, and agentic software delivery by their action and authority boundaries;
 2. explain why faster code generation can move—not eliminate—the PDLC bottleneck;
 3. model a specification as part of the agent's control plane rather than passive documentation;
-4. compose organization, platform, domain, project, and feature requirements without silent lower-level overrides;
-5. separate human-heavy intent and policy decisions from agent-heavy implementation work;
-6. choose direct change, lightweight specification, full SDD, or specialist-reviewed SDD proportionately; and
-7. evaluate an agent proposal for requirement coverage, traceability, evidence, autonomy overreach, permissions, and change budget.
+4. discover distributed organization, platform, domain, project, and feature requirements before implementation;
+5. decide whether a requirement is applicable, not applicable, or uncertain before resolving precedence;
+6. preserve owner, source repository, path, version, commit, status, and effective-date provenance;
+7. separate human-heavy intent and policy decisions from agent-heavy implementation work;
+8. choose direct change, lightweight specification, full SDD, or specialist-reviewed SDD proportionately; and
+9. evaluate real candidate code for requirements, tests, policy, architecture, traceability, approvals, and evidence gaps.
 
 ## Scenario, success criteria, and boundaries
 
 You are helping **Northstar Mutual**, an insurance company, add policy-document question answering to its Underwriter Assistant. A prompt such as “let underwriters ask questions about uploaded policies” does not tell an implementation agent about Northstar's model gateway, privacy rules, cloud standard, infrastructure policy, identity provider, telemetry, evidence requirements, or the domain obligation for human review.
 
-This course succeeds when you can construct the effective context for that change, detect a feature-level attempt to override company privacy policy, compare a prompt-only proposal with a bounded proposal, and route three changes through proportionate workflows.
+This course succeeds when you can construct the effective context for that change, explain why each source applies, detect a feature-level attempt to override company privacy policy, compare unsafe and governed candidate code, produce an evidence bundle, and route changes through proportionate workflows.
 
-The lab is a deterministic simulation. It does not call an AI model, deploy infrastructure, process real policyholder data, or claim that a numeric routing threshold is universal. It deliberately exposes control logic for inspection. In a production system, identity, authorization, sandboxing, repository permissions, secrets, approval, retry budgets, idempotency, audit logs, and independent evaluation must be enforced outside prompts.
+Course 01 has two credential-free labs. **Lab A** is a deterministic control-plane simulation that exposes decisions and metrics. **Lab B** copies a miniature repository into a temporary workspace, installs actual candidate code, runs real tests and deterministic independent checks, and produces a release evidence bundle. Neither lab calls an AI model, deploys infrastructure, processes real policyholder data, or claims that its routing thresholds are universal. In production, identity, authorization, sandboxing, repository permissions, secrets, approval, retry budgets, idempotency, audit logs, and independent evaluation must be enforced outside prompts.
 
 ## Prerequisites
 
@@ -167,15 +169,15 @@ L4  Feature / change   observable behavior and change-specific constraints
 L5  Implementation     tasks, local technical choices, code, and evidence
 ```
 
-Let each requirement be a tuple:
+Let each requirement be a typed record:
 
-`r = (id, layer, control, expected value, owner, version)`
+`r = (id, layer, control, expected value, scope, applies_when, owner, status, effective_from, source)`
 
 For a given control key, the effective value is resolved from the highest-authority applicable requirement. Lower layers may narrow behavior when permitted, but they may not silently weaken a mandatory higher-level control. Conceptually:
 
-`EffectiveContext = resolve(O ⊕ P ⊕ D ⊕ S ⊕ F)`
+`EffectiveContext = resolve(applicable(O ⊕ P ⊕ D ⊕ S ⊕ F, change_context))`
 
-Here `⊕` does **not** mean blind concatenation. `resolve` must preserve provenance, detect contradictions, apply precedence, and route exceptions to an accountable owner.
+Here `⊕` does **not** mean blind concatenation. `applicable` evaluates the change against each rule's scope and conditions. `resolve` preserves provenance, detects contradictions among applicable requirements, applies authority, and routes exceptions to an accountable owner.
 
 ### Example layers at Northstar Mutual
 
@@ -193,6 +195,41 @@ Here `⊕` does **not** mean blind concatenation. `resolve` must preserve proven
 If the feature requests `pii_model_route = public_model_api` while organization requirement `C-02` requires `approved_only`, the feature does not win because it is newer or closer to the code. The workflow stops and creates an explicit exception request. A waiver should identify scope, rationale, risk owner, compensating controls, expiry, evidence, and revocation conditions. Until approved, the effective value remains `approved_only`.
 
 This is specification inheritance with governance, not object-oriented inheritance and not prompt priority folklore.
+
+### Applicability comes before precedence
+
+“Higher layer wins” is incomplete. A valid organization requirement may not govern a particular change. Northstar's payment-card tokenization policy is active and mandatory, but JIRA-4821 does not process payment-card data. The resolver should record **not applicable**, with the evaluated condition, rather than polluting the agent's context or pretending the policy does not exist.
+
+Use three outcomes:
+
+| Outcome | Meaning | Required action |
+| --- | --- | --- |
+| Applicable | Scope and conditions match the known change context | Inherit and enforce the requirement |
+| Not applicable | At least one known condition excludes the change | Record the reason and omit it from effective controls |
+| Uncertain | A required context field, owner, effective date, or source is missing/invalid | Stop and clarify; do not guess |
+
+For example, a data-residency policy may apply only to production changes that process confidential Canadian customer data. If the ticket omits data classification, the safe result is not “policy absent”; it is **uncertain applicability**.
+
+### Provenance is part of the requirement
+
+An ID such as `C-02` is useful but insufficient for enterprise execution. A resolvable requirement also identifies its owning group, authoritative repository and path, artifact version, immutable revision, lifecycle status, and effective date. Lab B represents that provenance directly:
+
+```json
+{
+  "id": "C-02",
+  "owner": "privacy-office",
+  "status": "active",
+  "effective_from": "2026-07-01",
+  "source": {
+    "repository": "enterprise-policy",
+    "path": "privacy/ai-data-handling.json",
+    "version": "3.2",
+    "commit": "a84c4f9"
+  }
+}
+```
+
+This lets a delivery system detect stale context, explain decisions, route exceptions, and later prove which policy version governed a release. A missing owner or revision makes applicability uncertain rather than silently trusted.
 
 ## 5. Autonomy should follow the decision hierarchy
 
@@ -276,6 +313,20 @@ Kiro currently documents Feature Specs, Bugfix Specs, and Quick Spec. Its core f
 
 OpenAI's official Codex documentation describes `AGENTS.md` as durable repository instructions with directory scope, while GitHub documents support for agent instructions and repository/path-specific customization across several Copilot surfaces. Both are context mechanisms, not guarantees that a stochastic model follows every instruction. [Codex `AGENTS.md` guide](https://learn.chatgpt.com/docs/agent-configuration/agents-md) · [GitHub customization reference](https://docs.github.com/en/copilot/reference/custom-instructions-support)
 
+### Change specs, living truth, and decision history
+
+Enterprises need to decide what each durable artifact means across time:
+
+| Artifact model | Question answered | Typical treatment |
+| --- | --- | --- |
+| Change specification | What are we changing now? | Immutable or archived feature/change artifact with acceptance evidence |
+| Living system specification | What should be true now? | Maintained capability/system contract; derived plans and tasks are reconciled after edits |
+| Decision history | Why did we choose this direction? | ADRs and exception records retained even when current behavior evolves |
+
+GitHub Spec Kit documents flow-forward, living-spec, and flow-back persistence models. Flow-forward keeps feature directories as history; living-spec treats `spec.md` as the maintained contract; flow-back permits discoveries in code or downstream artifacts but requires the artifact set to be brought back into alignment. These are operating choices, not merely folder conventions. [Spec Kit guide to evolving specs](https://github.com/github/spec-kit/blob/main/docs/guides/evolving-specs.md)
+
+OpenSpec's current workflow maintains system truth in specifications while a change holds proposed deltas, design, and tasks; archiving a completed change updates the current specifications. That makes it a useful comparison for brownfield work, where code, tests, declared behavior, and the new ticket may disagree. [OpenSpec repository and documentation index](https://github.com/Fission-AI/OpenSpec)
+
 ## 9. Proportionality: when not to use full SDD
 
 Full SDD has coordination cost. Use it where ambiguity, impact, coupling, or assurance needs justify the cost.
@@ -318,11 +369,16 @@ The safe conclusion is not that agents are unreliable and should never act, nor 
 
 ## 11. Worked Northstar Mutual scenario
 
-The feature request is:
+The only initial artifact is:
 
 ```text
-Let underwriters ask questions about uploaded policy documents.
+JIRA-4821
+
+Allow underwriters to ask questions
+about uploaded policy documents.
 ```
+
+Lab A supplies a normalized requirement set so learners can inspect the control primitive. Lab B deliberately distributes the sources across an enterprise-policy context, platform standards, domain controls, project architecture, an ADR, repository instructions, feature requirements, existing tests, and code. The learner must discover and resolve them before trusting either candidate.
 
 The effective context contains 14 controls:
 
@@ -346,7 +402,7 @@ The controlled proposal resolves all inherited controls, links every task to req
 
 Feature requirement `F-99` tries to route PII to a public model. The composer preserves organization requirement `C-02`, records the conflicting values and source IDs, and stops. It does not “merge” incompatible values or allow the newest artifact to win.
 
-## 12. Lab implementation and observable metrics
+## 12. Lab A — Simulating the control plane
 
 Run the reusable implementation:
 
@@ -373,7 +429,69 @@ The key metrics are:
 
 These metrics expose selected properties. They do not measure correctness of the requirements, evidence quality, user value, maintainability, security as a whole, or actual delivery performance.
 
-## 13. Experiments
+## 13. Lab B — Run the repository change
+
+The [Northstar Underwriter fixture](northstar-underwriter/README.md) is a small but real Python repository boundary:
+
+```text
+northstar-underwriter/
+├── ticket/                 terse JIRA request + known change context
+├── context/                organization, platform, domain, project, feature
+├── docs/decisions/         ADR-013 model-gateway decision
+├── src/                    current application boundary
+├── tests/                  executable feature and contract expectations
+├── infra/                  existing Terraform convention
+├── changes/unsafe/         deliberately bad agent candidate
+├── changes/governed/       bounded candidate
+└── experiments/            conflict fixtures
+```
+
+The orchestrator copies this fixture to a temporary workspace before applying candidate source code, so the teaching repository remains unchanged:
+
+```bash
+python3 repo_lab.py --candidate unsafe
+python3 repo_lab.py --candidate governed
+python3 repo_lab.py --candidate governed --approve
+python3 repo_lab.py --candidate all
+```
+
+The unsafe candidate chooses an unapproved dependency, bypasses the model gateway, changes the response contract, requests production permissions, targets another repository, exceeds the file budget, embeds an inert credential-like sentinel, ignores the ADR, routes Canadian data to another region, removes citations, guesses without evidence, and invents indefinite retention. These are labeled training failures; nothing is installed, deployed, transmitted, or called.
+
+Lab B then runs six independent surfaces:
+
+1. **Specification check:** compares declared candidate decisions with applicable effective controls.
+2. **Policy check:** enforces repository, permission, dependency, file-budget, and credential-literal rules.
+3. **Architecture check:** verifies ADR acknowledgement, gateway usage, public contract, and infrastructure method.
+4. **Real unit tests:** installs the candidate in a temporary copy and executes the fixture's tests.
+5. **Traceability check:** requires applicable requirement IDs to connect to code, tests, decisions, or evidence.
+6. **Independent review:** scans implementation behavior without trusting the candidate's self-description.
+
+The expected control progression is:
+
+| Run | Expected gate | Why |
+| --- | --- | --- |
+| Unsafe candidate | `STOP` | Multiple requirement, boundary, architecture, test, and evidence failures |
+| Governed candidate | `REVIEW` | Technical checks pass but named domain/privacy approvals are pending |
+| Governed + training approval | `PASS` | All classroom gates pass; residual production risks remain explicit |
+
+Each run writes an evidence bundle under `build/course01-evidence/<run>/`:
+
+```text
+requirements.json
+applicability.json
+specification-check.json
+policy-check.json
+architecture-check.json
+test-results.json
+traceability.json
+independent-review.json
+approvals.json
+release-summary.json
+```
+
+`PASS` is intentionally not equivalent to production readiness. The independent review records what the local controls cannot establish: real retrieval tenant isolation, deployed data residency, and representative answer quality. This directly answers the professional question, “Which controls caught what—and what did none of them catch?”
+
+## 14. Experiments
 
 ### Experiment A — Prompt-only versus layered context
 
@@ -393,7 +511,15 @@ Compare a copy edit, a familiar validation-rule change, and the regulated policy
 
 Add `F-99`, which contradicts `C-02`. Verify the conflict includes both source IDs and that the higher-level value remains effective. The mitigation is an exception workflow—not deleting the company control from the agent context.
 
-## 14. Failure modes and anti-patterns
+### Experiment E — Applicability uncertainty
+
+Remove `data_classification` from `ticket/change-context.json` in a temporary copy or in a unit test. Verify that `C-02` and `C-05` become `UNCERTAIN`, not “not applicable,” and that execution stops for clarification.
+
+### Experiment F — Real candidate comparison
+
+Compare the unsafe and governed evidence bundles. Build a matrix whose rows are failures and whose columns are specification, policy, architecture, tests, traceability, review, and approval. Mark which surface caught each problem, then highlight the three residual risks that require integration, deployment, or domain-evaluation evidence.
+
+## 15. Failure modes and anti-patterns
 
 | Failure | Observable symptom | Control or mitigation |
 | --- | --- | --- |
@@ -410,7 +536,7 @@ Add `F-99`, which contradicts `C-02`. Verify the conflict includes both source I
 
 Prompt and context injection are also relevant: repository content, issues, documentation, test fixtures, and tool output may contain instructions. Treat untrusted content as data, scope tools narrowly, isolate sensitive context, validate proposed actions against policy, and never let retrieved text grant authority.
 
-## 15. Production operating model
+## 16. Production operating model
 
 The classroom evaluator is a transparent primitive. A production capability needs distributed ownership and harder boundaries:
 
@@ -430,37 +556,42 @@ The classroom evaluator is a transparent primitive. A production capability need
 
 Operationally, define SLOs for the agentic delivery system: gate false-negative/false-positive rates, review lead time, escaped defects, rollback rate, policy exception age, specification drift age, cost per accepted change, and rework attributable to missing or conflicting context. Do not optimize agent throughput while ignoring queue growth at review, security, release, or operations.
 
-## 16. Exercises
+## 17. Exercises
 
-1. **Implementation:** add a `data_retention_days = 30` project requirement. Decide whether project ownership is sufficient or an organization/domain owner must define the upper bound.
-2. **Diagnosis:** remove platform requirements before evaluating the controlled proposal. Explain why requirement coverage may still look internally consistent for the smaller context.
-3. **Failure injection:** add a feature requirement that conflicts with `C-03`. Assert that the company requirement wins and both source IDs appear in the conflict.
-4. **Boundary design:** reduce the allowed file count from 20 to 10. Decide whether the response should split the work, request a budget change, or abandon the design.
-5. **Architecture judgment:** classify five changes from your environment into direct, lightweight, full SDD, or specialist-reviewed SDD. State the routing dimensions, not just the answer.
-6. **Control placement:** for each rule—“use Ruff,” “never send PII to an unapproved model,” “return citations,” and “use a helper function”—choose the appropriate layer and enforcement mechanism.
-7. **Evaluation:** design one check that is independent of the implementation agent and one runtime signal that could reveal spec drift after release.
-8. **Operating model:** draw the owners and approval boundaries for one real multi-repository change in your organization.
+1. **Repository discovery:** start with only JIRA-4821. Produce an inventory of every source you need before an agent may implement it, including the owning role and immutable revision.
+2. **Implementation:** add a `data_retention_days = 30` project requirement. Decide whether project ownership is sufficient or an organization/domain owner must define the upper bound.
+3. **Applicability diagnosis:** remove `data_classification`; assert that the privacy controls become uncertain and explain why defaulting to not applicable would be unsafe.
+4. **Provenance diagnosis:** blank the owner and commit of one applicable rule. Extend the resolver test and design the retrieval/refresh response.
+5. **Failure injection:** run `repo_lab.py --candidate governed --approve --inject-conflict`. Assert that `C-02` remains effective, `F-99` is rejected, and the release stops.
+6. **Coverage analysis:** create the control-by-failure matrix for the unsafe candidate and propose one additional independent control for an uncovered risk.
+7. **Boundary design:** reduce the allowed file count from 20 to 5. Decide whether to split the work, request a budget exception, or redesign the change.
+8. **Architecture judgment:** classify five changes from your environment into direct, lightweight, full SDD, or specialist-reviewed SDD. Defend the route using risk dimensions.
+9. **Spec persistence:** decide which JIRA-4821 artifacts are a change spec, living system truth, and decision history. Define how they converge after merge.
+10. **Operating model:** draw the owners and approval boundaries for one real multi-repository change in your organization.
 
 ## Review questions
 
 1. Why can more generated code produce more rework?
 2. What distinguishes proposal authority from approval authority?
 3. Why is effective context resolution more than concatenating Markdown files?
-4. Which requirements should a feature spec inherit rather than duplicate?
-5. What does a clean evaluation report fail to show when context is incomplete?
-6. Why should a repository instruction file not be treated as an authorization boundary?
-7. When is direct change preferable to full SDD?
-8. Which PDLC outcomes should be measured beyond code-generation speed?
+4. Why must applicability be evaluated before precedence?
+5. What provenance is needed to detect stale or ownerless policy?
+6. Which requirements should a feature spec inherit rather than duplicate?
+7. What does a clean evaluation report fail to show when context is incomplete?
+8. Why should a repository instruction file not be treated as an authorization boundary?
+9. When is direct change preferable to full SDD?
+10. How do change specs, living system specs, and decision history differ?
+11. Which PDLC outcomes should be measured beyond code-generation speed?
 
 ## Summary
 
-Agentic coding changes the PDLC because action becomes cheaper and faster while interpretation, authority, integration, and evidence remain organizational responsibilities. SDD is valuable when it makes those responsibilities explicit: a hierarchy of durable specifications constrains a bounded delivery loop; agents propose and execute within granted authority; independent evidence challenges the result; humans approve consequential decisions; and runtime learning updates the next specification.
+Agentic coding changes the PDLC because action becomes cheaper and faster while interpretation, applicability, authority, integration, and evidence remain organizational responsibilities. SDD is valuable when it makes those responsibilities explicit: authoritative context is discovered and traced; applicable requirements constrain a bounded delivery loop; agents propose and execute within granted authority; independent evidence challenges actual code; humans approve consequential decisions; and runtime learning updates the next specification.
 
 The goal is neither unlimited agent freedom nor a new waterfall. It is controlled, iterative autonomy.
 
 ## References
 
-- GitHub, [Spec Kit documentation](https://github.github.com/spec-kit/) and [Agentic SDD command reference](https://github.github.com/spec-kit/reference/agentic-sdd.html).
+- GitHub, [Spec Kit documentation](https://github.github.com/spec-kit/), [Agentic SDD command reference](https://github.github.com/spec-kit/reference/agentic-sdd.html), and [evolving-specs guide](https://github.com/github/spec-kit/blob/main/docs/guides/evolving-specs.md).
 - Fission-AI, [OpenSpec repository and documentation index](https://github.com/Fission-AI/OpenSpec).
 - Kiro, [Specs overview](https://kiro.dev/docs/specs/), [best practices](https://kiro.dev/docs/specs/best-practices/), and [Quick Spec](https://kiro.dev/docs/specs/quick-spec/).
 - OpenAI, [Custom instructions with `AGENTS.md`](https://learn.chatgpt.com/docs/agent-configuration/agents-md).
@@ -469,4 +600,3 @@ The goal is neither unlimited agent freedom nor a new waterfall. It is controlle
 - DORA, [Impact of Generative AI in Software Development](https://dora.dev/research/ai/gen-ai-report/dora-impact-of-generative-ai-in-software-development.pdf), version 2025.2.
 - METR, [Measuring the Impact of Early-2025 AI on Experienced Open-Source Developer Productivity](https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/).
 - Michael Nygard, [Documenting Architecture Decisions](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions).
-

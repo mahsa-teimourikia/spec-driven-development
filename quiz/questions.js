@@ -56,6 +56,34 @@ const QUESTIONS = [
     explanation: 'Context must be relevant and authoritative. Missing inherited obligations hides failures; unlimited unrelated context creates a different problem.'
   },
   {
+    category: 'Applicability',
+    question: 'A privacy rule depends on data classification, but the change ticket does not state the classification. What should happen?',
+    options: ['Mark applicability uncertain and stop for clarification', 'Assume the rule is not applicable', 'Assume the lowest classification', 'Let the implementation agent decide after coding'],
+    answer: 0,
+    explanation: 'A missing condition is not evidence of non-applicability. Fail-closed clarification prevents an unknown data boundary from being treated as permission.'
+  },
+  {
+    category: 'Provenance',
+    question: 'Which metadata best lets a release prove exactly which policy artifact governed it?',
+    options: ['Owner plus repository, path, version, and immutable revision', 'Requirement title and word count', 'The agent conversation timestamp', 'The latest wiki search result'],
+    answer: 0,
+    explanation: 'Owner and immutable source provenance support freshness checks, exception routing, reproducibility, and later audit.'
+  },
+  {
+    category: 'Evidence',
+    question: 'Lab B reaches PASS but lists tenant isolation and deployed residency as unverified. Why?',
+    options: ['Local evidence cannot establish every integration and production property', 'PASS means the warnings can be deleted', 'The implementation tests are unnecessary', 'Human approval proves runtime behavior'],
+    answer: 0,
+    explanation: 'A gate decision is scoped to available evidence. Integration, deployment, runtime, and representative domain evidence may still be required.'
+  },
+  {
+    category: 'Specifications',
+    question: 'Which artifact primarily answers “why did we choose this architecture?” after current behavior has evolved?',
+    options: ['Decision history such as an ADR', 'A change ticket alone', 'A generated task list', 'The current test output'],
+    answer: 0,
+    explanation: 'Change specs describe a proposed change, living specs describe intended current truth, and ADRs preserve consequential decision rationale.'
+  },
+  {
     category: 'Proportionality',
     question: 'Which change is the best candidate for a direct-change workflow?',
     options: ['A small, reversible documentation correction with no runtime or policy impact', 'A cross-repository authentication redesign', 'A regulated data-retention change', 'An irreversible database migration'],

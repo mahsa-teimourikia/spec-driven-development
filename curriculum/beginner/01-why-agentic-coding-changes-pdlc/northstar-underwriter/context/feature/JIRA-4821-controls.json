@@ -1,0 +1,47 @@
+[
+  {
+    "id": "F-01",
+    "layer": "feature",
+    "control": "document_questions",
+    "expected_value": "supported",
+    "statement": "Underwriters can ask questions about uploaded policy documents.",
+    "owner": "underwriting-product-owner",
+    "status": "active",
+    "effective_from": "2026-09-01",
+    "mandatory": true,
+    "scope": {"environments": ["production", "staging", "development"]},
+    "applies_when": {},
+    "exceptions": {"allowed": false, "approval": null},
+    "source": {"repository": "northstar-underwriter", "path": "context/feature/JIRA-4821-controls.json", "version": "1.0", "commit": "e4821a0"}
+  },
+  {
+    "id": "F-02",
+    "layer": "feature",
+    "control": "citations",
+    "expected_value": "required",
+    "statement": "Supported answers cite source passage identifiers.",
+    "owner": "underwriting-product-owner",
+    "status": "active",
+    "effective_from": "2026-09-01",
+    "mandatory": true,
+    "scope": {"environments": ["production", "staging", "development"]},
+    "applies_when": {},
+    "exceptions": {"allowed": false, "approval": null},
+    "source": {"repository": "northstar-underwriter", "path": "context/feature/JIRA-4821-controls.json", "version": "1.0", "commit": "e4821a0"}
+  },
+  {
+    "id": "F-03",
+    "layer": "feature",
+    "control": "unsupported_answers",
+    "expected_value": "insufficient_evidence",
+    "statement": "Unsupported questions return an insufficient-evidence status instead of a guess.",
+    "owner": "underwriting-product-owner",
+    "status": "active",
+    "effective_from": "2026-09-01",
+    "mandatory": true,
+    "scope": {"environments": ["production", "staging", "development"]},
+    "applies_when": {},
+    "exceptions": {"allowed": false, "approval": null},
+    "source": {"repository": "northstar-underwriter", "path": "context/feature/JIRA-4821-controls.json", "version": "1.0", "commit": "e4821a0"}
+  }
+]
