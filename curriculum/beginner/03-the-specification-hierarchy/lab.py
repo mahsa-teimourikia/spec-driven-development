@@ -144,7 +144,7 @@ class ExceptionRecord:
     resources: tuple[str, ...]
     control: str
     permitted_expected: str
-    unaffected_requirement_ids: tuple[str, ...]
+    related_unaffected_obligation_ids: tuple[str, ...]
     conditions: tuple[str, ...]
     rationale: str
     owner: str
@@ -187,7 +187,7 @@ class ResolvedRequirement:
     applicability_evidence_ids: tuple[str, ...]
     exception_id: str | None = None
     exception_conditions: tuple[str, ...] = ()
-    unaffected_requirement_ids: tuple[str, ...] = ()
+    related_unaffected_obligation_ids: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -222,7 +222,7 @@ class EffectiveControl:
     applicability_evidence_ids: tuple[str, ...]
     exception_ids: tuple[str, ...]
     conditions: tuple[str, ...]
-    unaffected_requirement_ids: tuple[str, ...]
+    related_unaffected_obligation_ids: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -311,7 +311,9 @@ def load_exception(path: Path) -> ExceptionRecord:
         resources=tuple(scope["resources"]),
         control=modification["control"],
         permitted_expected=modification["permitted_expected"],
-        unaffected_requirement_ids=tuple(payload["unaffected_requirement_ids"]),
+        related_unaffected_obligation_ids=tuple(
+            payload.get("related_unaffected_obligation_ids", ())
+        ),
         conditions=tuple(payload["conditions"]),
         rationale=payload["rationale"],
         owner=payload["owner"],
@@ -517,8 +519,13 @@ def evaluate_exception(
             errors.append("EXCEPTION_CONTROL_MISMATCH")
         if requirement.resource not in exception.resources:
             errors.append("EXCEPTION_RESOURCE_MISMATCH")
-    if any(item not in requirements for item in exception.unaffected_requirement_ids):
-        errors.append("EXCEPTION_UNAFFECTED_REQUIREMENT_UNKNOWN")
+    if any(
+        item not in requirements
+        for item in exception.related_unaffected_obligation_ids
+    ):
+        errors.append("EXCEPTION_RELATED_OBLIGATION_UNKNOWN")
+    if exception.requirement_id in exception.related_unaffected_obligation_ids:
+        errors.append("EXCEPTION_TARGET_LISTED_AS_RELATED_UNAFFECTED")
     if exception.status is not ArtifactStatus.ACTIVE:
         errors.append(f"EXCEPTION_STATUS_{exception.status.value.upper()}")
     if exception.created_on > change.evaluated_on:
@@ -540,8 +547,6 @@ def evaluate_exception(
         errors.append("EXCEPTION_METADATA_INCOMPLETE")
     if not exception.resources:
         errors.append("EXCEPTION_RESOURCE_SCOPE_MISSING")
-    if not exception.unaffected_requirement_ids:
-        errors.append("EXCEPTION_UNAFFECTED_OBLIGATIONS_MISSING")
     if not exception.conditions:
         errors.append("EXCEPTION_CONDITIONS_MISSING")
 
@@ -607,7 +612,7 @@ def _apply_exceptions(
                     decisions[requirement.id].evidence_ids,
                     exception.id,
                     exception.conditions,
-                    exception.unaffected_requirement_ids,
+                    exception.related_unaffected_obligation_ids,
                 )
             )
         else:
@@ -725,12 +730,12 @@ def _compose_controls(
                         }
                     )
                 ),
-                unaffected_requirement_ids=tuple(
+                related_unaffected_obligation_ids=tuple(
                     sorted(
                         {
                             requirement_id
                             for item in selected
-                            for requirement_id in item.unaffected_requirement_ids
+                            for requirement_id in item.related_unaffected_obligation_ids
                         }
                     )
                 ),
@@ -832,8 +837,8 @@ def compose_agent_context(
             lines.append(
                 "base_obligations = " + "; ".join(control.base_expectations)
             )
-        for requirement_id in control.unaffected_requirement_ids:
-            lines.append(f"unaffected_requirement = {requirement_id}")
+        for requirement_id in control.related_unaffected_obligation_ids:
+            lines.append(f"related_unaffected_obligation = {requirement_id}")
         for condition in control.conditions:
             lines.append(f"condition = {condition}")
     return "\n".join(lines) + "\n"

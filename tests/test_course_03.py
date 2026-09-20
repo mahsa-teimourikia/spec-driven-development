@@ -156,8 +156,26 @@ class ResolutionTests(ScenarioMixin, unittest.TestCase):
             set(retention.base_expectations), {"PRIV-031=30", "RET-017=2555"}
         )
         self.assertEqual(retention.exception_ids, ("EXC-009",))
-        self.assertEqual(retention.unaffected_requirement_ids, ("PRIV-030",))
+        self.assertEqual(
+            retention.related_unaffected_obligation_ids, ("PRIV-030",)
+        )
         self.assertEqual(len(retention.conditions), 4)
+
+    def test_related_unaffected_obligations_are_optional_traceability(self):
+        exception = replace(
+            self.exceptions[0], related_unaffected_obligation_ids=()
+        )
+        report = LAB.resolve_effective_specification(
+            self.change, self.requirements, (exception,)
+        )
+        self.assertIs(report.gate, LAB.Gate.READY)
+        retention = next(
+            item
+            for item in report.effective_controls
+            if item.control == "retention_days"
+            and item.resource == "final_approved_broker_communication"
+        )
+        self.assertEqual(retention.related_unaffected_obligation_ids, ())
 
     def test_expired_exception_cannot_resolve_conflict(self):
         expired = replace(self.exceptions[0], expires_on=date(2026, 9, 19))
@@ -248,7 +266,7 @@ class ContextAndMetricTests(ScenarioMixin, unittest.TestCase):
         self.assertIn("[PRIV-018 | mandatory | enterprise-policy:", context)
         self.assertIn("exception = EXC-009", context)
         self.assertIn("base_obligations = PRIV-031=30; RET-017=2555", context)
-        self.assertIn("unaffected_requirement = PRIV-030", context)
+        self.assertIn("related_unaffected_obligation = PRIV-030", context)
         self.assertIn("applicability_evidence = DATA-CLASS-019", context)
         self.assertIn("not authenticated in this lab", context)
         self.assertIn("delete intermediate model interactions after 30 days", context)

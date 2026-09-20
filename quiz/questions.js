@@ -233,9 +233,9 @@ const QUESTIONS = [
   {
     category: 'Exceptions',
     question: 'How should a scoped exception relate to its base requirement?',
-    options: ['Keep the base requirement intact while recording the permitted scope, modified obligation, unaffected obligations, conditions, and expiry', 'Rewrite the base policy to the exception value', 'Delete every related requirement from agent context', 'Let the feature specification grant the waiver'],
+    options: ['Keep the base requirement intact while recording the permitted scope, modified obligation, conditions, and expiry', 'Rewrite the base policy to the exception value', 'Enumerate every requirement the exception does not affect', 'Let the feature specification grant the waiver'],
     answer: 0,
-    explanation: 'A first-class exception changes application only within its authorized scope. Preserving base and unaffected obligations prevents a waiver from appearing to rewrite policy globally.'
+    explanation: 'A first-class exception changes only its named obligation within its authorized scope. Everything else remains unchanged by default; related unaffected obligations may be linked as optional traceability, not an exhaustive list.'
   },
   {
     category: 'Context compression',

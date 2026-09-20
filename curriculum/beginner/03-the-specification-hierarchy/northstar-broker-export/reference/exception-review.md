@@ -6,7 +6,7 @@
 | Change/resource scope | AI-1937; final approved broker communication only |
 | Control | `retention_days` |
 | Permitted value for scoped records | `2555` days |
-| Unaffected obligation | PRIV-030; intermediate model interactions remain 30 days |
+| Related unaffected obligation (optional traceability) | PRIV-030; intermediate model interactions remain 30 days |
 | Owner | Privacy Office |
 | Approver | Chief Privacy Officer |
 | Approval-record locator | `APR-EXC-009-TRAINING` |
@@ -27,3 +27,8 @@ conditions. It cannot authenticate the approver, prove that the approval record
 exists in a trusted system, verify signature or digest binding, atomically consume
 an approval, or establish legal sufficiency. Production enforcement needs those
 trusted application controls.
+
+The exception modifies only its named requirement within its explicit change,
+resource, control, and permitted-value scope. Other obligations remain unchanged
+by default. The related obligation above is a teaching aid, not an exhaustive
+list that enterprise exception authors must maintain.

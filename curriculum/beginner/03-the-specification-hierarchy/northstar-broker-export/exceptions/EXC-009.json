@@ -9,7 +9,7 @@
     "control": "retention_days",
     "permitted_expected": "2555"
   },
-  "unaffected_requirement_ids": ["PRIV-030"],
+  "related_unaffected_obligation_ids": ["PRIV-030"],
   "conditions": [
     "retain only the final approved broker communication",
     "delete intermediate model interactions after 30 days",

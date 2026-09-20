@@ -464,7 +464,6 @@ def check_course_03_hierarchy() -> list[str]:
                 "requirement_id",
                 "scope",
                 "modification",
-                "unaffected_requirement_ids",
                 "conditions",
                 "approver",
                 "approval_record",
@@ -481,6 +480,13 @@ def check_course_03_hierarchy() -> list[str]:
                 "permitted_expected"
             ):
                 errors.append("Course 03 exception has incomplete modification")
+            related = exception.get("related_unaffected_obligation_ids", [])
+            if not isinstance(related, list) or not all(
+                isinstance(item, str) and item.strip() for item in related
+            ):
+                errors.append(
+                    "Course 03 exception has invalid related unaffected obligations"
+                )
     return errors
 
 

@@ -28,8 +28,10 @@
 - Enable access audit logging.
 
 The final-record control also retains `PRIV-031=30` and `RET-017=2555` as base
-obligations and records `PRIV-030` as unaffected. The exception changes neither
-source policy.
+obligations and records `PRIV-030` as a related unaffected obligation for
+explanatory traceability. The exception changes neither source policy. It changes
+only its named requirement, modification, and scope; every other obligation
+remains unchanged by default without requiring enumeration.
 
 The generated context is a reviewed input to bounded implementation. It does not
 grant release authority or prove policy conformance in production.

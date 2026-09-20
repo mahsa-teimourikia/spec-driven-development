@@ -54,8 +54,9 @@ Course 03 resolves distributed requirements into a bounded effective specificati
 - distinguish authority from specificity and confirm shared resource/scope before
   escalating a genuine conflict;
 - reject superseded, stale, or provenance-incomplete sources without erasing their history;
-- validate a scoped, conditional, expiring exception without rewriting base or
-  unaffected obligations or mistaking fixture metadata for authenticated approval;
+- validate a scoped, conditional, expiring exception without rewriting the base
+  requirement, enumerating every unaffected obligation, or mistaking fixture
+  metadata for authenticated approval;
 - compress the result into agent context that preserves IDs, source locators,
   applicability evidence, exception conditions, and stop states; and
 - measure candidate-discovery precision and recall separately from applicability accuracy.

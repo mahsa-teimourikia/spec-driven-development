@@ -112,18 +112,25 @@ rule and still lack authority to override it.
 The safe resolution sequence is:
 
 ```text
-all candidate requirements
-          ↓
-status, date, provenance, and scope evaluation
-          ↓
-applicable / not applicable / uncertain
-          ↓
-authority and compatibility resolution
-          ↓
-conflict escalation and scoped exception review
-          ↓
-effective specification or STOP
+enterprise knowledge
+        ↓
+1. CANDIDATE DISCOVERY — Which requirements might matter?
+        ↓  recall matters
+2. APPLICABILITY RESOLUTION — Which requirements govern this change?
+        ↓  decision accuracy and evidence matter
+3. EFFECTIVE SPECIFICATION RESOLUTION — What must implementation satisfy?
+        ↓  conflict and exception correctness matter
+4. CONTEXT PACKAGING — What bounded representation does the agent need?
+        ↓  traceability and information-loss controls matter
+coding agent, or STOP at any unresolved gate
 ```
+
+These are separate control surfaces. Discovery searches the enterprise corpus;
+applicability evaluates status, dates, provenance, and scope; effective-specification
+resolution applies declared authority, detects conflicts, and reviews exceptions;
+context packaging compresses only a ready result. High applicability accuracy cannot
+recover a requirement omitted during discovery, and faithful packaging cannot repair
+an incorrect resolution.
 
 For `PCI-002`, the change context contains no payment-card data. The correct result
 is `not_applicable`, with `DATA-FLOW-1937` as evidence. The policy remains active;
@@ -346,7 +353,7 @@ a bounded scope under explicit conditions.
 - the requirement it modifies;
 - the exact change and controlled-resource scope;
 - the permitted obligation for that scope;
-- the obligations that remain unaffected;
+- a related unaffected obligation as optional explanatory traceability;
 - rationale and compensating conditions;
 - owner, approver, and approval-record locator;
 - creation and expiry dates; and
@@ -358,6 +365,13 @@ approved broker communication produced by `AI-1937`; it explicitly leaves
 effective control retains `PRIV-031`, `RET-017`, `EXC-009`, both base values, and
 all four compensating conditions. Hiding the exception inside the feature spec
 would let a feature author appear to rewrite corporate policy.
+
+The default rule is broader and more scalable: an exception changes only the
+named requirement, modification, and explicit scope. Every other obligation
+remains unchanged without being enumerated. The optional
+`related_unaffected_obligation_ids` field highlights a nearby obligation learners
+might otherwise confuse with the exception; it is not an exhaustive allowlist of
+everything the exception leaves alone.
 
 ### Expiry is an enforcement boundary
 
@@ -407,7 +421,7 @@ resource = final_approved_broker_communication
 retention_days = 2555
 applicability_evidence = DATA-CLASS-019, DATA-FLOW-1937
 base_obligations = PRIV-031=30; RET-017=2555
-unaffected_requirement = PRIV-030
+related_unaffected_obligation = PRIV-030
 condition = delete intermediate model interactions after 30 days
 ```
 

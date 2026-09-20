@@ -105,7 +105,7 @@ const course03 = {
     'Distinguish authority from specificity, proximity, recency, and structured format.',
     'Confirm that obligations govern the same resource and lifecycle event before declaring a genuine conflict.',
     'Detect incompatible same-resource obligations and stop for accountable owner resolution.',
-    'Validate scoped, conditional, expiring exceptions without changing base or unaffected requirements.',
+    'Validate scoped, conditional, expiring exceptions that change only named obligations and scope.',
     'Compose context with requirement IDs, source locators, applicability evidence, exception conditions, and stop states.',
     'Measure candidate-discovery precision and recall separately from applicability accuracy.'
   ],
