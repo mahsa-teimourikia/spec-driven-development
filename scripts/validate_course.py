@@ -490,6 +490,171 @@ def check_course_03_hierarchy() -> list[str]:
     return errors
 
 
+def check_course_04_ownership() -> list[str]:
+    lesson = ROOT / "curriculum" / "beginner" / "04-company-project-feature-requirements"
+    scenario = lesson / "northstar-renewal"
+    required = [
+        "README.md",
+        "ticket/AI-2048.md",
+        "ticket/change-context.json",
+        "project/policy-manifest.json",
+        "project/agent-boundary.json",
+        "project/AGENTS.md",
+        "project/architecture/ARCH-031.json",
+        "project/architecture/ARCH-032-weakening.json",
+        "project/copied-policy/AI-030.json",
+        "exceptions/EXC-014.json",
+        "updates/AI-030-v4.json",
+        "workshop/starter/README.md",
+        "workshop/starter/requirement-location.csv",
+        "workshop/starter/ownership-raci.csv",
+        "workshop/starter/requirement-graph.csv",
+        "workshop/starter/enforcement-map.csv",
+        "workshop/starter/exception-review.md",
+        "workshop/starter/impact-analysis.md",
+        "workshop/starter/effective-context.md",
+        "reference/requirement-location.csv",
+        "reference/ownership-raci.csv",
+        "reference/requirement-graph.csv",
+        "reference/workshop-relationship-graph.csv",
+        "reference/enforcement-map.csv",
+        "reference/exception-review.md",
+        "reference/impact-analysis.md",
+        "reference/effective-context.md",
+        "reference/release-context.json",
+        "reference/runtime-evidence.json",
+    ]
+    errors = [
+        f"missing Course 04 artifact: {item}"
+        for item in required
+        if not (scenario / item).exists()
+    ]
+
+    requirement_paths = sorted((scenario / "catalog").glob("**/*.json"))
+    if len(requirement_paths) != 6:
+        errors.append(
+            f"Course 04 catalog must contain 6 candidate requirements, found {len(requirement_paths)}"
+        )
+    required_fields = {
+        "id",
+        "layer",
+        "meaning_owner",
+        "source_domain",
+        "fixed_controls",
+        "delegated_controls",
+        "enforcement",
+        "evidence_ids",
+        "source",
+    }
+    ids: set[str] = set()
+    for path in requirement_paths:
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError) as exc:
+            errors.append(f"invalid Course 04 JSON {path.relative_to(ROOT)}: {exc}")
+            continue
+        missing = sorted(required_fields - set(payload))
+        if missing:
+            errors.append(
+                f"Course 04 requirement lacks fields {', '.join(missing)}: "
+                f"{path.relative_to(ROOT)}"
+            )
+        requirement_id = payload.get("id")
+        if requirement_id in ids:
+            errors.append(f"duplicate Course 04 requirement ID: {requirement_id}")
+        ids.add(requirement_id)
+        source = payload.get("source", {})
+        if not all(source.get(field) for field in ("repository", "path", "version", "revision")):
+            errors.append(f"incomplete Course 04 provenance: {path.relative_to(ROOT)}")
+
+    exception_path = scenario / "exceptions" / "EXC-014.json"
+    if exception_path.exists():
+        exception = json.loads(exception_path.read_text(encoding="utf-8"))
+        for field in (
+            "requirement_id",
+            "requirement_revision",
+            "scope",
+            "requester",
+            "approver",
+            "approval_record",
+            "modification",
+            "rationale",
+            "conditions",
+            "expires_on",
+            "source",
+        ):
+            if not exception.get(field):
+                errors.append(f"Course 04 exception lacks required field: {field}")
+        if exception.get("requester") == exception.get("approver"):
+            errors.append("Course 04 exception must demonstrate independent approval")
+        modification = exception.get("modification", {})
+        if not modification.get("field") or not modification.get("expected"):
+            errors.append("Course 04 exception must name its modified control and value")
+        if not isinstance(exception.get("conditions"), list) or not exception["conditions"]:
+            errors.append("Course 04 exception must include compensating conditions")
+
+    manifest_path = scenario / "project" / "policy-manifest.json"
+    if manifest_path.exists():
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        if manifest.get("specialization_ids") != ["ARCH-031"]:
+            errors.append("Course 04 manifest must select the valid specialization only")
+        if manifest.get("exception_ids") != ["EXC-014"]:
+            errors.append("Course 04 manifest must select the governed exception")
+
+    runtime_path = scenario / "reference" / "runtime-evidence.json"
+    if runtime_path.exists():
+        runtime = json.loads(runtime_path.read_text(encoding="utf-8"))
+        required_runtime_fields = {
+            "requirement_id",
+            "control",
+            "control_version",
+            "observed_window",
+            "consequential_recommendations",
+            "review_receipts",
+            "authorized_review_receipts",
+            "legacy_endpoint_bypasses",
+            "limitations",
+        }
+        missing = sorted(required_runtime_fields - set(runtime))
+        if missing:
+            errors.append(
+                "Course 04 runtime evidence lacks fields: " + ", ".join(missing)
+            )
+        counts = [
+            runtime.get("consequential_recommendations"),
+            runtime.get("review_receipts"),
+            runtime.get("authorized_review_receipts"),
+            runtime.get("legacy_endpoint_bypasses"),
+        ]
+        if not all(isinstance(item, int) and item >= 0 for item in counts):
+            errors.append("Course 04 runtime evidence counts must be non-negative integers")
+        elif counts[1] > counts[0] or counts[2] > counts[1]:
+            errors.append("Course 04 runtime evidence violates its denominators")
+
+    reference = scenario / "reference"
+    for path in reference.glob("*"):
+        if path.is_file() and "TODO" in path.read_text(encoding="utf-8"):
+            errors.append(f"unresolved TODO in Course 04 reference: {path.relative_to(ROOT)}")
+    starter = scenario / "workshop" / "starter"
+    if not any(
+        "TODO" in path.read_text(encoding="utf-8")
+        for path in starter.glob("*")
+        if path.is_file()
+    ):
+        errors.append("Course 04 starter workspace has no editable TODO prompts")
+
+    relationship_path = reference / "workshop-relationship-graph.csv"
+    if relationship_path.exists():
+        with relationship_path.open(newline="", encoding="utf-8") as handle:
+            rows = list(csv.DictReader(handle))
+        required_relationships = {"specializes", "derived_from", "implements", "excepts"}
+        if not required_relationships.issubset({row.get("relation") for row in rows}):
+            errors.append("Course 04 reference does not demonstrate core relationship types")
+        if any(not row.get("parent_revision") for row in rows):
+            errors.append("Course 04 relationship graph has an unversioned parent binding")
+    return errors
+
+
 def main() -> None:
     checks = {
         "local links": check_local_links,
@@ -499,6 +664,7 @@ def main() -> None:
         "enterprise fixture": check_enterprise_fixture,
         "Course 02 artifact stack": check_course_02_artifact_stack,
         "Course 03 hierarchy": check_course_03_hierarchy,
+        "Course 04 ownership": check_course_04_ownership,
         "diagrams": render_and_validate_diagrams,
         "labs": run_labs,
         "repository labs": run_repository_labs,

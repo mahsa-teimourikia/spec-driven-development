@@ -1,0 +1,12 @@
+{
+  "AI-030": {
+    "meaning_owner": "TODO",
+    "consumers": ["TODO"],
+    "delegated_controls": {"TODO": "TODO"},
+    "implementation_owner": "TODO",
+    "enforcement_owners": ["TODO"],
+    "evidence_owner": "TODO",
+    "exception_owner": "TODO"
+  },
+  "authority_warning": "TODO: explain why RACI/CODEOWNERS is not authorization."
+}

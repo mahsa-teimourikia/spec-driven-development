@@ -1,0 +1,27 @@
+{
+  "release": "underwriter-assistant:3.2.0-training",
+  "change": "AI-2048",
+  "resolver": {"version": "0.5.0-training"},
+  "governing_requirements": [
+    {"id": "AI-030", "revision": "ai030v3-training", "disposition": "specialized", "specialization": "ARCH-031"},
+    {"id": "AI-041", "revision": "ai041v22-training", "disposition": "inherited"},
+    {"id": "SEC-100", "revision": "sec100v51-training", "disposition": "inherited"},
+    {"id": "AI-007", "revision": "ai007v4-training", "disposition": "inherited"},
+    {"id": "UW-041", "revision": "uw041v21-training", "disposition": "inherited"}
+  ],
+  "derived_requirements": ["REQ-REN-001", "REQ-REN-004"],
+  "exceptions": [
+    {
+      "id": "EXC-014",
+      "requirement_id": "AI-007",
+      "requirement_revision": "ai007v4-training",
+      "modification": {
+        "field": "model_gateway",
+        "expected": "legacy_enterprise_gateway_proxy"
+      },
+      "expires_on": "2026-12-31"
+    }
+  ],
+  "evidence": ["TEST-REVIEW-004", "EVAL-RENEWAL-002", "SEC-AUTH-011", "GATEWAY-TELEMETRY-007"],
+  "limitations": ["Fixture revisions, identities, and approvals are not authenticated.", "Release evidence does not prove runtime control effectiveness."]
+}

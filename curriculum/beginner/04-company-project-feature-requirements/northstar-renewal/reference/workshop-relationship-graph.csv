@@ -1,0 +1,6 @@
+source_id,relation,target_id,parent_revision,decision,rationale
+ARCH-031,specializes,AI-030,ai030v3-training,valid,The project preserves fixed review controls and selects only the delegated mechanism.
+REQ-REN-004,derived_from,AI-030,ai030v3-training,valid,The feature makes the before-use hold observable without restating policy authority.
+REQ-REN-004,derived_from,UW-041,uw041v21-training,valid,The feature retains the domain-owned reviewer obligation.
+ReviewServiceAdapter,implements,ARCH-031,arch031v3-training,valid,The adapter implements the selected project mechanism.
+EXC-014,excepts,AI-007,ai007v4-training,valid,The exception is version-bound scoped independently approved and expiring; fixture metadata remains unauthenticated.

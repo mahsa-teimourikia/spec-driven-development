@@ -1,0 +1,7 @@
+{
+  "change": {"requirement": "AI-030", "from_version": "3.0-training", "to_version": "4.0-training"},
+  "affected_controls": ["TODO"],
+  "affected_artifacts": [{"id": "TODO", "status": "TODO"}],
+  "recommended_action": "TODO",
+  "automation_boundary": "TODO"
+}

@@ -1,0 +1,10 @@
+id,layer,meaning_owner,authoritative_source,project_action
+AI-030,enterprise,AI Governance,enterprise-policy/ai-governance,inherit
+AI-041,enterprise,AI Governance,enterprise-policy/ai-governance,inherit
+SEC-100,enterprise,Product Security,enterprise-policy/security,inherit
+SEC-220,enterprise,Payment Security,enterprise-policy/payments,not_applicable
+AI-007,platform,AI Platform,platform-standards/ai,inherit
+UW-041,domain,Underwriting Risk,domain-standards/underwriting,inherit
+ARCH-031,project,Project Architecture,underwriter-assistant/docs/adr,specialize
+REQ-REN-001,feature,Renewal Product,underwriter-assistant/specs/renewal,define
+REQ-REN-004,feature,Renewal Product,underwriter-assistant/specs/renewal,derive

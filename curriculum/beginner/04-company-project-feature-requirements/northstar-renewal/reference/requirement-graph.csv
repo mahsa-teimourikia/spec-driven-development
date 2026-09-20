@@ -1,0 +1,13 @@
+source_id,relation,target_id
+ARCH-031,specializes,AI-030
+REQ-REN-004,derived_from,AI-030
+REQ-REN-004,derived_from,UW-041
+REQ-REN-001,derived_from,AI-041
+ReviewServiceAdapter,implements,ARCH-031
+ReviewServiceAdapter,implements,REQ-REN-004
+TEST-REVIEW-004,evidences,REQ-REN-004
+EVAL-RENEWAL-002,evidences,AI-041
+GatewayAdapter,implements,AI-007
+GATEWAY-TELEMETRY-007,evidences,AI-007
+SEC-AUTH-011,evidences,UW-041
+EXC-014,excepts,AI-007

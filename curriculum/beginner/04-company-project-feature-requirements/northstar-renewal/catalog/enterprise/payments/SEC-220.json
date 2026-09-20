@@ -1,0 +1,18 @@
+{
+  "id": "SEC-220",
+  "title": "Payment-card tokenization",
+  "statement": "Payment-card data SHALL be tokenized before application processing.",
+  "layer": "enterprise",
+  "meaning_owner": "Payment Security",
+  "status": "active",
+  "effective_from": "2026-01-01",
+  "source_domain": "enterprise/payments",
+  "source": {"repository": "enterprise-policy", "path": "payments/SEC-220.json", "version": "3.0-training", "revision": "sec220v3-training"},
+  "scope": [{"field": "data_kind", "allowed_values": ["payment_card"]}],
+  "fixed_controls": {"payment_card_tokenization": "required"},
+  "delegated_controls": {},
+  "enforcement": [{"plane": "runtime", "mechanism": "payment tokenization gateway", "owner": "Payment Platform", "automated": true}],
+  "evidence_ids": ["PCI-TOKEN-009"],
+  "recommended_capabilities": ["CAP-TOKENIZATION-001"],
+  "exception_owner": "Payment Security"
+}

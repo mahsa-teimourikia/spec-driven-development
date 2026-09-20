@@ -78,7 +78,7 @@ Each future course follows this learning arc, adapted where the subject demands 
 | 01 | beginner/01 | Why agentic coding changes the PDLC | **Available** | None | Control-plane simulation plus real repository change, applicability/provenance decisions, independent gates, evidence bundle |
 | 02 | beginner/02 | Prompts, requirements, specifications, designs, ADRs, tasks, tests, and agent instructions | **Available** | C01 | AI-1842 classification, repaired specification stack, decision routing, failure injection, and traceability evidence |
 | 03 | beginner/03 | The specification hierarchy | **Available** | C01–C02 | AI-1937 applicability matrix, resource-aware conflict diagnosis, scoped exception review, provenance manifest, selection-recall evidence, and bounded effective context |
-| 04 | beginner/04 | Company vs project vs feature requirements | Planned | C03 | Requirement-location matrix, separate owner/RACI, applicability and enforcement map |
+| 04 | beginner/04 | Company vs project vs feature requirements | **Available** | C03 | AI-2048 policy-source manifest, ownership/RACI matrix, relationship graph, specialization and exception findings, enforcement map, impact analysis, bounded agent context |
 
 ## Part II — Writing executable specifications
 
@@ -211,6 +211,37 @@ The old lesson files are removed from the available curriculum rather than appen
 - **Specification persistence:** change specification, living system truth, and decision-history distinctions tied to current Spec Kit and OpenSpec practice.
 
 A third realism audit deepened Lab B into a nine-stage learner workflow: a deficient and internally conflicting Jira ticket; human-readable enterprise policies plus machine-readable controls; starter and reference change packages; candidate-owned versus independent tests; labelled evaluation cases; design/task/code/test/runtime traceability; proposal- and policy-bound approval receipts; and separate merge versus production-release decisions. Framework execution remains in Courses 11–12, where the same Northstar change is implemented through Spec Kit and OpenSpec for an apples-to-apples comparison.
+
+## Course 04 design record
+
+Course 04 continues the Northstar sequence without duplicating Course 03's
+applicability resolver. Its focused capability is to connect centrally owned
+requirements to project and feature artifacts while preserving authority,
+specialization semantics, enforcement, ownership, and change propagation.
+
+- **Scenario:** ticket `AI-2048` adds automatic policy-renewal recommendations
+  to the Underwriter Assistant.
+- **Core artifact:** a source-oriented `policy-manifest.json` that selects policy
+  domains and versions, then records project specializations and approved
+  exception references without copying the enterprise catalog.
+- **Lab A:** compare copied-policy drift with a graph-based resolver; reject a
+  feature weakening, invalid self-approved exception, unauthorized governance
+  write, stale parent binding, and documentation-only enforcement claim.
+- **Lab B:** complete a requirement-location matrix, owner/consumer/enforcer
+  RACI, relationship graph, enforcement map, downstream-impact analysis, and
+  bounded agent context before inspecting the reference package.
+- **Technology context:** compare NIST OSCAL profiles, OPA management APIs,
+  Backstage ownership metadata, GitHub CODEOWNERS/rulesets, Cedar, and portable
+  repository manifests by the guarantee each actually provides.
+- **Evaluation:** explicit denominators for source coverage, relationship
+  integrity, machine-enforcement coverage, changed-parent impact recall,
+  unauthorized-write rejection, valid-context readiness, and observed runtime
+  control effectiveness. Agent-behavior signals remain separate counts rather
+  than a composite governance score.
+- **Boundaries:** the standard-library implementation validates a teaching
+  manifest and structured fixture metadata; it does not authenticate enterprise
+  publishers, replace legal/policy judgment, configure external products, or
+  prove deployed enforcement.
 
 ## Risk boundaries
 

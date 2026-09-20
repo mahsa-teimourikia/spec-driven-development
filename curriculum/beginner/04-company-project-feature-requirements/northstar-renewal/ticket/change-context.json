@@ -1,0 +1,18 @@
+{
+  "id": "AI-2048",
+  "evaluated_on": "2026-09-20",
+  "facts": [
+    {"field": "risk_class", "values": ["consequential"], "evidence_ids": ["RISK-2048"]},
+    {"field": "feature_type", "values": ["ai_recommendation"], "evidence_ids": ["FEATURE-2048"]},
+    {"field": "environment", "values": ["production"], "evidence_ids": ["DEPLOYMENT-UA-03"]},
+    {"field": "exposure", "values": ["customer_facing"], "evidence_ids": ["SYSTEM-UA-01"]},
+    {"field": "decision_domain", "values": ["renewal"], "evidence_ids": ["DOMAIN-RENEWAL-01"]},
+    {"field": "data_kind", "values": ["policy_history"], "evidence_ids": ["DATA-FLOW-2048"]}
+  ],
+  "requested_write_paths": [
+    "src/renewal/recommendation.py",
+    "tests/renewal/test_review_gate.py",
+    "evals/renewal/cases.json",
+    "specs/renewal/spec.md"
+  ]
+}

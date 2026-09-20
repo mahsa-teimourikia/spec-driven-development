@@ -1,0 +1,13 @@
+{
+  "change": {"requirement": "AI-030", "from_version": "3.0-training", "to_version": "4.0-training", "change_type": "obligation_changed"},
+  "affected_controls": ["review_reason_code"],
+  "affected_artifacts": [
+    {"id": "ARCH-031", "type": "specialization", "status": "requires_review"},
+    {"id": "REQ-REN-004", "type": "derived_requirement", "status": "requires_review"},
+    {"id": "ReviewServiceAdapter", "type": "implementation", "status": "requires_review"},
+    {"id": "TEST-REVIEW-004", "type": "evidence", "status": "requires_review"}
+  ],
+  "recommended_action": "create_change_spec",
+  "migration_deadline": "2026-10-31",
+  "automation_boundary": "The analyzer reports dependencies and gaps; it does not edit project artifacts or interpret policy authority."
+}

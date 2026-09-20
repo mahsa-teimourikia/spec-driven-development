@@ -1,0 +1,17 @@
+{
+  "requirement_id": "AI-030",
+  "control": "ReviewServiceGate",
+  "control_version": "review-gate-2.4.0-training",
+  "observed_window": "2026-09-01/2026-09-07",
+  "renewal_recommendations": 10430,
+  "consequential_recommendations": 4211,
+  "review_receipts": 4211,
+  "authorized_review_receipts": 4211,
+  "legacy_endpoint_bypasses": 0,
+  "evidence_producer": "fictional-observability-pipeline",
+  "limitations": [
+    "The fixture does not authenticate the telemetry producer.",
+    "Receipt presence does not prove the quality of human review.",
+    "The observed window does not prove behavior outside that interval."
+  ]
+}

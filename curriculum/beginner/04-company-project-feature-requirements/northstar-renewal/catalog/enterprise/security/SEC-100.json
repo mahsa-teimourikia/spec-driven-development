@@ -1,0 +1,21 @@
+{
+  "id": "SEC-100",
+  "title": "Approved customer-facing authentication",
+  "statement": "Customer-facing applications SHALL authenticate through an approved identity provider.",
+  "layer": "enterprise",
+  "meaning_owner": "Product Security",
+  "status": "active",
+  "effective_from": "2026-01-01",
+  "source_domain": "enterprise/security",
+  "source": {"repository": "enterprise-policy", "path": "security/SEC-100.json", "version": "5.1-training", "revision": "sec100v51-training"},
+  "scope": [{"field": "exposure", "allowed_values": ["customer_facing"]}],
+  "fixed_controls": {"identity_provider": "approved"},
+  "delegated_controls": {"authentication_protocol": {"owner": "Identity Platform", "agent_authority": "propose"}},
+  "enforcement": [
+    {"plane": "ci", "mechanism": "authentication boundary test", "owner": "Developer Platform", "automated": true},
+    {"plane": "runtime", "mechanism": "Corporate OIDC", "owner": "Identity Platform", "automated": true}
+  ],
+  "evidence_ids": ["SEC-AUTH-011"],
+  "recommended_capabilities": ["CAP-CORPORATE-OIDC-001"],
+  "exception_owner": "Product Security"
+}

@@ -1,0 +1,18 @@
+{
+  "id": "AI-041",
+  "title": "Renewal model evaluation evidence",
+  "statement": "AI recommendation changes SHALL retain evaluation evidence before merge and release.",
+  "layer": "enterprise",
+  "meaning_owner": "AI Governance",
+  "status": "active",
+  "effective_from": "2026-04-01",
+  "source_domain": "enterprise/ai-governance",
+  "source": {"repository": "enterprise-policy", "path": "ai-governance/AI-041.json", "version": "2.2-training", "revision": "ai041v22-training"},
+  "scope": [{"field": "feature_type", "allowed_values": ["ai_recommendation"]}],
+  "fixed_controls": {"evaluation_evidence": "required"},
+  "delegated_controls": {"evaluation_suite": {"owner": "AI Quality", "agent_authority": "propose"}},
+  "enforcement": [{"plane": "ci", "mechanism": "renewal evaluation gate", "owner": "AI Quality", "automated": true}],
+  "evidence_ids": ["EVAL-RENEWAL-002"],
+  "recommended_capabilities": ["CAP-AI-EVAL-001"],
+  "exception_owner": "AI Governance"
+}

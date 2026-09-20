@@ -1,0 +1,16 @@
+{
+  "AI-030": {
+    "meaning_owner": "AI Governance",
+    "consumers": ["Underwriting", "Claims", "Broker"],
+    "delegated_controls": {
+      "reviewer_role": "Underwriting Risk",
+      "review_mechanism": "Project Architecture",
+      "implementation_structure": "Engineering"
+    },
+    "implementation_owner": "Underwriter Engineering",
+    "enforcement_owners": ["Developer Platform", "Underwriter Engineering"],
+    "evidence_owner": "Underwriter Engineering",
+    "exception_owner": "AI Governance"
+  },
+  "note": "This responsibility record documents decision rights; it is not runtime authorization or an approval receipt."
+}

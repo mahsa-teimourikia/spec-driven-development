@@ -1,0 +1,7 @@
+{
+  "id": "REQ-REN-001",
+  "owner": "Renewal Product",
+  "source": {"repository": "underwriter-assistant", "path": "specs/renewal/spec.md", "version": "1.0-training", "revision": "reqren001-training"},
+  "derived_from": ["AI-041"],
+  "controls": {"renewal_recommendation": "generated_with_evidence"}
+}

@@ -1,0 +1,21 @@
+{
+  "id": "AI-007",
+  "title": "Approved enterprise AI gateway",
+  "statement": "Production model inference SHALL use the approved enterprise AI gateway.",
+  "layer": "platform",
+  "meaning_owner": "AI Platform",
+  "status": "active",
+  "effective_from": "2026-02-01",
+  "source_domain": "platform/ai",
+  "source": {"repository": "platform-standards", "path": "ai/AI-007.json", "version": "4.0-training", "revision": "ai007v4-training"},
+  "scope": [{"field": "environment", "allowed_values": ["production"]}],
+  "fixed_controls": {"model_gateway": "enterprise_ai_gateway"},
+  "delegated_controls": {"gateway_adapter": {"owner": "Project Architecture", "agent_authority": "propose"}},
+  "enforcement": [
+    {"plane": "ci", "mechanism": "direct-provider-call policy", "owner": "Developer Platform", "automated": true},
+    {"plane": "runtime", "mechanism": "gateway-only network egress", "owner": "AI Platform", "automated": true}
+  ],
+  "evidence_ids": ["GATEWAY-TELEMETRY-007"],
+  "recommended_capabilities": ["CAP-AI-GATEWAY-001"],
+  "exception_owner": "AI Platform"
+}

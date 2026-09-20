@@ -1,0 +1,7 @@
+{
+  "project": "underwriter-assistant",
+  "policy_sources": ["TODO"],
+  "specialization_ids": ["TODO"],
+  "exception_ids": [],
+  "context_preserve": ["TODO"]
+}
