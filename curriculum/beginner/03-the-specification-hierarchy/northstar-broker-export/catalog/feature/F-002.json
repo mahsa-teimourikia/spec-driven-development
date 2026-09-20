@@ -1,0 +1,27 @@
+{
+  "id": "F-002",
+  "title": "Broker email delivery",
+  "statement": "An authorized underwriter SHALL be able to send the approved export to an authorized broker.",
+  "layer": "feature",
+  "owner": "Underwriter Assistant Product",
+  "authority": "approved",
+  "authority_domain": "broker_delivery",
+  "status": "active",
+  "effective_from": "2026-09-15",
+  "effective_until": null,
+  "review_due": "2027-09-14",
+  "superseded_by": null,
+  "source": {
+    "repository": "underwriter-assistant",
+    "path": "changes/AI-1937/spec.json",
+    "version": "1.0-training",
+    "revision": "ee501ad-training"
+  },
+  "scope_operator": "all",
+  "scope": [
+    {"field": "feature", "allowed_values": ["ai_1937"]}
+  ],
+  "resource": "approved_policy_comparison",
+  "control": "broker_email_delivery",
+  "expected": "authorized_broker_only"
+}

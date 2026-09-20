@@ -1,0 +1,29 @@
+{
+  "id": "PRIV-031",
+  "title": "Final AI-generated broker communication deletion",
+  "statement": "Final AI-generated broker communications containing customer PII SHALL be deleted after 30 days.",
+  "layer": "organization",
+  "owner": "Privacy Office",
+  "authority": "mandatory",
+  "authority_domain": "broker_record_retention",
+  "status": "active",
+  "effective_from": "2026-01-01",
+  "effective_until": null,
+  "review_due": "2027-12-31",
+  "superseded_by": null,
+  "source": {
+    "repository": "enterprise-policy",
+    "path": "privacy/PRIV-031.json",
+    "version": "1.0-training",
+    "revision": "f419d1b-training"
+  },
+  "scope_operator": "all",
+  "scope": [
+    {"field": "data_kind", "allowed_values": ["broker_communication"]},
+    {"field": "data_classification", "allowed_values": ["confidential", "restricted"]},
+    {"field": "ai_generated", "allowed_values": ["true"]}
+  ],
+  "resource": "final_approved_broker_communication",
+  "control": "retention_days",
+  "expected": "30"
+}

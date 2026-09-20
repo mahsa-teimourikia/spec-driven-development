@@ -328,6 +328,168 @@ def check_course_02_artifact_stack() -> list[str]:
     return errors
 
 
+def check_course_03_hierarchy() -> list[str]:
+    scenario = (
+        ROOT
+        / "curriculum"
+        / "beginner"
+        / "03-the-specification-hierarchy"
+        / "northstar-broker-export"
+    )
+    required = [
+        "README.md",
+        "ticket/AI-1937.md",
+        "ticket/change-context.json",
+        "exceptions/EXC-009.json",
+        "workshop/starter/README.md",
+        "workshop/starter/applicability.csv",
+        "workshop/starter/conflict-and-precedence.md",
+        "workshop/starter/exception-review.md",
+        "workshop/starter/effective-context.md",
+        "reference/applicability.csv",
+        "reference/conflict-and-precedence.md",
+        "reference/exception-review.md",
+        "reference/effective-context.md",
+        "reference/provenance-manifest.csv",
+    ]
+    errors = [
+        f"missing Course 03 artifact: {item}"
+        for item in required
+        if not (scenario / item).exists()
+    ]
+
+    catalog_paths = sorted((scenario / "catalog").glob("**/*.json"))
+    if len(catalog_paths) != 14:
+        errors.append(
+            f"Course 03 catalog must contain 14 requirements, found {len(catalog_paths)}"
+        )
+    json_paths = catalog_paths + sorted((scenario / "exceptions").glob("*.json"))
+    context_path = scenario / "ticket" / "change-context.json"
+    if context_path.exists():
+        json_paths.append(context_path)
+    for path in json_paths:
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError) as exc:
+            errors.append(f"invalid Course 03 JSON {path.relative_to(ROOT)}: {exc}")
+            continue
+        if path in catalog_paths:
+            for field in (
+                "authority_domain",
+                "scope_operator",
+                "resource",
+                "effective_until",
+                "review_due",
+            ):
+                if field not in payload:
+                    errors.append(
+                        f"Course 03 requirement lacks {field}: {path.relative_to(ROOT)}"
+                    )
+            if payload.get("scope_operator") != "all":
+                errors.append(
+                    f"Course 03 requirement must declare ALL scope: {path.relative_to(ROOT)}"
+                )
+
+    reference = scenario / "reference"
+    for path in reference.glob("*"):
+        if path.is_file() and "TODO" in path.read_text(encoding="utf-8"):
+            errors.append(f"unresolved TODO in Course 03 reference: {path.relative_to(ROOT)}")
+    starter = scenario / "workshop" / "starter"
+    if not any(
+        "TODO" in path.read_text(encoding="utf-8")
+        for path in starter.glob("*")
+        if path.is_file()
+    ):
+        errors.append("Course 03 starter workspace has no editable TODO prompts")
+
+    applicability_path = reference / "applicability.csv"
+    if applicability_path.exists():
+        with applicability_path.open(newline="", encoding="utf-8") as handle:
+            rows = list(csv.DictReader(handle))
+        required_columns = {
+            "requirement_id",
+            "decision",
+            "reason_codes",
+            "evidence_ids",
+        }
+        columns = set(rows[0]) if rows else set()
+        missing = sorted(required_columns - columns)
+        if missing:
+            errors.append(
+                "Course 03 applicability matrix is missing columns: "
+                + ", ".join(missing)
+            )
+        if len(rows) != 14:
+            errors.append(
+                f"Course 03 applicability matrix must cover 14 candidates, found {len(rows)}"
+            )
+        results = {row.get("decision") for row in rows}
+        if not {"applicable", "not_applicable"}.issubset(results):
+            errors.append("Course 03 reference must demonstrate applicable and N/A decisions")
+
+    provenance_path = reference / "provenance-manifest.csv"
+    if provenance_path.exists():
+        with provenance_path.open(newline="", encoding="utf-8") as handle:
+            provenance_rows = list(csv.DictReader(handle))
+        provenance_columns = set(provenance_rows[0]) if provenance_rows else set()
+        required_provenance_columns = {
+            "requirement_id",
+            "source_repository",
+            "source_path",
+            "version",
+            "revision",
+            "effective_until",
+            "review_due",
+        }
+        missing = sorted(required_provenance_columns - provenance_columns)
+        if missing:
+            errors.append(
+                "Course 03 provenance manifest is missing columns: "
+                + ", ".join(missing)
+            )
+        if len(provenance_rows) != 14:
+            errors.append(
+                "Course 03 provenance manifest must cover all 14 candidates, "
+                f"found {len(provenance_rows)}"
+            )
+
+    exception_path = scenario / "exceptions" / "EXC-009.json"
+    if exception_path.exists():
+        try:
+            exception = json.loads(exception_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            exception = {}
+        if exception:
+            for field in (
+                "requirement_id",
+                "scope",
+                "modification",
+                "conditions",
+                "approver",
+                "approval_record",
+                "expires_on",
+                "source",
+            ):
+                if not exception.get(field):
+                    errors.append(f"Course 03 exception lacks required field: {field}")
+            scope = exception.get("scope", {})
+            modification = exception.get("modification", {})
+            if not scope.get("change_ids") or not scope.get("resources"):
+                errors.append("Course 03 exception has incomplete change/resource scope")
+            if not modification.get("control") or not modification.get(
+                "permitted_expected"
+            ):
+                errors.append("Course 03 exception has incomplete modification")
+            related = exception.get("related_unaffected_obligation_ids", [])
+            if not isinstance(related, list) or not all(
+                isinstance(item, str) and item.strip() for item in related
+            ):
+                errors.append(
+                    "Course 03 exception has invalid related unaffected obligations"
+                )
+    return errors
+
+
 def main() -> None:
     checks = {
         "local links": check_local_links,
@@ -336,6 +498,7 @@ def main() -> None:
         "published navigation": check_published_navigation,
         "enterprise fixture": check_enterprise_fixture,
         "Course 02 artifact stack": check_course_02_artifact_stack,
+        "Course 03 hierarchy": check_course_03_hierarchy,
         "diagrams": render_and_validate_diagrams,
         "labs": run_labs,
         "repository labs": run_repository_labs,

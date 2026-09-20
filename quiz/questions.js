@@ -201,5 +201,47 @@ const QUESTIONS = [
     options: ['A derived system control that blocks decision-record entry without a valid linked review receipt', 'A copy of the policy presented as implementation code', 'An AGENTS.md instruction allowing the agent to waive review', 'Only a task named “add approval”'],
     answer: 0,
     explanation: 'The policy owns the organizational obligation; the feature specification derives observable system behavior that can be implemented and tested.'
+  },
+  {
+    category: 'Hierarchy resolution',
+    question: 'Why must applicability be evaluated before precedence?',
+    options: ['Only current requirements whose scope matches the change should enter authority and conflict resolution', 'The most specific requirement always applies', 'Precedence determines whether facts exist', 'Every retrieved statement should govern the change'],
+    answer: 0,
+    explanation: 'Status, dates, provenance, and change facts establish which records enter composition. Comparing authority before scope can let irrelevant or stale requirements distort the result.'
+  },
+  {
+    category: 'Applicability',
+    question: 'A mandatory privacy rule depends on data classification, but the change context has no classification fact. What is the safe result?',
+    options: ['UNCERTAIN and STOP for clarification', 'NOT APPLICABLE because the field is absent', 'APPLICABLE with the lowest classification', 'Let the coding agent choose after implementation'],
+    answer: 0,
+    explanation: 'Missing input is not positive evidence of a scope mismatch. Uncertainty reduces autonomy and must remain visible.'
+  },
+  {
+    category: 'Authority',
+    question: 'A feature ticket specifically requests direct SendGrid use, while an active mandatory platform rule requires the corporate messaging gateway. What governs?',
+    options: ['The platform rule, because its declared authority is higher—not merely because of its layer', 'The ticket because it is closer to the code', 'The newest statement regardless of owner', 'Both instructions can be implemented simultaneously'],
+    answer: 0,
+    explanation: 'Specificity, proximity, and recency do not create authority. The resolver records both inputs and the declared authority rule used to reject the suggestion.'
+  },
+  {
+    category: 'Conflicts',
+    question: 'Two applicable policies specify different retention periods. What must be established before calling this a genuine conflict?',
+    options: ['They govern the same controlled resource, scope, and lifecycle event', 'They use the same field name', 'They live in different repositories', 'One comes from a lower layer'],
+    answer: 0,
+    explanation: 'Intermediate model interactions and final broker records can legitimately have different retention periods. Only incompatible obligations over the same subject and situation require conflict adjudication.'
+  },
+  {
+    category: 'Exceptions',
+    question: 'How should a scoped exception relate to its base requirement?',
+    options: ['Keep the base requirement intact while recording the permitted scope, modified obligation, conditions, and expiry', 'Rewrite the base policy to the exception value', 'Enumerate every requirement the exception does not affect', 'Let the feature specification grant the waiver'],
+    answer: 0,
+    explanation: 'A first-class exception changes only its named obligation within its authorized scope. Everything else remains unchanged by default; related unaffected obligations may be linked as optional traceability, not an exhaustive list.'
+  },
+  {
+    category: 'Context compression',
+    question: 'What must survive when applicable requirements are compressed into agent context?',
+    options: ['Stable requirement IDs, source locators, exception IDs and conditions, and unresolved stop states', 'Only a prose summary of the desired implementation', 'Every policy in the company regardless of scope', 'The model conversation but not source versions'],
+    answer: 0,
+    explanation: 'Loss-aware compression keeps decisions traceable and refreshable. Removing provenance or exception conditions creates apparently simple but unauditable instructions.'
   }
 ];

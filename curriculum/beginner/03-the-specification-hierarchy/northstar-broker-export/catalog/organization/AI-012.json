@@ -1,0 +1,27 @@
+{
+  "id": "AI-012",
+  "title": "AI-generated content disclosure",
+  "statement": "AI-generated underwriting content SHALL be identified as AI-generated.",
+  "layer": "organization",
+  "owner": "AI Governance",
+  "authority": "mandatory",
+  "authority_domain": "ai_content_governance",
+  "status": "active",
+  "effective_from": "2026-03-01",
+  "effective_until": null,
+  "review_due": "2027-02-28",
+  "superseded_by": null,
+  "source": {
+    "repository": "enterprise-policy",
+    "path": "ai-governance/AI-012.json",
+    "version": "2.0-training",
+    "revision": "d440ac1-training"
+  },
+  "scope_operator": "all",
+  "scope": [
+    {"field": "ai_generated", "allowed_values": ["true"]}
+  ],
+  "resource": "final_approved_broker_communication",
+  "control": "ai_content_disclosure",
+  "expected": "required"
+}

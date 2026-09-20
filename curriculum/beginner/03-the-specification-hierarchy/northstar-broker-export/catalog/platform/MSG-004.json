@@ -1,0 +1,27 @@
+{
+  "id": "MSG-004",
+  "title": "Corporate outbound messaging route",
+  "statement": "Outbound email SHALL use the Corporate Messaging Gateway.",
+  "layer": "platform",
+  "owner": "Messaging Platform",
+  "authority": "mandatory",
+  "authority_domain": "outbound_messaging",
+  "status": "active",
+  "effective_from": "2025-10-01",
+  "effective_until": null,
+  "review_due": "2027-09-30",
+  "superseded_by": null,
+  "source": {
+    "repository": "platform-standards",
+    "path": "messaging/MSG-004.json",
+    "version": "6.0-training",
+    "revision": "f601bb2-training"
+  },
+  "scope_operator": "all",
+  "scope": [
+    {"field": "channel", "allowed_values": ["outbound_email"]}
+  ],
+  "resource": "outbound_broker_email",
+  "control": "outbound_email_provider",
+  "expected": "corporate_messaging_gateway"
+}

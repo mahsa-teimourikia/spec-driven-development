@@ -1,0 +1,235 @@
+{
+  "version": 1,
+  "id": "effective-specification-resolution",
+  "title": "From layered requirements to an effective specification",
+  "purpose": "Show how change facts and requirement metadata drive applicability, conflict and exception handling, and provenance-preserving agent context.",
+  "output": {
+    "svg": "effective-specification-resolution.svg",
+    "medium": "course notebook and documentation",
+    "alt_text": "Three-stage diagram. Layered candidate requirements and evidence-backed change facts enter an applicability resolver. Applicable requirements continue to authority, conflict, and exception resolution; not-applicable requirements are recorded; uncertain requirements stop for clarification. A ready resolution produces provenance-preserving effective context for a bounded coding agent."
+  },
+  "canvas": {
+    "width": 1600,
+    "height": 920,
+    "background": "#F7F9FC",
+    "margin": 60,
+    "grid": 10
+  },
+  "layout": {
+    "primary_flow": "left-to-right with applicability branches",
+    "min_node_gap": 50,
+    "min_layer_gap": 60,
+    "node_padding": {"x": 24, "y": 18}
+  },
+  "style": {
+    "font_family": "Inter, Arial, sans-serif",
+    "title_color": "#16324F",
+    "semantic_colors": {
+      "source": {"fill": "#FFFFFF", "stroke": "#52606D"},
+      "process": {"fill": "#EAF1FF", "stroke": "#2F6BFF"},
+      "governance": {"fill": "#E5F7F6", "stroke": "#087F7B"},
+      "stop": {"fill": "#FFF1DF", "stroke": "#D97706"},
+      "agent": {"fill": "#F0EEFF", "stroke": "#7667E8"}
+    }
+  },
+  "groups": [
+    {
+      "id": "inputs",
+      "label": "CANDIDATES AND CHANGE EVIDENCE",
+      "bounds": {"x": 60, "y": 135, "width": 350, "height": 700},
+      "fill": "#FFFFFF",
+      "stroke": "#D7DEE8"
+    },
+    {
+      "id": "resolution",
+      "label": "DETERMINISTIC RESOLUTION",
+      "bounds": {"x": 460, "y": 135, "width": 680, "height": 700},
+      "fill": "#FFFFFF",
+      "stroke": "#D7DEE8"
+    },
+    {
+      "id": "output",
+      "label": "BOUNDED EXECUTION CONTEXT",
+      "bounds": {"x": 1190, "y": 135, "width": 350, "height": 700},
+      "fill": "#FFFFFF",
+      "stroke": "#D7DEE8"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "candidates",
+      "group": "inputs",
+      "label": ["L0–L5 candidate", "requirements"],
+      "subtitle": "Authority, scope, source, status",
+      "type": "source",
+      "bounds": {"x": 100, "y": 245, "width": 270, "height": 130},
+      "padding": 18,
+      "ports": {"out": {"side": "right", "offset": 0.5}}
+    },
+    {
+      "id": "change_context",
+      "group": "inputs",
+      "label": ["Change context"],
+      "subtitle": "Facts linked to evidence IDs",
+      "type": "source",
+      "bounds": {"x": 100, "y": 555, "width": 270, "height": 120},
+      "padding": 18,
+      "ports": {"out": {"side": "right", "offset": 0.5}}
+    },
+    {
+      "id": "applicability",
+      "group": "resolution",
+      "label": ["Applicability resolver"],
+      "subtitle": "Effective/review dates + flat ALL",
+      "type": "process",
+      "bounds": {"x": 510, "y": 265, "width": 270, "height": 120},
+      "padding": 18,
+      "ports": {
+        "requirements": {"side": "left", "offset": 0.35},
+        "facts": {"side": "left", "offset": 0.75},
+        "applicable": {"side": "right", "offset": 0.2},
+        "not_applicable": {"side": "right", "offset": 0.5},
+        "uncertain": {"side": "right", "offset": 0.8}
+      }
+    },
+    {
+      "id": "applicable",
+      "group": "resolution",
+      "label": ["APPLICABLE"],
+      "subtitle": "Continue with evidence",
+      "type": "governance",
+      "bounds": {"x": 860, "y": 195, "width": 230, "height": 100},
+      "padding": 18,
+      "ports": {
+        "in": {"side": "left", "offset": 0.5},
+        "down": {"side": "bottom", "offset": 0.5}
+      }
+    },
+    {
+      "id": "not_applicable",
+      "group": "resolution",
+      "label": ["NOT APPLICABLE"],
+      "subtitle": "Record reason and evidence",
+      "type": "source",
+      "bounds": {"x": 860, "y": 345, "width": 230, "height": 100},
+      "padding": 18,
+      "ports": {"in": {"side": "left", "offset": 0.5}}
+    },
+    {
+      "id": "uncertain",
+      "group": "resolution",
+      "label": ["UNCERTAIN"],
+      "subtitle": "STOP and clarify",
+      "type": "stop",
+      "bounds": {"x": 860, "y": 495, "width": 230, "height": 100},
+      "padding": 18,
+      "ports": {"in": {"side": "left", "offset": 0.5}}
+    },
+    {
+      "id": "conflict_resolver",
+      "group": "resolution",
+      "label": ["Authority + conflict +", "exception resolution"],
+      "subtitle": "Match domain + resource + control",
+      "type": "governance",
+      "bounds": {"x": 535, "y": 665, "width": 300, "height": 120},
+      "padding": 18,
+      "ports": {
+        "in": {"side": "top", "offset": 0.5},
+        "out": {"side": "right", "offset": 0.5}
+      }
+    },
+    {
+      "id": "effective_context",
+      "group": "output",
+      "label": ["Effective specification"],
+      "subtitle": "IDs, sources, evidence, conditions",
+      "type": "governance",
+      "bounds": {"x": 1230, "y": 285, "width": 270, "height": 125},
+      "padding": 18,
+      "ports": {
+        "in": {"side": "left", "offset": 0.5},
+        "down": {"side": "bottom", "offset": 0.5}
+      }
+    },
+    {
+      "id": "bounded_agent",
+      "group": "output",
+      "label": ["Bounded coding agent"],
+      "subtitle": "Implements; does not grant authority",
+      "type": "agent",
+      "bounds": {"x": 1230, "y": 585, "width": 270, "height": 120},
+      "padding": 18,
+      "ports": {"in": {"side": "top", "offset": 0.5}}
+    }
+  ],
+  "edges": [
+    {
+      "id": "candidates-applicability",
+      "from": {"node": "candidates", "port": "out"},
+      "to": {"node": "applicability", "port": "requirements"},
+      "kind": "primary",
+      "route": [[370, 310], [450, 310], [450, 307], [510, 307]]
+    },
+    {
+      "id": "context-applicability",
+      "from": {"node": "change_context", "port": "out"},
+      "to": {"node": "applicability", "port": "facts"},
+      "kind": "primary",
+      "route": [[370, 615], [430, 615], [430, 355], [510, 355]]
+    },
+    {
+      "id": "applicability-applicable",
+      "from": {"node": "applicability", "port": "applicable"},
+      "to": {"node": "applicable", "port": "in"},
+      "kind": "governance",
+      "route": [[780, 289], [820, 289], [820, 245], [860, 245]]
+    },
+    {
+      "id": "applicability-not-applicable",
+      "from": {"node": "applicability", "port": "not_applicable"},
+      "to": {"node": "not_applicable", "port": "in"},
+      "kind": "secondary",
+      "route": [[780, 325], [820, 325], [820, 395], [860, 395]]
+    },
+    {
+      "id": "applicability-uncertain",
+      "from": {"node": "applicability", "port": "uncertain"},
+      "to": {"node": "uncertain", "port": "in"},
+      "kind": "stop",
+      "route": [[780, 361], [810, 361], [810, 545], [860, 545]]
+    },
+    {
+      "id": "applicable-resolution",
+      "from": {"node": "applicable", "port": "down"},
+      "to": {"node": "conflict_resolver", "port": "in"},
+      "kind": "governance",
+      "label": "applicable set",
+      "label_position": [930, 630],
+      "route": [[975, 295], [1110, 295], [1110, 630], [685, 630], [685, 665]]
+    },
+    {
+      "id": "resolution-effective",
+      "from": {"node": "conflict_resolver", "port": "out"},
+      "to": {"node": "effective_context", "port": "in"},
+      "kind": "governance",
+      "label": "READY only",
+      "label_position": [1030, 730],
+      "route": [[835, 725], [1160, 725], [1160, 347.5], [1230, 347.5]]
+    },
+    {
+      "id": "effective-agent",
+      "from": {"node": "effective_context", "port": "down"},
+      "to": {"node": "bounded_agent", "port": "in"},
+      "kind": "primary",
+      "route": [[1365, 410], [1365, 585]]
+    }
+  ],
+  "validation": {
+    "no_overlaps": true,
+    "route_around_nodes": true,
+    "min_text_padding": 18,
+    "min_connector_clearance": 12,
+    "verify_port_attachment": true,
+    "verify_contrast": true
+  }
+}

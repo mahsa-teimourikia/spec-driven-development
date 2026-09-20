@@ -95,6 +95,57 @@ const course02 = {
   }
 };
 
+const course03 = {
+  id: 'c03', course: 3, level: 'beginner', part: 'I · SDD foundations', status: 'available',
+  title: 'The specification hierarchy',
+  summary: 'Resolve organization, platform, domain, project, and feature requirements into a provenance-preserving effective specification without giving an agent authority to hide uncertainty or settle policy conflicts.',
+  outcomes: [
+    'Model six specification layers as ownership and scope boundaries rather than a universal winner ladder.',
+    'Evaluate applicability before precedence and preserve evidence for applicable, not-applicable, and uncertain decisions.',
+    'Distinguish authority from specificity, proximity, recency, and structured format.',
+    'Confirm that obligations govern the same resource and lifecycle event before declaring a genuine conflict.',
+    'Detect incompatible same-resource obligations and stop for accountable owner resolution.',
+    'Validate scoped, conditional, expiring exceptions that change only named obligations and scope.',
+    'Compose context with requirement IDs, source locators, applicability evidence, exception conditions, and stop states.',
+    'Measure candidate-discovery precision and recall separately from applicability accuracy.'
+  ],
+  readme: `${REPO}/blob/main/curriculum/beginner/03-the-specification-hierarchy/README.md`,
+  notebook: `${REPO}/blob/main/curriculum/beginner/03-the-specification-hierarchy/specification_hierarchy.ipynb`,
+  lab: `${REPO}/blob/main/curriculum/beginner/03-the-specification-hierarchy/lab.py`,
+  repoFixture: `${REPO}/tree/main/curriculum/beginner/03-the-specification-hierarchy/northstar-broker-export`,
+  run: 'python3 curriculum/beginner/03-the-specification-hierarchy/lab.py',
+  labs: [
+    {
+      title: 'Lab A — Resolve the effective specification',
+      description: 'Compare naive concatenation with applicability, lifecycle, authority, conflict, exception, and context-composition decisions; then inject missing facts and expired exceptions.',
+      command: 'python3 curriculum/beginner/03-the-specification-hierarchy/lab.py',
+      links: [['View the resolver', `${REPO}/blob/main/curriculum/beginner/03-the-specification-hierarchy/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/beginner/03-the-specification-hierarchy/specification_hierarchy.ipynb`]]
+    },
+    {
+      title: 'Lab B — Govern broker export AI-1937',
+      description: 'Complete an applicability matrix, conflict and precedence record, exception assessment, provenance manifest, and bounded agent context before consulting the reference artifacts.',
+      command: 'Open the ticket, catalog, and starter workspace; run Lab A before consulting the reference.',
+      links: [['Open the workshop', `${REPO}/tree/main/curriculum/beginner/03-the-specification-hierarchy/northstar-broker-export`], ['Complete the starter artifacts', `${REPO}/tree/main/curriculum/beginner/03-the-specification-hierarchy/northstar-broker-export/workshop/starter`], ['Inspect the reference resolution', `${REPO}/tree/main/curriculum/beginner/03-the-specification-hierarchy/northstar-broker-export/reference`]]
+    }
+  ],
+  references: [
+    ['NIST OSCAL', 'https://pages.nist.gov/OSCAL/'],
+    ['Open Policy Agent documentation', 'https://www.openpolicyagent.org/docs'],
+    ['Cedar Policy Language reference guide', 'https://docs.cedarpolicy.com/'],
+    ['JSON Schema specification', 'https://json-schema.org/specification']
+  ],
+  checkpoint: {
+    question: 'PRIV-018 depends on data classification, but AI-1937 has no classification evidence. What should the resolver do?',
+    options: [
+      'Return UNCERTAIN and stop for clarification.',
+      'Mark the rule not applicable because no restricted data was declared.',
+      'Let the implementation agent infer the lowest-risk classification.'
+    ],
+    answer: 0,
+    explanation: 'Missing evidence is not evidence of a scope mismatch. Fail-closed uncertainty prevents an unknown data boundary from silently widening agent autonomy.'
+  }
+};
+
 function planned(course, level, part, title, summary) {
   return {
     id: `c${String(course).padStart(2, '0')}`, course, level, part,
@@ -108,7 +159,7 @@ function planned(course, level, part, title, summary) {
 const LESSONS = [
   course01,
   course02,
-  planned(3, 'beginner', 'I · SDD foundations', 'The specification hierarchy', 'Connect organization intent to platform, domain, project, feature, and implementation constraints.'),
+  course03,
   planned(4, 'beginner', 'I · SDD foundations', 'Company vs project vs feature requirements', 'Resolve scope, ownership, inheritance, specialization, and conflicts across levels.'),
   planned(5, 'beginner', 'II · Executable specifications', 'Requirements engineering for agents', 'Discover assumptions and express requirements that constrain agent action.'),
   planned(6, 'beginner', 'II · Executable specifications', 'User stories, EARS, SHALL requirements, and scenarios', 'Use complementary requirement forms without mistaking syntax for quality.'),
