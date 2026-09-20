@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc" viewBox="0 0 1600 920">
+<title id="title">From layered requirements to an effective specification</title>
+<desc id="desc">Three-stage diagram. Layered candidate requirements and evidence-backed change facts enter an applicability resolver. Applicable requirements continue to authority, conflict, and exception resolution; not-applicable requirements are recorded; uncertain requirements stop for clarification. A ready resolution produces provenance-preserving effective context for a bounded coding agent.</desc>
+<defs>
+          <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="4" stdDeviation="7"
+              flood-color="#16324F" flood-opacity="0.09"/>
+          </filter>
+          <marker id="arrow-primary" markerWidth="8" markerHeight="8"
+            refX="7" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 Z" fill="#2F6BFF"/>
+          </marker>
+          <marker id="arrow-governance" markerWidth="8" markerHeight="8"
+            refX="7" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 Z" fill="#087F7B"/>
+          </marker>
+          <marker id="arrow-secondary" markerWidth="8" markerHeight="8"
+            refX="7" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 Z" fill="#52606D"/>
+          </marker>
+          <marker id="arrow-stop" markerWidth="8" markerHeight="8"
+            refX="7" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 Z" fill="#D97706"/>
+          </marker>
+          <style>
+            text { font-family: Inter, Arial, sans-serif; fill: #16324F; }
+            .diagram-title { font-size: 30px; font-weight: 750; }
+            .diagram-subtitle { font-size: 16px; fill: #52606D; }
+            .group-label { font-size: 14px; font-weight: 750;
+              letter-spacing: 1.5px; fill: #52606D; }
+            .node-label { font-size: 17px; font-weight: 700; }
+            .subtitle { font-size: 13px; fill: #52606D; }
+            .edge-label { font-size: 13px; font-weight: 650; fill: #52606D;
+              paint-order: stroke; stroke: #F7F9FC; stroke-width: 8px; }
+          </style>
+        </defs>
+<rect width="100%" height="100%" fill="#F7F9FC"/>
+<text x="60" y="58" class="diagram-title">From layered requirements to an effective specification</text>
+<text x="60" y="88" class="diagram-subtitle">Applicability precedes precedence; uncertainty and unresolved authority stop execution.</text>
+<g id="group-inputs" filter="url(#shadow)"><rect x="60" y="135" width="350" height="700" rx="18" fill="#FFFFFF" stroke="#D7DEE8"/></g><text x="85" y="173" class="group-label">CANDIDATES AND CHANGE EVIDENCE</text>
+<g id="group-resolution" filter="url(#shadow)"><rect x="460" y="135" width="680" height="700" rx="18" fill="#FFFFFF" stroke="#D7DEE8"/></g><text x="485" y="173" class="group-label">DETERMINISTIC RESOLUTION</text>
+<g id="group-output" filter="url(#shadow)"><rect x="1190" y="135" width="350" height="700" rx="18" fill="#FFFFFF" stroke="#D7DEE8"/></g><text x="1215" y="173" class="group-label">BOUNDED EXECUTION CONTEXT</text>
+<polyline id="edge-candidates-applicability" points="370,310 450,310 450,307 510,307" fill="none" stroke="#2F6BFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-primary)"/>
+<polyline id="edge-context-applicability" points="370,615 430,615 430,355 510,355" fill="none" stroke="#2F6BFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-primary)"/>
+<polyline id="edge-applicability-applicable" points="780,289 820,289 820,245 860,245" fill="none" stroke="#087F7B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-governance)"/>
+<polyline id="edge-applicability-not-applicable" points="780,325 820,325 820,395 860,395" fill="none" stroke="#52606D" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-secondary)"/>
+<polyline id="edge-applicability-uncertain" points="780,361 810,361 810,545 860,545" fill="none" stroke="#D97706" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-stop)"/>
+<polyline id="edge-applicable-resolution" points="975,295 1110,295 1110,630 685,630 685,665" fill="none" stroke="#087F7B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-governance)"/>
+<text x="930" y="630" text-anchor="middle" class="edge-label">applicable set</text>
+<polyline id="edge-resolution-effective" points="835,725 1160,725 1160,347.5 1230,347.5" fill="none" stroke="#087F7B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-governance)"/>
+<text x="1030" y="730" text-anchor="middle" class="edge-label">READY only</text>
+<polyline id="edge-effective-agent" points="1365,410 1365,585" fill="none" stroke="#2F6BFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-primary)"/>
+<g id="node-candidates"><rect x="100" y="245" width="270" height="130" rx="14" fill="#FFFFFF" stroke="#52606D" stroke-width="2"/><text x="120" y="283" class="node-label"><tspan x="120" dy="0">L0–L5 candidate</tspan><tspan x="120" dy="22">requirements</tspan></text><text x="120" y="327" class="subtitle">Authority, scope, source, status</text></g>
+<g id="node-change_context"><rect x="100" y="555" width="270" height="120" rx="14" fill="#FFFFFF" stroke="#52606D" stroke-width="2"/><text x="120" y="593" class="node-label"><tspan x="120" dy="0">Change context</tspan></text><text x="120" y="623" class="subtitle">Facts linked to evidence IDs</text></g>
+<g id="node-applicability"><rect x="510" y="265" width="270" height="120" rx="14" fill="#EAF1FF" stroke="#2F6BFF" stroke-width="2"/><text x="530" y="303" class="node-label"><tspan x="530" dy="0">Applicability resolver</tspan></text><text x="530" y="333" class="subtitle">Evaluate status, freshness, scope</text></g>
+<g id="node-applicable"><rect x="860" y="195" width="230" height="100" rx="14" fill="#E5F7F6" stroke="#087F7B" stroke-width="2"/><text x="880" y="233" class="node-label"><tspan x="880" dy="0">APPLICABLE</tspan></text><text x="880" y="263" class="subtitle">Continue with evidence</text></g>
+<g id="node-not_applicable"><rect x="860" y="345" width="230" height="100" rx="14" fill="#FFFFFF" stroke="#52606D" stroke-width="2"/><text x="880" y="383" class="node-label"><tspan x="880" dy="0">NOT APPLICABLE</tspan></text><text x="880" y="413" class="subtitle">Record reason and evidence</text></g>
+<g id="node-uncertain"><rect x="860" y="495" width="230" height="100" rx="14" fill="#FFF1DF" stroke="#D97706" stroke-width="2"/><text x="880" y="533" class="node-label"><tspan x="880" dy="0">UNCERTAIN</tspan></text><text x="880" y="563" class="subtitle">STOP and clarify</text></g>
+<g id="node-conflict_resolver"><rect x="535" y="665" width="300" height="120" rx="14" fill="#E5F7F6" stroke="#087F7B" stroke-width="2"/><text x="555" y="703" class="node-label"><tspan x="555" dy="0">Authority + conflict +</tspan><tspan x="555" dy="22">exception resolution</tspan></text><text x="555" y="747" class="subtitle">Escalate unresolved authority</text></g>
+<g id="node-effective_context"><rect x="1230" y="285" width="270" height="125" rx="14" fill="#E5F7F6" stroke="#087F7B" stroke-width="2"/><text x="1250" y="323" class="node-label"><tspan x="1250" dy="0">Effective specification</tspan></text><text x="1250" y="353" class="subtitle">IDs, sources, controls, conditions</text></g>
+<g id="node-bounded_agent"><rect x="1230" y="585" width="270" height="120" rx="14" fill="#F0EEFF" stroke="#7667E8" stroke-width="2"/><text x="1250" y="623" class="node-label"><tspan x="1250" dy="0">Bounded coding agent</tspan></text><text x="1250" y="653" class="subtitle">Implements; does not grant authority</text></g>
+</svg>

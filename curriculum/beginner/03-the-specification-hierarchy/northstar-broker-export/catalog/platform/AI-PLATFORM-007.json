@@ -1,0 +1,24 @@
+{
+  "id": "AI-PLATFORM-007",
+  "title": "Approved production inference gateway",
+  "statement": "Production model inference SHALL use the Enterprise Bedrock Gateway.",
+  "layer": "platform",
+  "owner": "AI Platform Architecture",
+  "authority": "mandatory",
+  "status": "active",
+  "effective_from": "2026-04-01",
+  "valid_until": "2027-03-31",
+  "superseded_by": null,
+  "source": {
+    "repository": "platform-standards",
+    "path": "ai/AI-PLATFORM-007.json",
+    "version": "4.0-training",
+    "revision": "aa7b130-training"
+  },
+  "scope": [
+    {"field": "environment", "allowed_values": ["production"]},
+    {"field": "project", "allowed_values": ["underwriter_assistant"]}
+  ],
+  "control": "model_gateway",
+  "expected": "enterprise_bedrock_gateway"
+}

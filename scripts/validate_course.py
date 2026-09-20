@@ -328,6 +328,109 @@ def check_course_02_artifact_stack() -> list[str]:
     return errors
 
 
+def check_course_03_hierarchy() -> list[str]:
+    scenario = (
+        ROOT
+        / "curriculum"
+        / "beginner"
+        / "03-the-specification-hierarchy"
+        / "northstar-broker-export"
+    )
+    required = [
+        "README.md",
+        "ticket/AI-1937.md",
+        "ticket/change-context.json",
+        "exceptions/EXC-009.json",
+        "workshop/starter/README.md",
+        "workshop/starter/applicability.csv",
+        "workshop/starter/conflict-and-precedence.md",
+        "workshop/starter/exception-review.md",
+        "workshop/starter/effective-context.md",
+        "reference/applicability.csv",
+        "reference/conflict-and-precedence.md",
+        "reference/exception-review.md",
+        "reference/effective-context.md",
+        "reference/provenance-manifest.csv",
+    ]
+    errors = [
+        f"missing Course 03 artifact: {item}"
+        for item in required
+        if not (scenario / item).exists()
+    ]
+
+    catalog_paths = sorted((scenario / "catalog").glob("**/*.json"))
+    if len(catalog_paths) != 13:
+        errors.append(
+            f"Course 03 catalog must contain 13 requirements, found {len(catalog_paths)}"
+        )
+    json_paths = catalog_paths + sorted((scenario / "exceptions").glob("*.json"))
+    context_path = scenario / "ticket" / "change-context.json"
+    if context_path.exists():
+        json_paths.append(context_path)
+    for path in json_paths:
+        try:
+            json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError) as exc:
+            errors.append(f"invalid Course 03 JSON {path.relative_to(ROOT)}: {exc}")
+
+    reference = scenario / "reference"
+    for path in reference.glob("*"):
+        if path.is_file() and "TODO" in path.read_text(encoding="utf-8"):
+            errors.append(f"unresolved TODO in Course 03 reference: {path.relative_to(ROOT)}")
+    starter = scenario / "workshop" / "starter"
+    if not any(
+        "TODO" in path.read_text(encoding="utf-8")
+        for path in starter.glob("*")
+        if path.is_file()
+    ):
+        errors.append("Course 03 starter workspace has no editable TODO prompts")
+
+    applicability_path = reference / "applicability.csv"
+    if applicability_path.exists():
+        with applicability_path.open(newline="", encoding="utf-8") as handle:
+            rows = list(csv.DictReader(handle))
+        required_columns = {
+            "requirement_id",
+            "decision",
+            "reason_codes",
+            "evidence_ids",
+        }
+        columns = set(rows[0]) if rows else set()
+        missing = sorted(required_columns - columns)
+        if missing:
+            errors.append(
+                "Course 03 applicability matrix is missing columns: "
+                + ", ".join(missing)
+            )
+        if len(rows) != 13:
+            errors.append(
+                f"Course 03 applicability matrix must cover 13 candidates, found {len(rows)}"
+            )
+        results = {row.get("decision") for row in rows}
+        if not {"applicable", "not_applicable"}.issubset(results):
+            errors.append("Course 03 reference must demonstrate applicable and N/A decisions")
+
+    exception_path = scenario / "exceptions" / "EXC-009.json"
+    if exception_path.exists():
+        try:
+            exception = json.loads(exception_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            exception = {}
+        if exception:
+            for field in (
+                "requirement_id",
+                "change_ids",
+                "conditions",
+                "approver",
+                "approval_record",
+                "expires_on",
+                "source",
+            ):
+                if not exception.get(field):
+                    errors.append(f"Course 03 exception lacks required field: {field}")
+    return errors
+
+
 def main() -> None:
     checks = {
         "local links": check_local_links,
@@ -336,6 +439,7 @@ def main() -> None:
         "published navigation": check_published_navigation,
         "enterprise fixture": check_enterprise_fixture,
         "Course 02 artifact stack": check_course_02_artifact_stack,
+        "Course 03 hierarchy": check_course_03_hierarchy,
         "diagrams": render_and_validate_diagrams,
         "labs": run_labs,
         "repository labs": run_repository_labs,

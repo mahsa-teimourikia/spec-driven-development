@@ -201,5 +201,47 @@ const QUESTIONS = [
     options: ['A derived system control that blocks decision-record entry without a valid linked review receipt', 'A copy of the policy presented as implementation code', 'An AGENTS.md instruction allowing the agent to waive review', 'Only a task named “add approval”'],
     answer: 0,
     explanation: 'The policy owns the organizational obligation; the feature specification derives observable system behavior that can be implemented and tested.'
+  },
+  {
+    category: 'Hierarchy resolution',
+    question: 'Why must applicability be evaluated before precedence?',
+    options: ['Only current requirements whose scope matches the change should enter authority and conflict resolution', 'The most specific requirement always applies', 'Precedence determines whether facts exist', 'Every retrieved statement should govern the change'],
+    answer: 0,
+    explanation: 'Status, dates, provenance, and change facts establish which records enter composition. Comparing authority before scope can let irrelevant or stale requirements distort the result.'
+  },
+  {
+    category: 'Applicability',
+    question: 'A mandatory privacy rule depends on data classification, but the change context has no classification fact. What is the safe result?',
+    options: ['UNCERTAIN and STOP for clarification', 'NOT APPLICABLE because the field is absent', 'APPLICABLE with the lowest classification', 'Let the coding agent choose after implementation'],
+    answer: 0,
+    explanation: 'Missing input is not positive evidence of a scope mismatch. Uncertainty reduces autonomy and must remain visible.'
+  },
+  {
+    category: 'Authority',
+    question: 'A feature ticket specifically requests direct SendGrid use, while an active mandatory platform rule requires the corporate messaging gateway. What governs?',
+    options: ['The platform rule, because its declared authority is higher—not merely because of its layer', 'The ticket because it is closer to the code', 'The newest statement regardless of owner', 'Both instructions can be implemented simultaneously'],
+    answer: 0,
+    explanation: 'Specificity, proximity, and recency do not create authority. The resolver records both inputs and the declared authority rule used to reject the suggestion.'
+  },
+  {
+    category: 'Conflicts',
+    question: 'Two applicable mandatory policies owned by different functions require incompatible values for the same control. What should an implementation agent do?',
+    options: ['Stop and route the conflict to the accountable owners', 'Choose the policy in the lower layer', 'Choose whichever policy uses stronger wording', 'Average the values'],
+    answer: 0,
+    explanation: 'Equal highest-authority incompatibility is a genuine policy conflict. Implementation agents do not inherit authority to optimize it away.'
+  },
+  {
+    category: 'Exceptions',
+    question: 'Which exception record is capable of modifying an applicable policy for one change?',
+    options: ['A current, scoped, separately owned record with rationale, approver, conditions, provenance, and expiry', 'A comment inside the feature specification', 'An expired waiver with no compensating conditions', 'A coding-agent assertion that the policy is inconvenient'],
+    answer: 0,
+    explanation: 'A first-class exception preserves the owning policy while defining the exact scope, decision trail, conditions, and enforcement boundary.'
+  },
+  {
+    category: 'Context compression',
+    question: 'What must survive when applicable requirements are compressed into agent context?',
+    options: ['Stable requirement IDs, source locators, exception IDs and conditions, and unresolved stop states', 'Only a prose summary of the desired implementation', 'Every policy in the company regardless of scope', 'The model conversation but not source versions'],
+    answer: 0,
+    explanation: 'Loss-aware compression keeps decisions traceable and refreshable. Removing provenance or exception conditions creates apparently simple but unauditable instructions.'
   }
 ];

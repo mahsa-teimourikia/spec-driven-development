@@ -1,0 +1,24 @@
+{
+  "id": "RET-017",
+  "title": "Broker underwriting communication retention",
+  "statement": "Final broker communications related to underwriting decisions SHALL be retained for seven years.",
+  "layer": "domain",
+  "owner": "Records Management",
+  "authority": "mandatory",
+  "status": "active",
+  "effective_from": "2025-07-01",
+  "valid_until": "2028-06-30",
+  "superseded_by": null,
+  "source": {
+    "repository": "insurance-controls",
+    "path": "records/RET-017.json",
+    "version": "7.2-training",
+    "revision": "bb30cf1-training"
+  },
+  "scope": [
+    {"field": "data_kind", "allowed_values": ["broker_communication"]},
+    {"field": "channel", "allowed_values": ["broker_email"]}
+  ],
+  "control": "retention_days",
+  "expected": "2555"
+}

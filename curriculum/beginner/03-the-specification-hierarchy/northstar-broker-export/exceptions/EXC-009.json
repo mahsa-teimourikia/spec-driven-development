@@ -1,0 +1,26 @@
+{
+  "id": "EXC-009",
+  "requirement_id": "PRIV-030",
+  "change_ids": ["AI-1937"],
+  "control": "retention_days",
+  "replacement_expected": "2555",
+  "conditions": [
+    "retain only the final approved broker communication",
+    "delete intermediate model interactions after 30 days",
+    "store the retained record encrypted",
+    "enable access audit logging"
+  ],
+  "rationale": "Resolve the scoped conflict between privacy deletion and underwriting records retention.",
+  "owner": "Privacy Office",
+  "approver": "Chief Privacy Officer",
+  "approval_record": "APR-EXC-009-TRAINING",
+  "status": "active",
+  "created_on": "2026-09-18",
+  "expires_on": "2027-09-30",
+  "source": {
+    "repository": "enterprise-exceptions",
+    "path": "privacy/EXC-009.json",
+    "version": "1.0-training",
+    "revision": "09ec009-training"
+  }
+}

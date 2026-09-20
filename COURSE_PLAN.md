@@ -77,7 +77,7 @@ Each future course follows this learning arc, adapted where the subject demands 
 | --- | --- | --- | --- | --- | --- |
 | 01 | beginner/01 | Why agentic coding changes the PDLC | **Available** | None | Control-plane simulation plus real repository change, applicability/provenance decisions, independent gates, evidence bundle |
 | 02 | beginner/02 | Prompts, requirements, specifications, designs, ADRs, tasks, tests, and agent instructions | **Available** | C01 | AI-1842 classification, repaired specification stack, decision routing, failure injection, and traceability evidence |
-| 03 | beginner/03 | The specification hierarchy | Planned | C01–C02 | Precedence, provenance, freshness, and exception model |
+| 03 | beginner/03 | The specification hierarchy | **Available** | C01–C02 | AI-1937 applicability matrix, evidence-backed precedence/conflict record, scoped exception review, provenance manifest, and bounded effective context |
 | 04 | beginner/04 | Company vs project vs feature requirements | Planned | C03 | Requirement-location matrix, separate owner/RACI, applicability and enforcement map |
 
 ## Part II — Writing executable specifications

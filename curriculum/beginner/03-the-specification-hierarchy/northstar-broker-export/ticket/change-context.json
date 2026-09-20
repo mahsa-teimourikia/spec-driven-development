@@ -1,0 +1,46 @@
+{
+  "id": "AI-1937",
+  "evaluated_on": "2026-09-20",
+  "facts": [
+    {
+      "field": "environment",
+      "values": ["production"],
+      "evidence_ids": ["DEPLOYMENT-ARCH-002"]
+    },
+    {
+      "field": "data_classification",
+      "values": ["restricted"],
+      "evidence_ids": ["DATA-CLASS-019"]
+    },
+    {
+      "field": "jurisdiction",
+      "values": ["canada"],
+      "evidence_ids": ["DATA-RESIDENCY-ASSESSMENT-004"]
+    },
+    {
+      "field": "channel",
+      "values": ["broker_email", "external_communication", "outbound_email"],
+      "evidence_ids": ["FEATURE-SCOPE-1937"]
+    },
+    {
+      "field": "data_kind",
+      "values": ["broker_communication", "customer_pii", "generated_ai_content"],
+      "evidence_ids": ["DATA-FLOW-1937"]
+    },
+    {
+      "field": "ai_generated",
+      "values": ["true"],
+      "evidence_ids": ["FEATURE-SCOPE-1937"]
+    },
+    {
+      "field": "project",
+      "values": ["underwriter_assistant"],
+      "evidence_ids": ["REPOSITORY-MANIFEST-001"]
+    },
+    {
+      "field": "feature",
+      "values": ["ai_1937"],
+      "evidence_ids": ["JIRA-AI-1937"]
+    }
+  ]
+}

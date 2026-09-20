@@ -1,0 +1,23 @@
+{
+  "id": "ARCH-004",
+  "title": "Historical US-only deployment note",
+  "statement": "AI workloads run in us-east-1.",
+  "layer": "project",
+  "owner": "Underwriter Assistant Architecture",
+  "authority": "approved",
+  "status": "superseded",
+  "effective_from": "2024-01-10",
+  "valid_until": "2025-12-31",
+  "superseded_by": "PRIV-018",
+  "source": {
+    "repository": "underwriter-assistant",
+    "path": "docs/archive/ARCH-004.json",
+    "version": "1.0-training",
+    "revision": "dd4209c-training"
+  },
+  "scope": [
+    {"field": "project", "allowed_values": ["underwriter_assistant"]}
+  ],
+  "control": "data_region",
+  "expected": "us_east_1"
+}

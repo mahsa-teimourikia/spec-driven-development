@@ -4,7 +4,7 @@
 
 ## Start here
 
-Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Then continue to [Course 02: From prompt to executable specification](curriculum/beginner/02-from-prompt-to-executable-specification/README.md), with its guided [notebook](curriculum/beginner/02-from-prompt-to-executable-specification/artifact_taxonomy.ipynb), deterministic [artifact-stack lab](curriculum/beginner/02-from-prompt-to-executable-specification/lab.py), realistic [AI-1842 workshop](curriculum/beginner/02-from-prompt-to-executable-specification/northstar-policy-comparison/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
+Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through [Course 02: From prompt to executable specification](curriculum/beginner/02-from-prompt-to-executable-specification/README.md), then complete [Course 03: The specification hierarchy](curriculum/beginner/03-the-specification-hierarchy/README.md) with its guided [notebook](curriculum/beginner/03-the-specification-hierarchy/specification_hierarchy.ipynb), deterministic [effective-specification resolver](curriculum/beginner/03-the-specification-hierarchy/lab.py), realistic [AI-1937 workshop](curriculum/beginner/03-the-specification-hierarchy/northstar-broker-export/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
 
 This is not simply a tutorial for one specification framework. The central skill is turning organizational intent, architecture rules, product requirements, and engineering constraints into a hierarchy of durable specifications that agents can execute—and humans can govern.
 
@@ -45,14 +45,26 @@ Course 02 turns a mixed product ticket into an execution-ready, authority-aware 
 - route local, architectural, policy, and exception decisions to the appropriate owners; and
 - distinguish planned traceability from implemented, executed, passed, approved, and production-observed evidence.
 
+## Course 03 outcome
+
+Course 03 resolves distributed requirements into a bounded effective specification. You will:
+
+- model organization, platform, domain, project, feature, and implementation layers without treating them as an automatic override ladder;
+- evaluate applicability before precedence and retain evidence for applicable, non-applicable, and uncertain decisions;
+- distinguish authority from specificity and expose genuine highest-authority conflicts;
+- reject superseded, stale, or provenance-incomplete sources without erasing their history;
+- validate a scoped, conditional, expiring exception without mistaking fixture metadata for authenticated approval; and
+- compress the result into agent context that preserves IDs, source locators, exception conditions, and stop states.
+
 ## Run locally
 
-Everything in Courses 01 and 02 is credential-free and uses the Python standard library.
+Everything in Courses 01–03 is credential-free and uses the Python standard library.
 
 ```bash
 python3 curriculum/beginner/01-why-agentic-coding-changes-pdlc/lab.py
 python3 curriculum/beginner/01-why-agentic-coding-changes-pdlc/repo_lab.py --candidate all
 python3 curriculum/beginner/02-from-prompt-to-executable-specification/lab.py
+python3 curriculum/beginner/03-the-specification-hierarchy/lab.py
 python3 -m unittest discover -s tests -v
 python3 scripts/validate_course.py
 ```

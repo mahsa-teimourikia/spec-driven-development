@@ -1,0 +1,14 @@
+requirement_id,decision,reason_codes,evidence_ids,review_owner
+AI-012,applicable,SCOPE_MATCH,FEATURE-SCOPE-1937,AI Governance
+AI-PLATFORM-007,applicable,SCOPE_MATCH,DEPLOYMENT-ARCH-002 + REPOSITORY-MANIFEST-001,AI Platform Architecture
+ARCH-004,not_applicable,STATUS_SUPERSEDED,,Underwriter Assistant Architecture
+ARCH-012,applicable,SCOPE_MATCH,REPOSITORY-MANIFEST-001,Underwriter Assistant Architecture
+F-001,applicable,SCOPE_MATCH,JIRA-AI-1937,Underwriter Assistant Product
+F-002,applicable,SCOPE_MATCH,JIRA-AI-1937,Underwriter Assistant Product
+MSG-004,applicable,SCOPE_MATCH,FEATURE-SCOPE-1937,Messaging Platform
+PCI-002,not_applicable,SCOPE_MISMATCH_DATA_KIND,DATA-FLOW-1937,Payment Security
+PRIV-018,applicable,SCOPE_MATCH,DATA-CLASS-019 + DATA-RESIDENCY-ASSESSMENT-004 + DEPLOYMENT-ARCH-002,Privacy Office
+PRIV-030,applicable,SCOPE_MATCH,DATA-CLASS-019 + DATA-FLOW-1937,Privacy Office
+RET-017,applicable,SCOPE_MATCH,DATA-FLOW-1937 + FEATURE-SCOPE-1937,Records Management
+SEC-021,applicable,SCOPE_MATCH,DATA-FLOW-1937 + FEATURE-SCOPE-1937,Enterprise Security
+TICKET-MSG-001,applicable,SCOPE_MATCH,FEATURE-SCOPE-1937 + JIRA-AI-1937,AI-1937 reporter

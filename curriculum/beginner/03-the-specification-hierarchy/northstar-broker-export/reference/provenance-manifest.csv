@@ -1,0 +1,11 @@
+requirement_id,owner,source_repository,source_path,version,revision,status,effective_from,valid_until,exception_id
+AI-012,AI Governance,enterprise-policy,ai-governance/AI-012.json,2.0-training,d440ac1-training,active,2026-03-01,2027-02-28,
+AI-PLATFORM-007,AI Platform Architecture,platform-standards,ai/AI-PLATFORM-007.json,4.0-training,aa7b130-training,active,2026-04-01,2027-03-31,
+ARCH-012,Underwriter Assistant Architecture,underwriter-assistant,docs/decisions/ARCH-012.json,2.1-training,cc3107b-training,active,2026-04-15,2027-04-14,
+F-001,Underwriter Assistant Product,underwriter-assistant,changes/AI-1937/spec.json,1.0-training,ee501ad-training,active,2026-09-15,2027-09-14,
+F-002,Underwriter Assistant Product,underwriter-assistant,changes/AI-1937/spec.json,1.0-training,ee501ad-training,active,2026-09-15,2027-09-14,
+MSG-004,Messaging Platform,platform-standards,messaging/MSG-004.json,6.0-training,f601bb2-training,active,2025-10-01,2027-09-30,
+PRIV-018,Privacy Office,enterprise-policy,privacy/PRIV-018.json,4.2-training,a84c4f9-training,active,2026-07-01,2027-06-30,
+PRIV-030,Privacy Office,enterprise-policy,privacy/PRIV-030.json,1.3-training,e319d0a-training,active,2026-01-01,2027-12-31,EXC-009
+RET-017,Records Management,insurance-controls,records/RET-017.json,7.2-training,bb30cf1-training,active,2025-07-01,2028-06-30,
+SEC-021,Enterprise Security,enterprise-policy,security/SEC-021.json,3.1-training,b91d221-training,active,2026-01-15,2027-01-14,

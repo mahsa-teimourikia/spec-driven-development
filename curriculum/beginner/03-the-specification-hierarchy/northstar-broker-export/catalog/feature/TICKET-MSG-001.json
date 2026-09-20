@@ -1,0 +1,24 @@
+{
+  "id": "TICKET-MSG-001",
+  "title": "Direct SendGrid prototype suggestion",
+  "statement": "For the prototype use SendGrid directly.",
+  "layer": "feature",
+  "owner": "AI-1937 reporter",
+  "authority": "informal",
+  "status": "active",
+  "effective_from": "2026-09-15",
+  "valid_until": "2026-12-31",
+  "superseded_by": null,
+  "source": {
+    "repository": "work-management",
+    "path": "jira/AI-1937",
+    "version": "comment-1-training",
+    "revision": "ff619de-training"
+  },
+  "scope": [
+    {"field": "feature", "allowed_values": ["ai_1937"]},
+    {"field": "channel", "allowed_values": ["outbound_email"]}
+  ],
+  "control": "outbound_email_provider",
+  "expected": "sendgrid_direct"
+}

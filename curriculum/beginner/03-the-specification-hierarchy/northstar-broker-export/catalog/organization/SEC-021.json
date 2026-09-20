@@ -1,0 +1,24 @@
+{
+  "id": "SEC-021",
+  "title": "DLP inspection for external customer communications",
+  "statement": "External communications containing customer data SHALL pass DLP inspection before delivery.",
+  "layer": "organization",
+  "owner": "Enterprise Security",
+  "authority": "mandatory",
+  "status": "active",
+  "effective_from": "2026-01-15",
+  "valid_until": "2027-01-14",
+  "superseded_by": null,
+  "source": {
+    "repository": "enterprise-policy",
+    "path": "security/SEC-021.json",
+    "version": "3.1-training",
+    "revision": "b91d221-training"
+  },
+  "scope": [
+    {"field": "channel", "allowed_values": ["external_communication"]},
+    {"field": "data_kind", "allowed_values": ["customer_pii"]}
+  ],
+  "control": "dlp_inspection",
+  "expected": "required_before_delivery"
+}

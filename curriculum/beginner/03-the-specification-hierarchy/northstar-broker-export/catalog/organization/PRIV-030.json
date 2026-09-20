@@ -1,0 +1,24 @@
+{
+  "id": "PRIV-030",
+  "title": "Generated interaction deletion",
+  "statement": "Generated AI interactions containing customer PII SHALL be deleted after 30 days.",
+  "layer": "organization",
+  "owner": "Privacy Office",
+  "authority": "mandatory",
+  "status": "active",
+  "effective_from": "2026-01-01",
+  "valid_until": "2027-12-31",
+  "superseded_by": null,
+  "source": {
+    "repository": "enterprise-policy",
+    "path": "privacy/PRIV-030.json",
+    "version": "1.3-training",
+    "revision": "e319d0a-training"
+  },
+  "scope": [
+    {"field": "data_kind", "allowed_values": ["generated_ai_content"]},
+    {"field": "data_classification", "allowed_values": ["confidential", "restricted"]}
+  ],
+  "control": "retention_days",
+  "expected": "30"
+}

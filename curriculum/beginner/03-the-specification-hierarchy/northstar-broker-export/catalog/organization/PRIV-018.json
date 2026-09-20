@@ -1,0 +1,25 @@
+{
+  "id": "PRIV-018",
+  "title": "Canadian restricted-data residency",
+  "statement": "Restricted Canadian customer data SHALL remain within approved Canadian processing regions.",
+  "layer": "organization",
+  "owner": "Privacy Office",
+  "authority": "mandatory",
+  "status": "active",
+  "effective_from": "2026-07-01",
+  "valid_until": "2027-06-30",
+  "superseded_by": null,
+  "source": {
+    "repository": "enterprise-policy",
+    "path": "privacy/PRIV-018.json",
+    "version": "4.2-training",
+    "revision": "a84c4f9-training"
+  },
+  "scope": [
+    {"field": "environment", "allowed_values": ["production"]},
+    {"field": "data_classification", "allowed_values": ["confidential", "restricted"]},
+    {"field": "jurisdiction", "allowed_values": ["canada"]}
+  ],
+  "control": "data_region",
+  "expected": "approved_canadian_regions"
+}
