@@ -1,8 +1,9 @@
 """Course 03 lab: resolve an effective specification from layered requirements.
 
 The implementation is intentionally deterministic and dependency-free. It models
-applicability, provenance, freshness, authority, conflicts, and scoped exceptions.
-It does not authenticate owners or approvals and is not a production policy engine.
+explicit conjunctive scope, controlled resources, provenance, lifecycle dates,
+domain-bounded authority, conflicts, and scoped exceptions. It does not authenticate
+owners, publishers, or approvals and is not a production policy engine.
 """
 
 from __future__ import annotations
@@ -30,10 +31,21 @@ class Layer(IntEnum):
     IMPLEMENTATION = 5
 
 
-class Authority(IntEnum):
-    INFORMAL = 1
-    APPROVED = 2
-    MANDATORY = 3
+class Authority(str, Enum):
+    INFORMAL = "informal"
+    APPROVED = "approved"
+    MANDATORY = "mandatory"
+
+
+AUTHORITY_PRECEDENCE = {
+    Authority.INFORMAL: 1,
+    Authority.APPROVED: 2,
+    Authority.MANDATORY: 3,
+}
+
+
+class ScopeOperator(str, Enum):
+    ALL = "all"
 
 
 class ArtifactStatus(str, Enum):
@@ -110,12 +122,16 @@ class Requirement:
     layer: Layer
     owner: str
     authority: Authority
+    authority_domain: str
     status: ArtifactStatus
     effective_from: date
-    valid_until: date | None
+    effective_until: date | None
+    review_due: date | None
     superseded_by: str | None
     source: SourceRef
+    scope_operator: ScopeOperator
     scope: tuple[ScopeRule, ...]
+    resource: str
     control: str
     expected: str
 
@@ -125,8 +141,10 @@ class ExceptionRecord:
     id: str
     requirement_id: str
     change_ids: tuple[str, ...]
+    resources: tuple[str, ...]
     control: str
-    replacement_expected: str
+    permitted_expected: str
+    unaffected_requirement_ids: tuple[str, ...]
     conditions: tuple[str, ...]
     rationale: str
     owner: str
@@ -165,14 +183,18 @@ class Finding:
 @dataclass(frozen=True)
 class ResolvedRequirement:
     requirement: Requirement
-    effective_expected: str
+    decision_expected: str
+    applicability_evidence_ids: tuple[str, ...]
     exception_id: str | None = None
     exception_conditions: tuple[str, ...] = ()
+    unaffected_requirement_ids: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
 class Conflict:
     id: str
+    authority_domain: str
+    resource: str
     control: str
     requirement_ids: tuple[str, ...]
     owners: tuple[str, ...]
@@ -181,6 +203,8 @@ class Conflict:
 
 @dataclass(frozen=True)
 class PrecedenceResolution:
+    authority_domain: str
+    resource: str
     control: str
     selected_requirement_ids: tuple[str, ...]
     rejected_requirement_ids: tuple[str, ...]
@@ -189,11 +213,16 @@ class PrecedenceResolution:
 
 @dataclass(frozen=True)
 class EffectiveControl:
+    authority_domain: str
+    resource: str
     control: str
     expected: str
     requirement_ids: tuple[str, ...]
+    base_expectations: tuple[str, ...]
+    applicability_evidence_ids: tuple[str, ...]
     exception_ids: tuple[str, ...]
     conditions: tuple[str, ...]
+    unaffected_requirement_ids: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -236,16 +265,20 @@ def load_requirement(path: Path) -> Requirement:
         statement=payload["statement"],
         layer=Layer[payload["layer"].upper()],
         owner=payload["owner"],
-        authority=Authority[payload["authority"].upper()],
+        authority=Authority(payload["authority"]),
+        authority_domain=payload["authority_domain"],
         status=ArtifactStatus(payload["status"]),
         effective_from=date.fromisoformat(payload["effective_from"]),
-        valid_until=_parse_date(payload.get("valid_until")),
+        effective_until=_parse_date(payload.get("effective_until")),
+        review_due=_parse_date(payload.get("review_due")),
         superseded_by=payload.get("superseded_by"),
         source=_source(payload["source"]),
+        scope_operator=ScopeOperator(payload["scope_operator"]),
         scope=tuple(
             ScopeRule(item["field"], tuple(item["allowed_values"]))
             for item in payload.get("scope", [])
         ),
+        resource=payload["resource"],
         control=payload["control"],
         expected=payload["expected"],
     )
@@ -269,12 +302,16 @@ def load_change_context(path: Path) -> ChangeContext:
 
 def load_exception(path: Path) -> ExceptionRecord:
     payload = json.loads(path.read_text(encoding="utf-8"))
+    scope = payload["scope"]
+    modification = payload["modification"]
     return ExceptionRecord(
         id=payload["id"],
         requirement_id=payload["requirement_id"],
-        change_ids=tuple(payload["change_ids"]),
-        control=payload["control"],
-        replacement_expected=payload["replacement_expected"],
+        change_ids=tuple(scope["change_ids"]),
+        resources=tuple(scope["resources"]),
+        control=modification["control"],
+        permitted_expected=modification["permitted_expected"],
+        unaffected_requirement_ids=tuple(payload["unaffected_requirement_ids"]),
         conditions=tuple(payload["conditions"]),
         rationale=payload["rationale"],
         owner=payload["owner"],
@@ -322,13 +359,30 @@ def validate_catalog(requirements: Iterable[Requirement]) -> list[Finding]:
                     "Repository, path, version, and immutable revision are required.",
                 )
             )
-        if not requirement.control.strip() or not requirement.expected.strip():
+        if not all(
+            value.strip()
+            for value in (
+                requirement.authority_domain,
+                requirement.resource,
+                requirement.control,
+                requirement.expected,
+            )
+        ):
             findings.append(
                 Finding(
                     "error",
                     "REQ_CONTROL_INCOMPLETE",
                     requirement.id,
-                    "Control and expected value are required for composition.",
+                    "Authority domain, resource, control, and expected value are required.",
+                )
+            )
+        if requirement.scope_operator is not ScopeOperator.ALL:
+            findings.append(
+                Finding(
+                    "error",
+                    "REQ_SCOPE_OPERATOR_UNSUPPORTED",
+                    requirement.id,
+                    "The Course 03 resolver supports only explicit ALL expressions.",
                 )
             )
         for rule in requirement.scope:
@@ -341,6 +395,22 @@ def validate_catalog(requirements: Iterable[Requirement]) -> list[Finding]:
                         "Every scope rule needs a field and at least one allowed value.",
                     )
                 )
+    authority_domains: dict[tuple[str, str], set[str]] = defaultdict(set)
+    for requirement in items:
+        authority_domains[(requirement.resource, requirement.control)].add(
+            requirement.authority_domain
+        )
+    for (resource, control), domains in sorted(authority_domains.items()):
+        if len(domains) > 1:
+            findings.append(
+                Finding(
+                    "error",
+                    "REQ_AUTHORITY_DOMAIN_COLLISION",
+                    f"{resource}:{control}",
+                    "Competing requirements declare different decision-rights domains: "
+                    + ", ".join(sorted(domains)),
+                )
+            )
     return findings
 
 
@@ -368,15 +438,23 @@ def evaluate_applicability(
             ("NOT_YET_EFFECTIVE",),
             (),
         )
-    if requirement.valid_until and requirement.valid_until < change.evaluated_on:
+    if requirement.effective_until and requirement.effective_until < change.evaluated_on:
+        return ApplicabilityDecision(
+            requirement.id,
+            Applicability.NOT_APPLICABLE,
+            ("REQUIREMENT_EFFECTIVE_PERIOD_ENDED",),
+            (),
+        )
+    if requirement.review_due and requirement.review_due < change.evaluated_on:
         return ApplicabilityDecision(
             requirement.id,
             Applicability.UNCERTAIN,
-            ("SOURCE_FRESHNESS_EXPIRED",),
+            ("SOURCE_REVIEW_OVERDUE",),
             (),
         )
 
     uncertain_fields: list[str] = []
+    mismatched_fields: list[str] = []
     evidence_ids: set[str] = set()
     for rule in requirement.scope:
         fact = change.fact(rule.field)
@@ -385,12 +463,20 @@ def evaluate_applicability(
             continue
         evidence_ids.update(fact.evidence_ids)
         if set(fact.values).isdisjoint(rule.allowed_values):
-            return ApplicabilityDecision(
-                requirement.id,
-                Applicability.NOT_APPLICABLE,
-                (f"SCOPE_MISMATCH_{rule.field.upper()}",),
-                tuple(sorted(evidence_ids)),
-            )
+            mismatched_fields.append(rule.field)
+    if mismatched_fields:
+        reason_codes = [
+            f"SCOPE_MISMATCH_{field.upper()}" for field in mismatched_fields
+        ]
+        reason_codes.extend(
+            f"SCOPE_UNKNOWN_{field.upper()}" for field in uncertain_fields
+        )
+        return ApplicabilityDecision(
+            requirement.id,
+            Applicability.NOT_APPLICABLE,
+            tuple(reason_codes),
+            tuple(sorted(evidence_ids)),
+        )
     if uncertain_fields:
         return ApplicabilityDecision(
             requirement.id,
@@ -426,8 +512,13 @@ def evaluate_exception(
     requirement = requirements.get(exception.requirement_id)
     if requirement is None:
         errors.append("EXCEPTION_TARGET_UNKNOWN")
-    elif exception.control != requirement.control:
-        errors.append("EXCEPTION_CONTROL_MISMATCH")
+    else:
+        if exception.control != requirement.control:
+            errors.append("EXCEPTION_CONTROL_MISMATCH")
+        if requirement.resource not in exception.resources:
+            errors.append("EXCEPTION_RESOURCE_MISMATCH")
+    if any(item not in requirements for item in exception.unaffected_requirement_ids):
+        errors.append("EXCEPTION_UNAFFECTED_REQUIREMENT_UNKNOWN")
     if exception.status is not ArtifactStatus.ACTIVE:
         errors.append(f"EXCEPTION_STATUS_{exception.status.value.upper()}")
     if exception.created_on > change.evaluated_on:
@@ -443,10 +534,14 @@ def evaluate_exception(
             exception.approver,
             exception.approval_record,
             exception.rationale,
-            exception.replacement_expected,
+            exception.permitted_expected,
         )
     ):
         errors.append("EXCEPTION_METADATA_INCOMPLETE")
+    if not exception.resources:
+        errors.append("EXCEPTION_RESOURCE_SCOPE_MISSING")
+    if not exception.unaffected_requirement_ids:
+        errors.append("EXCEPTION_UNAFFECTED_OBLIGATIONS_MISSING")
     if not exception.conditions:
         errors.append("EXCEPTION_CONDITIONS_MISSING")
 
@@ -483,6 +578,7 @@ def evaluate_exception(
 def _apply_exceptions(
     applicable: list[Requirement],
     valid_exceptions: list[ExceptionRecord],
+    decisions: dict[str, ApplicabilityDecision],
 ) -> tuple[list[ResolvedRequirement], list[Finding]]:
     findings: list[Finding] = []
     by_requirement: dict[str, list[ExceptionRecord]] = defaultdict(list)
@@ -507,37 +603,60 @@ def _apply_exceptions(
             resolved.append(
                 ResolvedRequirement(
                     requirement,
-                    exception.replacement_expected,
+                    exception.permitted_expected,
+                    decisions[requirement.id].evidence_ids,
                     exception.id,
                     exception.conditions,
+                    exception.unaffected_requirement_ids,
                 )
             )
         else:
-            resolved.append(ResolvedRequirement(requirement, requirement.expected))
+            resolved.append(
+                ResolvedRequirement(
+                    requirement,
+                    requirement.expected,
+                    decisions[requirement.id].evidence_ids,
+                )
+            )
     return resolved, findings
 
 
 def _compose_controls(
     resolved: list[ResolvedRequirement],
 ) -> tuple[list[EffectiveControl], list[Conflict], list[PrecedenceResolution]]:
-    groups: dict[str, list[ResolvedRequirement]] = defaultdict(list)
+    groups: dict[tuple[str, str, str], list[ResolvedRequirement]] = defaultdict(list)
     for item in resolved:
-        groups[item.requirement.control].append(item)
+        key = (
+            item.requirement.authority_domain,
+            item.requirement.resource,
+            item.requirement.control,
+        )
+        groups[key].append(item)
 
     controls: list[EffectiveControl] = []
     conflicts: list[Conflict] = []
     precedence: list[PrecedenceResolution] = []
-    for control, candidates in sorted(groups.items()):
-        highest = max(item.requirement.authority for item in candidates)
+    for (authority_domain, resource, control), candidates in sorted(groups.items()):
+        highest = max(
+            AUTHORITY_PRECEDENCE[item.requirement.authority] for item in candidates
+        )
         authoritative = [
-            item for item in candidates if item.requirement.authority == highest
+            item
+            for item in candidates
+            if AUTHORITY_PRECEDENCE[item.requirement.authority] == highest
         ]
-        authoritative_values = {item.effective_expected for item in authoritative}
+        authoritative_values = {item.decision_expected for item in authoritative}
         if len(authoritative_values) > 1:
             requirement_ids = tuple(sorted(item.requirement.id for item in authoritative))
             conflicts.append(
                 Conflict(
-                    id=f"CONFLICT-{control.upper().replace('_', '-')}",
+                    id=(
+                        "CONFLICT-"
+                        f"{resource.upper().replace('_', '-')}-"
+                        f"{control.upper().replace('_', '-')}"
+                    ),
+                    authority_domain=authority_domain,
+                    resource=resource,
                     control=control,
                     requirement_ids=requirement_ids,
                     owners=tuple(sorted({item.requirement.owner for item in authoritative})),
@@ -547,11 +666,13 @@ def _compose_controls(
             continue
 
         selected_value = next(iter(authoritative_values))
-        selected = [item for item in candidates if item.effective_expected == selected_value]
-        rejected = [item for item in candidates if item.effective_expected != selected_value]
+        selected = [item for item in candidates if item.decision_expected == selected_value]
+        rejected = [item for item in candidates if item.decision_expected != selected_value]
         if rejected:
             precedence.append(
                 PrecedenceResolution(
+                    authority_domain=authority_domain,
+                    resource=resource,
                     control=control,
                     selected_requirement_ids=tuple(
                         sorted(item.requirement.id for item in selected)
@@ -564,10 +685,27 @@ def _compose_controls(
             )
         controls.append(
             EffectiveControl(
+                authority_domain=authority_domain,
+                resource=resource,
                 control=control,
                 expected=selected_value,
                 requirement_ids=tuple(
                     sorted(item.requirement.id for item in selected)
+                ),
+                base_expectations=tuple(
+                    sorted(
+                        f"{item.requirement.id}={item.requirement.expected}"
+                        for item in selected
+                    )
+                ),
+                applicability_evidence_ids=tuple(
+                    sorted(
+                        {
+                            evidence_id
+                            for item in selected
+                            for evidence_id in item.applicability_evidence_ids
+                        }
+                    )
                 ),
                 exception_ids=tuple(
                     sorted(
@@ -584,6 +722,15 @@ def _compose_controls(
                             condition
                             for item in selected
                             for condition in item.exception_conditions
+                        }
+                    )
+                ),
+                unaffected_requirement_ids=tuple(
+                    sorted(
+                        {
+                            requirement_id
+                            for item in selected
+                            for requirement_id in item.unaffected_requirement_ids
                         }
                     )
                 ),
@@ -630,7 +777,9 @@ def resolve_effective_specification(
         for item in requirement_list
         if decision_by_id[item.id].result is Applicability.APPLICABLE
     ]
-    resolved, exception_findings = _apply_exceptions(applicable, valid_exceptions)
+    resolved, exception_findings = _apply_exceptions(
+        applicable, valid_exceptions, decision_by_id
+    )
     findings.extend(exception_findings)
     controls, conflicts, precedence = _compose_controls(resolved)
 
@@ -661,20 +810,53 @@ def compose_agent_context(
     lines = [
         f"# Effective specification for {report.change_id}",
         "# Resolver output is evidence for review; it is not self-authorizing policy.",
+        "# Source locators are structurally complete, not authenticated in this lab.",
     ]
     for control in report.effective_controls:
         sources = "; ".join(
-            f"{item_id} | {by_id[item_id].authority.name.lower()} | "
+            f"{item_id} | {by_id[item_id].authority.value} | "
             f"{by_id[item_id].source.locator()}"
             for item_id in control.requirement_ids
         )
         lines.append(f"[{sources}]")
+        lines.append(f"authority_domain = {control.authority_domain}")
+        lines.append(f"resource = {control.resource}")
         lines.append(f"{control.control} = {control.expected}")
+        if control.applicability_evidence_ids:
+            lines.append(
+                "applicability_evidence = "
+                + ", ".join(control.applicability_evidence_ids)
+            )
         if control.exception_ids:
             lines.append(f"exception = {', '.join(control.exception_ids)}")
+            lines.append(
+                "base_obligations = " + "; ".join(control.base_expectations)
+            )
+        for requirement_id in control.unaffected_requirement_ids:
+            lines.append(f"unaffected_requirement = {requirement_id}")
         for condition in control.conditions:
             lines.append(f"condition = {condition}")
     return "\n".join(lines) + "\n"
+
+
+def context_selection_metrics(
+    gold_applicable_ids: Iterable[str], selected_candidate_ids: Iterable[str]
+) -> dict[str, object]:
+    """Measure candidate discovery separately from applicability resolution."""
+    gold = set(gold_applicable_ids)
+    selected = set(selected_candidate_ids)
+    true_positive = len(gold & selected)
+    precision = round(100 * true_positive / len(selected), 1) if selected else None
+    recall = round(100 * true_positive / len(gold), 1) if gold else None
+    return {
+        "true_positive": true_positive,
+        "selected_total": len(selected),
+        "gold_applicable_total": len(gold),
+        "precision_percent": precision,
+        "recall_percent": recall,
+        "missed_applicable_ids": tuple(sorted(gold - selected)),
+        "irrelevant_selected_ids": tuple(sorted(selected - gold)),
+    }
 
 
 def resolution_metrics(
@@ -701,7 +883,7 @@ def resolution_metrics(
         "provenance_completeness": {
             "covered": complete,
             "total": total,
-            "percent": round(100 * complete / total, 1) if total else 100.0,
+            "percent": round(100 * complete / total, 1) if total else None,
         },
         "gate": report.gate.value,
     }
@@ -723,6 +905,14 @@ def build_evidence() -> dict[str, object]:
     change, requirements, exceptions = load_scenario()
     report = resolve_effective_specification(change, requirements, exceptions)
     without_exception = resolve_effective_specification(change, requirements)
+    applicable_ids = {
+        item.requirement_id
+        for item in report.decisions
+        if item.result is Applicability.APPLICABLE
+    }
+    discovery_selection = {
+        item.id for item in requirements if item.id != "AI-012"
+    }
     return {
         "scenario": change.id,
         "baseline_statement_count": len(naive_concatenation(requirements)),
@@ -735,6 +925,9 @@ def build_evidence() -> dict[str, object]:
             "report": _jsonable(without_exception),
             "metrics": resolution_metrics(without_exception, requirements),
         },
+        "candidate_discovery_failure": context_selection_metrics(
+            applicable_ids, discovery_selection
+        ),
     }
 
 

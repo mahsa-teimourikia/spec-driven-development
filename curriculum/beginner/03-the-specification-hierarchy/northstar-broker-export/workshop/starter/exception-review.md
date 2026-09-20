@@ -1,9 +1,10 @@
 # Exception review worksheet
 
 - Exception ID: TODO
-- Requirement modified: TODO
-- Change scope: TODO
-- Replacement value: TODO
+- Target requirement and scoped disposition: TODO
+- Change and resource scope: TODO
+- Permitted value: TODO
+- Unaffected obligations: TODO
 - Conditions preserved in effective context: TODO
 - Owner and approver: TODO
 - Approval-record locator: TODO

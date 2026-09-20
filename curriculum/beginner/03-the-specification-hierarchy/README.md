@@ -41,14 +41,17 @@ Northstar Mutual receives ticket `AI-1937`:
 
 The feature lives inside privacy, security, AI-governance, messaging-platform,
 records-management, project-architecture, and product requirements. One privacy
-rule says generated PII interactions are deleted after 30 days. A records rule
-says final broker underwriting communications are retained for seven years.
+rule says intermediate model interactions are deleted after 30 days. That rule
+does not conflict with seven-year retention of a different resource: the final
+broker record. A second privacy rule requires the final AI-generated broker
+communication itself to be deleted after 30 days; that is the genuine conflict.
 
 The course succeeds when the learner can produce an evidence-backed applicability
-matrix, identify the retention conflict, reject an informal direct-email provider
-override, assess a scoped exception, and generate a provenance-preserving effective
-context. A parser running without credentials is not evidence of real organizational
-approval, legal interpretation, deployed enforcement, or production conformance.
+matrix, distinguish a false retention conflict from a genuine one, reject an
+informal direct-email provider override, assess a scoped exception, and generate
+a provenance-preserving effective context. A parser running without credentials
+is not evidence of real organizational approval, legal interpretation, deployed
+enforcement, or production conformance.
 
 Non-goals:
 
@@ -137,6 +140,18 @@ it simply does not govern this change.
 The decision is not a keyword match. It is a claim about the change context and
 must carry the evidence IDs that support its facts.
 
+The Course 03 model makes its simplified logic explicit:
+
+```text
+all ScopeRule entries are conjunctive (AND)
+allowed_values inside one ScopeRule are disjunctive (OR)
+```
+
+Therefore `environment = development` makes a production-only conjunction false
+even if another operand is unknown. The resolver still records the unknown reason.
+Real policy languages also need nested `AND`, `OR`, and `NOT`; the teaching model
+deliberately supports only a flat `ALL` expression and rejects undeclared operators.
+
 ### Unknown is not not applicable
 
 If the data classification is absent, this is unsafe:
@@ -189,20 +204,26 @@ A durable enterprise requirement needs more than a sentence:
   "statement": "Restricted Canadian customer data SHALL remain in approved Canadian regions.",
   "owner": "Privacy Office",
   "authority": "mandatory",
+  "authority_domain": "data_residency",
   "status": "active",
   "effective_from": "2026-07-01",
-  "valid_until": "2027-06-30",
+  "effective_until": null,
+  "review_due": "2027-06-30",
   "source": {
     "repository": "enterprise-policy",
     "path": "privacy/PRIV-018.json",
     "version": "4.2-training",
     "revision": "a84c4f9-training"
   },
+  "scope_operator": "all",
   "scope": [
     {"field": "environment", "allowed_values": ["production"]},
     {"field": "data_classification", "allowed_values": ["restricted"]},
     {"field": "jurisdiction", "allowed_values": ["canada"]}
-  ]
+  ],
+  "resource": "restricted_customer_data",
+  "control": "data_region",
+  "expected": "approved_canadian_regions"
 }
 ```
 
@@ -220,6 +241,16 @@ repository, path, version, and immutable revision. Production systems may also
 need publisher identity, digest, signature, issue time, review history, and
 authenticated retrieval.
 
+Keep three different claims separate:
+
+```text
+provenance completeness ≠ provenance authenticity ≠ source authority
+```
+
+The lab checks only that locators are structurally complete. A production trust
+chain must authenticate the publisher and repository, bind an immutable digest or
+signature, and establish that the source has authority over the named decision.
+
 ### Lifecycle and freshness
 
 Useful states include:
@@ -229,8 +260,10 @@ DRAFT → PROPOSED → ACTIVE → SUPERSEDED → RETIRED
 ```
 
 `ARCH-004` remains in the scenario as history but is `superseded`, so it is not
-inherited. If a record claims to be active after its freshness boundary, the lab
-returns `UNCERTAIN` instead of trusting a stale assertion.
+inherited. `effective_until` means an obligation no longer applies after that
+date, so the result is `NOT_APPLICABLE`. `review_due` means the source needs owner
+review; an overdue active record becomes `UNCERTAIN`. Conflating those dates can
+silently discard a still-binding but stale policy—or enforce an expired one.
 
 Freshness and authority are independent dimensions:
 
@@ -259,19 +292,39 @@ The lab selects `MSG-004` and records the rejected suggestion with reason code
 text; it preserves the decision trail.
 
 Authority resolution can be automated only where the organization has declared
-the rule. Layer position is useful context, not a universal conflict algorithm.
+the rule. The lab's `informal < approved < mandatory` order is a deterministic
+teaching simplification applied only inside the same `authority_domain`, resource,
+and control. Production systems need domain-specific decision rights: Privacy and
+Records may co-own retention, AI Platform owns model routing, and Security/IAM owns
+authorization. If competing records claim different authority domains for the same
+resource and control, the lab stops with `REQ_AUTHORITY_DOMAIN_COLLISION` instead
+of applying a global rank. Layer position is useful context, not a universal score.
 
-## 7. Genuine conflicts must stay visible
+## 7. Confirm the controlled resource before declaring conflict
 
-`PRIV-030` and `RET-017` are both mandatory and applicable:
+`PRIV-030` and `RET-017` are both mandatory and applicable, but they do not
+conflict:
 
 ```text
-PRIV-030: generated PII interactions → delete after 30 days
-RET-017: final broker underwriting communication → retain 2,555 days
+PRIV-030: intermediate model interaction       → delete after 30 days
+RET-017:  final approved broker communication  → retain 2,555 days
 ```
 
-Neither owner delegated this decision to the implementation agent. Without a
-valid resolution, the lab emits `CONFLICT-RETENTION-DAYS` and the gate is `STOP`.
+The values differ, but the controlled resources differ. Collapsing both into one
+global `retention_days` key creates a false conflict. The resolver therefore groups
+obligations by `authority_domain + resource + control`.
+
+Now add `PRIV-031`:
+
+```text
+PRIV-031: final approved AI broker communication → delete after 30 days
+RET-017:  final approved broker communication    → retain 2,555 days
+```
+
+These obligations govern the same resource and lifecycle event with incompatible
+values at equal declared authority. Neither owner delegated the decision to the
+implementation agent. Without a valid resolution, the lab emits
+`CONFLICT-FINAL-APPROVED-BROKER-COMMUNICATION-RETENTION-DAYS` and returns `STOP`.
 
 A conflict record should contain:
 
@@ -291,14 +344,18 @@ a bounded scope under explicit conditions.
 `EXC-009` names:
 
 - the requirement it modifies;
-- the exact change scope;
-- the replacement control value;
+- the exact change and controlled-resource scope;
+- the permitted obligation for that scope;
+- the obligations that remain unaffected;
 - rationale and compensating conditions;
 - owner, approver, and approval-record locator;
 - creation and expiry dates; and
 - its own source version and revision.
 
-The effective control retains both `PRIV-030` and `RET-017`, plus `EXC-009` and
+`PRIV-031` still says 30 days. `EXC-009` permits 2,555 days only for the final
+approved broker communication produced by `AI-1937`; it explicitly leaves
+`PRIV-030`'s 30-day rule for intermediate model interactions unaffected. The
+effective control retains `PRIV-031`, `RET-017`, `EXC-009`, both base values, and
 all four compensating conditions. Hiding the exception inside the feature spec
 would let a feature author appear to rewrite corporate policy.
 
@@ -345,8 +402,12 @@ Better compression:
 [MSG-004 | mandatory | platform-standards:messaging/MSG-004.json@6.0#revision]
 outbound_email_provider = corporate_messaging_gateway
 
-[PRIV-030 + RET-017 | mandatory | EXC-009]
+[PRIV-031 + RET-017 | mandatory | EXC-009]
+resource = final_approved_broker_communication
 retention_days = 2555
+applicability_evidence = DATA-CLASS-019, DATA-FLOW-1937
+base_obligations = PRIV-031=30; RET-017=2555
+unaffected_requirement = PRIV-030
 condition = delete intermediate model interactions after 30 days
 ```
 
@@ -362,13 +423,13 @@ Its sequence is:
 2. evaluate status, effective dates, freshness, and scope facts;
 3. preserve evidence IDs for every applicability decision;
 4. validate exception scope, dates, metadata, and conditions;
-5. apply valid scoped modifications without deleting the owning requirement;
-6. group applicable requirements by control;
-7. resolve declared authority differences and record rejected inputs;
+5. apply valid scoped dispositions without changing the base requirement;
+6. group applicable requirements by authority domain, resource, and control;
+7. resolve declared normative-force differences and record rejected inputs;
 8. escalate incompatible values at equal highest authority;
 9. return `READY` only when no uncertainty, conflict, or error remains; and
-10. emit minimal agent context containing IDs, source locators, controls, and
-    exception conditions.
+10. emit minimal agent context containing IDs, source locators, applicability
+    evidence, resources, base obligations, and exception conditions.
 
 Run it locally:
 
@@ -429,13 +490,13 @@ each result before executing it.
 
 ### Experiment A — Concatenation baseline
 
-Copy all 13 statements into one context. Observe that the baseline includes the
+Copy all 14 statements into one context. Observe that the baseline includes the
 irrelevant payment-card rule, superseded US-region note, direct SendGrid suggestion,
 and unresolved retention conflict without explaining any disposition.
 
 ### Experiment B — Applicability with evidence
 
-Run the reference context. Confirm 11 applicable, two not applicable, and zero
+Run the reference context. Confirm 12 applicable, two not applicable, and zero
 uncertain decisions. Inspect the evidence IDs instead of accepting the counts alone.
 
 ### Experiment C — Delete data classification
@@ -443,20 +504,33 @@ uncertain decisions. Inspect the evidence IDs instead of accepting the counts al
 Remove `data_classification`. Privacy and related rules become uncertain. The
 resolver stops; it does not reinterpret missing data as low sensitivity.
 
-### Experiment D — Remove or expire the exception
+### Experiment D — False conflict versus genuine conflict
+
+Remove `PRIV-031`. Confirm that `PRIV-030` and `RET-017` produce two compatible
+retention controls because they govern different resources. Restore `PRIV-031`:
+without a valid `EXC-009`, the two final-record obligations genuinely conflict.
+
+### Experiment E — Remove or expire the exception
 
 Without valid `EXC-009`, two mandatory retention values conflict. The agent cannot
 compose executable context.
 
-### Experiment E — Test specificity against authority
+### Experiment F — Test specificity against authority
 
 Keep the feature-level direct SendGrid suggestion. Confirm that `MSG-004` wins by
 declared authority, not because platform always beats feature.
 
-### Experiment F — Inspect compression
+### Experiment G — Inspect compression
 
 Confirm that `PCI-002` and `ARCH-004` are absent from agent context, while stable
 IDs, source locators, `EXC-009`, and every exception condition remain.
+
+### Experiment H — Measure candidate-discovery recall
+
+Simulate a discovery stage that misses applicable `AI-012` but still selects the
+two irrelevant records. Measure selection precision and recall before running the
+applicability resolver. A perfectly accurate resolver cannot apply a policy that
+candidate discovery never supplied.
 
 ## 14. Evaluation
 
@@ -464,11 +538,13 @@ This course reports explicit populations:
 
 | Measure | Numerator/meaning | Denominator | Reference result |
 |---|---|---|---:|
-| Applicability distribution | Applicable, N/A, uncertain decisions | 13 candidates | 11 / 2 / 0 |
-| Provenance completeness | Records with owner and complete source locator | 13 candidates | 13 / 13 |
-| Effective controls | Resolved control/value groups | Applicable controls after resolution | 8 |
+| Applicability distribution | Applicable, N/A, uncertain decisions | 14 candidates | 12 / 2 / 0 |
+| Provenance completeness | Records with owner and complete source locator | 14 candidates | 14 / 14 |
+| Effective controls | Resolved domain/resource/control groups | Applicable controls after resolution | 9 |
 | Unresolved conflicts | Highest-authority groups with incompatible values | Conflict candidates | 0 with EXC-009; 1 without |
 | Valid exceptions | Structurally valid, in-scope, current records | Exception candidates | 1 / 1 |
+| Candidate-discovery precision | Applicable IDs selected | 13 selected candidates | 11 / 13 = 84.6% |
+| Candidate-discovery recall | Applicable IDs selected | 12 labelled applicable IDs | 11 / 12 = 91.7% |
 
 These measures establish internal structural behavior of the fixture. They do not
 prove policy completeness, legal correctness, authentic approval, implementation
@@ -500,7 +576,7 @@ loss. Track false exclusions as seriously as irrelevant inclusions.
 | Local JSON source refs | Authenticated artifact registry, immutable digests, publisher identity |
 | Date comparisons | Trusted time, review schedules, revocation, freshness service |
 | Exact string scope | Versioned schemas, controlled vocabularies, ontology/mapping governance |
-| Numeric authority enum | Organization-owned decision table with review and exception routes |
+| Declared normative-force order within one domain | Domain-owned decision-rights table with joint-owner and exception routes |
 | Structural approval locator | Authenticated, signed, scope-bound, expiring approval record |
 | In-memory resolution | Durable workflow with optimistic locking and reproducible snapshots |
 | Simple conflict grouping | Semantic conflict analysis plus accountable human adjudication |
@@ -529,12 +605,14 @@ be stale, exceptions exist, or an agent would otherwise fill consequential gaps.
    metadata; update the reference applicability matrix and expected control.
 2. **Diagnosis:** remove jurisdiction evidence and identify every decision that
    becomes uncertain. Explain why other decisions remain stable.
-3. **Conflict:** add a second mandatory messaging rule with an incompatible route.
-   Confirm the resolver escalates instead of using layer order.
+3. **Conflict diagnosis:** remove `PRIV-031` and explain why `PRIV-030` and
+   `RET-017` do not conflict. Restore `PRIV-031` and identify the exact shared
+   resource, scope, lifecycle event, and incompatible values that make it genuine.
 4. **Exception:** create an expired or wrong-change exception and show the exact
    stop codes. Do not “fix” it by changing the feature specification.
-5. **Freshness:** mark `ARCH-004` active while leaving its freshness boundary in
-   the past. Explain why stale-active becomes uncertain rather than applicable.
+5. **Freshness:** mark `ARCH-004` active while leaving `review_due` in the past.
+   Then give it an ended `effective_until`. Explain why the first is uncertain
+   while the second is not applicable.
 6. **Compression:** remove source locators or one exception condition from the
    context composer. Design a test that detects the loss.
 7. **Architecture judgment:** choose Markdown, JSON Schema, OPA, Cedar, OSCAL, or

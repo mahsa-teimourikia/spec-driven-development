@@ -5,9 +5,11 @@
   "layer": "platform",
   "owner": "AI Platform Architecture",
   "authority": "mandatory",
+  "authority_domain": "model_routing",
   "status": "active",
   "effective_from": "2026-04-01",
-  "valid_until": "2027-03-31",
+  "effective_until": null,
+  "review_due": "2027-03-31",
   "superseded_by": null,
   "source": {
     "repository": "platform-standards",
@@ -15,10 +17,12 @@
     "version": "4.0-training",
     "revision": "aa7b130-training"
   },
+  "scope_operator": "all",
   "scope": [
     {"field": "environment", "allowed_values": ["production"]},
     {"field": "project", "allowed_values": ["underwriter_assistant"]}
   ],
+  "resource": "model_inference_request",
   "control": "model_gateway",
   "expected": "enterprise_bedrock_gateway"
 }

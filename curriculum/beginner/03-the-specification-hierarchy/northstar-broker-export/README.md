@@ -18,7 +18,9 @@ sentence win automatically.
 
 5. Remove `EXC-009` from the resolver call and explain why implementation stops.
 6. Remove the data-classification fact and explain why `unknown` is not `N/A`.
-7. Compare your work with [`reference/`](reference/) only after committing to
+7. Remove `PRIV-031` and explain why the two remaining retention requirements
+   are compatible because they govern different resources.
+8. Compare your work with [`reference/`](reference/) only after committing to
    your decisions.
 
 The reference package is a teaching resolution, not a real legal, privacy, or
@@ -27,8 +29,9 @@ authenticated approval.
 
 ## Expected outcome
 
-The reference run evaluates 13 candidate requirements: 11 are applicable, two
-are not applicable, and none are uncertain. It composes eight effective controls,
+The reference run evaluates 14 candidate requirements: 12 are applicable, two
+are not applicable, and none are uncertain. It composes nine effective controls,
 records one authority-based precedence decision, applies one scoped exception,
-and reaches `READY`. Removing or expiring the exception exposes a genuine
-mandatory-policy conflict and changes the gate to `STOP`.
+and reaches `READY`. `PRIV-030` and `RET-017` remain compatible because their
+resources differ. Removing or expiring the exception exposes the genuine
+same-resource `PRIV-031`/`RET-017` conflict and changes the gate to `STOP`.

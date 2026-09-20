@@ -5,9 +5,11 @@
   "layer": "organization",
   "owner": "Enterprise Security",
   "authority": "mandatory",
+  "authority_domain": "external_communications",
   "status": "active",
   "effective_from": "2026-01-15",
-  "valid_until": "2027-01-14",
+  "effective_until": null,
+  "review_due": "2027-01-14",
   "superseded_by": null,
   "source": {
     "repository": "enterprise-policy",
@@ -15,10 +17,12 @@
     "version": "3.1-training",
     "revision": "b91d221-training"
   },
+  "scope_operator": "all",
   "scope": [
     {"field": "channel", "allowed_values": ["external_communication"]},
     {"field": "data_kind", "allowed_values": ["customer_pii"]}
   ],
+  "resource": "outbound_broker_email",
   "control": "dlp_inspection",
   "expected": "required_before_delivery"
 }

@@ -1,9 +1,15 @@
 {
   "id": "EXC-009",
-  "requirement_id": "PRIV-030",
-  "change_ids": ["AI-1937"],
-  "control": "retention_days",
-  "replacement_expected": "2555",
+  "requirement_id": "PRIV-031",
+  "scope": {
+    "change_ids": ["AI-1937"],
+    "resources": ["final_approved_broker_communication"]
+  },
+  "modification": {
+    "control": "retention_days",
+    "permitted_expected": "2555"
+  },
+  "unaffected_requirement_ids": ["PRIV-030"],
   "conditions": [
     "retain only the final approved broker communication",
     "delete intermediate model interactions after 30 days",

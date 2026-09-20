@@ -5,9 +5,11 @@
   "layer": "organization",
   "owner": "Payment Security",
   "authority": "mandatory",
+  "authority_domain": "payment_security",
   "status": "active",
   "effective_from": "2025-01-01",
-  "valid_until": "2027-12-31",
+  "effective_until": null,
+  "review_due": "2027-12-31",
   "superseded_by": null,
   "source": {
     "repository": "enterprise-policy",
@@ -15,9 +17,11 @@
     "version": "5.0-training",
     "revision": "c412df0-training"
   },
+  "scope_operator": "all",
   "scope": [
     {"field": "data_kind", "allowed_values": ["payment_card"]}
   ],
+  "resource": "payment_card_data",
   "control": "payment_card_storage",
   "expected": "tokenized"
 }

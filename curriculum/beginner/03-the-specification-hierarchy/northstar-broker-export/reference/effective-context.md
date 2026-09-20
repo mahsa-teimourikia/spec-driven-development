@@ -2,16 +2,17 @@
 
 **Resolution gate:** `READY`
 
-| Control | Expected value | Governing IDs | Exception |
-|---|---|---|---|
-| AI-content disclosure | Required | AI-012 | — |
-| Broker email delivery | Authorized broker only | F-002 | — |
-| Data region | Approved Canadian regions | PRIV-018 | — |
-| DLP inspection | Required before delivery | SEC-021 | — |
-| Export format | PDF | F-001 | — |
-| Model gateway | Enterprise Bedrock Gateway | AI-PLATFORM-007, ARCH-012 | — |
-| Outbound email provider | Corporate Messaging Gateway | MSG-004 | — |
-| Retention | 2,555 days for final approved communication | PRIV-030, RET-017 | EXC-009 |
+| Resource/control | Expected value | Governing IDs | Applicability evidence | Exception |
+|---|---|---|---|---|
+| Final broker record / AI disclosure | Required | AI-012 | FEATURE-SCOPE-1937 | — |
+| Approved comparison / broker delivery | Authorized broker only | F-002 | JIRA-AI-1937 | — |
+| Restricted customer data / region | Approved Canadian regions | PRIV-018 | DATA-CLASS-019; DATA-RESIDENCY-ASSESSMENT-004; DEPLOYMENT-ARCH-002 | — |
+| Outbound broker email / DLP | Required before delivery | SEC-021 | DATA-FLOW-1937; FEATURE-SCOPE-1937 | — |
+| Approved comparison / export format | PDF | F-001 | JIRA-AI-1937 | — |
+| Inference request / model gateway | Enterprise Bedrock Gateway | AI-PLATFORM-007, ARCH-012 | DEPLOYMENT-ARCH-002; REPOSITORY-MANIFEST-001 | — |
+| Outbound broker email / provider | Corporate Messaging Gateway | MSG-004 | FEATURE-SCOPE-1937 | — |
+| Intermediate model interaction / retention | 30 days | PRIV-030 | DATA-CLASS-019; DATA-FLOW-1937 | — |
+| Final approved broker communication / retention | 2,555 days | PRIV-031, RET-017 | DATA-CLASS-019; DATA-FLOW-1937; FEATURE-SCOPE-1937 | EXC-009 |
 
 ## Recorded exclusions
 
@@ -25,6 +26,10 @@
 - Delete intermediate model interactions after 30 days.
 - Store the retained record encrypted.
 - Enable access audit logging.
+
+The final-record control also retains `PRIV-031=30` and `RET-017=2555` as base
+obligations and records `PRIV-030` as unaffected. The exception changes neither
+source policy.
 
 The generated context is a reviewed input to bounded implementation. It does not
 grant release authority or prove policy conformance in production.

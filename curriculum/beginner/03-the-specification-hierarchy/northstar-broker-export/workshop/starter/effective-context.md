@@ -2,10 +2,12 @@
 
 **Gate:** TODO
 
-For each effective control, retain the governing requirement IDs, source
-locators, expected value, applicable exception ID, and conditions.
+For each effective control, retain the authority domain, controlled resource,
+governing requirement IDs, source locators, applicability evidence, expected
+value, applicable exception ID, base obligations, unaffected requirements, and
+conditions.
 
-| Control | Expected | Requirement IDs | Source locators | Exception/conditions |
+| Domain/resource/control | Expected | Requirement IDs | Evidence/source locators | Exception/base/conditions |
 |---|---|---|---|---|
 | TODO | TODO | TODO | TODO | TODO |
 

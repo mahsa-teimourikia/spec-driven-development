@@ -5,9 +5,11 @@
   "layer": "domain",
   "owner": "Records Management",
   "authority": "mandatory",
+  "authority_domain": "broker_record_retention",
   "status": "active",
   "effective_from": "2025-07-01",
-  "valid_until": "2028-06-30",
+  "effective_until": null,
+  "review_due": "2028-06-30",
   "superseded_by": null,
   "source": {
     "repository": "insurance-controls",
@@ -15,10 +17,12 @@
     "version": "7.2-training",
     "revision": "bb30cf1-training"
   },
+  "scope_operator": "all",
   "scope": [
     {"field": "data_kind", "allowed_values": ["broker_communication"]},
     {"field": "channel", "allowed_values": ["broker_email"]}
   ],
+  "resource": "final_approved_broker_communication",
   "control": "retention_days",
   "expected": "2555"
 }

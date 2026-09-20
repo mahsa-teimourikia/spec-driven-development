@@ -5,9 +5,11 @@
   "layer": "project",
   "owner": "Underwriter Assistant Architecture",
   "authority": "approved",
+  "authority_domain": "model_routing",
   "status": "active",
   "effective_from": "2026-04-15",
-  "valid_until": "2027-04-14",
+  "effective_until": null,
+  "review_due": "2027-04-14",
   "superseded_by": null,
   "source": {
     "repository": "underwriter-assistant",
@@ -15,9 +17,11 @@
     "version": "2.1-training",
     "revision": "cc3107b-training"
   },
+  "scope_operator": "all",
   "scope": [
     {"field": "project", "allowed_values": ["underwriter_assistant"]}
   ],
+  "resource": "model_inference_request",
   "control": "model_gateway",
   "expected": "enterprise_bedrock_gateway"
 }

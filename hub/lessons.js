@@ -103,9 +103,11 @@ const course03 = {
     'Model six specification layers as ownership and scope boundaries rather than a universal winner ladder.',
     'Evaluate applicability before precedence and preserve evidence for applicable, not-applicable, and uncertain decisions.',
     'Distinguish authority from specificity, proximity, recency, and structured format.',
-    'Detect incompatible highest-authority obligations and stop for accountable owner resolution.',
-    'Validate scoped, conditional, expiring exceptions while keeping structural checks separate from authenticated approval.',
-    'Compose minimal agent context that retains requirement IDs, source locators, exception conditions, and stop states.'
+    'Confirm that obligations govern the same resource and lifecycle event before declaring a genuine conflict.',
+    'Detect incompatible same-resource obligations and stop for accountable owner resolution.',
+    'Validate scoped, conditional, expiring exceptions without changing base or unaffected requirements.',
+    'Compose context with requirement IDs, source locators, applicability evidence, exception conditions, and stop states.',
+    'Measure candidate-discovery precision and recall separately from applicability accuracy.'
   ],
   readme: `${REPO}/blob/main/curriculum/beginner/03-the-specification-hierarchy/README.md`,
   notebook: `${REPO}/blob/main/curriculum/beginner/03-the-specification-hierarchy/specification_hierarchy.ipynb`,

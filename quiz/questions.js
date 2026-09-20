@@ -225,17 +225,17 @@ const QUESTIONS = [
   },
   {
     category: 'Conflicts',
-    question: 'Two applicable mandatory policies owned by different functions require incompatible values for the same control. What should an implementation agent do?',
-    options: ['Stop and route the conflict to the accountable owners', 'Choose the policy in the lower layer', 'Choose whichever policy uses stronger wording', 'Average the values'],
+    question: 'Two applicable policies specify different retention periods. What must be established before calling this a genuine conflict?',
+    options: ['They govern the same controlled resource, scope, and lifecycle event', 'They use the same field name', 'They live in different repositories', 'One comes from a lower layer'],
     answer: 0,
-    explanation: 'Equal highest-authority incompatibility is a genuine policy conflict. Implementation agents do not inherit authority to optimize it away.'
+    explanation: 'Intermediate model interactions and final broker records can legitimately have different retention periods. Only incompatible obligations over the same subject and situation require conflict adjudication.'
   },
   {
     category: 'Exceptions',
-    question: 'Which exception record is capable of modifying an applicable policy for one change?',
-    options: ['A current, scoped, separately owned record with rationale, approver, conditions, provenance, and expiry', 'A comment inside the feature specification', 'An expired waiver with no compensating conditions', 'A coding-agent assertion that the policy is inconvenient'],
+    question: 'How should a scoped exception relate to its base requirement?',
+    options: ['Keep the base requirement intact while recording the permitted scope, modified obligation, unaffected obligations, conditions, and expiry', 'Rewrite the base policy to the exception value', 'Delete every related requirement from agent context', 'Let the feature specification grant the waiver'],
     answer: 0,
-    explanation: 'A first-class exception preserves the owning policy while defining the exact scope, decision trail, conditions, and enforcement boundary.'
+    explanation: 'A first-class exception changes application only within its authorized scope. Preserving base and unaffected obligations prevents a waiver from appearing to rewrite policy globally.'
   },
   {
     category: 'Context compression',

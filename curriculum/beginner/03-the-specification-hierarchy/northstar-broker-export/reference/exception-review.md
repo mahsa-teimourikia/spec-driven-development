@@ -2,10 +2,11 @@
 
 | Field | Reference finding |
 |---|---|
-| Requirement | PRIV-030 |
-| Change scope | AI-1937 only |
+| Requirement | PRIV-031 |
+| Change/resource scope | AI-1937; final approved broker communication only |
 | Control | `retention_days` |
-| Replacement for scoped records | `2555` days |
+| Permitted value for scoped records | `2555` days |
+| Unaffected obligation | PRIV-030; intermediate model interactions remain 30 days |
 | Owner | Privacy Office |
 | Approver | Chief Privacy Officer |
 | Approval-record locator | `APR-EXC-009-TRAINING` |

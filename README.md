@@ -51,10 +51,14 @@ Course 03 resolves distributed requirements into a bounded effective specificati
 
 - model organization, platform, domain, project, feature, and implementation layers without treating them as an automatic override ladder;
 - evaluate applicability before precedence and retain evidence for applicable, non-applicable, and uncertain decisions;
-- distinguish authority from specificity and expose genuine highest-authority conflicts;
+- distinguish authority from specificity and confirm shared resource/scope before
+  escalating a genuine conflict;
 - reject superseded, stale, or provenance-incomplete sources without erasing their history;
-- validate a scoped, conditional, expiring exception without mistaking fixture metadata for authenticated approval; and
-- compress the result into agent context that preserves IDs, source locators, exception conditions, and stop states.
+- validate a scoped, conditional, expiring exception without rewriting base or
+  unaffected obligations or mistaking fixture metadata for authenticated approval;
+- compress the result into agent context that preserves IDs, source locators,
+  applicability evidence, exception conditions, and stop states; and
+- measure candidate-discovery precision and recall separately from applicability accuracy.
 
 ## Run locally
 

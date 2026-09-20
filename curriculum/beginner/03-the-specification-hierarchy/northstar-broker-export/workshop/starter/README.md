@@ -5,12 +5,14 @@ Complete these artifacts before opening the reference package:
 1. [`applicability.csv`](applicability.csv) — decide applicable, not applicable,
    or uncertain with evidence.
 2. [`conflict-and-precedence.md`](conflict-and-precedence.md) — distinguish an
-   authority resolution from a genuine conflict.
+   authority resolution, a false conflict across different resources, and a
+   genuine same-resource conflict.
 3. [`exception-review.md`](exception-review.md) — validate scope, conditions,
    provenance, approval locator, and expiry without treating the fixture as
    authenticated authority.
 4. [`effective-context.md`](effective-context.md) — give the implementation agent
    only resolved controls while retaining IDs and source locators.
 
-Do not mark missing facts as not applicable. Do not authorize an exception in
-these files; link an independently owned exception record.
+Do not mark missing facts as not applicable. Do not call different values a
+conflict until the resource, scope, and lifecycle event match. Do not authorize
+an exception in these files; link an independently owned exception record.

@@ -359,9 +359,9 @@ def check_course_03_hierarchy() -> list[str]:
     ]
 
     catalog_paths = sorted((scenario / "catalog").glob("**/*.json"))
-    if len(catalog_paths) != 13:
+    if len(catalog_paths) != 14:
         errors.append(
-            f"Course 03 catalog must contain 13 requirements, found {len(catalog_paths)}"
+            f"Course 03 catalog must contain 14 requirements, found {len(catalog_paths)}"
         )
     json_paths = catalog_paths + sorted((scenario / "exceptions").glob("*.json"))
     context_path = scenario / "ticket" / "change-context.json"
@@ -369,9 +369,26 @@ def check_course_03_hierarchy() -> list[str]:
         json_paths.append(context_path)
     for path in json_paths:
         try:
-            json.loads(path.read_text(encoding="utf-8"))
+            payload = json.loads(path.read_text(encoding="utf-8"))
         except (json.JSONDecodeError, OSError) as exc:
             errors.append(f"invalid Course 03 JSON {path.relative_to(ROOT)}: {exc}")
+            continue
+        if path in catalog_paths:
+            for field in (
+                "authority_domain",
+                "scope_operator",
+                "resource",
+                "effective_until",
+                "review_due",
+            ):
+                if field not in payload:
+                    errors.append(
+                        f"Course 03 requirement lacks {field}: {path.relative_to(ROOT)}"
+                    )
+            if payload.get("scope_operator") != "all":
+                errors.append(
+                    f"Course 03 requirement must declare ALL scope: {path.relative_to(ROOT)}"
+                )
 
     reference = scenario / "reference"
     for path in reference.glob("*"):
@@ -402,13 +419,39 @@ def check_course_03_hierarchy() -> list[str]:
                 "Course 03 applicability matrix is missing columns: "
                 + ", ".join(missing)
             )
-        if len(rows) != 13:
+        if len(rows) != 14:
             errors.append(
-                f"Course 03 applicability matrix must cover 13 candidates, found {len(rows)}"
+                f"Course 03 applicability matrix must cover 14 candidates, found {len(rows)}"
             )
         results = {row.get("decision") for row in rows}
         if not {"applicable", "not_applicable"}.issubset(results):
             errors.append("Course 03 reference must demonstrate applicable and N/A decisions")
+
+    provenance_path = reference / "provenance-manifest.csv"
+    if provenance_path.exists():
+        with provenance_path.open(newline="", encoding="utf-8") as handle:
+            provenance_rows = list(csv.DictReader(handle))
+        provenance_columns = set(provenance_rows[0]) if provenance_rows else set()
+        required_provenance_columns = {
+            "requirement_id",
+            "source_repository",
+            "source_path",
+            "version",
+            "revision",
+            "effective_until",
+            "review_due",
+        }
+        missing = sorted(required_provenance_columns - provenance_columns)
+        if missing:
+            errors.append(
+                "Course 03 provenance manifest is missing columns: "
+                + ", ".join(missing)
+            )
+        if len(provenance_rows) != 14:
+            errors.append(
+                "Course 03 provenance manifest must cover all 14 candidates, "
+                f"found {len(provenance_rows)}"
+            )
 
     exception_path = scenario / "exceptions" / "EXC-009.json"
     if exception_path.exists():
@@ -419,7 +462,9 @@ def check_course_03_hierarchy() -> list[str]:
         if exception:
             for field in (
                 "requirement_id",
-                "change_ids",
+                "scope",
+                "modification",
+                "unaffected_requirement_ids",
                 "conditions",
                 "approver",
                 "approval_record",
@@ -428,6 +473,14 @@ def check_course_03_hierarchy() -> list[str]:
             ):
                 if not exception.get(field):
                     errors.append(f"Course 03 exception lacks required field: {field}")
+            scope = exception.get("scope", {})
+            modification = exception.get("modification", {})
+            if not scope.get("change_ids") or not scope.get("resources"):
+                errors.append("Course 03 exception has incomplete change/resource scope")
+            if not modification.get("control") or not modification.get(
+                "permitted_expected"
+            ):
+                errors.append("Course 03 exception has incomplete modification")
     return errors
 
 
