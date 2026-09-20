@@ -155,8 +155,8 @@ const QUESTIONS = [
   },
   {
     category: 'Authority',
-    question: 'A ticket says “Use Bedrock,” while an approved platform policy says the same words. Why can their classifications differ?',
-    options: ['Provenance and decision rights can make the policy statement a constraint and the ticket statement a suggestion', 'Tickets are always more authoritative', 'Technology names are automatically requirements', 'Identical text must always have identical authority'],
+    question: 'A Jira ticket, an architecture Slack note, and a platform policy all mention Bedrock. Why are they not the same requirement?',
+    options: ['Their provenance, owner, scope, authority, lifecycle, and exception mechanism imply different agent actions', 'The longest statement is automatically authoritative', 'Technology names are automatically requirements', 'The newest message always overrides policy'],
     answer: 0,
     explanation: 'Words alone do not establish authority. Owner, source, scope, rationale, and exception path determine how the statement governs work.'
   },
@@ -183,9 +183,23 @@ const QUESTIONS = [
   },
   {
     category: 'Traceability',
-    question: 'A report says requirement-to-evidence coverage is 100%. What must accompany that percentage?',
-    options: ['The covered requirement IDs, total applicable IDs, gaps, and exclusions', 'Only the model name', 'A longer task list', 'An agent confidence score'],
+    question: 'A report says requirement-to-evidence traceability is 100%. What can it truthfully conclude if every check is only planned?',
+    options: ['All applicable requirements have planned links, but executed, passed, approved, and production-observed coverage may still be 0%', 'All requirements are correct and production-safe', 'Every evaluation passed', 'The release is approved'],
     answer: 0,
-    explanation: 'Explicit numerators and denominators prevent removed or out-of-scope requirements from disappearing behind a reassuring percentage.'
+    explanation: 'Traceability is not verification. Report the lifecycle stage, numerator, denominator, dataset/version, environment, result, and gaps.'
+  },
+  {
+    category: 'AI quality',
+    question: 'A comparison claim contains a citation. What additional evidence is still required?',
+    options: ['That the citation is complete and correct, the passage supports the proposition, and the claim is faithful to authorized evidence', 'Only that the link renders', 'Only that a model generated it', 'None; citation presence proves correctness'],
+    answer: 0,
+    explanation: 'Citation presence is not citation correctness or claim faithfulness. Enterprise RAG evaluation must test these claims separately.'
+  },
+  {
+    category: 'Derived controls',
+    question: 'AI-021 requires human review before consequential use. What belongs in the feature specification?',
+    options: ['A derived system control that blocks decision-record entry without a valid linked review receipt', 'A copy of the policy presented as implementation code', 'An AGENTS.md instruction allowing the agent to waive review', 'Only a task named “add approval”'],
+    answer: 0,
+    explanation: 'The policy owns the organizational obligation; the feature specification derives observable system behavior that can be implemented and tested.'
   }
 ];

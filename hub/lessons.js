@@ -58,7 +58,7 @@ const course02 = {
     'Replace vague quality claims with observable requirements, scenarios, measurement context, and accountable owners.',
     'Distinguish authoritative constraints from design suggestions even when the words are identical.',
     'Route reversible implementation choices, consequential architecture decisions, policy questions, and exceptions appropriately.',
-    'Validate requirement-to-task and requirement-to-evidence traceability with explicit denominators.'
+    'Distinguish planned traceability from implemented, executed, passed, approved, and production-observed evidence.'
   ],
   readme: `${REPO}/blob/main/curriculum/beginner/02-from-prompt-to-executable-specification/README.md`,
   notebook: `${REPO}/blob/main/curriculum/beginner/02-from-prompt-to-executable-specification/artifact_taxonomy.ipynb`,
@@ -66,15 +66,15 @@ const course02 = {
   labs: [
     {
       title: 'Lab A — Classify and validate the stack',
-      description: 'Compare a keyword baseline with authority-aware routing, repair weak requirements, route decision rights, inject failures, and measure traceability.',
+      description: 'Compare a keyword baseline with a labelled teaching heuristic, repair weak requirements, route decision rights, inject failures, and measure evidence lifecycle stages.',
       command: 'python3 curriculum/beginner/02-from-prompt-to-executable-specification/lab.py',
       links: [['View the lab', `${REPO}/blob/main/curriculum/beginner/02-from-prompt-to-executable-specification/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/beginner/02-from-prompt-to-executable-specification/artifact_taxonomy.ipynb`]]
     },
     {
       title: 'Lab B — Repair ticket AI-1842',
-      description: 'Decompose a realistic policy-comparison request, verify authority sources, complete the starter artifacts, and compare your decisions with a reference stack.',
+      description: 'Decompose a realistic policy-comparison request, compare three Bedrock sources with different authority, complete the starter artifacts, and inspect a staged evidence plan.',
       command: 'Open the ticket, sources, and starter workspace; run Lab A before consulting the reference.',
-      links: [['Open the workshop', `${REPO}/tree/main/curriculum/beginner/02-from-prompt-to-executable-specification/northstar-policy-comparison`], ['Open the starter workspace', `${REPO}/tree/main/curriculum/beginner/02-from-prompt-to-executable-specification/northstar-policy-comparison/workshop/starter`], ['Inspect the reference stack', `${REPO}/tree/main/curriculum/beginner/02-from-prompt-to-executable-specification/northstar-policy-comparison/reference`]]
+      links: [['Open the workshop', `${REPO}/tree/main/curriculum/beginner/02-from-prompt-to-executable-specification/northstar-policy-comparison`], ['Complete the authority exercise', `${REPO}/tree/main/curriculum/beginner/02-from-prompt-to-executable-specification/northstar-policy-comparison/authority-exercise`], ['Inspect the reference stack', `${REPO}/tree/main/curriculum/beginner/02-from-prompt-to-executable-specification/northstar-policy-comparison/reference`]]
     }
   ],
   references: [

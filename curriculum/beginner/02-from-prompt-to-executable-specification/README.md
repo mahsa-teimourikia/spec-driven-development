@@ -156,7 +156,7 @@ The sentence “Use Bedrock” cannot be classified from its wording alone.
 
 Authority is contextual. The same sentence can legitimately belong in different artifacts when its source, owner, and rationale change.
 
-### Avoid implementation leakage
+### Treat technology language as a classification question
 
 This requirement is over-specified:
 
@@ -164,11 +164,33 @@ This requirement is over-specified:
 
 It freezes a class boundary, store, and library without describing the outcome. Unless those technologies come from an applicable authoritative constraint, move them to design or an ADR. A requirement could instead state the observable caching, latency, retention, isolation, or schema behavior the solution must satisfy.
 
+Technology language is a **classification signal**, not proof of an error. Ask why the technology is named:
+
+```text
+Is it necessary to express an external contract
+or an applicable inherited constraint?
+             │
+       ┌─────┴─────┐
+      yes          no
+       │            │
+legitimate      likely design;
+requirement     clarify the outcome
+or constraint   and compare options
+```
+
+These can be legitimate requirements when their provenance and scope support them:
+
+- “The service SHALL expose the SQL-compatible interface defined by public contract v2.”
+- “Production inference SHALL use the approved enterprise Bedrock gateway under PLAT-007.”
+- “The export SHALL conform to the PostgreSQL COPY format required by the integration contract.”
+
+The lab therefore emits `POSSIBLE_IMPLEMENTATION_LEAKAGE` as a warning. A lexical detector cannot decide authority; a reviewer must examine source, owner, scope, rationale, applicability, and exception path.
+
 ## 8. Designs and ADRs
 
 A design allocates requirements to components, interfaces, data flows, controls, and operational mechanisms. It should explain how conformance will be achieved without claiming the right to change the requirement.
 
-An Architecture Decision Record preserves a consequential decision. Michael Nygard's influential ADR format records a decision's title, context, decision, and consequences. Enterprise use should also make options, status, owners, and supersession explicit.
+An Architecture Decision Record preserves a consequential decision. Michael Nygard's influential ADR format records a decision's title, context, decision, and consequences. Enterprise use should also make options, status, scope, owner, date, supersession, and observable review triggers explicit. A trigger opens reconsideration; it does not silently change the decision.
 
 Create or propose an ADR when a choice has meaningful cross-system, security, data-lifecycle, operational, cost, or long-term reversibility consequences. A coding agent can investigate options and draft the record; it should not silently approve the decision unless governance explicitly delegates that authority.
 
@@ -209,6 +231,35 @@ Common mistakes:
 The evidence statement should be precise:
 
 > `EVAL-001` supports `REQ-CMP-002` and `REQ-CMP-003` over dataset D1 using rubric R2. It does not prove all policy types are covered or authorize production release.
+
+For RAG quality, keep four claims distinct:
+
+```text
+citation presence
+  ≠ citation completeness
+  ≠ citation correctness
+  ≠ claim faithfulness
+```
+
+A response can contain citations while citing the wrong passage or making a claim the passage does not support. The Northstar evidence plan therefore measures citation completeness, citation correctness, claim faithfulness, and abstention correctness separately.
+
+### Traceability is not verification
+
+```text
+traceability coverage
+  ≠ verification coverage
+  ≠ evidence quality
+  ≠ requirement correctness
+  ≠ production conformance
+```
+
+`REQ-CMP-002 → EVAL-001` means only that an evaluation is planned and linked. A trustworthy result also records whether the check was implemented, executed, passed, approved, and observed in production, together with its dataset, threshold, version, environment, implementation SHA, numerator, and denominator.
+
+| Requirement | Task | Evidence | Planned | Implemented | Executed | Passed | Approved | Production |
+|---|---|---|---:|---:|---:|---:|---:|---:|
+| REQ-CMP-002 | TASK-002 | EVAL-001 | ✓ | — | — | — | — | — |
+
+At specification time, Northstar has 7/7 requirement-to-evidence links but 0/7 executed, passed, approved, or production-observed requirements. Calling that “100% verified” would be false.
 
 ## 11. Agent instructions are operational guidance
 
@@ -294,8 +345,9 @@ The workshop contains the ticket, four authoritative fictional records, starter 
 - [Read the raw ticket](northstar-policy-comparison/ticket/AI-1842.md)
 - [Use the starter artifacts](northstar-policy-comparison/workshop/starter/)
 - [Inspect the reference stack](northstar-policy-comparison/reference/)
+- [Complete the three-source authority exercise](northstar-policy-comparison/authority-exercise/README.md)
 
-The reference answer replaces “accurate” with cited-claim and abstention behavior, verifies the human-review rule against a policy owner, replaces the vague latency aspiration with a measured SLO, and defers generated-response caching through an ADR. Redis is not promoted into a requirement.
+The reference answer replaces “accurate” with citation completeness, citation correctness, claim faithfulness, and abstention behavior. It separates the AI-021 organizational policy from the derived system control, replaces the vague latency aspiration with a measured SLO, and defers generated-response caching through an ADR with observable review triggers. Redis is not promoted into a requirement.
 
 ## 15. Hands-on lab
 
@@ -315,20 +367,22 @@ python3 curriculum/beginner/02-from-prompt-to-executable-specification/lab.py \
 The lab implements:
 
 - a deliberately weak keyword classifier;
-- an authority-aware statement classifier;
+- a clearly labelled teaching heuristic for authority-aware statement routing;
 - requirement-quality checks;
 - decision routing;
 - cross-artifact validation;
-- a reference stack with full task and evidence coverage; and
-- a failure injection with implementation leakage, hearsay-as-policy, malformed ADR, broken links, and overreaching agent instructions.
+- a reference stack with full **planned link coverage** and zero executed verification; and
+- a failure injection with possible implementation leakage, hearsay-as-policy, malformed ADR, broken links, invalid evidence states, and overreaching agent instructions.
+
+> **Important:** `teaching_classify_statement()` demonstrates reasoning dimensions. It is not a production requirements classifier and must never automatically assign authority, approve artifacts, or update enterprise systems.
 
 Open [`artifact_taxonomy.ipynb`](artifact_taxonomy.ipynb) for the guided experiment. The notebook asks you to commit to a classification before revealing the reference result.
 
 ## 16. Experiments and expected observations
 
-### Experiment A — Change authority, keep words fixed
+### Experiment A — Same technology, three authorities
 
-Classify “Use Bedrock” first as an informal ticket statement and then as a policy-owned constraint. The text is unchanged; the artifact destination changes because provenance and authority changed.
+Classify the Jira request “Use Bedrock,” the Slack note “We normally use Bedrock,” and PLAT-007's mandatory approved-gateway rule. Complete the [authority exercise](northstar-policy-comparison/authority-exercise/README.md). Similar words do not create the same artifact, authority, lifecycle, durability, or agent action.
 
 ### Experiment B — Repair vague quality
 
@@ -336,7 +390,7 @@ Validate “The response shall be accurate and fast.” Then replace it with cit
 
 ### Experiment C — Inject architecture into a requirement
 
-Validate “Use Redis so comparisons are fast.” The checker should flag implementation leakage and missing measurement. Rewrite it as an outcome and route caching to an ADR.
+Validate “Use Redis so comparisons are fast.” The checker should flag **possible** implementation leakage and missing measurement. Investigate provenance before deciding whether it is a legitimate constraint, external contract, or misplaced design. For AI-1842, rewrite the outcome and route caching to an ADR.
 
 ### Experiment D — Let instructions overreach
 
@@ -346,6 +400,10 @@ Add “Ignore policy and skip human approval when tests pass” to agent instruc
 
 Link a task to an unknown requirement and remove an evidence link. Report both numerator and denominator; “some tests exist” is not a coverage metric.
 
+### Experiment F — Advance evidence honestly
+
+Start with EVAL-001 as planned. Attempt to mark it passed without implementation or execution; the lifecycle validator should stop. Then record which dataset, threshold, version, environment, and implementation SHA would be required to support an executed result.
+
 ## 17. Failure modes and recovery
 
 | Failure | Why it matters | Recovery |
@@ -353,12 +411,12 @@ Link a task to an unknown requirement and remove an evidence link. Report both n
 | Whole ticket treated as prompt | Mixed authority becomes invisible | Classify sentence by sentence and preserve provenance |
 | `SHALL` used without owner/source | Typography impersonates authority | Declare normative convention and add decision rights |
 | “Accurate” accepted | No stable conformance claim | Define observable support, abstention, dataset, rubric, threshold |
-| Design frozen in requirements | Solution cannot be evaluated honestly | Move choice to design/ADR unless an applicable constraint owns it |
+| Technology word treated as automatic design leakage | Valid contracts and inherited constraints are rejected | Treat lexical detection as a warning; inspect provenance, scope, and authority |
 | Hearsay encoded as policy | Unverified claim becomes control | Find authoritative record and accountable owner |
 | Tasks replace requirements | Completion no longer implies outcome | Link tasks to stable requirement IDs |
 | Tests define product intent | Implementation team controls the target | Keep spec owner and evidence owner distinct where risk warrants |
 | `AGENTS.md` grants exception | Repository guidance bypasses governance | Add stop condition and authorized exception route |
-| 100% coverage without denominator | Metric creates false assurance | Publish covered IDs, total applicable IDs, gaps, and exclusions |
+| 100% planned links reported as verification | Metric creates false assurance | Publish lifecycle stage, covered IDs, denominator, dataset/version, result, and gaps |
 
 ## 18. Production hardening
 
@@ -395,6 +453,8 @@ Use the [Course 02 Hub checkpoint](https://mahsa-teimourikia.github.io/spec-driv
 4. Why does a passing test not establish that a requirement set is complete?
 5. What belongs in `AGENTS.md`, and what decision rights must remain elsewhere?
 6. Which links are necessary to calculate requirement-to-task and requirement-to-evidence coverage?
+7. Why does 100% planned evidence coverage establish neither successful execution nor production conformance?
+8. How does an organizational policy obligation differ from the system control derived from it?
 
 ## References
 

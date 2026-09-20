@@ -1,7 +1,12 @@
 # ADR-007 — Defer generated comparison caching
 
-**Status:** Accepted for first release
-**Owner:** Underwriter Assistant architecture owner
+| Field | Value |
+|---|---|
+| Decision status | Accepted |
+| Decision scope | Generated comparison responses |
+| Decision owner | Underwriter Assistant architecture owner |
+| Decision date | 2026-09-17 |
+| Supersedes | None |
 
 ## Context
 
@@ -22,4 +27,13 @@ Do not cache generated comparison responses in the first release. Instrument rep
 - First-release model cost can be higher.
 - The release avoids inventing an unapproved generated-content store.
 - Redis is neither selected nor prohibited; any later cache technology must follow the approved cache boundary.
-- The decision is revisited with measured repetition, latency, and cost evidence.
+
+## Review triggers
+
+Reconsider this decision when any trigger becomes true:
+
+- p95 complete-response latency exceeds SLO-CMP-001 in two consecutive releases;
+- model cost per successful comparison exceeds the approved FinOps threshold; or
+- the 30-day repeated-comparison rate reaches 10%.
+
+A trigger opens a new decision review. It does not silently authorize Redis, another cache, or a change to privacy and authorization controls.

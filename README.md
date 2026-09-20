@@ -41,9 +41,9 @@ Course 02 turns a mixed product ticket into an execution-ready, authority-aware 
 - distinguish prompts, product intent, requirements, constraints, specifications, designs, ADRs, tasks, evidence, and agent instructions;
 - replace “accurate” and an unqualified latency target with observable behavior and measurement context;
 - verify hearsay against an authoritative domain-policy source;
-- treat Redis and caching as design decisions rather than inherited product requirements;
+- classify technology language by provenance so contracts and inherited constraints are preserved while ticket-level choices such as Redis remain design hypotheses;
 - route local, architectural, policy, and exception decisions to the appropriate owners; and
-- validate requirement-to-task and requirement-to-evidence coverage with explicit denominators.
+- distinguish planned traceability from implemented, executed, passed, approved, and production-observed evidence.
 
 ## Run locally
 

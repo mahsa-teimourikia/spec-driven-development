@@ -1,2 +1,2 @@
-requirement_id,owner,source,design_element,task_id,evidence_id,status
-REQ-CMP-001,TODO,TODO,TODO,TODO,TODO,TODO
+requirement_id,owner,source,design_element,task_id,evidence_id,planned,implemented,executed,passed,approved,observed_in_production,dataset_or_case_set,threshold,evidence_version,threshold_owner,environment,implementation_sha
+REQ-CMP-001,TODO,TODO,TODO,TODO,TODO,yes,no,no,no,no,no,TODO,TODO,TODO,TODO,not-recorded,not-recorded

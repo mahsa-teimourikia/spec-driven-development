@@ -16,7 +16,18 @@ For each decision, state whether the agent may decide, should propose an ADR, or
 
 ## ADR draft
 
+- **Status:** TODO (`proposed`, `accepted`, `superseded`, or `rejected`)
+- **Scope:** TODO
+- **Owner:** TODO
+- **Decision date:** TODO
+- **Supersedes:** TODO (`None` if not applicable)
+
 **Context:** TODO
+
 **Options:** TODO
+
 **Decision:** TODO
+
 **Consequences:** TODO
+
+**Review triggers:** TODO — name the events or thresholds that require this decision to be revisited.

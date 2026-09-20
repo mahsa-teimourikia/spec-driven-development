@@ -14,13 +14,13 @@ An authenticated underwriter can select exactly two policy documents inside the 
 - **Source:** CL-001 and SEC-014
 - **Scenario:** Given two authorized policies, when comparison starts, both identifiers are accepted. An unauthorized or cross-tenant identifier is rejected without returning document content.
 
-### REQ-CMP-002 — Cited claims
+### REQ-CMP-002 — Evidence-supported claims
 
-Every comparison claim cites supporting passages from the applicable policy document or documents.
+Every factual comparison claim identifies the source passage or passages supporting that claim. A cited passage supports the proposition for which it is cited. Claims unsupported by retrieved evidence are not presented as policy facts.
 
 - **Owner:** Underwriting domain owner
 - **Source:** CL-002
-- **Scenario:** When a difference is displayed, the reviewer can inspect support for each side the claim describes.
+- **Scenario:** When a difference is displayed, every policy fact has complete citations, each citation supports its claim, and the claim is faithful to the retrieved evidence.
 
 ### REQ-CMP-003 — Evidence-aware abstention
 
@@ -30,12 +30,16 @@ When evidence for either side is absent, the system reports insufficient evidenc
 - **Source:** CL-002
 - **Scenario:** A one-sided retrieval result produces an explicit unsupported-side marker and no unsupported conclusion.
 
-### REQ-CMP-004 — Consequential-use review
+### Governing domain constraint — AI-021
 
-A commercial-policy comparison is reviewed by an authorized underwriter before it enters the underwriting decision record.
+Commercial-policy AI comparisons require authorized human review before consequential use. The Director of Underwriting Risk owns this obligation and its exception process.
 
-- **Owner:** Director of Underwriting Risk
-- **Source:** AI-021
+### REQ-CMP-004 — Consequential-record control
+
+The system prevents a commercial-policy comparison from entering the underwriting decision record unless a valid authorized-review receipt linked to that comparison exists.
+
+- **Owner:** Underwriter Assistant product owner
+- **Source:** Derived system control from AI-021 via CL-003
 - **Scenario:** Without a valid reviewer receipt linked to the comparison, promotion to the decision record is denied.
 
 ### PERF-CMP-001 — Complete-response latency

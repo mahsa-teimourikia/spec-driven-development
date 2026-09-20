@@ -8,12 +8,12 @@ where a statement belongs and whether an implementation agent may act on it.
 from __future__ import annotations
 
 import argparse
+import json
+import re
+from collections.abc import Iterable
 from dataclasses import asdict, dataclass, field
 from enum import Enum
-import json
 from pathlib import Path
-import re
-from typing import Iterable
 
 
 class ArtifactType(str, Enum):
@@ -79,6 +79,7 @@ class RequirementCandidate:
     measurement: str | None = None
     acceptance: tuple[str, ...] = ()
     authoritative_constraint: bool = False
+    external_contract: bool = False
 
 
 @dataclass(frozen=True)
@@ -105,6 +106,12 @@ class ADR:
     options: tuple[str, ...]
     decision: str
     consequences: tuple[str, ...]
+    status: str = ""
+    scope: str = ""
+    owner: str = ""
+    decision_date: str = ""
+    supersedes: str = ""
+    review_triggers: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -120,6 +127,17 @@ class EvidenceCheck:
     kind: str
     claim: str
     requirement_ids: tuple[str, ...]
+    planned: bool = True
+    implemented: bool = False
+    executed: bool = False
+    passed: bool = False
+    approved: bool = False
+    observed_in_production: bool = False
+    dataset: str | None = None
+    threshold: str | None = None
+    version: str | None = None
+    environment: str | None = None
+    implementation_sha: str | None = None
 
 
 @dataclass
@@ -164,6 +182,10 @@ IMPLEMENTATION_TERMS = {
     "new service",
     "sql",
 }
+TEACHING_HEURISTIC_WARNING = (
+    "Teaching heuristic only: lexical signals can suggest a destination, but they do not "
+    "establish authority or automatically classify enterprise artifacts."
+)
 
 
 def ticket_statements() -> list[RawStatement]:
@@ -229,6 +251,34 @@ def ticket_statements() -> list[RawStatement]:
     ]
 
 
+def authority_exercise_statements() -> list[RawStatement]:
+    """Return three similar Bedrock statements with different provenance and authority."""
+    return [
+        RawStatement(
+            "AUTH-1",
+            "Use Bedrock.",
+            "Jira feature request",
+            "product manager",
+            Authority.INFORMAL,
+        ),
+        RawStatement(
+            "AUTH-2",
+            "We normally use Bedrock.",
+            "Architecture Slack note",
+            "solution architect",
+            Authority.INFORMAL,
+            "informal precedent",
+        ),
+        RawStatement(
+            "AUTH-3",
+            "Production inference shall use the approved enterprise Bedrock gateway.",
+            "PLAT-007 platform policy",
+            "AI platform owner",
+            Authority.POLICY,
+        ),
+    ]
+
+
 def keyword_classify(statement: RawStatement) -> Classification:
     """A deliberately weak baseline that mistakes wording for authority."""
     text = statement.text.lower()
@@ -256,8 +306,8 @@ def _implementation_terms(text: str) -> list[str]:
     )
 
 
-def classify_statement(statement: RawStatement) -> Classification:
-    """Classify using provenance and authority as well as language."""
+def teaching_classify_statement(statement: RawStatement) -> Classification:
+    """Demonstrate classification dimensions; never use this to assign real authority."""
     text = statement.text.lower()
     reasons: list[str] = []
 
@@ -363,14 +413,22 @@ def validate_requirement(requirement: RequirementCandidate) -> list[Finding]:
                 "Vague quality term is not operationalized.",
             )
         )
-    leaked = _implementation_terms(lowered)
-    if leaked and not requirement.authoritative_constraint:
+    technology_signals = _implementation_terms(lowered)
+    if (
+        technology_signals
+        and not requirement.authoritative_constraint
+        and not requirement.external_contract
+    ):
         findings.append(
             Finding(
-                "error",
-                "REQ_IMPLEMENTATION_LEAKAGE",
+                "warning",
+                "POSSIBLE_IMPLEMENTATION_LEAKAGE",
                 requirement.id,
-                f"Solution choice appears in outcome requirement: {', '.join(leaked)}.",
+                (
+                    "Technology language requires provenance-aware classification; it may "
+                    "be an external contract, inherited constraint, or misplaced design: "
+                    f"{', '.join(technology_signals)}."
+                ),
             )
         )
     performance_signal = any(
@@ -435,6 +493,25 @@ def _validate_adr(adr: ADR) -> list[Finding]:
         findings.append(
             Finding("error", "ADR_CONSEQUENCES_MISSING", adr.id, "Consequences are absent.")
         )
+    required_metadata = {
+        "ADR_STATUS_MISSING": (adr.status, "Decision status is absent."),
+        "ADR_SCOPE_MISSING": (adr.scope, "Decision scope is absent."),
+        "ADR_OWNER_MISSING": (adr.owner, "Decision owner is absent."),
+        "ADR_DATE_MISSING": (adr.decision_date, "Decision date is absent."),
+        "ADR_SUPERSESSION_MISSING": (adr.supersedes, "Supersession state is absent."),
+    }
+    for code, (value, message) in required_metadata.items():
+        if not value.strip():
+            findings.append(Finding("error", code, adr.id, message))
+    if not adr.review_triggers:
+        findings.append(
+            Finding(
+                "error",
+                "ADR_REVIEW_TRIGGERS_MISSING",
+                adr.id,
+                "No observable reconsideration trigger is defined.",
+            )
+        )
     return findings
 
 
@@ -489,6 +566,29 @@ def validate_stack(stack: ArtifactStack) -> list[Finding]:
                     "A test can provide evidence; it cannot own product intent.",
                 )
             )
+        lifecycle = (
+            check.planned,
+            check.implemented,
+            check.executed,
+            check.passed,
+            check.approved,
+            check.observed_in_production,
+        )
+        if any(
+            current and not previous
+            for previous, current in zip(lifecycle, lifecycle[1:], strict=False)
+        ):
+            findings.append(
+                Finding(
+                    "error",
+                    "EVIDENCE_LIFECYCLE_INVALID",
+                    check.id,
+                    (
+                        "Evidence states must progress in order from planned to "
+                        "production observation."
+                    ),
+                )
+            )
     for index, instruction in enumerate(stack.agent_instructions, start=1):
         lowered = instruction.lower()
         overreach_phrases = (
@@ -526,10 +626,28 @@ def traceability_metrics(stack: ArtifactStack) -> dict[str, dict[str, int | floa
             "percent": round(100 * len(covered) / total, 1) if total else 100.0,
         }
 
-    return {
+    metrics = {
         "requirements_to_tasks": metric(task_links),
         "requirements_to_evidence": metric(evidence_links),
     }
+    lifecycle_stages = (
+        "planned",
+        "implemented",
+        "executed",
+        "passed",
+        "approved",
+        "observed_in_production",
+    )
+    for stage in lifecycle_stages:
+        covered = {
+            requirement_id
+            for check in stack.evidence
+            if getattr(check, stage)
+            for requirement_id in check.requirement_ids
+            if requirement_id in requirement_ids
+        }
+        metrics[f"evidence_{stage}"] = metric(covered)
+    return metrics
 
 
 def reference_stack() -> ArtifactStack:
@@ -549,13 +667,17 @@ def reference_stack() -> ArtifactStack:
         RequirementCandidate(
             "REQ-CMP-002",
             (
-                "Every comparison claim cites supporting passages from the applicable "
-                "policy document or documents."
+                "Every factual comparison claim identifies the source passages supporting "
+                "that claim; each cited passage supports the proposition for which it is "
+                "cited; unsupported claims are not presented as policy facts."
             ),
             "underwriting domain owner",
             "approved specification v1",
             acceptance=(
-                "Each rendered difference links to evidence for the side or sides it describes.",
+                (
+                    "Each claim has complete citations, every citation supports its claim, "
+                    "and every presented policy fact is faithful to retrieved evidence."
+                ),
             ),
         ),
         RequirementCandidate(
@@ -573,11 +695,11 @@ def reference_stack() -> ArtifactStack:
         RequirementCandidate(
             "REQ-CMP-004",
             (
-                "A commercial-policy comparison is reviewed by an authorized underwriter "
-                "before consequential use."
+                "The system prevents a commercial-policy comparison from entering the "
+                "underwriting decision record unless a valid authorized-review receipt exists."
             ),
-            "underwriting policy owner",
-            "AI-021 approved clarification",
+            "Underwriter Assistant product owner",
+            "System control derived from AI-021 via CL-003",
             acceptance=(
                 "The result cannot enter the decision record without a reviewer receipt.",
             ),
@@ -639,6 +761,16 @@ def reference_stack() -> ArtifactStack:
                     "No cache invalidation or generated-content retention boundary yet",
                     "Decision will be revisited with telemetry",
                 ),
+                status="Accepted",
+                scope="Generated comparison responses",
+                owner="Underwriter Assistant architecture owner",
+                decision_date="2026-09-17",
+                supersedes="None",
+                review_triggers=(
+                    "p95 complete-response latency exceeds SLO-CMP-001 in two consecutive releases",
+                    "model cost per successful comparison exceeds the approved FinOps threshold",
+                    "30-day repeated-comparison rate reaches 10 percent",
+                ),
             )
         ],
         tasks=[
@@ -658,19 +790,44 @@ def reference_stack() -> ArtifactStack:
                 "Instrument latency and safe trace metadata.",
                 ("PERF-CMP-001", "OBS-CMP-001"),
             ),
+            Task(
+                "TASK-005",
+                "Implement independent checks from the evidence plan.",
+                (
+                    "REQ-CMP-001",
+                    "REQ-CMP-002",
+                    "REQ-CMP-003",
+                    "REQ-CMP-004",
+                    "PERF-CMP-001",
+                    "SEC-CMP-001",
+                    "OBS-CMP-001",
+                ),
+            ),
         ],
         evidence=[
             EvidenceCheck(
                 "TEST-001",
-                "acceptance",
-                "Verify two authorized policies can be selected.",
-                ("REQ-CMP-001",),
+                "acceptance and security",
+                (
+                    "Verify two authorized policies can be selected and unauthorized IDs "
+                    "reveal no content."
+                ),
+                ("REQ-CMP-001", "SEC-CMP-001"),
             ),
             EvidenceCheck(
                 "EVAL-001",
                 "domain evaluation",
-                "Score claim-level citation support and abstention.",
+                (
+                    "Score citation completeness, citation correctness, claim faithfulness, "
+                    "and abstention correctness."
+                ),
                 ("REQ-CMP-002", "REQ-CMP-003"),
+                dataset="D1 v1 planned representative policy-comparison set",
+                threshold=(
+                    "completeness=100%; correctness>=95%; faithfulness>=95%; "
+                    "abstention correctness>=95%"
+                ),
+                version="EVAL-001 v1",
             ),
             EvidenceCheck(
                 "TEST-002",
@@ -686,12 +843,6 @@ def reference_stack() -> ArtifactStack:
             ),
             EvidenceCheck(
                 "TEST-003",
-                "security",
-                "Probe tenant and document authorization boundaries.",
-                ("SEC-CMP-001",),
-            ),
-            EvidenceCheck(
-                "TEST-004",
                 "observability",
                 "Inspect trace fields for required IDs and prohibited content.",
                 ("OBS-CMP-001",),
@@ -732,7 +883,7 @@ def failure_stack() -> ArtifactStack:
 def classification_summary(statements: Iterable[RawStatement]) -> list[dict[str, object]]:
     rows: list[dict[str, object]] = []
     for statement in statements:
-        result = classify_statement(statement)
+        result = teaching_classify_statement(statement)
         rows.append(
             {
                 "id": statement.id,
@@ -751,6 +902,7 @@ def build_evidence() -> dict[str, object]:
     return {
         "scenario": "AI-1842",
         "classifications": classification_summary(ticket_statements()),
+        "authority_exercise": classification_summary(authority_exercise_statements()),
         "reference_stack": {
             "findings": [asdict(item) for item in validate_stack(good)],
             "traceability": traceability_metrics(good),
@@ -771,6 +923,7 @@ def main() -> int:
     evidence = build_evidence()
 
     print("Course 02 — From Prompt to Executable Specification")
+    print(f"\nWARNING: {TEACHING_HEURISTIC_WARNING}")
     print("\nAI-1842 statement routing")
     for row in evidence["classifications"]:
         marker = "clarify" if row["needs_clarification"] else "route"

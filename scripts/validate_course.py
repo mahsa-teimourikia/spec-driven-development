@@ -2,15 +2,15 @@
 
 from __future__ import annotations
 
-from contextlib import contextmanager
+import csv
 import json
 import os
-from pathlib import Path
 import re
 import subprocess
 import sys
 import tempfile
-
+from contextlib import contextmanager
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 MARKDOWN_LINK = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
@@ -59,7 +59,8 @@ def check_lesson_structure() -> list[str]:
             errors.append(f"missing README.md: {lesson.relative_to(ROOT)}")
         if len(notebooks) != 1:
             errors.append(
-                f"expected exactly one notebook in {lesson.relative_to(ROOT)}, found {len(notebooks)}"
+                f"expected exactly one notebook in {lesson.relative_to(ROOT)}, "
+                f"found {len(notebooks)}"
             )
     return errors
 
@@ -207,7 +208,11 @@ def check_enterprise_fixture() -> list[str]:
         "evals/run_evals.py",
         "approvals/training-receipts.json",
     ]
-    errors = [f"missing enterprise fixture artifact: {item}" for item in required if not (fixture / item).exists()]
+    errors = [
+        f"missing enterprise fixture artifact: {item}"
+        for item in required
+        if not (fixture / item).exists()
+    ]
     reference = fixture / "changes" / "policy-document-qa"
     for path in reference.glob("*"):
         if path.is_file() and "TODO" in path.read_text(encoding="utf-8"):
@@ -236,6 +241,11 @@ def check_course_02_artifact_stack() -> list[str]:
         "sources/SEC-014-authorization-boundary.md",
         "sources/OBS-008-trace-data.md",
         "sources/SLO-CMP-001.md",
+        "authority-exercise/README.md",
+        "authority-exercise/01-jira.md",
+        "authority-exercise/02-architecture-slack-note.md",
+        "authority-exercise/03-platform-policy.md",
+        "authority-exercise/reference-answer.md",
         "workshop/starter/classification.md",
         "workshop/starter/spec.md",
         "workshop/starter/design-and-decisions.md",
@@ -265,6 +275,56 @@ def check_course_02_artifact_stack() -> list[str]:
         if path.is_file()
     ):
         errors.append("Course 02 starter workspace has no editable TODO prompts")
+
+    lifecycle_columns = {
+        "planned",
+        "implemented",
+        "executed",
+        "passed",
+        "approved",
+        "observed_in_production",
+        "dataset_or_case_set",
+        "threshold",
+        "evidence_version",
+        "threshold_owner",
+        "environment",
+        "implementation_sha",
+    }
+    for relative_path in ("workshop/starter/traceability.csv", "reference/traceability.csv"):
+        path = scenario / relative_path
+        with path.open(newline="", encoding="utf-8") as handle:
+            rows = list(csv.DictReader(handle))
+            columns = set(rows[0]) if rows else set()
+        missing = sorted(lifecycle_columns - columns)
+        if missing:
+            errors.append(
+                f"Course 02 traceability lifecycle columns missing in {relative_path}: "
+                f"{', '.join(missing)}"
+            )
+
+    reference_traceability = scenario / "reference" / "traceability.csv"
+    with reference_traceability.open(newline="", encoding="utf-8") as handle:
+        reference_rows = list(csv.DictReader(handle))
+    for row in reference_rows:
+        if row["planned"] != "yes" or any(
+            row[stage] != "no"
+            for stage in (
+                "implemented",
+                "executed",
+                "passed",
+                "approved",
+                "observed_in_production",
+            )
+        ):
+            errors.append(
+                "Course 02 reference evidence must remain honestly staged as planned-only: "
+                f"{row['requirement_id']}"
+            )
+        for field in ("dataset_or_case_set", "threshold", "evidence_version", "threshold_owner"):
+            if not row[field].strip():
+                errors.append(
+                    f"Course 02 reference traceability lacks {field}: {row['requirement_id']}"
+                )
     return errors
 
 
