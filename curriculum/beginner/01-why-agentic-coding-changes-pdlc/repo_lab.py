@@ -291,7 +291,14 @@ def candidate_digest(
     for artifact_root in roots:
         if not artifact_root.exists():
             continue
-        for path in sorted(item for item in artifact_root.rglob("*") if item.is_file()):
+        for path in sorted(
+            item
+            for item in artifact_root.rglob("*")
+            if item.is_file()
+            and "__pycache__" not in item.parts
+            and item.suffix not in {".pyc", ".pyo"}
+            and item.name != ".DS_Store"
+        ):
             artifact_digests[str(path.relative_to(root))] = (
                 "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
             )
