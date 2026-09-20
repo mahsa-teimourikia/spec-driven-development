@@ -4,7 +4,7 @@
 
 ## Start here
 
-Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). The course includes a guided [notebook](curriculum/beginner/01-why-agentic-coding-changes-pdlc/agentic_pdlc.ipynb), [Lab A's deterministic control-plane model](curriculum/beginner/01-why-agentic-coding-changes-pdlc/lab.py), [Lab B's realistic repository change](curriculum/beginner/01-why-agentic-coding-changes-pdlc/northstar-underwriter/README.md), and a [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
+Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Then continue to [Course 02: From prompt to executable specification](curriculum/beginner/02-from-prompt-to-executable-specification/README.md), with its guided [notebook](curriculum/beginner/02-from-prompt-to-executable-specification/artifact_taxonomy.ipynb), deterministic [artifact-stack lab](curriculum/beginner/02-from-prompt-to-executable-specification/lab.py), realistic [AI-1842 workshop](curriculum/beginner/02-from-prompt-to-executable-specification/northstar-policy-comparison/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
 
 This is not simply a tutorial for one specification framework. The central skill is turning organizational intent, architecture rules, product requirements, and engineering constraints into a hierarchy of durable specifications that agents can execute—and humans can govern.
 
@@ -26,21 +26,33 @@ The program ends with an **Enterprise Agent capstone**: design a real Agentic PD
 Course 01 uses a fictional financial-services organization, Northstar Mutual, to show how the PDLC becomes a governed control loop. You will:
 
 - distinguish prompts from durable specifications and observable evidence;
-- discover distributed context and resolve requirement applicability before precedence;
+- triage a deficient Jira request, discover distributed context, and resolve applicability before precedence;
 - compose organization, platform, domain, project, feature, and implementation rules with provenance;
-- detect policy conflicts rather than silently allowing lower-level overrides;
-- run unsafe and governed candidate code in a temporary repository and compare independent gates;
-- generate a traceable release evidence bundle while naming what it cannot prove;
+- record ticket-versus-policy conflicts and author an executable change package before coding;
+- run unsafe and governed candidate code in a temporary repository and contrast self-authored tests with independent gates;
+- verify proposal-bound training approvals and generate separate merge and production-release evidence;
 - choose direct change, lightweight specification, or full SDD in proportion to risk; and
 - interpret current evidence about agentic coding without confusing speed with safe delivery.
 
+## Course 02 outcome
+
+Course 02 turns a mixed product ticket into an execution-ready, authority-aware artifact stack. You will:
+
+- distinguish prompts, product intent, requirements, constraints, specifications, designs, ADRs, tasks, evidence, and agent instructions;
+- replace “accurate” and an unqualified latency target with observable behavior and measurement context;
+- verify hearsay against an authoritative domain-policy source;
+- treat Redis and caching as design decisions rather than inherited product requirements;
+- route local, architectural, policy, and exception decisions to the appropriate owners; and
+- validate requirement-to-task and requirement-to-evidence coverage with explicit denominators.
+
 ## Run locally
 
-Everything in Course 01 is credential-free and uses the Python standard library.
+Everything in Courses 01 and 02 is credential-free and uses the Python standard library.
 
 ```bash
 python3 curriculum/beginner/01-why-agentic-coding-changes-pdlc/lab.py
 python3 curriculum/beginner/01-why-agentic-coding-changes-pdlc/repo_lab.py --candidate all
+python3 curriculum/beginner/02-from-prompt-to-executable-specification/lab.py
 python3 -m unittest discover -s tests -v
 python3 scripts/validate_course.py
 ```

@@ -17,14 +17,16 @@ By the end of this course, you can:
 5. decide whether a requirement is applicable, not applicable, or uncertain before resolving precedence;
 6. preserve owner, source repository, path, version, commit, status, and effective-date provenance;
 7. separate human-heavy intent and policy decisions from agent-heavy implementation work;
-8. choose direct change, lightweight specification, full SDD, or specialist-reviewed SDD proportionately; and
-9. evaluate real candidate code for requirements, tests, policy, architecture, traceability, approvals, and evidence gaps.
+8. turn a deficient ticket into clarifications, an applicability record, a conflict record, requirements, design, tasks, and multi-stage traceability;
+9. distinguish candidate-owned tests from independent conformance evidence and verify proposal-bound approval receipts;
+10. choose direct change, lightweight specification, full SDD, or specialist-reviewed SDD proportionately; and
+11. evaluate real candidate code for requirements, tests, policy, architecture, traceability, approvals, and evidence gaps.
 
 ## Scenario, success criteria, and boundaries
 
 You are helping **Northstar Mutual**, an insurance company, add policy-document question answering to its Underwriter Assistant. A prompt such as “let underwriters ask questions about uploaded policies” does not tell an implementation agent about Northstar's model gateway, privacy rules, cloud standard, infrastructure policy, identity provider, telemetry, evidence requirements, or the domain obligation for human review.
 
-This course succeeds when you can construct the effective context for that change, explain why each source applies, detect a feature-level attempt to override company privacy policy, compare unsafe and governed candidate code, produce an evidence bundle, and route changes through proportionate workflows.
+This course succeeds when you can determine why the ticket is not implementation-ready; construct the effective context; explain why each source applies; record rather than hide a ticket-versus-policy conflict; write the durable change package; compare unsafe and governed candidate code; produce an evidence bundle; and route merge, approval, and production release as separate decisions.
 
 Course 01 has two credential-free labs. **Lab A** is a deterministic control-plane simulation that exposes decisions and metrics. **Lab B** copies a miniature repository into a temporary workspace, installs actual candidate code, runs real tests and deterministic independent checks, and produces a release evidence bundle. Neither lab calls an AI model, deploys infrastructure, processes real policyholder data, or claims that its routing thresholds are universal. In production, identity, authorization, sandboxing, repository permissions, secrets, approval, retry budgets, idempotency, audit logs, and independent evaluation must be enforced outside prompts.
 
@@ -369,16 +371,20 @@ The safe conclusion is not that agents are unreliable and should never act, nor 
 
 ## 11. Worked Northstar Mutual scenario
 
-The only initial artifact is:
+The initial ticket is deliberately poor:
 
 ```text
-JIRA-4821
+JIRA-4821 — Add policy document Q&A
 
-Allow underwriters to ask questions
-about uploaded policy documents.
+Underwriters should be able to upload policies and ask
+questions about coverage. Use existing AI capabilities.
+
+Product comment: For the prototype, use the public OpenAI API directly.
 ```
 
-Lab A supplies a normalized requirement set so learners can inspect the control primitive. Lab B deliberately distributes the sources across an enterprise-policy context, platform standards, domain controls, project architecture, an ADR, repository instructions, feature requirements, existing tests, and code. The learner must discover and resolve them before trusting either candidate.
+The ticket is not enough to implement and its proposed route is not authoritative. Lab A supplies a normalized requirement set so learners can inspect the control primitive. Lab B deliberately distributes the sources across human-readable enterprise policy, a machine-readable control registry, platform standards, domain controls, project architecture, an ADR, repository instructions, feature requirements, existing tests, and code. The learner must discover and resolve them before trusting either candidate.
+
+Before seeing the reference answer, the learner records questions such as storage, classification, approved models, retrieval ownership, citations, abstention, logging, retention, API impact, threat-model impact, evaluation, and human oversight. The correct first action is clarification—not code.
 
 The effective context contains 14 controls:
 
@@ -435,36 +441,61 @@ The [Northstar Underwriter fixture](northstar-underwriter/README.md) is a small 
 
 ```text
 northstar-underwriter/
-├── ticket/                 terse JIRA request + known change context
-├── context/                organization, platform, domain, project, feature
+├── ticket/                 deficient JIRA request + authoritative change context
+├── enterprise/             human-readable policy, including irrelevant and ambiguous rules
+├── platform/               approved-service standards
+├── context/                machine-readable organization/platform/domain/project/feature controls
 ├── docs/decisions/         ADR-013 model-gateway decision
+├── workshop/starter/       learner-authored change-package templates
+├── changes/policy-document-qa/ completed reference spec/design/tasks/traceability
 ├── src/                    current application boundary
 ├── tests/                  executable feature and contract expectations
+├── evals/                  labelled deterministic conformance cases
 ├── infra/                  existing Terraform convention
-├── changes/unsafe/         deliberately bad agent candidate
-├── changes/governed/       bounded candidate
+├── changes/unsafe/         plausible noncompliant candidate + self-authored tests
+├── changes/governed/       bounded candidate + self-authored tests
+├── approvals/              proposal-bound training approval receipts
 └── experiments/            conflict fixtures
 ```
+
+Work through it as a nine-stage professional exercise:
+
+| Stage | Learner decision | Durable output |
+| --- | --- | --- |
+| 1. Ticket triage | Is JIRA-4821 implementation-ready? | Clarification questions with owners |
+| 2. Context discovery | Which policy, platform, domain, project, code, and test sources matter? | Source inventory with provenance |
+| 3. Applicability | Which active rules are applicable, not applicable, or uncertain? | Applicability record |
+| 4. Conflict resolution | Can the direct-public-model ticket comment be followed? | `CONFLICT-001`; implementation remains blocked until resolved |
+| 5. Change specification | What behavior and constraints become falsifiable? | Proposal, SHALL requirements, and scenarios |
+| 6. Design and work graph | Which architecture fits the inherited constraints? | Design, alternatives, tasks, and authority boundaries |
+| 7. Candidate review | Why can candidate-owned tests pass while the change is unsafe? | Candidate-versus-independent evidence comparison |
+| 8. Traceability | Where is each requirement realized and verified? | Design/task/code/test/runtime matrix with visible holes |
+| 9. Gate decision | May it merge, and may it release to production? | Human-readable gate report and JSON evidence bundle |
+
+The actual Spec Kit and OpenSpec command tracks are intentionally deferred to Courses 11 and 12. Those courses reuse this same Northstar change so the learner compares development experience and persistence semantics, not two unrelated toy problems.
 
 The orchestrator copies this fixture to a temporary workspace before applying candidate source code, so the teaching repository remains unchanged:
 
 ```bash
 python3 repo_lab.py --candidate unsafe
 python3 repo_lab.py --candidate governed
-python3 repo_lab.py --candidate governed --approve
+python3 repo_lab.py --candidate governed \
+  --approval-receipts northstar-underwriter/approvals/training-receipts.json
 python3 repo_lab.py --candidate all
 ```
 
-The unsafe candidate chooses an unapproved dependency, bypasses the model gateway, changes the response contract, requests production permissions, targets another repository, exceeds the file budget, embeds an inert credential-like sentinel, ignores the ADR, routes Canadian data to another region, removes citations, guesses without evidence, and invents indefinite retention. These are labeled training failures; nothing is installed, deployed, transmitted, or called.
+The unsafe candidate chooses an unapproved dependency, bypasses the model gateway, changes the response contract, requests production permissions, targets another repository, exceeds the file budget, embeds an inert credential-like sentinel, ignores the ADR, routes Canadian data to another region, removes citations, guesses without evidence, and invents indefinite retention. Its own tests pass because they merely confirm that unsafe design. Independent tests and evaluation fail. These are labeled training failures; nothing is installed, deployed, transmitted, or called.
 
-Lab B then runs six independent surfaces:
+Lab B then runs eight control surfaces:
 
-1. **Specification check:** compares declared candidate decisions with applicable effective controls.
-2. **Policy check:** enforces repository, permission, dependency, file-budget, and credential-literal rules.
-3. **Architecture check:** verifies ADR acknowledgement, gateway usage, public contract, and infrastructure method.
-4. **Real unit tests:** installs the candidate in a temporary copy and executes the fixture's tests.
-5. **Traceability check:** requires applicable requirement IDs to connect to code, tests, decisions, or evidence.
-6. **Independent review:** scans implementation behavior without trusting the candidate's self-description.
+1. **Change-package check:** requires completed clarification, applicability, conflict, proposal, requirements, design, task, and traceability artifacts.
+2. **Specification check:** compares declared candidate decisions with applicable effective controls.
+3. **Policy check:** enforces repository, permission, dependency, file-budget, and credential-literal rules.
+4. **Architecture check:** verifies ADR acknowledgement, gateway usage, public contract, and infrastructure method.
+5. **Candidate versus independent tests:** runs the candidate's claims separately from the fixture's authoritative invariants.
+6. **Evaluation:** reports the labelled population, passed/total cases, conformance rate, safety violations, and limitations.
+7. **Traceability check:** measures requirement links through design, tasks, code, tests/evaluation, and runtime evidence rather than collapsing them into one score.
+8. **Approval receipt verification and independent review:** binds named roles to the exact proposal and policy snapshot while separately scanning behavior without trusting self-description.
 
 The expected control progression is:
 
@@ -472,7 +503,7 @@ The expected control progression is:
 | --- | --- | --- |
 | Unsafe candidate | `STOP` | Multiple requirement, boundary, architecture, test, and evidence failures |
 | Governed candidate | `REVIEW` | Technical checks pass but named domain/privacy approvals are pending |
-| Governed + training approval | `PASS` | All classroom gates pass; residual production risks remain explicit |
+| Governed + valid bound receipts | merge `PASS`; production `BLOCKED` | Classroom merge controls pass; runtime production evidence remains pending |
 
 Each run writes an evidence bundle under `build/course01-evidence/<run>/`:
 
@@ -482,14 +513,17 @@ applicability.json
 specification-check.json
 policy-check.json
 architecture-check.json
-test-results.json
+candidate-test-results.json
+independent-test-results.json
+evaluation-results.json
 traceability.json
 independent-review.json
 approvals.json
 release-summary.json
+gate-report.txt
 ```
 
-`PASS` is intentionally not equivalent to production readiness. The independent review records what the local controls cannot establish: real retrieval tenant isolation, deployed data residency, and representative answer quality. This directly answers the professional question, “Which controls caught what—and what did none of them catch?”
+The report always names two decisions: a classroom merge gate and a production-release gate. A valid training receipt can move the governed change from merge `REVIEW` to merge `PASS`; production remains `BLOCKED` because runtime traceability coverage is zero and the local controls cannot establish real retrieval tenant isolation, deployed data residency, telemetry delivery, or representative answer quality. This directly answers the professional question, “Which controls caught what—and what did none of them catch?”
 
 ## 14. Experiments
 
@@ -550,7 +584,7 @@ The classroom evaluator is a transparent primitive. A production capability need
 | File-count budget | Change, time, token, cost, retry, and parallelism budgets with stop conditions |
 | Requirement IDs on tasks | Bidirectional graph linking intent, ADRs, tasks, code, tests, evidence, releases |
 | Boolean evidence presence | Quality-scored, independently generated, reproducible evidence artifacts |
-| Human approval flag | Named role, separation of duties, signed decision, expiry, revocation, audit |
+| Bound training receipt | Authenticated named role, cryptographic integrity, durable single-use consumption, separation of duties, expiry, revocation, and audit |
 | Console trace | Correlated, redacted, tamper-evident observability and retention controls |
 | One repository | Cross-repository work graph, dependency locks, staged integration, rollback |
 
@@ -562,7 +596,7 @@ Operationally, define SLOs for the agentic delivery system: gate false-negative/
 2. **Implementation:** add a `data_retention_days = 30` project requirement. Decide whether project ownership is sufficient or an organization/domain owner must define the upper bound.
 3. **Applicability diagnosis:** remove `data_classification`; assert that the privacy controls become uncertain and explain why defaulting to not applicable would be unsafe.
 4. **Provenance diagnosis:** blank the owner and commit of one applicable rule. Extend the resolver test and design the retrieval/refresh response.
-5. **Failure injection:** run `repo_lab.py --candidate governed --approve --inject-conflict`. Assert that `C-02` remains effective, `F-99` is rejected, and the release stops.
+5. **Failure injection:** run `repo_lab.py --candidate governed --approval-receipts northstar-underwriter/approvals/training-receipts.json --inject-conflict`. Assert that `C-02` remains effective, `F-99` is rejected, and the merge stops even though the receipts were valid for the unmodified policy snapshot.
 6. **Coverage analysis:** create the control-by-failure matrix for the unsafe candidate and propose one additional independent control for an uncovered risk.
 7. **Boundary design:** reduce the allowed file count from 20 to 5. Decide whether to split the work, request a budget exception, or redesign the change.
 8. **Architecture judgment:** classify five changes from your environment into direct, lightweight, full SDD, or specialist-reviewed SDD. Defend the route using risk dimensions.

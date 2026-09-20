@@ -76,7 +76,7 @@ Each future course follows this learning arc, adapted where the subject demands 
 | Course | Level folder | Topic | Status | Prerequisite | Learner evidence |
 | --- | --- | --- | --- | --- | --- |
 | 01 | beginner/01 | Why agentic coding changes the PDLC | **Available** | None | Control-plane simulation plus real repository change, applicability/provenance decisions, independent gates, evidence bundle |
-| 02 | beginner/02 | Specs vs prompts vs requirements vs design | Planned | C01 | Artifact classification and repaired mixed artifact |
+| 02 | beginner/02 | Prompts, requirements, specifications, designs, ADRs, tasks, tests, and agent instructions | **Available** | C01 | AI-1842 classification, repaired specification stack, decision routing, failure injection, and traceability evidence |
 | 03 | beginner/03 | The specification hierarchy | Planned | C01–C02 | Precedence, provenance, freshness, and exception model |
 | 04 | beginner/04 | Company vs project vs feature requirements | Planned | C03 | Requirement-location matrix, separate owner/RACI, applicability and enforcement map |
 
@@ -95,8 +95,8 @@ Each future course follows this learning arc, adapted where the subject demands 
 
 | Course | Level folder | Topic | Status | Prerequisite | Learner evidence |
 | --- | --- | --- | --- | --- | --- |
-| 11 | intermediate/01 | GitHub Spec Kit | Planned | Part I–II | Constitution-to-convergence change plus flow-forward/living/flow-back persistence decision |
-| 12 | intermediate/02 | OpenSpec | Planned | C10 | Brownfield case where spec says A, code/tests add B, and ticket requests C; current-truth/change-delta resolution |
+| 11 | intermediate/01 | GitHub Spec Kit | Planned | Part I–II | Re-run Northstar policy Q&A through constitution → specify → clarify → plan → checklist → tasks → analyze → implement → converge, including a persistence decision |
+| 12 | intermediate/02 | OpenSpec | Planned | C10–C11 | Re-run the same Northstar change as current truth + change delta, then compare experience and brownfield convergence with Course 11 |
 | 13 | intermediate/03 | Kiro Specs | Planned | C06–C10 | Requirements/design/tasks flow plus defended routing of typo, export, API-contract, and AI-underwriting changes through direct, Quick Spec, Feature Spec, or specialist review |
 | 14 | intermediate/04 | Agent instructions such as `AGENTS.md` | Planned | C03–C04 | Scoped cross-agent instructions and conflict tests |
 | 15 | intermediate/05 | Comparing and choosing frameworks | Planned | C11–C14 | Weighted selection backed by scenario evidence |
@@ -209,6 +209,8 @@ The old lesson files are removed from the available curriculum rather than appen
 - **Lab B:** a miniature Northstar repository with a terse ticket, distributed context, ADR, existing code/tests/infra, unsafe and governed candidate implementations, and temporary-workspace execution.
 - **Independent evidence:** specification, policy, architecture, real unit-test, traceability, reviewer, and approval outputs in a release bundle, including explicit unverified risks.
 - **Specification persistence:** change specification, living system truth, and decision-history distinctions tied to current Spec Kit and OpenSpec practice.
+
+A third realism audit deepened Lab B into a nine-stage learner workflow: a deficient and internally conflicting Jira ticket; human-readable enterprise policies plus machine-readable controls; starter and reference change packages; candidate-owned versus independent tests; labelled evaluation cases; design/task/code/test/runtime traceability; proposal- and policy-bound approval receipts; and separate merge versus production-release decisions. Framework execution remains in Courses 11–12, where the same Northstar change is implemented through Spec Kit and OpenSpec for an apples-to-apples comparison.
 
 ## Risk boundaries
 

@@ -3,7 +3,7 @@
 The beginner path establishes the operating model and then builds the requirements-engineering skills agents need.
 
 1. [Why agentic coding changes the PDLC](01-why-agentic-coding-changes-pdlc/README.md) — **available**
-2. Specs vs prompts vs requirements vs design — planned
+2. [From prompt to executable specification](02-from-prompt-to-executable-specification/README.md) — **available**
 3. The specification hierarchy — planned
 4. Company vs project vs feature requirements — planned
 5. Requirements engineering for agents — planned

@@ -25,11 +25,8 @@
     "unsupported_answers": "best_guess",
     "retention_period": "forever"
   },
-  "evidence_map": {
-    "F-01": ["src/northstar_underwriter/policy_qa.py"]
-  },
   "required_approvals": [
-    {"role": "underwriting-risk", "status": "missing"},
-    {"role": "privacy-office", "status": "missing"}
+    {"role": "underwriting-risk"},
+    {"role": "privacy-office"}
   ]
 }

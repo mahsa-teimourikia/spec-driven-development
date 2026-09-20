@@ -1,0 +1,28 @@
+[
+  {
+    "receipt_id": "APR-JIRA-4821-RISK-001",
+    "issuer": "course-fixture-approval-service",
+    "candidate": "governed",
+    "role": "underwriting-risk",
+    "approver_id": "training-risk-owner",
+    "proposal_digest": "sha256:04a68f3c01ae17d95f997787b92e042f388a40b7196c155b8f54155e1bcb11c1",
+    "policy_snapshot_digest": "sha256:e661f6bc73292c46962ec921b6729a995cd3f384a3cc6e0df73592d1179e0ba7",
+    "issued_at": "2026-09-10T09:00:00Z",
+    "expires_at": "2026-10-10T09:00:00Z",
+    "state": "available",
+    "training_only": true
+  },
+  {
+    "receipt_id": "APR-JIRA-4821-PRIV-001",
+    "issuer": "course-fixture-approval-service",
+    "candidate": "governed",
+    "role": "privacy-office",
+    "approver_id": "training-privacy-owner",
+    "proposal_digest": "sha256:04a68f3c01ae17d95f997787b92e042f388a40b7196c155b8f54155e1bcb11c1",
+    "policy_snapshot_digest": "sha256:e661f6bc73292c46962ec921b6729a995cd3f384a3cc6e0df73592d1179e0ba7",
+    "issued_at": "2026-09-10T09:05:00Z",
+    "expires_at": "2026-10-10T09:05:00Z",
+    "state": "available",
+    "training_only": true
+  }
+]

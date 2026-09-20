@@ -1,0 +1,8 @@
+requirement_id,owner,source,design_element,task_id,evidence_id,status
+REQ-CMP-001,Product owner,CL-001 + SEC-014,Authorization adapter,TASK-001,TEST-001,planned
+REQ-CMP-002,Underwriting domain owner,CL-002,Two-document composer,TASK-002,EVAL-001,planned
+REQ-CMP-003,Underwriting domain owner,CL-002,Two-document composer,TASK-002,EVAL-001,planned
+REQ-CMP-004,Director of Underwriting Risk,AI-021,Review-receipt gate,TASK-003,TEST-002,planned
+PERF-CMP-001,Product + service owner,SLO-CMP-001,Timing adapter,TASK-004,LOAD-001,planned
+SEC-CMP-001,Product Security,SEC-014,Authorization adapter,TASK-001,TEST-001,planned
+OBS-CMP-001,Observability Platform,OBS-008,Safe trace adapter,TASK-004,TEST-003,planned

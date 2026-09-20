@@ -60,14 +60,12 @@ function openLesson(id) {
     <h3>References</h3>
     <ul>${selectedLesson.references.map(([name, url]) => `<li><a href="${url}">${name}</a></li>`).join('')}</ul>`;
   document.querySelector('#lab').innerHTML = `
-    <h3>Lab A — Simulate the control plane</h3>
-    <p>Inspect typed requirements, conflicts, bounded proposals, evidence coverage, and proportional workflow routing.</p>
-    <pre><code>${selectedLesson.run}</code></pre>
-    <div class="link-list">${link('View Lab A', selectedLesson.lab)}${link('Use the guided notebook', selectedLesson.notebook)}</div>
-    <h3>Lab B — Run a repository change</h3>
-    <p>Discover distributed context, apply actual unsafe and governed candidates in temporary workspaces, run independent gates, and generate release evidence.</p>
-    <pre><code>${selectedLesson.runRepo}</code></pre>
-    <div class="link-list">${link('View Lab B runner', selectedLesson.repoLab)}${link('Explore the repository fixture', selectedLesson.repoFixture)}</div>`;
+    ${selectedLesson.labs.map(item => `
+      <h3>${item.title}</h3>
+      <p>${item.description}</p>
+      <pre><code>${item.command}</code></pre>
+      <div class="link-list">${item.links.map(([label, url]) => link(label, url)).join('')}</div>
+    `).join('')}`;
   renderCheckpoint();
   updateCompleteButton();
   selectTab('learn');

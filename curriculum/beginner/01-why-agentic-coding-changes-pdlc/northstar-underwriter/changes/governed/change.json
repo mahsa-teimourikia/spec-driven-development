@@ -1,6 +1,8 @@
 {
   "candidate": "governed",
   "description": "Context-resolved proposal that stays within the repository execution boundary.",
+  "change_spec_path": "changes/policy-document-qa",
+  "traceability_path": "changes/policy-document-qa/traceability.csv",
   "target_repositories": ["northstar-underwriter"],
   "requested_permissions": ["read_source", "write_feature_branch", "run_tests"],
   "estimated_files_changed": 8,
@@ -25,27 +27,8 @@
     "citations": "required",
     "unsupported_answers": "insufficient_evidence"
   },
-  "evidence_map": {
-    "C-01": ["change.json", "infra/main.tf"],
-    "C-02": ["tests/test_policy_qa.py", "policy-check.json"],
-    "C-03": ["infra/main.tf", "architecture-check.json"],
-    "C-04": ["release-summary.json", "test-results.json"],
-    "C-05": ["tests/test_policy_qa.py", "policy-check.json"],
-    "P-01": ["change.json", "architecture-check.json"],
-    "P-02": ["src/northstar_underwriter/policy_qa.py", "ADR-013"],
-    "P-03": ["tests/test_policy_qa.py", "src/northstar_underwriter/policy_qa.py"],
-    "P-04": ["change.json", "policy-check.json"],
-    "D-01": ["approvals.json"],
-    "PR-01": ["src/northstar_underwriter/policy_qa.py"],
-    "PR-02": ["change.json", "architecture-check.json"],
-    "PR-03": ["change.json", "policy-check.json"],
-    "PR-04": ["tests/test_policy_qa.py"],
-    "F-01": ["src/northstar_underwriter/policy_qa.py", "tests/test_policy_qa.py"],
-    "F-02": ["tests/test_policy_qa.py"],
-    "F-03": ["tests/test_policy_qa.py"]
-  },
   "required_approvals": [
-    {"role": "underwriting-risk", "status": "pending"},
-    {"role": "privacy-office", "status": "pending"}
+    {"role": "underwriting-risk"},
+    {"role": "privacy-office"}
   ]
 }

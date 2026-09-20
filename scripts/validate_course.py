@@ -177,12 +177,105 @@ def check_published_navigation() -> list[str]:
     return errors
 
 
+def check_enterprise_fixture() -> list[str]:
+    fixture = (
+        ROOT
+        / "curriculum"
+        / "beginner"
+        / "01-why-agentic-coding-changes-pdlc"
+        / "northstar-underwriter"
+    )
+    required = [
+        "ticket/JIRA-4821.md",
+        "enterprise/privacy/PRIV-003-pii.md",
+        "enterprise/ai-governance/AI-004-approved-models.md",
+        "enterprise/ai-governance/AI-012-evaluation.md",
+        "enterprise/ai-governance/AI-021-human-oversight.md",
+        "enterprise/ai-governance/AI-021-GUIDANCE.md",
+        "enterprise/payments/PCI-002-tokenization.md",
+        "changes/policy-document-qa/clarifications.md",
+        "changes/policy-document-qa/applicability.md",
+        "changes/policy-document-qa/conflict-record.md",
+        "changes/policy-document-qa/proposal.md",
+        "changes/policy-document-qa/requirements.md",
+        "changes/policy-document-qa/design.md",
+        "changes/policy-document-qa/tasks.md",
+        "changes/policy-document-qa/traceability.csv",
+        "changes/unsafe/tests/test_candidate_claims.py",
+        "changes/governed/tests/test_candidate_claims.py",
+        "evals/cases.json",
+        "evals/run_evals.py",
+        "approvals/training-receipts.json",
+    ]
+    errors = [f"missing enterprise fixture artifact: {item}" for item in required if not (fixture / item).exists()]
+    reference = fixture / "changes" / "policy-document-qa"
+    for path in reference.glob("*"):
+        if path.is_file() and "TODO" in path.read_text(encoding="utf-8"):
+            errors.append(f"unresolved TODO in reference artifact: {path.relative_to(ROOT)}")
+    starter = fixture / "workshop" / "starter" / "policy-document-qa"
+    if not starter.exists() or not any(
+        "TODO" in path.read_text(encoding="utf-8")
+        for path in starter.glob("*")
+        if path.is_file()
+    ):
+        errors.append("learner starter workspace is missing editable TODO prompts")
+    return errors
+
+
+def check_course_02_artifact_stack() -> list[str]:
+    scenario = (
+        ROOT
+        / "curriculum"
+        / "beginner"
+        / "02-from-prompt-to-executable-specification"
+        / "northstar-policy-comparison"
+    )
+    required = [
+        "ticket/AI-1842.md",
+        "sources/AI-021-human-oversight.md",
+        "sources/SEC-014-authorization-boundary.md",
+        "sources/OBS-008-trace-data.md",
+        "sources/SLO-CMP-001.md",
+        "workshop/starter/classification.md",
+        "workshop/starter/spec.md",
+        "workshop/starter/design-and-decisions.md",
+        "workshop/starter/traceability.csv",
+        "reference/classification.md",
+        "reference/clarifications.md",
+        "reference/spec.md",
+        "reference/design.md",
+        "reference/ADR-007-comparison-caching.md",
+        "reference/tasks.md",
+        "reference/evidence-plan.md",
+        "reference/AGENTS.md",
+        "reference/traceability.csv",
+    ]
+    errors = [
+        f"missing Course 02 artifact: {item}"
+        for item in required
+        if not (scenario / item).exists()
+    ]
+    for path in (scenario / "reference").glob("*"):
+        if path.is_file() and "TODO" in path.read_text(encoding="utf-8"):
+            errors.append(f"unresolved TODO in Course 02 reference: {path.relative_to(ROOT)}")
+    starter = scenario / "workshop" / "starter"
+    if not any(
+        "TODO" in path.read_text(encoding="utf-8")
+        for path in starter.glob("*")
+        if path.is_file()
+    ):
+        errors.append("Course 02 starter workspace has no editable TODO prompts")
+    return errors
+
+
 def main() -> None:
     checks = {
         "local links": check_local_links,
         "lesson structure": check_lesson_structure,
         "site assets": check_site_assets,
         "published navigation": check_published_navigation,
+        "enterprise fixture": check_enterprise_fixture,
+        "Course 02 artifact stack": check_course_02_artifact_stack,
         "diagrams": render_and_validate_diagrams,
         "labs": run_labs,
         "repository labs": run_repository_labs,

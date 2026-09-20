@@ -1,14 +1,15 @@
 const REPO = 'https://github.com/mahsa-teimourikia/spec-driven-development';
 
-const availableLesson = {
+const course01 = {
   id: 'c01', course: 1, level: 'beginner', part: 'I · SDD foundations', status: 'available',
   title: 'Why agentic coding changes the PDLC',
-  summary: 'Model agentic delivery as an enterprise control loop: durable intent, bounded autonomy, enforceable policy, human authority, and auditable evidence.',
+  summary: 'Turn a deficient enterprise ticket into a governed change package, review competing agent implementations, and separate merge evidence from production authority.',
   outcomes: [
     'Explain why the constraint, review, and evidence bottlenecks move when implementation becomes cheap.',
-    'Discover distributed requirements, evaluate applicability, and preserve owner/version/source provenance.',
-    'Run unsafe and governed candidate code through specification, policy, architecture, test, traceability, review, and approval gates.',
-    'Produce an evidence bundle, identify residual risk, and choose a delivery workflow in proportion to impact.'
+    'Discover distributed requirements, evaluate applicability, preserve provenance, and record ticket-versus-policy conflicts.',
+    'Write clarifications, requirements, design, tasks, and design-to-runtime traceability before delegating implementation.',
+    'Contrast passing candidate-owned tests with independent tests and labelled evaluation evidence.',
+    'Verify proposal-bound approval receipts and separate merge PASS from a still-blocked production release.'
   ],
   readme: `${REPO}/blob/main/curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md`,
   notebook: `${REPO}/blob/main/curriculum/beginner/01-why-agentic-coding-changes-pdlc/agentic_pdlc.ipynb`,
@@ -17,20 +18,80 @@ const availableLesson = {
   repoFixture: `${REPO}/tree/main/curriculum/beginner/01-why-agentic-coding-changes-pdlc/northstar-underwriter`,
   run: 'python3 curriculum/beginner/01-why-agentic-coding-changes-pdlc/lab.py',
   runRepo: 'python3 curriculum/beginner/01-why-agentic-coding-changes-pdlc/repo_lab.py --candidate all',
+  labs: [
+    {
+      title: 'Lab A — Simulate the control plane',
+      description: 'Inspect typed requirements, conflicts, bounded proposals, evidence coverage, and proportional workflow routing.',
+      command: 'python3 curriculum/beginner/01-why-agentic-coding-changes-pdlc/lab.py',
+      links: [['View Lab A', `${REPO}/blob/main/curriculum/beginner/01-why-agentic-coding-changes-pdlc/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/beginner/01-why-agentic-coding-changes-pdlc/agentic_pdlc.ipynb`]]
+    },
+    {
+      title: 'Lab B — Make the enterprise decisions',
+      description: 'Triage a deficient ticket, author the change package, compare candidate-owned with independent evidence, verify bound approvals, and separate merge from release.',
+      command: 'python3 curriculum/beginner/01-why-agentic-coding-changes-pdlc/repo_lab.py --candidate all',
+      links: [['View Lab B runner', `${REPO}/blob/main/curriculum/beginner/01-why-agentic-coding-changes-pdlc/repo_lab.py`], ['Explore the repository fixture', `${REPO}/tree/main/curriculum/beginner/01-why-agentic-coding-changes-pdlc/northstar-underwriter`]]
+    }
+  ],
   references: [
     ['GitHub Spec Kit: Agentic SDD', 'https://github.github.com/spec-kit/reference/agentic-sdd.html'],
     ['NIST Secure Software Development Framework', 'https://csrc.nist.gov/pubs/sp/800/218/final'],
     ['DORA 2025 report', 'https://dora.dev/research/ai/gen-ai-report/dora-impact-of-generative-ai-in-software-development.pdf']
   ],
   checkpoint: {
-    question: 'A privacy rule applies to confidential data, but JIRA-4821 does not state the data classification. What should the control plane do?',
+    question: 'The unsafe candidate’s own tests pass, but independent tests and policy gates fail. What is the correct merge decision?',
     options: [
-      'Mark applicability uncertain and stop for clarification before implementation.',
-      'Treat the privacy rule as not applicable because the ticket omitted the field.',
-      'Let the coding agent infer the classification from its proposed architecture.'
+      'STOP; candidate-owned tests establish only the candidate’s chosen claims.',
+      'PASS; any passing test suite is sufficient evidence.',
+      'REVIEW only if the coding agent reports low confidence.'
     ],
     answer: 0,
-    explanation: 'Missing applicability evidence is not evidence that a policy does not apply. The control plane must fail closed, obtain an authoritative classification, and record the decision.'
+    explanation: 'Self-authored checks can confirm an unsafe design. Independent tests, policy, architecture, evaluation, traceability, and approval gates judge the change against external obligations.'
+  }
+};
+
+const course02 = {
+  id: 'c02', course: 2, level: 'beginner', part: 'I · SDD foundations', status: 'available',
+  title: 'From prompt to executable specification',
+  summary: 'Classify a mixed-authority enterprise request, repair ambiguous obligations, route consequential decisions, and validate a traceable artifact stack before an agent writes code.',
+  outcomes: [
+    'Classify prompts, intent, requirements, constraints, designs, ADRs, tasks, evidence, and agent instructions by purpose and authority.',
+    'Replace vague quality claims with observable requirements, scenarios, measurement context, and accountable owners.',
+    'Distinguish authoritative constraints from design suggestions even when the words are identical.',
+    'Route reversible implementation choices, consequential architecture decisions, policy questions, and exceptions appropriately.',
+    'Validate requirement-to-task and requirement-to-evidence traceability with explicit denominators.'
+  ],
+  readme: `${REPO}/blob/main/curriculum/beginner/02-from-prompt-to-executable-specification/README.md`,
+  notebook: `${REPO}/blob/main/curriculum/beginner/02-from-prompt-to-executable-specification/artifact_taxonomy.ipynb`,
+  lab: `${REPO}/blob/main/curriculum/beginner/02-from-prompt-to-executable-specification/lab.py`,
+  labs: [
+    {
+      title: 'Lab A — Classify and validate the stack',
+      description: 'Compare a keyword baseline with authority-aware routing, repair weak requirements, route decision rights, inject failures, and measure traceability.',
+      command: 'python3 curriculum/beginner/02-from-prompt-to-executable-specification/lab.py',
+      links: [['View the lab', `${REPO}/blob/main/curriculum/beginner/02-from-prompt-to-executable-specification/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/beginner/02-from-prompt-to-executable-specification/artifact_taxonomy.ipynb`]]
+    },
+    {
+      title: 'Lab B — Repair ticket AI-1842',
+      description: 'Decompose a realistic policy-comparison request, verify authority sources, complete the starter artifacts, and compare your decisions with a reference stack.',
+      command: 'Open the ticket, sources, and starter workspace; run Lab A before consulting the reference.',
+      links: [['Open the workshop', `${REPO}/tree/main/curriculum/beginner/02-from-prompt-to-executable-specification/northstar-policy-comparison`], ['Open the starter workspace', `${REPO}/tree/main/curriculum/beginner/02-from-prompt-to-executable-specification/northstar-policy-comparison/workshop/starter`], ['Inspect the reference stack', `${REPO}/tree/main/curriculum/beginner/02-from-prompt-to-executable-specification/northstar-policy-comparison/reference`]]
+    }
+  ],
+  references: [
+    ['RFC 8174 normative keyword clarification', 'https://www.rfc-editor.org/rfc/rfc8174'],
+    ['ISO/IEC/IEEE 29148', 'https://www.iso.org/standard/72089.html'],
+    ['Documenting Architecture Decisions', 'https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions'],
+    ['GitHub Spec Kit: Agentic SDD', 'https://github.com/github/spec-kit/blob/main/docs/reference/agentic-sdd.md']
+  ],
+  checkpoint: {
+    question: 'AI-1842 says “Use Redis because another team uses it.” What should happen before implementation?',
+    options: [
+      'Treat Redis as a design hypothesis and route consequential caching decisions through an ADR and the appropriate owners.',
+      'Copy it into the requirements because the ticket is the newest document.',
+      'Put it in AGENTS.md so the implementation agent can approve it.'
+    ],
+    answer: 0,
+    explanation: 'Another team’s choice is not authority. First clarify the outcome and constraints; then evaluate cache boundaries, alternatives, and consequences through the engineering decision process.'
   }
 };
 
@@ -39,14 +100,14 @@ function planned(course, level, part, title, summary) {
     id: `c${String(course).padStart(2, '0')}`, course, level, part,
     status: 'planned', title, summary,
     outcomes: ['Outcomes will be published with the complete chapter, notebook, lab, checkpoint, and evidence package.'],
-    readme: null, notebook: null, lab: null, repoLab: null, repoFixture: null,
+    readme: null, notebook: null, lab: null, repoLab: null, repoFixture: null, labs: [],
     references: [['Course plan', `${REPO}/blob/main/COURSE_PLAN.md`]], checkpoint: null
   };
 }
 
 const LESSONS = [
-  availableLesson,
-  planned(2, 'beginner', 'I · SDD foundations', 'Specs vs prompts vs requirements vs design', 'Separate transient instructions, obligations, solution choices, and durable sources of truth.'),
+  course01,
+  course02,
   planned(3, 'beginner', 'I · SDD foundations', 'The specification hierarchy', 'Connect organization intent to platform, domain, project, feature, and implementation constraints.'),
   planned(4, 'beginner', 'I · SDD foundations', 'Company vs project vs feature requirements', 'Resolve scope, ownership, inheritance, specialization, and conflicts across levels.'),
   planned(5, 'beginner', 'II · Executable specifications', 'Requirements engineering for agents', 'Discover assumptions and express requirements that constrain agent action.'),

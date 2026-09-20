@@ -8,9 +8,11 @@ writes a JSON evidence bundle. It never mutates the source fixture.
 from __future__ import annotations
 
 import argparse
+import csv
 from dataclasses import asdict, dataclass
-from datetime import date
+from datetime import date, datetime, timezone
 from enum import Enum, IntEnum
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -25,6 +27,8 @@ HERE = Path(__file__).resolve().parent
 FIXTURE = HERE / "northstar-underwriter"
 REPOSITORY_ROOT = HERE.parents[2]
 AS_OF = date(2026, 9, 10)
+AS_OF_TIME = datetime(2026, 9, 10, 12, 0, tzinfo=timezone.utc)
+REFERENCE_RECEIPTS = FIXTURE / "approvals" / "training-receipts.json"
 
 
 class Layer(IntEnum):
@@ -267,6 +271,101 @@ def _write_json(path: Path, payload: object) -> None:
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
+def _canonical_digest(payload: object) -> str:
+    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return "sha256:" + hashlib.sha256(encoded).hexdigest()
+
+
+def candidate_digest(
+    candidate: Mapping[str, object], root: Path = FIXTURE
+) -> str:
+    artifact_digests: dict[str, str] = {}
+    candidate_name = str(candidate.get("candidate", ""))
+    roots = [
+        root / "changes" / candidate_name / "src",
+        root / "changes" / candidate_name / "tests",
+    ]
+    change_spec_path = str(candidate.get("change_spec_path", ""))
+    if change_spec_path:
+        roots.append(root / change_spec_path)
+    for artifact_root in roots:
+        if not artifact_root.exists():
+            continue
+        for path in sorted(item for item in artifact_root.rglob("*") if item.is_file()):
+            artifact_digests[str(path.relative_to(root))] = (
+                "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
+            )
+    return _canonical_digest({"manifest": candidate, "artifacts": artifact_digests})
+
+
+def policy_snapshot_digest(assembly: ContextAssembly) -> str:
+    snapshot = [
+        {
+            "id": item.requirement_id,
+            "value": item.expected_value,
+            "source_commit": item.source.commit,
+        }
+        for item in assembly.requirements
+        if item.requirement_id in assembly.applicable_ids
+    ]
+    return _canonical_digest(snapshot)
+
+
+def evaluate_change_package(
+    candidate: Mapping[str, object], root: Path = FIXTURE
+) -> dict[str, object]:
+    relative = str(candidate.get("change_spec_path", ""))
+    required_files = (
+        "proposal.md",
+        "clarifications.md",
+        "applicability.md",
+        "conflict-record.md",
+        "requirements.md",
+        "design.md",
+        "tasks.md",
+        "traceability.csv",
+    )
+    findings: list[str] = []
+    if not relative:
+        findings.append("candidate declares no durable change package")
+        return {"passed": False, "path": None, "findings": findings}
+    package = root / relative
+    for filename in required_files:
+        path = package / filename
+        if not path.exists():
+            findings.append(f"missing change artifact: {filename}")
+        elif "TODO" in path.read_text(encoding="utf-8"):
+            findings.append(f"unresolved TODO in change artifact: {filename}")
+    requirements_text = (
+        (package / "requirements.md").read_text(encoding="utf-8")
+        if (package / "requirements.md").exists()
+        else ""
+    )
+    for requirement_id in ("REQ-QA-001", "REQ-QA-002", "REQ-QA-003"):
+        if requirement_id not in requirements_text:
+            findings.append(f"missing behavior requirement: {requirement_id}")
+    return {"passed": not findings, "path": relative, "findings": findings}
+
+
+def _run_python_check(
+    command: list[str], *, cwd: Path, environment: Mapping[str, str]
+) -> dict[str, object]:
+    result = subprocess.run(
+        command,
+        cwd=cwd,
+        env=dict(environment),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    return {
+        "passed": result.returncode == 0,
+        "exit_code": result.returncode,
+        "command": " ".join(command),
+        "output": (result.stdout + result.stderr).strip(),
+    }
+
+
 def run_candidate_tests(name: str, root: Path = FIXTURE) -> dict[str, object]:
     with tempfile.TemporaryDirectory(prefix="northstar-course01-") as temporary:
         workspace = Path(temporary) / "northstar-underwriter"
@@ -275,19 +374,46 @@ def run_candidate_tests(name: str, root: Path = FIXTURE) -> dict[str, object]:
         shutil.copytree(candidate_source, workspace / "src", dirs_exist_ok=True)
         environment = os.environ.copy()
         environment["PYTHONPATH"] = str(workspace / "src")
-        result = subprocess.run(
+        candidate_checks = _run_python_check(
             [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-v"],
+            cwd=workspace / "changes" / name,
+            environment=environment,
+        )
+        independent_checks = _run_python_check(
+            [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-v"],
+            cwd=workspace,
+            environment=environment,
+        )
+        evaluation_process = subprocess.run(
+            [sys.executable, "evals/run_evals.py"],
             cwd=workspace,
             env=environment,
             capture_output=True,
             text=True,
             check=False,
         )
+        try:
+            evaluation = json.loads(evaluation_process.stdout)
+        except json.JSONDecodeError:
+            evaluation = {
+                "population": "evaluation runner failed",
+                "total_cases": 0,
+                "passed_cases": 0,
+                "conformance_rate": 0.0,
+                "safety_violations": 0,
+                "cases": [],
+                "limitations": [evaluation_process.stderr.strip() or "invalid evaluator output"],
+            }
+        evaluation["passed"] = bool(
+            evaluation.get("total_cases")
+            and evaluation.get("passed_cases") == evaluation.get("total_cases")
+            and evaluation.get("safety_violations") == 0
+        )
     return {
-        "passed": result.returncode == 0,
-        "exit_code": result.returncode,
-        "command": "python3 -m unittest discover -s tests -v",
-        "output": (result.stdout + result.stderr).strip(),
+        "passed": independent_checks["passed"] and evaluation["passed"],
+        "candidate_checks": candidate_checks,
+        "independent_checks": independent_checks,
+        "evaluation": evaluation,
     }
 
 
@@ -360,18 +486,98 @@ def evaluate_architecture(candidate: Mapping[str, object]) -> dict[str, object]:
 def evaluate_traceability(
     assembly: ContextAssembly,
     candidate: Mapping[str, object],
+    root: Path = FIXTURE,
 ) -> dict[str, object]:
-    evidence_map = dict(candidate.get("evidence_map", {}))
+    relative = str(candidate.get("traceability_path", ""))
     required = set(assembly.applicable_ids)
-    linked = set(evidence_map)
+    if not relative or not (root / relative).exists():
+        return {
+            "passed": False,
+            "path": relative or None,
+            "stage_coverage": {
+                "design": 0.0,
+                "tasks": 0.0,
+                "code": 0.0,
+                "tests": 0.0,
+                "runtime": 0.0,
+            },
+            "missing_requirement_ids": sorted(required),
+            "unknown_requirement_ids": [],
+            "broken_references": [],
+            "rows": [],
+        }
+
+    with (root / relative).open(encoding="utf-8", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+    by_id = {row["requirement_id"]: row for row in rows}
+    linked = set(by_id)
     missing = sorted(required - linked)
     unknown = sorted(linked - required)
+    broken: list[str] = []
+
+    def present(reference: str) -> bool:
+        return bool(reference.strip()) and not reference.startswith("TODO")
+
+    def validate_reference(requirement_id: str, stage: str, reference: str) -> None:
+        if not present(reference):
+            broken.append(f"{requirement_id}:{stage}:empty")
+            return
+        if reference.startswith(("GATE:", "N/A:", "PENDING:")):
+            return
+        path_part = reference.split("#", maxsplit=1)[0]
+        if not (root / path_part).exists():
+            broken.append(f"{requirement_id}:{stage}:{reference}")
+
+    applicable_rows = [by_id[item] for item in sorted(required & linked)]
+    stage_columns = {
+        "design": "design_ref",
+        "tasks": "task_ref",
+        "code": "code_ref",
+        "tests": "test_ref",
+    }
+    for row in applicable_rows:
+        for stage, column in stage_columns.items():
+            validate_reference(row["requirement_id"], stage, row.get(column, ""))
+    denominator = len(required) or 1
+    coverage = {
+        stage: round(
+            sum(
+                present(row.get(column, ""))
+                and not row.get(column, "").startswith("N/A:")
+                for row in applicable_rows
+            )
+            / denominator,
+            3,
+        )
+        for stage, column in stage_columns.items()
+    }
+    runtime_required = [
+        row for row in applicable_rows if row.get("runtime_required", "").lower() == "yes"
+    ]
+    runtime_verified = [
+        row
+        for row in runtime_required
+        if present(row.get("runtime_evidence", ""))
+        and not row["runtime_evidence"].startswith("PENDING:")
+    ]
+    coverage["runtime"] = round(
+        len(runtime_verified) / len(runtime_required), 3
+    ) if runtime_required else 1.0
     return {
-        "passed": not missing and not unknown,
-        "coverage": round(len(required & linked) / len(required), 3) if required else 1.0,
+        "passed": not missing
+        and not unknown
+        and not broken
+        and all(
+            present(row.get(column, ""))
+            for row in applicable_rows
+            for column in stage_columns.values()
+        ),
+        "path": relative,
+        "stage_coverage": coverage,
         "missing_requirement_ids": missing,
         "unknown_requirement_ids": unknown,
-        "links": evidence_map,
+        "broken_references": broken,
+        "rows": rows,
     }
 
 
@@ -396,21 +602,147 @@ def independent_review(name: str, root: Path = FIXTURE) -> dict[str, object]:
     }
 
 
-def evaluate_approvals(candidate: Mapping[str, object], approve: bool) -> dict[str, object]:
-    approvals = [dict(item) for item in candidate.get("required_approvals", [])]
-    if approve:
-        for item in approvals:
-            item["status"] = "approved-for-training"
-            item["attestation"] = "CLI --approve flag; not a production signature"
-    pending = [item["role"] for item in approvals if item["status"] != "approved-for-training"]
-    return {"passed": not pending, "pending_roles": pending, "approvals": approvals}
+def _parse_timestamp(value: str) -> datetime:
+    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    if parsed.tzinfo is None:
+        raise ValueError("timestamp must include a timezone")
+    return parsed
+
+
+def evaluate_approvals(
+    candidate: Mapping[str, object],
+    assembly: ContextAssembly,
+    receipt_path: Path | None,
+) -> dict[str, object]:
+    required_roles = {str(item["role"]) for item in candidate.get("required_approvals", [])}
+    expected_candidate_digest = candidate_digest(candidate)
+    expected_policy_digest = policy_snapshot_digest(assembly)
+    receipts: list[dict[str, object]] = []
+    findings: list[str] = []
+    if receipt_path is not None:
+        try:
+            receipts = [dict(item) for item in json.loads(receipt_path.read_text(encoding="utf-8"))]
+        except (OSError, json.JSONDecodeError, TypeError) as exc:
+            findings.append(f"approval receipt file is invalid: {exc}")
+
+    valid_roles: set[str] = set()
+    receipt_ids: set[str] = set()
+    verification: list[dict[str, object]] = []
+    for receipt in receipts:
+        receipt_findings: list[str] = []
+        receipt_id = str(receipt.get("receipt_id", ""))
+        role = str(receipt.get("role", ""))
+        if not receipt_id or receipt_id in receipt_ids:
+            receipt_findings.append("receipt ID is empty or duplicated")
+        receipt_ids.add(receipt_id)
+        if role not in required_roles:
+            receipt_findings.append("role is not required for this proposal")
+        if receipt.get("candidate") != candidate.get("candidate"):
+            receipt_findings.append("candidate binding does not match")
+        if receipt.get("proposal_digest") != expected_candidate_digest:
+            receipt_findings.append("proposal digest does not match")
+        if receipt.get("policy_snapshot_digest") != expected_policy_digest:
+            receipt_findings.append("policy snapshot digest does not match")
+        if receipt.get("issuer") != "course-fixture-approval-service":
+            receipt_findings.append("issuer is not the configured training trust source")
+        if receipt.get("state") != "available":
+            receipt_findings.append("receipt is not available for single use")
+        if not receipt.get("approver_id"):
+            receipt_findings.append("approver identity is missing")
+        try:
+            issued_at = _parse_timestamp(str(receipt.get("issued_at", "")))
+            expires_at = _parse_timestamp(str(receipt.get("expires_at", "")))
+            if not issued_at <= AS_OF_TIME < expires_at:
+                receipt_findings.append("receipt is not valid at the evaluation time")
+        except ValueError as exc:
+            receipt_findings.append(f"invalid receipt time: {exc}")
+        if not receipt_findings:
+            valid_roles.add(role)
+        verification.append(
+            {
+                "receipt_id": receipt_id,
+                "role": role,
+                "valid": not receipt_findings,
+                "findings": receipt_findings,
+            }
+        )
+    pending = sorted(required_roles - valid_roles)
+    findings.extend(f"missing valid receipt for role: {role}" for role in pending)
+    return {
+        "passed": not findings,
+        "pending_roles": pending,
+        "findings": findings,
+        "verification": verification,
+        "bindings": {
+            "proposal_digest": expected_candidate_digest,
+            "policy_snapshot_digest": expected_policy_digest,
+            "evaluation_time": AS_OF_TIME.isoformat(),
+        },
+        "limitations": [
+            "training receipts are loaded from a configured fixture, not a real identity system",
+            "the lab verifies single-use state but does not atomically consume it",
+            "production requires authenticated approvers, durable state, signature verification, and replay protection",
+        ],
+    }
+
+
+def format_gate_report(summary: Mapping[str, object]) -> str:
+    checks = dict(summary["checks"])
+    coverage = dict(summary["traceability_coverage"])
+    evaluation = dict(summary["evaluation"])
+    lines = [
+        "NORTHSTAR SDD CHANGE REVIEW",
+        "=" * 32,
+        f"Candidate: {summary['candidate']}",
+        "",
+        "Requirements",
+        f"  Applicable:      {summary['applicable_requirements']}",
+        f"  Not applicable:  {summary['not_applicable_requirements']}",
+        f"  Uncertain:       {summary['uncertain_requirements']}",
+        f"  Conflicts:       {summary['conflicts']}",
+        "",
+        "Traceability",
+        f"  Requirements -> Design:   {coverage['design']:.0%}",
+        f"  Requirements -> Tasks:    {coverage['tasks']:.0%}",
+        f"  Requirements -> Code:     {coverage['code']:.0%}",
+        f"  Requirements -> Tests:    {coverage['tests']:.0%}",
+        f"  Requirements -> Runtime:  {coverage['runtime']:.0%}",
+        "",
+        "Candidate and independent evidence",
+    ]
+    for name in (
+        "candidate_tests",
+        "independent_tests",
+        "evaluation",
+        "policy",
+        "architecture",
+        "independent_review",
+        "approvals",
+    ):
+        lines.append(f"  {name.replace('_', ' ').title():24} {'PASS' if checks[name] else 'FAIL'}")
+    lines.extend(
+        (
+            "",
+            "Evaluation population",
+            f"  Passed: {evaluation['passed_cases']} / {evaluation['total_cases']}",
+            f"  Conformance: {evaluation['conformance_rate']:.0%}",
+            f"  Safety violations: {evaluation['safety_violations']}",
+            "",
+            f"MERGE GATE: {summary['merge_gate']}",
+            f"PRODUCTION RELEASE: {summary['production_release']}",
+        )
+    )
+    if summary["production_blockers"]:
+        lines.append("Production blockers:")
+        lines.extend(f"  - {item}" for item in summary["production_blockers"])
+    return "\n".join(lines) + "\n"
 
 
 def run_candidate(
     name: str,
     output_root: Path,
     *,
-    approve: bool = False,
+    approval_receipts: Path | None = None,
     change_context: Mapping[str, object] | None = None,
     extra_requirements: Iterable[Requirement] = (),
     label: str | None = None,
@@ -420,17 +752,19 @@ def run_candidate(
     assembly = assemble_context(requirements, context)
     candidate = load_candidate(name)
     decision_check = evaluate_decisions(assembly, candidate)
+    change_package = evaluate_change_package(candidate)
     policy_check = evaluate_policy(name, candidate)
     architecture_check = evaluate_architecture(candidate)
     test_result = run_candidate_tests(name)
     traceability = evaluate_traceability(assembly, candidate)
     review = independent_review(name)
-    approvals = evaluate_approvals(candidate, approve)
+    approvals = evaluate_approvals(candidate, assembly, approval_receipts)
 
     stop = bool(
         assembly.uncertain
         or assembly.conflicts
         or not decision_check["passed"]
+        or not change_package["passed"]
         or not policy_check["passed"]
         or not architecture_check["passed"]
         or not test_result["passed"]
@@ -461,6 +795,8 @@ def run_candidate(
     summary = {
         "candidate": name,
         "gate": gate.value,
+        "merge_gate": gate.value,
+        "production_release": "BLOCKED",
         "applicable_requirements": len(assembly.applicable_ids),
         "not_applicable_requirements": sum(
             item.outcome is Applicability.NOT_APPLICABLE for item in assembly.decisions
@@ -468,36 +804,61 @@ def run_candidate(
         "uncertain_requirements": len(assembly.uncertain),
         "conflicts": len(assembly.conflicts),
         "checks": {
-            "specification": decision_check["passed"],
+            "specification": decision_check["passed"] and change_package["passed"],
             "policy": policy_check["passed"],
             "architecture": architecture_check["passed"],
-            "tests": test_result["passed"],
+            "candidate_tests": test_result["candidate_checks"]["passed"],
+            "independent_tests": test_result["independent_checks"]["passed"],
+            "evaluation": test_result["evaluation"]["passed"],
             "traceability": traceability["passed"],
             "independent_review": review["passed"],
             "approvals": approvals["passed"],
         },
+        "traceability_coverage": traceability["stage_coverage"],
+        "evaluation": {
+            "total_cases": test_result["evaluation"]["total_cases"],
+            "passed_cases": test_result["evaluation"]["passed_cases"],
+            "conformance_rate": test_result["evaluation"]["conformance_rate"],
+            "safety_violations": test_result["evaluation"]["safety_violations"],
+        },
         "unverified_risks": review["unverified_risks"],
+        "production_blockers": [
+            "runtime traceability evidence is pending",
+            *review["unverified_risks"],
+        ],
     }
     for filename, payload in (
         ("requirements.json", requirement_payload),
         ("applicability.json", applicability_payload),
-        ("specification-check.json", decision_check),
+        (
+            "specification-check.json",
+            {"passed": decision_check["passed"] and change_package["passed"], "decisions": decision_check, "change_package": change_package},
+        ),
         ("policy-check.json", policy_check),
         ("architecture-check.json", architecture_check),
-        ("test-results.json", test_result),
+        ("candidate-test-results.json", test_result["candidate_checks"]),
+        ("independent-test-results.json", test_result["independent_checks"]),
+        ("evaluation-results.json", test_result["evaluation"]),
         ("traceability.json", traceability),
         ("independent-review.json", review),
         ("approvals.json", approvals),
         ("release-summary.json", summary),
     ):
         _write_json(bundle_dir / filename, payload)
+    (bundle_dir / "gate-report.txt").write_text(
+        format_gate_report(summary), encoding="utf-8"
+    )
     return summary
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--candidate", choices=("unsafe", "governed", "all"), default="all")
-    parser.add_argument("--approve", action="store_true", help="add training-only approval attestations")
+    parser.add_argument(
+        "--approval-receipts",
+        type=Path,
+        help="verify bound training approval receipts from this JSON file",
+    )
     parser.add_argument(
         "--output",
         type=Path,
@@ -521,7 +882,7 @@ def main() -> None:
             run_candidate(
                 args.candidate,
                 args.output,
-                approve=args.approve,
+                approval_receipts=args.approval_receipts,
                 extra_requirements=extra,
             )
         )
@@ -533,13 +894,14 @@ def main() -> None:
                 run_candidate(
                     "governed",
                     args.output,
-                    approve=True,
+                    approval_receipts=REFERENCE_RECEIPTS,
                     extra_requirements=extra,
                     label="governed-approved",
                 ),
             )
         )
-    print(json.dumps(runs, indent=2))
+    for run in runs:
+        print(format_gate_report(run))
 
 
 if __name__ == "__main__":
