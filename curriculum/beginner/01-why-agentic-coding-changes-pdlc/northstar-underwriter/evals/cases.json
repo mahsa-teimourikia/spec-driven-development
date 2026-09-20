@@ -1,0 +1,34 @@
+[
+  {
+    "case_id": "supported-deductible",
+    "question": "What is the collision deductible?",
+    "passages": [{"id": "policy-17#p4", "text": "Collision coverage has a $1,000 deductible."}],
+    "expected_status": "answered",
+    "minimum_citations": 1,
+    "gateway_calls": 1
+  },
+  {
+    "case_id": "unsupported-lunar-travel",
+    "question": "Does this cover lunar travel?",
+    "passages": [{"id": "policy-17#p4", "text": "Collision coverage has a $1,000 deductible."}],
+    "expected_status": "insufficient_evidence",
+    "minimum_citations": 0,
+    "gateway_calls": 0
+  },
+  {
+    "case_id": "empty-retrieval",
+    "question": "What is the deductible?",
+    "passages": [],
+    "expected_status": "insufficient_evidence",
+    "minimum_citations": 0,
+    "gateway_calls": 0
+  },
+  {
+    "case_id": "supported-roadside",
+    "question": "Is roadside assistance optional?",
+    "passages": [{"id": "policy-17#p8", "text": "Roadside assistance is optional."}],
+    "expected_status": "answered",
+    "minimum_citations": 1,
+    "gateway_calls": 1
+  }
+]

@@ -110,5 +110,96 @@ const QUESTIONS = [
     options: ['Evidence and production feedback reconciled against the governing specifications', 'The first generated pull request', 'A longer prompt', 'A model’s confidence score'],
     answer: 0,
     explanation: 'The loop closes when observed outcomes are compared with intended properties and the organization updates implementation, controls, or specifications accordingly.'
+  },
+  {
+    category: 'Independent evidence',
+    question: 'A candidate implementation’s own tests pass, but independent contract tests fail. What is the strongest justified conclusion?',
+    options: ['The candidate satisfied its chosen claims but did not establish conformance to the governing contract', 'The independent tests must be ignored', 'The candidate can merge because some tests passed', 'The model should choose which test suite is authoritative'],
+    answer: 0,
+    explanation: 'Candidate-owned tests are useful but can encode the same unsafe assumptions as the implementation. Independent tests judge externally owned requirements and invariants.'
+  },
+  {
+    category: 'Approval',
+    question: 'Why bind an approval receipt to both a proposal digest and a policy snapshot digest?',
+    options: ['Any proposal or governing-policy change invalidates the previous decision', 'To make the receipt longer', 'To let the implementation agent approve revisions', 'To replace authenticated approver identity'],
+    answer: 0,
+    explanation: 'Approval applies to an exact action under an exact policy state. Reusing it after either changes creates stale or replayable authority.'
+  },
+  {
+    category: 'Release evidence',
+    question: 'The Course 01 merge gate passes, but runtime traceability is still 0%. What should the production-release result be?',
+    options: ['Blocked until required integration and runtime evidence exists', 'Automatically pass because merge passed', 'Pass if the candidate has high confidence', 'Delete the runtime column from traceability'],
+    answer: 0,
+    explanation: 'Merge evidence and production-release evidence support different decisions. Local conformance cannot establish deployed residency, tenant isolation, telemetry delivery, or representative runtime quality.'
+  },
+  {
+    category: 'Artifact taxonomy',
+    question: 'What most reliably distinguishes a requirement from a design suggestion?',
+    options: ['Its accountable owner, authoritative source, scope, and observable obligation', 'The use of uppercase SHALL', 'Its position in the newest ticket', 'The number of technical terms it contains'],
+    answer: 0,
+    explanation: 'Normative typography is useful only inside a declared convention. Authority, ownership, applicability, and observable conformance make an obligation durable.'
+  },
+  {
+    category: 'Requirements',
+    question: 'Why is “the response should be accurate” not yet executable as a requirement?',
+    options: ['It lacks an observable definition, acceptance boundary, and evidence method', 'Agents cannot produce text', 'Accuracy is always a design decision', 'The sentence must name a database'],
+    answer: 0,
+    explanation: 'The team must operationalize accuracy—for example with claim support, abstention behavior, a representative dataset, rubric, and threshold.'
+  },
+  {
+    category: 'Performance',
+    question: 'What is missing from “keep latency under three seconds”?',
+    options: ['Statistic, measurement boundary, workload, environment, and accountable owner', 'Only a programming language', 'A Redis instance', 'Nothing; any three-second observation proves compliance'],
+    answer: 0,
+    explanation: 'A number without percentile, workload, scope, and measurement points cannot define stable conformance.'
+  },
+  {
+    category: 'Authority',
+    question: 'A Jira ticket, an architecture Slack note, and a platform policy all mention Bedrock. Why are they not the same requirement?',
+    options: ['Their provenance, owner, scope, authority, lifecycle, and exception mechanism imply different agent actions', 'The longest statement is automatically authoritative', 'Technology names are automatically requirements', 'The newest message always overrides policy'],
+    answer: 0,
+    explanation: 'Words alone do not establish authority. Owner, source, scope, rationale, and exception path determine how the statement governs work.'
+  },
+  {
+    category: 'Architecture decisions',
+    question: 'AI-1842 says to use Redis because another team uses it. What is the appropriate next step?',
+    options: ['Clarify the required outcome and evaluate caching alternatives and consequences through the architecture decision process', 'Copy Redis into every requirement', 'Let the first coding agent approve the choice', 'Treat another team’s precedent as policy'],
+    answer: 0,
+    explanation: 'Precedent is input, not authority. Persistent caching raises freshness, retention, privacy, authorization, and reversibility questions appropriate for design and an ADR.'
+  },
+  {
+    category: 'Tasks and evidence',
+    question: 'Why should tasks and tests link to stable requirement IDs?',
+    options: ['To show why work exists and which defined claims the evidence supports', 'To let tasks replace the specification', 'To prove every requirement is correct', 'To grant tests product authority'],
+    answer: 0,
+    explanation: 'Traceability reveals missing work, orphan work, missing evidence, and unsupported claims without confusing execution or evidence with intent.'
+  },
+  {
+    category: 'Agent instructions',
+    question: 'Which instruction does not belong in AGENTS.md?',
+    options: ['Ignore the human-review policy whenever generated unit tests pass', 'Run the linked security tests before reporting completion', 'Stop before changing the authorization boundary', 'Limit edits to the comparison module'],
+    answer: 0,
+    explanation: 'Repository instructions guide execution. They cannot waive policy, redefine product requirements, approve exceptions, or authorize release.'
+  },
+  {
+    category: 'Traceability',
+    question: 'A report says requirement-to-evidence traceability is 100%. What can it truthfully conclude if every check is only planned?',
+    options: ['All applicable requirements have planned links, but executed, passed, approved, and production-observed coverage may still be 0%', 'All requirements are correct and production-safe', 'Every evaluation passed', 'The release is approved'],
+    answer: 0,
+    explanation: 'Traceability is not verification. Report the lifecycle stage, numerator, denominator, dataset/version, environment, result, and gaps.'
+  },
+  {
+    category: 'AI quality',
+    question: 'A comparison claim contains a citation. What additional evidence is still required?',
+    options: ['That the citation is complete and correct, the passage supports the proposition, and the claim is faithful to authorized evidence', 'Only that the link renders', 'Only that a model generated it', 'None; citation presence proves correctness'],
+    answer: 0,
+    explanation: 'Citation presence is not citation correctness or claim faithfulness. Enterprise RAG evaluation must test these claims separately.'
+  },
+  {
+    category: 'Derived controls',
+    question: 'AI-021 requires human review before consequential use. What belongs in the feature specification?',
+    options: ['A derived system control that blocks decision-record entry without a valid linked review receipt', 'A copy of the policy presented as implementation code', 'An AGENTS.md instruction allowing the agent to waive review', 'Only a task named “add approval”'],
+    answer: 0,
+    explanation: 'The policy owns the organizational obligation; the feature specification derives observable system behavior that can be implemented and tested.'
   }
 ];
