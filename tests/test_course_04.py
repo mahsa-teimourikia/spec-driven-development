@@ -156,6 +156,11 @@ class Course04ResolutionTests(unittest.TestCase):
     def test_release_context_preserves_exception_evidence_and_limitations(self) -> None:
         snapshot = lab.release_context(lab.resolve_project())
         self.assertEqual(snapshot["exceptions"][0]["id"], "EXC-014")
+        self.assertEqual(snapshot["exceptions"][0]["scope"]["feature_ids"], ["REQ-REN-001"])
+        ai_gateway = next(
+            item for item in snapshot["governing_requirements"] if item["id"] == "AI-007"
+        )
+        self.assertEqual(ai_gateway["disposition"], "excepted")
         self.assertIn("GATEWAY-TELEMETRY-007", snapshot["evidence"])
         self.assertTrue(snapshot["limitations"])
 
@@ -177,6 +182,15 @@ class Course04ResolutionTests(unittest.TestCase):
             {**evidence, "review_receipts": 4200, "authorized_review_receipts": 4199}
         )
         self.assertEqual(gap["status"], "control_gap_detected")
+        no_observations = lab.runtime_control_effectiveness(
+            {
+                **evidence,
+                "consequential_recommendations": 0,
+                "review_receipts": 0,
+                "authorized_review_receipts": 0,
+            }
+        )
+        self.assertEqual(no_observations["status"], "insufficient_observations")
 
     def test_agent_signals_are_counts_not_a_composite_score(self) -> None:
         metrics = lab.agent_behavior_metrics(

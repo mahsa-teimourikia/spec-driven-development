@@ -21,7 +21,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 SCENARIO_ROOT = HERE / "northstar-renewal"
-RESOLVER_VERSION = "0.5.0-training"
+RESOLVER_VERSION = "0.6.0-training"
 
 
 class Layer(str, Enum):
@@ -1165,6 +1165,13 @@ def runtime_control_effectiveness(evidence: Mapping[str, object]) -> dict[str, o
     if receipts > consequential or authorized > receipts:
         raise ValueError("runtime counts violate their denominators")
     effective = receipts == consequential and authorized == receipts and bypasses == 0
+    status = (
+        "insufficient_observations"
+        if consequential == 0
+        else "effective_in_observed_window"
+        if effective
+        else "control_gap_detected"
+    )
     return {
         "observed_window": evidence["observed_window"],
         "review_receipt_coverage": {
@@ -1178,7 +1185,7 @@ def runtime_control_effectiveness(evidence: Mapping[str, object]) -> dict[str, o
             "percent": percentage(authorized, receipts),
         },
         "legacy_endpoint_bypasses": bypasses,
-        "status": "effective_in_observed_window" if effective else "control_gap_detected",
+        "status": status,
         "limitations": (
             "Telemetry does not prove review quality, complete instrumentation, "
             "or the authenticity of the evidence producer."
@@ -1205,6 +1212,11 @@ def _context_material(
                 item.id,
                 item.source.revision,
                 item.requirement_revision,
+                item.project,
+                list(item.feature_ids),
+                item.modification.field,
+                item.modification.expected,
+                list(item.conditions),
                 item.expires_on.isoformat(),
             ]
             for item in sorted(exceptions, key=lambda x: x.id)
@@ -1339,6 +1351,7 @@ def compose_agent_context(report: ResolutionReport) -> str:
             lines.append(
                 f"exception = {exception.id}; requirement:{exception.requirement_id}; "
                 f"revision:{exception.requirement_revision}; "
+                f"scope:{exception.project}/{','.join(exception.feature_ids)}; "
                 f"modify:{exception.modification.field}={exception.modification.expected}; "
                 f"expires:{exception.expires_on.isoformat()}"
             )
@@ -1357,7 +1370,12 @@ def release_context(report: ResolutionReport) -> dict[str, object]:
                 "id": item.id,
                 "revision": item.source.revision,
                 "disposition": (
-                    "specialized"
+                    "excepted"
+                    if any(
+                        exception.requirement_id == item.id
+                        for exception in report.exceptions
+                    )
+                    else "specialized"
                     if any(
                         spec.parent_requirement_id == item.id
                         for spec in report.specializations
@@ -1373,6 +1391,10 @@ def release_context(report: ResolutionReport) -> dict[str, object]:
                 "id": item.id,
                 "requirement_id": item.requirement_id,
                 "requirement_revision": item.requirement_revision,
+                "scope": {
+                    "project": item.project,
+                    "feature_ids": list(item.feature_ids),
+                },
                 "modification": asdict(item.modification),
                 "conditions": list(item.conditions),
                 "expires_on": item.expires_on.isoformat(),

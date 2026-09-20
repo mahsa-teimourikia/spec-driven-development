@@ -1,12 +1,12 @@
 {
   "release": "underwriter-assistant:3.2.0-training",
   "change": "AI-2048",
-  "resolver": {"version": "0.5.0-training"},
+  "resolver": {"version": "0.6.0-training"},
   "governing_requirements": [
     {"id": "AI-030", "revision": "ai030v3-training", "disposition": "specialized", "specialization": "ARCH-031"},
     {"id": "AI-041", "revision": "ai041v22-training", "disposition": "inherited"},
     {"id": "SEC-100", "revision": "sec100v51-training", "disposition": "inherited"},
-    {"id": "AI-007", "revision": "ai007v4-training", "disposition": "inherited"},
+    {"id": "AI-007", "revision": "ai007v4-training", "disposition": "excepted"},
     {"id": "UW-041", "revision": "uw041v21-training", "disposition": "inherited"}
   ],
   "derived_requirements": ["REQ-REN-001", "REQ-REN-004"],
@@ -15,10 +15,19 @@
       "id": "EXC-014",
       "requirement_id": "AI-007",
       "requirement_revision": "ai007v4-training",
+      "scope": {
+        "project": "underwriter-assistant",
+        "feature_ids": ["REQ-REN-001"]
+      },
       "modification": {
         "field": "model_gateway",
         "expected": "legacy_enterprise_gateway_proxy"
       },
+      "conditions": [
+        "Restrict egress to the AI Platform-managed compatibility proxy.",
+        "Preserve gateway request and response audit events.",
+        "Complete migration to the current enterprise AI gateway before expiry."
+      ],
       "expires_on": "2026-12-31"
     }
   ],

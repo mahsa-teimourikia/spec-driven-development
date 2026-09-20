@@ -1,7 +1,7 @@
 # GENERATED EFFECTIVE CONTEXT — DO NOT EDIT
 
 Generated for `AI-2048` from stable requirement IDs, revisions, the project
-manifest, `ARCH-031`, and resolver `0.5.0-training`.
+manifest, `ARCH-031`, and resolver `0.6.0-training`.
 
 ## Governing requirements
 
