@@ -1,0 +1,13 @@
+source_id,target_id,relationship,target_type
+REQ-BR-005,DT-BR-001,elaborated_by,decision_table
+REQ-BR-008,DT-BR-001,elaborated_by,decision_table
+REQ-BR-005,BR-005-A,illustrated_by,scenario
+REQ-BR-005,INV-BR-002,reinforced_by,invariant
+REQ-BR-002,CONTRACT-BR-001,constrained_by,contract
+REQ-BR-030,CONTRACT-BR-001,constrained_by,contract
+REQ-BR-036,SM-BR-001,elaborated_by,state_machine
+REQ-BR-005,TEST-BR-005-A,evidenced_by,test
+INV-BR-002,PROP-BR-002,evidenced_by,property_test
+CONTRACT-BR-001,ExtractionAdapter,implemented_by,component
+CONTRACT-BR-001,API-SCHEMA-BR,propagates_to,schema
+API-SCHEMA-BR,API-CLIENT-BR,propagates_to,consumer

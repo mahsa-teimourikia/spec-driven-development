@@ -1,0 +1,14 @@
+{
+  "id": "AUTH-BR-009",
+  "revision": "3.1-training",
+  "owner": "broker_identity",
+  "requirements": [
+    "derive broker identity from authenticated portal state",
+    "verify broker-to-submission relationship before processing content",
+    "deny mutation when authorization is absent, unknown, or stale"
+  ],
+  "automatic_acceptance": {
+    "approved_field_classes": ["construction_year"],
+    "never_allowed": ["verified_value_conflict", "ambiguous_mapping", "unsupported_field", "stale_proposal"]
+  }
+}

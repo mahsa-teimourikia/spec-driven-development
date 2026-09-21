@@ -1,0 +1,11 @@
+{
+  "id": "SM-BR-001",
+  "role": "TODO",
+  "states": ["extracted", "validated", "conflicting", "awaiting_review", "approved", "rejected", "applied", "stale"],
+  "transitions": [
+    {"current": "TODO", "event": "TODO", "guard": "TODO", "next": "TODO"}
+  ],
+  "critical_invalid_transitions": [
+    {"current": "conflicting", "event": "apply", "next": "applied"}
+  ]
+}
