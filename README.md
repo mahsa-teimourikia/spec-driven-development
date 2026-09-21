@@ -4,7 +4,7 @@
 
 ## Start here
 
-Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through Courses 02–04, then complete [Course 05: Requirements engineering for coding agents](curriculum/beginner/05-requirements-engineering-for-agents/README.md) with its guided [notebook](curriculum/beginner/05-requirements-engineering-for-agents/requirements_engineering.ipynb), deterministic [requirements lab](curriculum/beginner/05-requirements-engineering-for-agents/lab.py), realistic [AI-2176 workshop](curriculum/beginner/05-requirements-engineering-for-agents/northstar-broker-follow-up/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
+Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through Courses 02–05, then complete [Course 06: Writing executable requirements](curriculum/beginner/06-writing-executable-requirements/README.md) with its guided [notebook](curriculum/beginner/06-writing-executable-requirements/requirements_writing.ipynb), deterministic [behavior lab](curriculum/beginner/06-writing-executable-requirements/lab.py), realistic [AI-2219 workshop](curriculum/beginner/06-writing-executable-requirements/northstar-broker-response/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
 
 This is not simply a tutorial for one specification framework. The central skill is turning organizational intent, architecture rules, product requirements, and engineering constraints into a hierarchy of durable specifications that agents can execute—and humans can govern.
 
@@ -87,9 +87,22 @@ Course 05 turns a sparse AI feature request into bounded, executable requirement
 - detect stale agent context, semantic requirement changes, orphan tasks, and unimplemented requirements; and
 - compare lexical and evidence-aware review rules on labelled cases without presenting the fixture as a benchmark.
 
+## Course 06 outcome
+
+Course 06 connects complementary requirement representations into one governed behavior. You will:
+
+- keep user stories as intent while expressing obligations with explicit SHALL and EARS conventions;
+- combine requirements, decision tables, scenarios, contracts, state machines, and invariants without creating competing sources of truth;
+- distinguish schema validity from semantic validity, authorization, policy, approval, and execution;
+- treat model-generated field, value, evidence, and status as proposals at a trust boundary;
+- block stale, duplicate, out-of-order, ambiguous, and unsupported updates, and require an explicit reviewed resolution before replacing a verified conflicting value;
+- prove frame conditions and prohibited transitions at a narrow mutation boundary;
+- evaluate model extraction separately from trusted application decisions; and
+- classify semantic requirement changes and trace direct and transitive impact.
+
 ## Run locally
 
-Everything in Courses 01–05 is credential-free and uses the Python standard library.
+Everything in Courses 01–06 is credential-free and uses the Python standard library.
 
 ```bash
 python3 curriculum/beginner/01-why-agentic-coding-changes-pdlc/lab.py
@@ -98,6 +111,7 @@ python3 curriculum/beginner/02-from-prompt-to-executable-specification/lab.py
 python3 curriculum/beginner/03-the-specification-hierarchy/lab.py
 python3 curriculum/beginner/04-company-project-feature-requirements/lab.py
 python3 curriculum/beginner/05-requirements-engineering-for-agents/lab.py
+python3 curriculum/beginner/06-writing-executable-requirements/lab.py
 python3 -m unittest discover -s tests -v
 python3 scripts/validate_course.py
 ```

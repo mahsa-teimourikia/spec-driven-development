@@ -812,6 +812,259 @@ def check_course_05_discovery() -> list[str]:
     return errors
 
 
+def check_course_06_executable_requirements() -> list[str]:
+    lesson = ROOT / "curriculum" / "beginner" / "06-writing-executable-requirements"
+    scenario = lesson / "northstar-broker-response"
+    required = [
+        "README.md",
+        "evaluation-cases.json",
+        "ticket/AI-2219.md",
+        "sources/stakeholder-decisions.md",
+        "sources/field-rules.json",
+        "sources/authorization-policy.json",
+        "workshop/starter/README.md",
+        "workshop/starter/glossary.md",
+        "workshop/starter/requirements.md",
+        "workshop/starter/scenarios.md",
+        "workshop/starter/decision-table.csv",
+        "workshop/starter/state-machine.json",
+        "workshop/starter/contracts/proposed-update.schema.json",
+        "reference/behavior-contract.json",
+        "reference/requirements.md",
+        "reference/scenarios.json",
+        "reference/scenarios.md",
+        "reference/decision-table.json",
+        "reference/decision-table.csv",
+        "reference/state-machine.json",
+        "reference/traceability.csv",
+        "reference/contracts/proposed-update.schema.json",
+    ]
+    errors = [
+        f"missing Course 06 artifact: {item}"
+        for item in required
+        if not (scenario / item).exists()
+    ]
+    if errors:
+        return errors
+
+    json_paths = [
+        scenario / "evaluation-cases.json",
+        scenario / "sources" / "field-rules.json",
+        scenario / "sources" / "authorization-policy.json",
+        scenario / "workshop" / "starter" / "state-machine.json",
+        scenario / "workshop" / "starter" / "contracts" / "proposed-update.schema.json",
+        scenario / "reference" / "behavior-contract.json",
+        scenario / "reference" / "scenarios.json",
+        scenario / "reference" / "decision-table.json",
+        scenario / "reference" / "state-machine.json",
+        scenario / "reference" / "contracts" / "proposed-update.schema.json",
+    ]
+    payloads: dict[Path, dict] = {}
+    for path in json_paths:
+        try:
+            payloads[path] = json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError) as exc:
+            errors.append(f"invalid Course 06 JSON {path.relative_to(ROOT)}: {exc}")
+    if errors:
+        return errors
+
+    reference = scenario / "reference"
+    contract_path = reference / "behavior-contract.json"
+    contract = payloads[contract_path]
+    required_sections = {
+        "specification", "scope", "sources", "artifact_authority", "controlled_vocabulary",
+        "capabilities", "requirements", "contracts", "invariants", "state_requirements",
+        "questions", "agent_authority",
+    }
+    missing_sections = required_sections - contract.keys()
+    if missing_sections:
+        errors.append(f"Course 06 behavior contract is missing sections: {sorted(missing_sections)}")
+
+    authority = contract.get("artifact_authority", {})
+    expected_roles = {
+        "normative_requirement", "normative_elaboration", "normative_example", "informative", "evidence",
+    }
+    if not expected_roles.issubset(authority):
+        errors.append("Course 06 must declare authority for every representation role")
+    if authority.get("conflict_outcome") != "SPEC_CONTRADICTION_STOP":
+        errors.append("Course 06 normative contradictions must stop for owner resolution")
+
+    capability_status = {
+        item.get("id"): item.get("status") for item in contract.get("capabilities", [])
+    }
+    expected_capabilities = {
+        "extract_response": "ready",
+        "classify_proposal": "ready",
+        "create_proposal": "ready",
+        "apply_unverified_value": "review_required",
+        "apply_reviewed_conflict": "review_required",
+        "automatically_overwrite_verified_value": "prohibited",
+    }
+    if capability_status != expected_capabilities:
+        errors.append("Course 06 capability readiness boundary changed unexpectedly")
+
+    questions = contract.get("questions", [])
+    open_application_questions = {
+        item.get("id")
+        for item in questions
+        if item.get("status") == "open"
+        and "apply_unverified_value" in item.get("blocks_capabilities", [])
+    }
+    if open_application_questions != {"OQ-BR-001"}:
+        errors.append("Course 06 unverified application must remain blocked by OQ-BR-001")
+
+    requirements = {item.get("id"): item for item in contract.get("requirements", [])}
+    expected_patterns = {
+        "REQ-BR-001": "ubiquitous",
+        "REQ-BR-003": "event_driven",
+        "REQ-BR-004": "state_driven",
+        "REQ-BR-005": "unwanted_behavior",
+        "REQ-BR-006": "optional_feature",
+        "REQ-BR-007": "complex",
+        "REQ-BR-021": "unwanted_behavior",
+        "REQ-BR-037": "event_driven",
+    }
+    for identifier, pattern in expected_patterns.items():
+        if requirements.get(identifier, {}).get("ears_pattern") != pattern:
+            errors.append(f"Course 06 {identifier} must demonstrate {pattern} EARS")
+    readiness_fields = {
+        "id", "revision", "status", "role", "ears_pattern", "capability", "owner",
+        "source_ids", "statement", "actor", "trigger", "inputs", "preconditions", "behavior",
+        "prohibited", "postconditions", "frame_conditions", "failure_behavior", "evidence_ids",
+    }
+    for identifier, requirement in requirements.items():
+        missing = sorted(field for field in readiness_fields if not requirement.get(field))
+        if missing:
+            errors.append(f"Course 06 requirement {identifier} lacks fields: {', '.join(missing)}")
+
+    table = payloads[reference / "decision-table.json"]
+    conflict_row = next((row for row in table.get("rows", []) if row.get("id") == "DT-07"), {})
+    if conflict_row.get("outcome") != "conflict" or conflict_row.get("existing_verified") is not True:
+        errors.append("Course 06 verified-conflict table row must remain conflict")
+    if len(table.get("rows", [])) != 8:
+        errors.append("Course 06 decision table must retain eight non-overlapping teaching rows")
+    if "existing_verification_known_when_value_present" not in table.get("preconditions", []):
+        errors.append("Course 06 decision table must require known existing verification state")
+
+    state_machine = payloads[reference / "state-machine.json"]
+    forbidden = {
+        ("extracted", "apply", "applied"),
+        ("conflicting", "apply", "applied"),
+        ("rejected", "apply", "applied"),
+        ("stale", "apply", "applied"),
+    }
+    declared_valid = {
+        (item.get("current"), item.get("event"), item.get("next"))
+        for item in state_machine.get("transitions", [])
+    }
+    declared_invalid = {
+        (item.get("current"), item.get("event"), item.get("next"))
+        for item in state_machine.get("critical_invalid_transitions", [])
+    }
+    if forbidden & declared_valid or not forbidden.issubset(declared_invalid):
+        errors.append("Course 06 state model must declare and prohibit all critical apply transitions")
+    expected_conflict_path = {
+        ("conflicting", "request_review", "awaiting_review"),
+        ("awaiting_review", "approve_replacement", "approved"),
+        ("approved", "apply", "applied"),
+    }
+    if not expected_conflict_path.issubset(declared_valid):
+        errors.append("Course 06 state model must preserve the explicit reviewed-conflict path")
+    guards = state_machine.get("guards", {})
+    required_guard_conditions = {
+        "approval proposal digest equals the current ProposedUpdate digest",
+        "submission revision is current",
+        "requirement-context digest is current",
+        "approval is unexpired",
+        "approval is unused",
+    }
+    receipt_conditions = set(guards.get("valid_receipt_and_current", {}).get("conditions", []))
+    if not required_guard_conditions.issubset(receipt_conditions):
+        errors.append("Course 06 approval guard must define exact proposal and current-context semantics")
+    conflict_conditions = set(guards.get("valid_conflict_replacement_receipt", {}).get("conditions", []))
+    if "approval resolution is replace_verified_value" not in conflict_conditions:
+        errors.append("Course 06 conflict replacement guard must bind the selected resolution")
+    if {"source": "conflicting", "target": "applied", "via": "approved"} not in state_machine.get("required_waypoints", []):
+        errors.append("Course 06 conflict application must pass through the approved waypoint")
+
+    schema = payloads[reference / "contracts" / "proposed-update.schema.json"]
+    required_proposal_fields = {
+        "proposal_id", "submission_id", "submission_revision", "requirement_context_digest",
+        "field", "proposed_value", "source_response_id", "source_span", "requirement_id",
+        "model_version", "evidence_ids", "origin_disposition", "status",
+    }
+    if set(schema.get("required", [])) != required_proposal_fields:
+        errors.append("Course 06 ProposedUpdate schema lost a required trust-boundary field")
+    if schema.get("additionalProperties") is not False:
+        errors.append("Course 06 ProposedUpdate schema must reject undeclared fields")
+
+    agent_forbidden = set(contract.get("agent_authority", {}).get("forbidden", []))
+    if not {"apply production updates", "adjudicate normative contradictions", "widen supported fields"}.issubset(agent_forbidden):
+        errors.append("Course 06 agent boundary grants consequential authority")
+
+    evaluation = payloads[scenario / "evaluation-cases.json"]
+    if len(evaluation.get("cases", [])) != 11 or not evaluation.get("limitations"):
+        errors.append("Course 06 evaluation must contain eleven labelled cases and limitations")
+
+    with (reference / "traceability.csv").open(newline="", encoding="utf-8") as handle:
+        trace_rows = list(csv.DictReader(handle))
+    relations = {row.get("relationship") for row in trace_rows}
+    if not {"elaborated_by", "illustrated_by", "evidenced_by", "implemented_by"}.issubset(relations):
+        errors.append("Course 06 traceability must connect specification, examples, tests, and work")
+    declared_trace_sources = {
+        item.get("id")
+        for section in ("requirements", "invariants", "state_requirements")
+        for item in contract.get(section, [])
+    }
+    traced_sources = {row.get("source_id") for row in trace_rows}
+    if contract.get("specification", {}).get("traceability_scope") != "complete_reference":
+        errors.append("Course 06 reference must declare its traceability scope")
+    untraced = sorted(declared_trace_sources - traced_sources)
+    if untraced:
+        errors.append(f"Course 06 reference has untraced normative records: {untraced}")
+
+    reference_text = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in reference.rglob("*")
+        if path.is_file()
+    )
+    if "TODO" in reference_text:
+        errors.append("Course 06 reference artifacts contain unresolved TODOs")
+    starter = scenario / "workshop" / "starter"
+    starter_text = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in starter.rglob("*")
+        if path.is_file()
+    )
+    if "TODO" not in starter_text:
+        errors.append("Course 06 starter workspace has no editable TODO prompts")
+
+    result = subprocess.run(
+        [sys.executable, str(lesson / "lab.py")],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    try:
+        report = json.loads(result.stdout) if result.returncode == 0 else {}
+    except json.JSONDecodeError:
+        report = {}
+    if report.get("requirement_findings") or report.get("consistency_findings"):
+        errors.append("Course 06 reference contract must pass requirement and consistency checks")
+    if report.get("table_shape", {}).get("declared_fact_combinations") != 20 or report.get("table_shape", {}).get("findings"):
+        errors.append("Course 06 decision table must match exactly once across its declared fact space")
+    if report.get("state_graph", {}).get("findings"):
+        errors.append("Course 06 state graph must preserve reachability, terminality, and required waypoints")
+    governed = report.get("evaluation", {}).get("governed", {})
+    if governed.get("correct") != 11 or governed.get("unsafe_auto_apply") != 0:
+        errors.append("Course 06 governed evaluation must classify all eleven cases without unsafe apply")
+    property_check = report.get("property_check", {})
+    if property_check.get("checked_pairs", 0) < 2 or property_check.get("violations") != 0:
+        errors.append("Course 06 verified-conflict property must explore multiple pairs without violation")
+    return errors
+
+
 def main() -> None:
     checks = {
         "local links": check_local_links,
@@ -823,6 +1076,7 @@ def main() -> None:
         "Course 03 hierarchy": check_course_03_hierarchy,
         "Course 04 ownership": check_course_04_ownership,
         "Course 05 requirements engineering": check_course_05_discovery,
+        "Course 06 executable requirements": check_course_06_executable_requirements,
         "diagrams": render_and_validate_diagrams,
         "labs": run_labs,
         "repository labs": run_repository_labs,

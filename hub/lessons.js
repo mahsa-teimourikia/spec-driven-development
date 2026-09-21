@@ -250,6 +250,59 @@ const course05 = {
   }
 };
 
+const course06 = {
+  id: 'c06', course: 6, level: 'beginner', part: 'II · Executable specifications', status: 'available',
+  title: 'Writing executable requirements',
+  summary: 'Connect EARS and SHALL requirements to decision tables, scenarios, contracts, guarded states, and evidence without letting model output authorize state changes.',
+  outcomes: [
+    'Keep user stories as intent while expressing bounded obligations with an explicit normative convention.',
+    'Select ubiquitous, event-driven, state-driven, unwanted, optional, and complex EARS patterns.',
+    'Add preconditions, postconditions, frame conditions, failure behavior, invariants, and properties.',
+    'Make interacting facts complete and deterministic with a normative decision table.',
+    'Use role-labelled scenarios as examples without allowing them to become shadow policy.',
+    'Distinguish schema, semantic, context, authorization, policy, approval, and execution validation.',
+    'Recompute model-proposed status in trusted code and enforce guarded state transitions.',
+    'Route verified conflicts through review and bind any replacement to the exact proposal, current context, and selected resolution.',
+    'Stop on normative contradiction and report capability-scoped readiness with exact blockers.',
+    'Separate extraction evaluation from governed-decision evaluation and trace semantic change impact.'
+  ],
+  readme: `${REPO}/blob/main/curriculum/beginner/06-writing-executable-requirements/README.md`,
+  notebook: `${REPO}/blob/main/curriculum/beginner/06-writing-executable-requirements/requirements_writing.ipynb`,
+  lab: `${REPO}/blob/main/curriculum/beginner/06-writing-executable-requirements/lab.py`,
+  repoFixture: `${REPO}/tree/main/curriculum/beginner/06-writing-executable-requirements/northstar-broker-response`,
+  run: 'python3 curriculum/beginner/06-writing-executable-requirements/lab.py',
+  labs: [
+    {
+      title: 'Lab A — Execute the behavioral model',
+      description: 'Lint requirement language, validate representation consistency, classify proposals with trusted facts, enforce guarded transitions, inject contradictions, and measure bounded evidence.',
+      command: 'python3 curriculum/beginner/06-writing-executable-requirements/lab.py',
+      links: [['View the behavior lab', `${REPO}/blob/main/curriculum/beginner/06-writing-executable-requirements/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/beginner/06-writing-executable-requirements/requirements_writing.ipynb`]]
+    },
+    {
+      title: 'Lab B — Govern AI-2219 broker responses',
+      description: 'Complete the EARS/SHALL requirements, glossary, decision table, scenarios, proposal schema, and guarded state model before comparing with the reference behavior.',
+      command: 'Open the ticket and starter workspace; run Lab A before consulting the reference.',
+      links: [['Open the workshop', `${REPO}/tree/main/curriculum/beginner/06-writing-executable-requirements/northstar-broker-response`], ['Complete the starter package', `${REPO}/tree/main/curriculum/beginner/06-writing-executable-requirements/northstar-broker-response/workshop/starter`], ['Inspect the reference package', `${REPO}/tree/main/curriculum/beginner/06-writing-executable-requirements/northstar-broker-response/reference`]]
+    }
+  ],
+  references: [
+    ['EARS requirements syntax paper', 'https://doi.org/10.1109/RE.2009.9'],
+    ['RFC 8174 normative keyword clarification', 'https://www.rfc-editor.org/rfc/rfc8174'],
+    ['Cucumber Gherkin reference', 'https://cucumber.io/docs/gherkin/reference/'],
+    ['JSON Schema Draft 2020-12', 'https://json-schema.org/draft/2020-12']
+  ],
+  checkpoint: {
+    question: 'The model labels a broker-provided value approved, but it conflicts with a verified submission value. What owns the result?',
+    options: [
+      'Trusted rules recompute CONFLICTING, prohibit automatic mutation, and require an exact reviewed resolution before replacement.',
+      'The model status because it arrived in typed JSON.',
+      'The newest scenario even when it contradicts the normative requirement.'
+    ],
+    answer: 0,
+    explanation: 'Typed output is still a proposal. Trusted validation and the normative decision table classify the conflict. Automatic or direct replacement is prohibited; any reviewed replacement needs an authorized receipt bound to the exact proposal, current context, and replace-value resolution.'
+  }
+};
+
 function planned(course, level, part, title, summary) {
   return {
     id: `c${String(course).padStart(2, '0')}`, course, level, part,
@@ -266,7 +319,7 @@ const LESSONS = [
   course03,
   course04,
   course05,
-  planned(6, 'beginner', 'II · Executable specifications', 'User stories, EARS, SHALL requirements, and scenarios', 'Use complementary requirement forms without mistaking syntax for quality.'),
+  course06,
   planned(7, 'beginner', 'II · Executable specifications', 'Acceptance criteria and invariants', 'Define examples and properties that produce meaningful conformance evidence.'),
   planned(8, 'beginner', 'II · Executable specifications', 'Non-functional requirements', 'Make security, reliability, performance, accessibility, and operability measurable.'),
   planned(9, 'beginner', 'II · Executable specifications', 'Architecture Decision Records', 'Capture consequential decisions, alternatives, rationale, and consequences.'),

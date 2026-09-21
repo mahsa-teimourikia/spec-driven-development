@@ -85,7 +85,7 @@ Each future course follows this learning arc, adapted where the subject demands 
 | Course | Level folder | Topic | Status | Prerequisite | Learner evidence |
 | --- | --- | --- | --- | --- | --- |
 | 05 | beginner/05 | Requirements engineering for coding agents | **Available** | C01–C04 | AI-2176 ambiguity register, typed requirements, capability gates, exact-content approval, failure matrix, traceability, and evaluation evidence |
-| 06 | beginner/06 | User stories, EARS, SHALL requirements, scenarios | Planned | C05 | Rewritten requirement set with positive/negative scenarios |
+| 06 | beginner/06 | User stories, EARS, SHALL requirements, scenarios | **Available** | C05 | AI-2219 EARS/SHALL requirements, decision table, scenarios, proposal contract, guarded states, contradiction tests, and governed-decision evidence |
 | 07 | beginner/07 | Acceptance criteria and invariants | Planned | C06 | Executable criteria, invariants, counterexamples |
 | 08 | beginner/08 | Non-functional requirements | Planned | C06–C07 | Workload model, SLO-like criteria, measurement plan |
 | 09 | beginner/09 | Architecture Decision Records | Planned | C02, C08 | ADR with alternatives, consequences, supersession rule |
@@ -258,6 +258,19 @@ an agent to manufacture domain truth or decision authority.
 - **Technology context:** compare repository-native Markdown plus structured metadata, JSON/YAML schemas, requirements platforms/ReqIF, model-based tools, and Spec Kit clarification/checklist flows by the guarantees they actually provide.
 - **Evaluation:** report precision and recall for both requirement-review detection and draft correspondence with explicit populations, numerators, denominators, and limitations. The fixture does not invent a production model-quality threshold.
 - **Boundaries:** analysis and drafting may proceed at autonomy level 1, but automatic delivery stays disabled while `OQ-017` is open. Trusted application code—not a model, prompt, typed object, or simulated receipt—must validate current context, authorization, exact-content approval, policy, and idempotency.
+
+## Course 06 design record
+
+Course 06 teaches learners to choose and connect requirement representations so one owned behavioral
+model can direct agents and tests without turning examples, schemas, or model output into authority.
+
+- **Scenario:** ticket `AI-2219` asks a model to interpret broker replies and update underwriting submissions, but leaves field mapping, conflicts, automatic acceptance, freshness, approval, and mutation authority underspecified.
+- **Core artifact:** an authority-labelled behavior contract joining SHALL/EARS requirements to a normative decision table, normative examples, a proposal schema, guarded states, invariants, evidence, and typed traceability.
+- **Lab A:** diagnose requirement language; check structural readiness and cross-artifact consistency; recompute proposal status from trusted facts; enforce domain, authorization, freshness, approval, state, and frame conditions; inject a dangerous table mutation; and trace semantic change impact.
+- **Lab B:** complete the AI-2219 starter requirements, glossary, decision table, scenarios, proposal contract, and state model before inspecting the reference package.
+- **Technology context:** compare EARS, Gherkin, decision tables, JSON Schema, state machines, property-based testing, and requirements platforms by the guarantee each provides rather than by file format.
+- **Evaluation:** separate a deliberately unsafe model-status baseline from governed application decisions on a labelled synthetic population; retain numerators, denominators, unsafe-action counts, properties, coverage, and explicit limitations.
+- **Boundaries:** the model proposes observations; trusted code owns status, policy, approval, transitions, and mutation. Applying an unverified value remains review-required while `OQ-BR-001` is open. A verified conflicting value cannot be replaced automatically or directly; an authorized reviewed replacement must name that exact resolution and bind the current proposal and context.
 
 ## Risk boundaries
 

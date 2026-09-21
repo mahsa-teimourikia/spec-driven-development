@@ -1,0 +1,33 @@
+{
+  "id": "DT-BR-001",
+  "revision": "1.1-training",
+  "role": "normative_elaboration",
+  "status": "approved",
+  "governs": ["REQ-BR-005", "REQ-BR-008"],
+  "preconditions": ["existing_verification_known_when_value_present"],
+  "input_domains": {
+    "existing_value": ["none", "present"],
+    "existing_verified": [false, true, "any_when_no_existing_value"],
+    "proposed_valid": [false, true],
+    "same_value": [false, true, "any_when_no_existing_value"],
+    "auto_accept_allowed": [false, true]
+  },
+  "columns": [
+    "existing_value",
+    "existing_verified",
+    "proposed_valid",
+    "same_value",
+    "auto_accept_allowed",
+    "outcome"
+  ],
+  "rows": [
+    {"id": "DT-01", "existing_value": "none", "existing_verified": "any", "proposed_valid": true, "same_value": "any", "auto_accept_allowed": true, "outcome": "auto_apply_eligible"},
+    {"id": "DT-02", "existing_value": "none", "existing_verified": "any", "proposed_valid": true, "same_value": "any", "auto_accept_allowed": false, "outcome": "propose"},
+    {"id": "DT-03", "existing_value": "present", "existing_verified": false, "proposed_valid": true, "same_value": true, "auto_accept_allowed": "any", "outcome": "no_change"},
+    {"id": "DT-04", "existing_value": "present", "existing_verified": false, "proposed_valid": true, "same_value": false, "auto_accept_allowed": true, "outcome": "auto_apply_eligible"},
+    {"id": "DT-05", "existing_value": "present", "existing_verified": false, "proposed_valid": true, "same_value": false, "auto_accept_allowed": false, "outcome": "propose"},
+    {"id": "DT-06", "existing_value": "present", "existing_verified": true, "proposed_valid": true, "same_value": true, "auto_accept_allowed": "any", "outcome": "no_change"},
+    {"id": "DT-07", "existing_value": "present", "existing_verified": true, "proposed_valid": true, "same_value": false, "auto_accept_allowed": "any", "outcome": "conflict"},
+    {"id": "DT-08", "existing_value": "any", "existing_verified": "any", "proposed_valid": false, "same_value": "any", "auto_accept_allowed": "any", "outcome": "reject"}
+  ]
+}

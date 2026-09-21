@@ -369,5 +369,82 @@ const QUESTIONS = [
     options: ['As an invalid RequirementGap with rule evidence and revision-bound value_invalid observation evidence', 'As missing because both states need follow-up', 'As absent without citing the submission revision', 'As approved if the schema parses'],
     answer: 0,
     explanation: 'Missing, invalid, unverified, and conflicting are different operational states. The rule explains why the document is required; the observation explains what was found in the named revision.'
+  },
+  {
+    category: 'Executable requirements',
+    question: 'What does an EARS pattern establish by itself?',
+    options: ['A reviewable sentence shape for triggers, states, options, or unwanted behavior—not truth or authority', 'That the requirement is approved', 'That every edge case is covered', 'That implementation may start without an owner'],
+    answer: 0,
+    explanation: 'EARS makes behavioral structure visible. Evidence, ownership, applicability, completeness, feasibility, and authorization remain separate concerns.'
+  },
+  {
+    category: 'Normative language',
+    question: 'A requirement contains the word SHALL. When is that word meaningful?',
+    options: ['When the artifact has authority in scope and its normative-keyword convention is declared', 'Whenever the text is uppercase', 'Only when the file is JSON', 'Whenever a coding agent generated it'],
+    answer: 0,
+    explanation: 'Normative typography communicates strength under a convention; it does not create decision rights or applicability.'
+  },
+  {
+    category: 'Decision tables',
+    question: 'Two rows match the same supported fact combination. What should the implementation do?',
+    options: ['STOP because the normative decision is ambiguous', 'Use the first row', 'Let the model choose', 'Average the outcomes'],
+    answer: 0,
+    explanation: 'A governed table needs exactly one match for each supported combination. Row order must not become hidden conflict resolution.'
+  },
+  {
+    category: 'Scenarios',
+    question: 'A normative Given/When/Then scenario contradicts its governing SHALL requirement. Which artifact wins automatically?',
+    options: ['Neither; the applicable normative contradiction must stop for accountable resolution', 'The scenario because it is executable', 'The requirement because prose always wins', 'The newest file regardless of ownership'],
+    answer: 0,
+    explanation: 'The artifact contract forbids silent weakening. Executability, format, or recency alone does not authorize one normative representation to override another.'
+  },
+  {
+    category: 'Trust boundaries',
+    question: 'A model emits a JSON-Schema-valid ProposedUpdate with status applied. What is the correct interpretation?',
+    options: ['It is a structurally valid proposal; trusted code must recompute meaning, authority, status, and transition eligibility', 'The submission is already updated', 'Schema validity proves the source text', 'The model has granted approval'],
+    answer: 0,
+    explanation: 'Schema checks shape. Semantic validity, current context, authorization, policy, approval, and execution are separate validation layers.'
+  },
+  {
+    category: 'Frame conditions',
+    question: 'Why specify that unrelated submission fields remain unchanged?',
+    options: ['A result can look correct while an implementation causes unintended side effects', 'Frame conditions improve model confidence', 'All writes should change every field', 'Return-value tests prove mutation scope automatically'],
+    answer: 0,
+    explanation: 'Frame conditions make non-effects observable and testable, which is especially important for generated implementations at a mutation boundary.'
+  },
+  {
+    category: 'Approval',
+    question: 'A reviewer approved a proposal, then the requirement-context digest changed. May the proposal apply?',
+    options: ['No; the approval is stale for the changed governing context', 'Yes; the proposed value is unchanged', 'Yes; approval never expires', 'Only if the model repeats approved'],
+    answer: 0,
+    explanation: 'Approval binds exact content and current context. Requirement changes can alter the meaning or permission of the same proposed value.'
+  },
+  {
+    category: 'Conflict resolution',
+    question: 'A verified value conflicts with a broker proposal, and a reviewer issues a generic approval receipt. May the system replace the verified value?',
+    options: ['No; the receipt must bind the exact proposal and explicitly select the replace-verified-value resolution', 'Yes; any approval overrides the conflict rule', 'Yes; CONFLICTING is only an informational label', 'Only when the model also labels the proposal approved'],
+    answer: 0,
+    explanation: 'Review is a guarded workflow, not a vague human-in-the-loop label. Automatic and direct replacement remain prohibited; a reviewed replacement requires current, exact, unused authority for that specific resolution.'
+  },
+  {
+    category: 'Readiness',
+    question: 'Applying unverified values needs an unresolved policy decision, but extraction is fully specified. What is the correct readiness result?',
+    options: ['Extraction may be ready while application remains review-required with the question named', 'The whole product is 50% ready', 'All work must stop', 'The agent may infer the policy'],
+    answer: 0,
+    explanation: 'Readiness is capability-scoped and blocker-specific. A fabricated aggregate percentage hides both safe progress and consequential uncertainty.'
+  },
+  {
+    category: 'Evaluation',
+    question: 'Why evaluate extraction separately from governed decision logic?',
+    options: ['To distinguish observation errors from deterministic validation, policy, and transition errors', 'To guarantee production accuracy', 'To avoid defining an oracle', 'To let model confidence authorize updates'],
+    answer: 0,
+    explanation: 'Layered evaluation localizes failure and preserves honest claims. A fixed-proposal decision fixture does not measure live model extraction.'
+  },
+  {
+    category: 'Change impact',
+    question: 'A requirement change transitively reaches a test and task. What does impacted mean?',
+    options: ['Their prior assurance must be assessed; modification is not yet proven necessary', 'Both files must always be edited', 'The current implementation is automatically non-compliant', 'Only direct links matter'],
+    answer: 0,
+    explanation: 'Impact traversal identifies review scope. Owners then record whether to modify, revalidate unchanged, defer, or establish non-applicability.'
   }
 ];
