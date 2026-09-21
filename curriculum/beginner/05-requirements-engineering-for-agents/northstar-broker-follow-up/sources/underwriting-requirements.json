@@ -1,0 +1,12 @@
+{
+  "rule_set": "UW-REQ-12",
+  "version": "12.4-training",
+  "effective_at": "2026-09-01T00:00:00Z",
+  "supported_context": {"line": "commercial_property", "channel": "authenticated_broker_portal"},
+  "required_items": [
+    {"id": "UW-FIELD-014", "label": "Loss history", "condition": "always"},
+    {"id": "UW-DOC-022", "label": "Signed application", "condition": "always"},
+    {"id": "UW-DOC-031", "label": "Building valuation", "condition": "building_limit_above_owner_defined_threshold"}
+  ],
+  "limitations": ["Synthetic training policy; not insurance advice or a production rule set."]
+}

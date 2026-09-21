@@ -198,6 +198,57 @@ const course04 = {
   }
 };
 
+const course05 = {
+  id: 'c05', course: 5, level: 'beginner', part: 'II · Executable specifications', status: 'available',
+  title: 'Requirements engineering for coding agents',
+  summary: 'Turn an ambiguous broker-follow-up request into source-backed requirements, capability-level gates, exact approval boundaries, and measurable evidence.',
+  outcomes: [
+    'Distinguish unknowns, ambiguities, conflicts, design questions, and policy decisions.',
+    'Write singular, observable requirements with stable identity, owners, sources, states, and evidence methods.',
+    'Block only the capability affected by an unresolved question while safe upstream work continues.',
+    'Validate missing-item provenance and exact draft correspondence around probabilistic generation.',
+    'Bind approval to exact content, current context, broker authorization, expiry, and single-use state.',
+    'Define epistemic outcomes, fail-closed behavior, bounded retries, and idempotency.',
+    'Detect stale agent context, semantic changes, orphan tasks, and unimplemented requirements.',
+    'Evaluate requirement-review rules with labelled cases and honest denominators and limitations.'
+  ],
+  readme: `${REPO}/blob/main/curriculum/beginner/05-requirements-engineering-for-agents/README.md`,
+  notebook: `${REPO}/blob/main/curriculum/beginner/05-requirements-engineering-for-agents/requirements_engineering.ipynb`,
+  lab: `${REPO}/blob/main/curriculum/beginner/05-requirements-engineering-for-agents/lab.py`,
+  repoFixture: `${REPO}/tree/main/curriculum/beginner/05-requirements-engineering-for-agents/northstar-broker-follow-up`,
+  run: 'python3 curriculum/beginner/05-requirements-engineering-for-agents/lab.py',
+  labs: [
+    {
+      title: 'Lab A — Engineer and enforce requirements',
+      description: 'Inspect weak language, validate structured requirements, gate capabilities, inject stale approval failures, measure correspondence, and trace implementation work.',
+      command: 'python3 curriculum/beginner/05-requirements-engineering-for-agents/lab.py',
+      links: [['View the requirements lab', `${REPO}/blob/main/curriculum/beginner/05-requirements-engineering-for-agents/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/beginner/05-requirements-engineering-for-agents/requirements_engineering.ipynb`]]
+    },
+    {
+      title: 'Lab B — Bound AI-2176 safely',
+      description: 'Turn a vague broker-follow-up ticket into an ambiguity register, typed requirements package, explicit failure matrix, and a review-only first release.',
+      command: 'Open the ticket and starter package; run Lab A before consulting the reference.',
+      links: [['Open the workshop', `${REPO}/tree/main/curriculum/beginner/05-requirements-engineering-for-agents/northstar-broker-follow-up`], ['Complete the starter package', `${REPO}/tree/main/curriculum/beginner/05-requirements-engineering-for-agents/northstar-broker-follow-up/workshop/starter`], ['Inspect the reference package', `${REPO}/tree/main/curriculum/beginner/05-requirements-engineering-for-agents/northstar-broker-follow-up/reference`]]
+    }
+  ],
+  references: [
+    ['ISO/IEC/IEEE 29148:2018', 'https://www.iso.org/standard/72089.html'],
+    ['EARS requirements syntax paper', 'https://doi.org/10.1109/RE.2009.9'],
+    ['RFC 2119 requirement levels', 'https://www.rfc-editor.org/info/rfc2119/'],
+    ['GitHub Spec Kit agentic SDD reference', 'https://github.github.com/spec-kit/reference/agentic-sdd.html']
+  ],
+  checkpoint: {
+    question: 'OQ-017 leaves automatic delivery authority unresolved. What should the team do?',
+    options: [
+      'Keep send disabled while allowing bounded analysis and drafting to proceed.',
+      'Let the coding agent enable send for cases it calls simple.',
+      'Block the entire project, including safe analysis work.'
+    ],
+    answer: 0,
+    explanation: 'An unresolved question should block only the capability that depends on it. Analysis and drafting remain useful; external delivery needs accountable policy and enforceable preconditions.'
+  }
+};
+
 function planned(course, level, part, title, summary) {
   return {
     id: `c${String(course).padStart(2, '0')}`, course, level, part,
@@ -213,7 +264,7 @@ const LESSONS = [
   course02,
   course03,
   course04,
-  planned(5, 'beginner', 'II · Executable specifications', 'Requirements engineering for agents', 'Discover assumptions and express requirements that constrain agent action.'),
+  course05,
   planned(6, 'beginner', 'II · Executable specifications', 'User stories, EARS, SHALL requirements, and scenarios', 'Use complementary requirement forms without mistaking syntax for quality.'),
   planned(7, 'beginner', 'II · Executable specifications', 'Acceptance criteria and invariants', 'Define examples and properties that produce meaningful conformance evidence.'),
   planned(8, 'beginner', 'II · Executable specifications', 'Non-functional requirements', 'Make security, reliability, performance, accessibility, and operability measurable.'),

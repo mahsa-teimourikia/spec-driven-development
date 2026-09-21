@@ -1,0 +1,56 @@
+{
+  "specification": {"id": "AI-2176", "revision": "TODO", "status": "draft", "owner": "TODO"},
+  "problem": "TODO: state the user and operational problem without prescribing a solution.",
+  "scope": {
+    "in": ["TODO"],
+    "out": ["coverage, pricing, acceptance, rejection, or risk decisions", "automatic delivery while OQ-017 remains open"],
+    "non_goals": ["replace underwriters", "change underwriting policy"]
+  },
+  "glossary": [
+    {"term": "missing item", "definition": "TODO"},
+    {"term": "draft", "definition": "Proposed communication with no delivery authority."}
+  ],
+  "sources": [
+    {"id": "SRC-TICKET-2176", "kind": "ticket", "owner": "underwriting_product", "version": "1", "locator": "ticket/AI-2176.md"},
+    {"id": "SRC-UW-REQ-12", "kind": "domain_requirement", "owner": "underwriting_governance", "version": "12.4-training", "locator": "sources/underwriting-requirements.json"}
+  ],
+  "capabilities": [
+    {"id": "analyze_missing_items", "autonomy_level": 1, "description": "TODO"},
+    {"id": "draft_message", "autonomy_level": 1, "description": "TODO"},
+    {"id": "send_message", "autonomy_level": 0, "description": "Disabled while OQ-017 is open."}
+  ],
+  "requirements": [
+    {
+      "id": "REQ-FU-001",
+      "revision": "TODO",
+      "capability": "analyze_missing_items",
+      "normative_strength": "SHALL",
+      "priority": "must",
+      "status": "proposed",
+      "owner": "TODO",
+      "source_ids": ["SRC-UW-REQ-12"],
+      "statement": "TODO: write one observable obligation.",
+      "preconditions": ["TODO"],
+      "behavior": {"output": "MissingItem[]"},
+      "postconditions": ["TODO"],
+      "evidence": {"method": "TODO"}
+    }
+  ],
+  "invariants": [
+    {"id": "INV-PLAN-SUPPORT", "statement": "TODO", "requirement_ids": ["REQ-FU-001"]}
+  ],
+  "questions": [
+    {"id": "OQ-017", "kind": "policy_decision", "text": "May any category be delivered without underwriter approval, and under which accountable policy?", "owner": "underwriting_governance", "status": "open", "blocks_capabilities": ["send_message"]}
+  ],
+  "failure_matrix": [
+    {"category": "schema", "retryable": false, "max_attempts": 0, "terminal_outcome": "abstain", "reason_code": "SCHEMA_INVALID"}
+  ],
+  "tasks": [
+    {"id": "TASK-01", "title": "TODO", "requirement_ids": ["REQ-FU-001"]}
+  ],
+  "agent_authority": {
+    "allowed": ["extract candidate requirements", "propose clarification questions", "run deterministic validation"],
+    "forbidden": ["answer owner questions", "approve requirements", "authorize a broker", "send a message"],
+    "stop_conditions": ["missing authority", "stale context", "unsupported item", "invalid approval"]
+  }
+}

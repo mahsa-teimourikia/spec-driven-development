@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "id": "evidence-aware-requirements-discovery",
+  "title": "Evidence-aware requirements discovery for agents",
+  "purpose": "Show how attributed sources and stakeholder viewpoints become findings and questions, while trusted owner decisions—not model output—control readiness for specification.",
+  "output": {
+    "svg": "requirements-discovery.svg",
+    "alt_text": "Four-stage left-to-right workflow. Versioned sources and stakeholder viewpoints enter a discovery register. Deterministic and human review expose assumptions, ambiguities, and conflicts. An agent proposes prioritized clarification questions, but accountable owners provide decision records. A bounded change specification reaches ready only when blocking findings close; otherwise the workflow stops or requests clarification."
+  },
+  "canvas": {"width": 1640, "height": 930, "background": "#F7F9FC", "margin": 50, "grid": 10},
+  "layout": {"primary_flow": "left-to-right", "min_node_gap": 60, "min_layer_gap": 80, "node_padding": {"x": 22, "y": 16}},
+  "style": {
+    "font_family": "Inter, Arial, sans-serif",
+    "semantic_colors": {
+      "evidence": {"fill": "#E5F7F6", "stroke": "#087F7B"},
+      "analysis": {"fill": "#F0EEFF", "stroke": "#7667E8"},
+      "decision": {"fill": "#FFF1DF", "stroke": "#D97706"},
+      "output": {"fill": "#EAF1FF", "stroke": "#2F6BFF"},
+      "ready": {"fill": "#E9F8ED", "stroke": "#238636"}
+    }
+  },
+  "groups": [
+    {"id": "inputs", "label": "ATTRIBUTED INPUTS", "bounds": {"x": 50, "y": 145, "width": 350, "height": 700}, "fill": "#FFFFFF", "stroke": "#D7DEE8"},
+    {"id": "discovery", "label": "DISCOVERY WORKSPACE", "bounds": {"x": 440, "y": 145, "width": 350, "height": 700}, "fill": "#FFFFFF", "stroke": "#D7DEE8"},
+    {"id": "authority", "label": "DECISION BOUNDARY", "bounds": {"x": 830, "y": 145, "width": 370, "height": 700}, "fill": "#FFFFFF", "stroke": "#D7DEE8"},
+    {"id": "readiness", "label": "SPECIFICATION INTAKE", "bounds": {"x": 1240, "y": 145, "width": 350, "height": 700}, "fill": "#FFFFFF", "stroke": "#D7DEE8"}
+  ],
+  "nodes": [
+    {"id": "sources", "group": "inputs", "label": ["Versioned sources"], "subtitle": "ticket · policy · process · telemetry", "type": "evidence", "bounds": {"x": 90, "y": 250, "width": 270, "height": 120}, "ports": {"out": {"side": "right", "offset": 0.5}}},
+    {"id": "stakeholders", "group": "inputs", "label": ["Stakeholder viewpoints"], "subtitle": "roles · interests · decision rights", "type": "evidence", "bounds": {"x": 90, "y": 565, "width": 270, "height": 120}, "ports": {"out": {"side": "right", "offset": 0.5}}},
+    {"id": "register", "group": "discovery", "label": ["Discovery register"], "subtitle": "facts · candidates · assumptions", "type": "analysis", "bounds": {"x": 480, "y": 250, "width": 270, "height": 120}, "ports": {"source": {"side": "left", "offset": 0.35}, "stakeholder": {"side": "left", "offset": 0.75}, "down": {"side": "bottom", "offset": 0.5}}},
+    {"id": "findings", "group": "discovery", "label": ["Quality findings"], "subtitle": "ambiguity · conflict · coverage", "type": "analysis", "bounds": {"x": 480, "y": 565, "width": 270, "height": 120}, "ports": {"in": {"side": "top", "offset": 0.5}, "out": {"side": "right", "offset": 0.5}}},
+    {"id": "questions", "group": "authority", "label": ["Clarification queue"], "subtitle": "agent proposes · budget is bounded", "type": "decision", "bounds": {"x": 880, "y": 250, "width": 270, "height": 120}, "ports": {"in": {"side": "left", "offset": 0.5}, "down": {"side": "bottom", "offset": 0.5}}},
+    {"id": "decisions", "group": "authority", "label": ["Owner decision records"], "subtitle": "human authority · cited evidence", "type": "decision", "bounds": {"x": 880, "y": 565, "width": 270, "height": 120}, "ports": {"in": {"side": "top", "offset": 0.5}, "out": {"side": "right", "offset": 0.5}}},
+    {"id": "bounded_spec", "group": "readiness", "label": ["Bounded change spec"], "subtitle": "scope · non-goals · proposals", "type": "output", "bounds": {"x": 1280, "y": 250, "width": 270, "height": 120}, "ports": {"in": {"side": "left", "offset": 0.5}, "down": {"side": "bottom", "offset": 0.5}}},
+    {"id": "gate", "group": "readiness", "label": ["READY · REVIEW · STOP"], "subtitle": "trusted application owns status", "type": "ready", "bounds": {"x": 1280, "y": 565, "width": 270, "height": 120}, "ports": {"in": {"side": "top", "offset": 0.5}}}
+  ],
+  "edges": [
+    {"id": "sources-register", "from": {"node": "sources", "port": "out"}, "to": {"node": "register", "port": "source"}, "kind": "evidence", "label": "provenance", "label_position": [420, 270], "route": [[360, 310], [420, 310], [420, 292], [480, 292]]},
+    {"id": "stakeholders-register", "from": {"node": "stakeholders", "port": "out"}, "to": {"node": "register", "port": "stakeholder"}, "kind": "evidence", "route": [[360, 625], [420, 625], [420, 340], [480, 340]]},
+    {"id": "register-findings", "from": {"node": "register", "port": "down"}, "to": {"node": "findings", "port": "in"}, "kind": "analysis", "label": "inspect", "label_position": [665, 485], "route": [[615, 370], [615, 565]]},
+    {"id": "findings-questions", "from": {"node": "findings", "port": "out"}, "to": {"node": "questions", "port": "in"}, "kind": "decision", "label": "prioritize", "label_position": [815, 495], "route": [[750, 625], [815, 625], [815, 310], [880, 310]]},
+    {"id": "questions-decisions", "from": {"node": "questions", "port": "down"}, "to": {"node": "decisions", "port": "in"}, "kind": "decision", "label": "owner answers", "label_position": [1075, 485], "route": [[1015, 370], [1015, 565]]},
+    {"id": "decisions-spec", "from": {"node": "decisions", "port": "out"}, "to": {"node": "bounded_spec", "port": "in"}, "kind": "output", "label": "incorporate", "label_position": [1220, 495], "route": [[1150, 625], [1215, 625], [1215, 310], [1280, 310]]},
+    {"id": "spec-gate", "from": {"node": "bounded_spec", "port": "down"}, "to": {"node": "gate", "port": "in"}, "kind": "ready", "label": "evaluate", "label_position": [1475, 485], "route": [[1415, 370], [1415, 565]]}
+  ],
+  "validation": {"no_overlaps": true, "route_around_nodes": true, "orthogonal_routes": true, "min_text_padding": 18, "min_connector_clearance": 12, "verify_port_attachment": true, "verify_contrast": true}
+}

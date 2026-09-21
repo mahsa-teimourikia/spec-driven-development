@@ -4,7 +4,7 @@
 
 ## Start here
 
-Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through [Course 02: From prompt to executable specification](curriculum/beginner/02-from-prompt-to-executable-specification/README.md) and [Course 03: The specification hierarchy](curriculum/beginner/03-the-specification-hierarchy/README.md), then complete [Course 04: Company vs project vs feature requirements](curriculum/beginner/04-company-project-feature-requirements/README.md) with its guided [notebook](curriculum/beginner/04-company-project-feature-requirements/requirement_ownership.ipynb), deterministic [ownership resolver](curriculum/beginner/04-company-project-feature-requirements/lab.py), realistic [AI-2048 workshop](curriculum/beginner/04-company-project-feature-requirements/northstar-renewal/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
+Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through Courses 02–04, then complete [Course 05: Requirements engineering for coding agents](curriculum/beginner/05-requirements-engineering-for-agents/README.md) with its guided [notebook](curriculum/beginner/05-requirements-engineering-for-agents/requirements_engineering.ipynb), deterministic [requirements lab](curriculum/beginner/05-requirements-engineering-for-agents/lab.py), realistic [AI-2176 workshop](curriculum/beginner/05-requirements-engineering-for-agents/northstar-broker-follow-up/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
 
 This is not simply a tutorial for one specification framework. The central skill is turning organizational intent, architecture rules, product requirements, and engineering constraints into a hierarchy of durable specifications that agents can execute—and humans can govern.
 
@@ -74,9 +74,22 @@ Course 04 turns requirement placement and federated ownership into an executable
 - trace direct and transitive impact when `AI-030` changes; and
 - compose bounded agent context while denying writes to policy and exception authorities.
 
+## Course 05 outcome
+
+Course 05 turns a sparse AI feature request into bounded, executable requirements. You will:
+
+- distinguish unknowns, ambiguities, conflicts, design questions, and policy decisions;
+- write source-backed requirements with stable identity, scope, owners, states, and evidence methods;
+- let analysis and drafting proceed while an unresolved policy question keeps delivery disabled;
+- validate MissingItem contracts and exact draft correspondence around probabilistic generation;
+- bind approval to exact content, current submission and requirement revisions, and broker authority;
+- define fail-closed behavior, bounded retries, idempotency, and unknown-outcome reconciliation;
+- detect stale agent context, semantic requirement changes, orphan tasks, and unimplemented requirements; and
+- compare lexical and evidence-aware review rules on labelled cases without presenting the fixture as a benchmark.
+
 ## Run locally
 
-Everything in Courses 01–04 is credential-free and uses the Python standard library.
+Everything in Courses 01–05 is credential-free and uses the Python standard library.
 
 ```bash
 python3 curriculum/beginner/01-why-agentic-coding-changes-pdlc/lab.py
@@ -84,6 +97,7 @@ python3 curriculum/beginner/01-why-agentic-coding-changes-pdlc/repo_lab.py --can
 python3 curriculum/beginner/02-from-prompt-to-executable-specification/lab.py
 python3 curriculum/beginner/03-the-specification-hierarchy/lab.py
 python3 curriculum/beginner/04-company-project-feature-requirements/lab.py
+python3 curriculum/beginner/05-requirements-engineering-for-agents/lab.py
 python3 -m unittest discover -s tests -v
 python3 scripts/validate_course.py
 ```

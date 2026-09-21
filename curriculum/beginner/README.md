@@ -6,7 +6,7 @@ The beginner path establishes the operating model and then builds the requiremen
 2. [From prompt to executable specification](02-from-prompt-to-executable-specification/README.md) — **available**
 3. [The specification hierarchy](03-the-specification-hierarchy/README.md) — **available**
 4. [Company vs project vs feature requirements](04-company-project-feature-requirements/README.md) — **available**
-5. Requirements engineering for agents — planned
+5. [Requirements engineering for coding agents](05-requirements-engineering-for-agents/README.md) — **available**
 6. User stories, EARS, SHALL requirements, and scenarios — planned
 7. Acceptance criteria and invariants — planned
 8. Non-functional requirements — planned

@@ -694,6 +694,93 @@ def check_course_04_ownership() -> list[str]:
     return errors
 
 
+def check_course_05_discovery() -> list[str]:
+    lesson = ROOT / "curriculum" / "beginner" / "05-requirements-engineering-for-agents"
+    scenario = lesson / "northstar-broker-follow-up"
+    required = [
+        "README.md",
+        "evaluation-cases.json",
+        "ticket/AI-2176.md",
+        "sources/operating-baseline.json",
+        "sources/stakeholder-decisions.md",
+        "sources/underwriting-requirements.json",
+        "workshop/starter/README.md",
+        "workshop/starter/ambiguity-register.md",
+        "workshop/starter/requirements-package.json",
+        "reference/requirements-package.json",
+    ]
+    errors = [
+        f"missing Course 05 artifact: {item}"
+        for item in required
+        if not (scenario / item).exists()
+    ]
+    if errors:
+        return errors
+
+    for relative_path in (
+        "workshop/starter/requirements-package.json",
+        "reference/requirements-package.json",
+        "evaluation-cases.json",
+        "sources/operating-baseline.json",
+        "sources/underwriting-requirements.json",
+    ):
+        path = scenario / relative_path
+        try:
+            json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError) as exc:
+            errors.append(f"invalid Course 05 JSON {relative_path}: {exc}")
+
+    reference_path = scenario / "reference" / "requirements-package.json"
+    reference = json.loads(reference_path.read_text(encoding="utf-8"))
+    required_sections = {
+        "specification", "problem", "scope", "glossary", "sources", "capabilities",
+        "requirements", "invariants", "questions", "failure_matrix", "tasks", "agent_authority",
+    }
+    missing_sections = required_sections - reference.keys()
+    if missing_sections:
+        errors.append(f"Course 05 reference is missing sections: {sorted(missing_sections)}")
+    capability_ids = {item["id"] for item in reference.get("capabilities", [])}
+    if capability_ids != {"analyze_missing_items", "draft_message", "send_message"}:
+        errors.append("Course 05 reference must declare analysis, drafting, and sending capabilities")
+    send_questions = {
+        item["id"] for item in reference.get("questions", [])
+        if item.get("status") == "open" and "send_message" in item.get("blocks_capabilities", [])
+    }
+    if send_questions != {"OQ-017"}:
+        errors.append("Course 05 automatic send must remain blocked only by open question OQ-017")
+    if "send a message" not in reference.get("agent_authority", {}).get("forbidden", []):
+        errors.append("Course 05 agent boundary must forbid sending a message")
+    requirement_ids = {item["id"] for item in reference.get("requirements", [])}
+    task_links = {
+        requirement_id
+        for task in reference.get("tasks", [])
+        for requirement_id in task.get("requirement_ids", [])
+    }
+    if requirement_ids - task_links:
+        errors.append("Course 05 reference contains approved requirements without task links")
+
+    evaluation = json.loads((scenario / "evaluation-cases.json").read_text(encoding="utf-8"))
+    cases = evaluation.get("cases", [])
+    if len(cases) != 8 or sum(bool(item.get("expected_finding")) for item in cases) != 5:
+        errors.append("Course 05 evaluation must contain eight cases with five labelled findings")
+
+    reference_text = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in (scenario / "reference").glob("*")
+        if path.is_file()
+    )
+    if "TODO" in reference_text:
+        errors.append("Course 05 reference artifacts contain unresolved TODOs")
+    starter_text = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in (scenario / "workshop" / "starter").glob("*")
+        if path.is_file()
+    )
+    if "TODO" not in starter_text:
+        errors.append("Course 05 starter workspace has no editable TODO prompts")
+    return errors
+
+
 def main() -> None:
     checks = {
         "local links": check_local_links,
@@ -704,6 +791,7 @@ def main() -> None:
         "Course 02 artifact stack": check_course_02_artifact_stack,
         "Course 03 hierarchy": check_course_03_hierarchy,
         "Course 04 ownership": check_course_04_ownership,
+        "Course 05 requirements engineering": check_course_05_discovery,
         "diagrams": render_and_validate_diagrams,
         "labs": run_labs,
         "repository labs": run_repository_labs,
