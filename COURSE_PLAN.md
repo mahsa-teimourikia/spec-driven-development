@@ -270,7 +270,7 @@ model can direct agents and tests without turning examples, schemas, or model ou
 - **Lab B:** complete the AI-2219 starter requirements, glossary, decision table, scenarios, proposal contract, and state model before inspecting the reference package.
 - **Technology context:** compare EARS, Gherkin, decision tables, JSON Schema, state machines, property-based testing, and requirements platforms by the guarantee each provides rather than by file format.
 - **Evaluation:** separate a deliberately unsafe model-status baseline from governed application decisions on a labelled synthetic population; retain numerators, denominators, unsafe-action counts, properties, coverage, and explicit limitations.
-- **Boundaries:** the model proposes observations; trusted code owns status, policy, approval, transitions, and mutation. Applying an unverified value remains review-required while `OQ-BR-001` is open, and overwriting a verified conflicting value is prohibited.
+- **Boundaries:** the model proposes observations; trusted code owns status, policy, approval, transitions, and mutation. Applying an unverified value remains review-required while `OQ-BR-001` is open. A verified conflicting value cannot be replaced automatically or directly; an authorized reviewed replacement must name that exact resolution and bind the current proposal and context.
 
 ## Risk boundaries
 

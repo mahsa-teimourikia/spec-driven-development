@@ -1,8 +1,9 @@
 {
-  "dataset_id": "AI-2219-synthetic-v1",
+  "dataset_id": "AI-2219-synthetic-v1.1",
   "limitations": [
     "Synthetic labelled cases are regression evidence, not production extraction-quality evidence.",
-    "The fixture evaluates deterministic disposition and state boundaries after extraction, not a language model."
+    "The fixture evaluates deterministic disposition and state boundaries after extraction, not a language model.",
+    "Verification metadata is trusted fixture context; production must establish its authenticity and freshness."
   ],
   "cases": [
     {"id": "CASE-01", "field_candidates": ["construction_year"], "proposed_value": 2001, "model_status": "validated", "existing_value": 1998, "existing_verified": true, "proposed_valid": true, "auto_accept_allowed": true, "current_revision": true, "expected_status": "conflicting", "expected_disposition": "conflict"},
@@ -14,6 +15,7 @@
     {"id": "CASE-07", "field_candidates": ["replacement_cost", "market_value"], "proposed_value": 900000, "model_status": "validated", "existing_value": null, "existing_verified": false, "proposed_valid": true, "auto_accept_allowed": false, "current_revision": true, "expected_status": "mapping_ambiguous", "expected_disposition": "clarify"},
     {"id": "CASE-08", "field_candidates": ["construction_year"], "proposed_value": 2001, "model_status": "approved", "existing_value": null, "existing_verified": false, "proposed_valid": true, "auto_accept_allowed": true, "current_revision": false, "expected_status": "stale", "expected_disposition": "block"},
     {"id": "CASE-09", "field_candidates": [], "proposed_value": null, "model_status": "validated", "existing_value": null, "existing_verified": false, "proposed_valid": false, "auto_accept_allowed": false, "current_revision": true, "attachment_only": true, "expected_status": "attachment_review_required", "expected_disposition": "clarify"},
-    {"id": "CASE-10", "field_candidates": ["construction_year"], "candidate_values": [1998, 2001], "proposed_value": 2001, "model_status": "validated", "existing_value": null, "existing_verified": false, "proposed_valid": true, "auto_accept_allowed": true, "current_revision": true, "expected_status": "source_conflict", "expected_disposition": "conflict"}
+    {"id": "CASE-10", "field_candidates": ["construction_year"], "candidate_values": [1998, 2001], "proposed_value": 2001, "model_status": "validated", "existing_value": null, "existing_verified": false, "proposed_valid": true, "auto_accept_allowed": true, "current_revision": true, "expected_status": "source_conflict", "expected_disposition": "conflict"},
+    {"id": "CASE-11", "field_candidates": ["construction_year"], "proposed_value": 2001, "model_status": "applied", "existing_value": 1998, "existing_verified": null, "proposed_valid": true, "auto_accept_allowed": true, "current_revision": true, "expected_status": "awaiting_review", "expected_disposition": "clarify"}
   ]
 }

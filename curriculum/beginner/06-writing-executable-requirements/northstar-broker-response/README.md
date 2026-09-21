@@ -18,11 +18,12 @@ authority to mutate underwriting records.
 ## Expected release boundary
 
 Extraction, deterministic classification, and proposal creation are ready. Applying an unverified
-value remains review-required while `OQ-BR-001` is open. Automatic replacement of a verified
-conflicting value is prohibited. These are capability states, not percentages.
+value remains review-required while `OQ-BR-001` is open. A reviewed conflict replacement requires
+exact resolution authority; automatic replacement of a verified conflicting value is prohibited.
+These are capability states, not percentages.
 
 ## Evidence boundary
 
-The fixture uses synthetic labelled cases and an in-memory update. It evaluates deterministic
+The fixture uses eleven synthetic labelled cases and an in-memory update. It evaluates deterministic
 decisions after extraction; it neither evaluates a language model nor proves authenticated owner
 approval, production transactions, or runtime control effectiveness.

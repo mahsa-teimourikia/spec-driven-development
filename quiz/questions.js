@@ -420,6 +420,13 @@ const QUESTIONS = [
     explanation: 'Approval binds exact content and current context. Requirement changes can alter the meaning or permission of the same proposed value.'
   },
   {
+    category: 'Conflict resolution',
+    question: 'A verified value conflicts with a broker proposal, and a reviewer issues a generic approval receipt. May the system replace the verified value?',
+    options: ['No; the receipt must bind the exact proposal and explicitly select the replace-verified-value resolution', 'Yes; any approval overrides the conflict rule', 'Yes; CONFLICTING is only an informational label', 'Only when the model also labels the proposal approved'],
+    answer: 0,
+    explanation: 'Review is a guarded workflow, not a vague human-in-the-loop label. Automatic and direct replacement remain prohibited; a reviewed replacement requires current, exact, unused authority for that specific resolution.'
+  },
+  {
     category: 'Readiness',
     question: 'Applying unverified values needs an unresolved policy decision, but extraction is fully specified. What is the correct readiness result?',
     options: ['Extraction may be ready while application remains review-required with the question named', 'The whole product is 50% ready', 'All work must stop', 'The agent may infer the policy'],

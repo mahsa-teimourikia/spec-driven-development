@@ -14,6 +14,7 @@ import re
 from dataclasses import asdict, dataclass, replace
 from datetime import datetime, timezone
 from enum import Enum
+from itertools import product
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -136,7 +137,7 @@ class ModelProposal:
 @dataclass(frozen=True)
 class ExistingField:
     value: Any
-    verified: bool
+    verified: bool | None
 
 
 @dataclass(frozen=True)
@@ -176,6 +177,7 @@ class ProposedUpdate:
     requirement_id: str
     model_version: str
     evidence_ids: tuple[str, ...]
+    origin_disposition: Disposition
     status: ProposalStatus
 
 
@@ -190,6 +192,7 @@ class ApprovalReceipt:
     requirement_context_digest: str
     issued_at: str
     expires_at: str
+    resolution: str = "accept_proposal"
     consumed: bool = False
 
 
@@ -270,9 +273,9 @@ def writing_findings(requirement: dict[str, Any]) -> tuple[Finding, ...]:
         if pronoun:
             findings.append(
                 Finding(
-                    "AMBIGUOUS_REFERENT",
+                    "POSSIBLE_AMBIGUOUS_REFERENT",
                     identifier,
-                    f"Pronoun {pronoun.group(0)!r} needs an explicit referent.",
+                    f"Pronoun {pronoun.group(0)!r} may need an explicit referent; review its local context.",
                     Severity.REVIEW,
                 )
             )
@@ -355,14 +358,174 @@ def _row_matches(row: dict[str, Any], facts: dict[str, Any]) -> bool:
     return True
 
 
+def decision_table_matches(
+    facts: dict[str, Any], table: dict[str, Any] | None = None
+) -> tuple[dict[str, Any], ...]:
+    table = table or load_table()
+    return tuple(row for row in table.get("rows", []) if _row_matches(row, facts))
+
+
+def decision_table_fact_space() -> tuple[dict[str, Any], ...]:
+    """Enumerate the declared table scope after its known-verification precondition."""
+    facts: list[dict[str, Any]] = []
+    for proposed_valid, auto_accept_allowed in product((False, True), repeat=2):
+        facts.append(
+            {
+                "existing_value": "none",
+                "existing_verified": "any",
+                "proposed_valid": proposed_valid,
+                "same_value": "any",
+                "auto_accept_allowed": auto_accept_allowed,
+            }
+        )
+    for existing_verified, proposed_valid, same_value, auto_accept_allowed in product(
+        (False, True), repeat=4
+    ):
+        facts.append(
+            {
+                "existing_value": "present",
+                "existing_verified": existing_verified,
+                "proposed_valid": proposed_valid,
+                "same_value": same_value,
+                "auto_accept_allowed": auto_accept_allowed,
+            }
+        )
+    return tuple(facts)
+
+
+def decision_table_shape_findings(table: dict[str, Any] | None = None) -> tuple[Finding, ...]:
+    table = table or load_table()
+    findings: list[Finding] = []
+    for index, facts in enumerate(decision_table_fact_space(), start=1):
+        matches = decision_table_matches(facts, table)
+        if not matches:
+            findings.append(
+                Finding(
+                    "DECISION_TABLE_INCOMPLETE",
+                    str(table.get("id")),
+                    f"Declared fact combination {index} matches no row: {facts}.",
+                )
+            )
+        elif len(matches) > 1:
+            findings.append(
+                Finding(
+                    "DECISION_TABLE_AMBIGUOUS",
+                    str(table.get("id")),
+                    f"Declared fact combination {index} matches rows "
+                    f"{[item.get('id') for item in matches]}: {facts}.",
+                )
+            )
+    return tuple(findings)
+
+
 def decision_table_outcome(
     facts: dict[str, Any], table: dict[str, Any] | None = None
 ) -> tuple[str | None, str | None]:
     table = table or load_table()
-    matches = [row for row in table.get("rows", []) if _row_matches(row, facts)]
+    matches = decision_table_matches(facts, table)
     if len(matches) != 1:
         return None, None
     return str(matches[0]["outcome"]), str(matches[0]["id"])
+
+
+def _reachable_states(
+    source: str,
+    transitions: Iterable[dict[str, Any]],
+    *,
+    excluded_state: str | None = None,
+) -> set[str]:
+    visited = {source}
+    frontier = {source}
+    while frontier:
+        next_frontier = {
+            str(item.get("next"))
+            for item in transitions
+            if item.get("current") in frontier
+            and item.get("next") != excluded_state
+            and item.get("next") not in visited
+        }
+        visited.update(next_frontier)
+        frontier = next_frontier
+    return visited
+
+
+def state_machine_findings(
+    state_machine: dict[str, Any] | None = None,
+) -> tuple[Finding, ...]:
+    state_machine = state_machine or load_state_machine()
+    identifier = str(state_machine.get("id"))
+    states = {str(item) for item in state_machine.get("states", [])}
+    transitions = state_machine.get("transitions", [])
+    guards = state_machine.get("guards", {})
+    findings: list[Finding] = []
+    initial = str(state_machine.get("initial_state", ""))
+    if initial not in states:
+        findings.append(Finding("STATE_INITIAL_UNKNOWN", identifier, "Initial state is not declared."))
+    for transition in transitions:
+        current, next_state = str(transition.get("current")), str(transition.get("next"))
+        if current not in states or next_state not in states:
+            findings.append(
+                Finding(
+                    "STATE_TRANSITION_UNKNOWN_STATE",
+                    identifier,
+                    f"Transition {transition.get('id')} references an undeclared state.",
+                )
+            )
+        guard = str(transition.get("guard"))
+        if guard != "always" and guard not in guards:
+            findings.append(
+                Finding(
+                    "STATE_GUARD_UNDEFINED",
+                    identifier,
+                    f"Transition {transition.get('id')} uses undefined guard {guard!r}.",
+                )
+            )
+    if initial in states:
+        unreachable = states - _reachable_states(initial, transitions)
+        for state in sorted(unreachable):
+            findings.append(
+                Finding("STATE_UNREACHABLE", identifier, f"Declared state {state!r} is unreachable.")
+            )
+    terminal = {str(item) for item in state_machine.get("terminal_states", [])}
+    for transition in transitions:
+        if transition.get("current") in terminal:
+            findings.append(
+                Finding(
+                    "TERMINAL_STATE_HAS_OUTGOING_TRANSITION",
+                    identifier,
+                    f"Terminal state {transition.get('current')!r} has outgoing transition "
+                    f"{transition.get('id')!r}.",
+                )
+            )
+    for rule in state_machine.get("required_waypoints", []):
+        source = str(rule.get("source"))
+        target = str(rule.get("target"))
+        waypoint = str(rule.get("via"))
+        if target in _reachable_states(source, transitions, excluded_state=waypoint):
+            findings.append(
+                Finding(
+                    "REQUIRED_WAYPOINT_BYPASSED",
+                    identifier,
+                    f"A path from {source!r} to {target!r} bypasses required state {waypoint!r}.",
+                )
+            )
+    forbidden = {
+        (str(item.get("current")), str(item.get("event")), str(item.get("next")))
+        for item in state_machine.get("critical_invalid_transitions", [])
+    }
+    declared = {
+        (str(item.get("current")), str(item.get("event")), str(item.get("next")))
+        for item in transitions
+    }
+    for current, event, next_state in sorted(forbidden & declared):
+        findings.append(
+            Finding(
+                "INVALID_STATE_TRANSITION_DECLARED",
+                identifier,
+                f"Forbidden transition {current} --{event}--> {next_state} is declared valid.",
+            )
+        )
+    return tuple(findings)
 
 
 def artifact_consistency_findings(
@@ -383,6 +546,15 @@ def artifact_consistency_findings(
     } | {str(item.get("id")) for item in contract.get("state_requirements", [])}
     if table.get("role") != "normative_elaboration" or table.get("status") != "approved":
         findings.append(Finding("TABLE_ROLE_INVALID", str(table.get("id")), "Normative table role is invalid."))
+    if "existing_verification_known_when_value_present" not in table.get("preconditions", []):
+        findings.append(
+            Finding(
+                "TABLE_PRECONDITION_MISSING",
+                str(table.get("id")),
+                "Decision table must require known verification state for an existing value.",
+            )
+        )
+    findings.extend(decision_table_shape_findings(table))
     for identifier in table.get("governs", []):
         requirement = requirements.get(identifier)
         if not requirement or table.get("id") not in requirement.get("elaboration_ids", []):
@@ -477,24 +649,7 @@ def artifact_consistency_findings(
                         evidence_ids=(str(table.get("id")),),
                     )
                 )
-    forbidden = {
-        ("extracted", "apply", "applied"),
-        ("conflicting", "apply", "applied"),
-        ("rejected", "apply", "applied"),
-        ("stale", "apply", "applied"),
-    }
-    declared = {
-        (item.get("current"), item.get("event"), item.get("next"))
-        for item in state_machine.get("transitions", [])
-    }
-    for current, event, next_state in sorted(forbidden & declared):
-        findings.append(
-            Finding(
-                "INVALID_STATE_TRANSITION_DECLARED",
-                str(state_machine.get("id")),
-                f"Forbidden transition {current} --{event}--> {next_state} is declared valid.",
-            )
-        )
+    findings.extend(state_machine_findings(state_machine))
     return tuple(findings)
 
 
@@ -586,8 +741,15 @@ def classify_proposal(
     field = proposal.field_candidates[0]
     if field not in context.supported_fields or field not in context.outstanding_fields:
         return Decision(Outcome.CLARIFY, ProposalStatus.UNMAPPED, Disposition.CLARIFY, ("FIELD_NOT_APPLICABLE",))
-    valid = domain_value_valid(field, proposal.proposed_value, field_rules)
     existing = context.existing_fields.get(field)
+    if existing and existing.verified is None:
+        return Decision(
+            Outcome.CLARIFY,
+            ProposalStatus.AWAITING_REVIEW,
+            Disposition.CLARIFY,
+            ("EXISTING_VERIFICATION_UNKNOWN",),
+        )
+    valid = domain_value_valid(field, proposal.proposed_value, field_rules)
     facts = {
         "existing_value": "present" if existing else "none",
         "existing_verified": existing.verified if existing else "any",
@@ -595,9 +757,22 @@ def classify_proposal(
         "same_value": existing.value == proposal.proposed_value if existing else "any",
         "auto_accept_allowed": field in context.automatic_acceptance_fields,
     }
-    disposition_value, rule_id = decision_table_outcome(facts, table)
-    if disposition_value is None:
-        return Decision(Outcome.ESCALATE, ProposalStatus.EXTRACTED, Disposition.BLOCK, ("DECISION_TABLE_NONDETERMINISTIC",))
+    matches = decision_table_matches(facts, table)
+    if not matches:
+        return Decision(
+            Outcome.ESCALATE,
+            ProposalStatus.EXTRACTED,
+            Disposition.BLOCK,
+            ("DECISION_TABLE_INCOMPLETE",),
+        )
+    if len(matches) > 1:
+        return Decision(
+            Outcome.ESCALATE,
+            ProposalStatus.EXTRACTED,
+            Disposition.BLOCK,
+            ("DECISION_TABLE_AMBIGUOUS",),
+        )
+    disposition_value, rule_id = str(matches[0]["outcome"]), str(matches[0]["id"])
     disposition = Disposition(disposition_value)
     mapping = {
         Disposition.AUTO_APPLY_ELIGIBLE: (Outcome.PROCEED, ProposalStatus.VALIDATED),
@@ -627,6 +802,7 @@ def materialize_update(
         proposal.requirement_id,
         proposal.model_version,
         tuple(item.evidence_id for item in proposal.evidence),
+        decision.disposition,
         decision.status,
     )
 
@@ -651,6 +827,8 @@ def validate_receipt(
     reasons: list[str] = []
     if receipt.decision != "approved":
         reasons.append("APPROVAL_DENIED")
+    if receipt.resolution not in {"accept_proposal", "replace_verified_value", "retain_existing"}:
+        reasons.append("APPROVAL_RESOLUTION_INVALID")
     if not receipt.rationale.strip():
         reasons.append("APPROVAL_RATIONALE_MISSING")
     if receipt.consumed:
@@ -736,9 +914,17 @@ def authorize_application(
         reasons.append("AUTOMATIC_ACCEPTANCE_NOT_AUTHORIZED")
     if proposal.status == ProposalStatus.APPROVED:
         reasons.extend(validate_receipt(proposal, receipt, now=now))
+        if receipt is not None:
+            expected_resolution = (
+                "replace_verified_value"
+                if proposal.origin_disposition == Disposition.CONFLICT
+                else "accept_proposal"
+            )
+            if receipt.resolution != expected_resolution:
+                reasons.append("APPROVAL_RESOLUTION_MISMATCH")
     if reasons:
         return Decision(Outcome.BLOCK, proposal.status, Disposition.BLOCK, tuple(dict.fromkeys(reasons)))
-    return Decision(Outcome.PROCEED, ProposalStatus.APPLIED, Disposition.AUTO_APPLY_ELIGIBLE, ())
+    return Decision(Outcome.PROCEED, ProposalStatus.APPLIED, proposal.origin_disposition, ())
 
 
 def apply_in_memory(
@@ -899,7 +1085,7 @@ def _case_objects(case: dict[str, Any]) -> tuple[ModelProposal, DecisionContext]
     )
     field = proposal.field_candidates[0] if len(proposal.field_candidates) == 1 else None
     existing = (
-        {field: ExistingField(case.get("existing_value"), bool(case.get("existing_verified")))}
+        {field: ExistingField(case.get("existing_value"), case.get("existing_verified"))}
         if field and case.get("existing_value") is not None
         else {}
     )
@@ -986,6 +1172,23 @@ def mutated_table() -> dict[str, Any]:
     return changed
 
 
+def incomplete_table() -> dict[str, Any]:
+    table = load_table()
+    changed = json.loads(json.dumps(table))
+    changed["rows"] = [row for row in changed["rows"] if row["id"] != "DT-08"]
+    return changed
+
+
+def ambiguous_table() -> dict[str, Any]:
+    table = load_table()
+    changed = json.loads(json.dumps(table))
+    duplicate = json.loads(json.dumps(changed["rows"][0]))
+    duplicate["id"] = "DT-OVERLAP"
+    duplicate["outcome"] = "propose"
+    changed["rows"].append(duplicate)
+    return changed
+
+
 def run_demo() -> dict[str, Any]:
     contract = load_contract()
     consistency = artifact_consistency_findings(contract=contract)
@@ -995,6 +1198,13 @@ def run_demo() -> dict[str, Any]:
         "capability_readiness": [asdict(item) for item in capability_readiness(contract, consistency)],
         "evaluation": evaluate_cases(),
         "property_check": conflict_property(),
+        "table_shape": {
+            "declared_fact_combinations": len(decision_table_fact_space()),
+            "findings": [asdict(item) for item in decision_table_shape_findings()],
+        },
+        "state_graph": {
+            "findings": [asdict(item) for item in state_machine_findings()],
+        },
         "coverage": {key: asdict(value) | {"value": value.value} for key, value in specification_coverage().items()},
         "limitations": [
             "The extractor inputs and labels are synthetic; no model or external service is evaluated.",

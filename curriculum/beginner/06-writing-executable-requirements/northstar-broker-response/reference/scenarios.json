@@ -4,7 +4,7 @@
       "id": "BR-005-A",
       "kind": "acceptance",
       "role": "normative_example",
-      "requirement_ids": ["REQ-BR-005", "REQ-BR-008", "INV-BR-002"],
+      "requirement_ids": ["REQ-BR-001", "REQ-BR-005", "REQ-BR-008", "INV-BR-002"],
       "given": {"existing_value": "present", "existing_verified": true, "proposed_valid": true, "same_value": false, "auto_accept_allowed": true},
       "when": "an authorized broker proposes a different construction year",
       "then": {"outcome": "conflict", "stored_value_unchanged": true}
@@ -17,6 +17,15 @@
       "given": {"existing_value": "none", "existing_verified": "any", "proposed_valid": true, "same_value": "any", "auto_accept_allowed": false},
       "when": "a valid value is proposed for a review-required field",
       "then": {"outcome": "propose", "stored_value_unchanged": true}
+    },
+    {
+      "id": "BR-037-C",
+      "kind": "acceptance",
+      "role": "normative_example",
+      "requirement_ids": ["REQ-BR-037", "STATE-BR-003"],
+      "given": {"status": "awaiting_review", "origin_disposition": "conflict", "receipt_resolution": "replace_verified_value", "receipt_exact_current_unused": true},
+      "when": "an authorized reviewer explicitly approves replacement of the verified value",
+      "then": {"outcome": "approved_conflict_replacement", "generic_approval_rejected": true}
     },
     {
       "id": "BR-EXAMPLE-09",

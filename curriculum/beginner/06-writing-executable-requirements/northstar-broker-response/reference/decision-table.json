@@ -1,9 +1,17 @@
 {
   "id": "DT-BR-001",
-  "revision": "1.0-training",
+  "revision": "1.1-training",
   "role": "normative_elaboration",
   "status": "approved",
   "governs": ["REQ-BR-005", "REQ-BR-008"],
+  "preconditions": ["existing_verification_known_when_value_present"],
+  "input_domains": {
+    "existing_value": ["none", "present"],
+    "existing_verified": [false, true, "any_when_no_existing_value"],
+    "proposed_valid": [false, true],
+    "same_value": [false, true, "any_when_no_existing_value"],
+    "auto_accept_allowed": [false, true]
+  },
   "columns": [
     "existing_value",
     "existing_verified",

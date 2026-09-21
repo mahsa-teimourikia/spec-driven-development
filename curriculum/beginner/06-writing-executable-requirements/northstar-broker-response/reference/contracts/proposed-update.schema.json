@@ -16,6 +16,7 @@
     "requirement_id",
     "model_version",
     "evidence_ids",
+    "origin_disposition",
     "status"
   ],
   "properties": {
@@ -30,6 +31,7 @@
     "requirement_id": {"type": "string", "minLength": 1},
     "model_version": {"type": "string", "minLength": 1},
     "evidence_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "origin_disposition": {"type": "string", "enum": ["auto_apply_eligible", "propose", "no_change", "conflict", "reject", "clarify", "block"]},
     "status": {"type": "string", "enum": ["extracted", "validated", "conflicting", "mapping_ambiguous", "source_conflict", "attachment_review_required", "unmapped", "awaiting_review", "approved", "rejected", "applied", "stale"]}
   }
 }

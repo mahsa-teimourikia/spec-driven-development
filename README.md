@@ -95,7 +95,7 @@ Course 06 connects complementary requirement representations into one governed b
 - combine requirements, decision tables, scenarios, contracts, state machines, and invariants without creating competing sources of truth;
 - distinguish schema validity from semantic validity, authorization, policy, approval, and execution;
 - treat model-generated field, value, evidence, and status as proposals at a trust boundary;
-- block stale, duplicate, out-of-order, ambiguous, conflicting, or unsupported updates;
+- block stale, duplicate, out-of-order, ambiguous, and unsupported updates, and require an explicit reviewed resolution before replacing a verified conflicting value;
 - prove frame conditions and prohibited transitions at a narrow mutation boundary;
 - evaluate model extraction separately from trusted application decisions; and
 - classify semantic requirement changes and trace direct and transitive impact.

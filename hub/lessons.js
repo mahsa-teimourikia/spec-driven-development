@@ -262,6 +262,7 @@ const course06 = {
     'Use role-labelled scenarios as examples without allowing them to become shadow policy.',
     'Distinguish schema, semantic, context, authorization, policy, approval, and execution validation.',
     'Recompute model-proposed status in trusted code and enforce guarded state transitions.',
+    'Route verified conflicts through review and bind any replacement to the exact proposal, current context, and selected resolution.',
     'Stop on normative contradiction and report capability-scoped readiness with exact blockers.',
     'Separate extraction evaluation from governed-decision evaluation and trace semantic change impact.'
   ],
@@ -293,12 +294,12 @@ const course06 = {
   checkpoint: {
     question: 'The model labels a broker-provided value approved, but it conflicts with a verified submission value. What owns the result?',
     options: [
-      'Trusted application rules recompute CONFLICTING and prohibit mutation.',
+      'Trusted rules recompute CONFLICTING, prohibit automatic mutation, and require an exact reviewed resolution before replacement.',
       'The model status because it arrived in typed JSON.',
       'The newest scenario even when it contradicts the normative requirement.'
     ],
     answer: 0,
-    explanation: 'Typed output is still a proposal. Trusted validation, the normative decision table, authorization, and guarded transitions own the disposition; applicable normative contradictions must stop for review.'
+    explanation: 'Typed output is still a proposal. Trusted validation and the normative decision table classify the conflict. Automatic or direct replacement is prohibited; any reviewed replacement needs an authorized receipt bound to the exact proposal, current context, and replace-value resolution.'
   }
 };
 

@@ -897,7 +897,8 @@ def check_course_06_executable_requirements() -> list[str]:
         "classify_proposal": "ready",
         "create_proposal": "ready",
         "apply_unverified_value": "review_required",
-        "overwrite_verified_value": "prohibited",
+        "apply_reviewed_conflict": "review_required",
+        "automatically_overwrite_verified_value": "prohibited",
     }
     if capability_status != expected_capabilities:
         errors.append("Course 06 capability readiness boundary changed unexpectedly")
@@ -920,6 +921,8 @@ def check_course_06_executable_requirements() -> list[str]:
         "REQ-BR-005": "unwanted_behavior",
         "REQ-BR-006": "optional_feature",
         "REQ-BR-007": "complex",
+        "REQ-BR-021": "unwanted_behavior",
+        "REQ-BR-037": "event_driven",
     }
     for identifier, pattern in expected_patterns.items():
         if requirements.get(identifier, {}).get("ears_pattern") != pattern:
@@ -940,6 +943,8 @@ def check_course_06_executable_requirements() -> list[str]:
         errors.append("Course 06 verified-conflict table row must remain conflict")
     if len(table.get("rows", [])) != 8:
         errors.append("Course 06 decision table must retain eight non-overlapping teaching rows")
+    if "existing_verification_known_when_value_present" not in table.get("preconditions", []):
+        errors.append("Course 06 decision table must require known existing verification state")
 
     state_machine = payloads[reference / "state-machine.json"]
     forbidden = {
@@ -958,12 +963,35 @@ def check_course_06_executable_requirements() -> list[str]:
     }
     if forbidden & declared_valid or not forbidden.issubset(declared_invalid):
         errors.append("Course 06 state model must declare and prohibit all critical apply transitions")
+    expected_conflict_path = {
+        ("conflicting", "request_review", "awaiting_review"),
+        ("awaiting_review", "approve_replacement", "approved"),
+        ("approved", "apply", "applied"),
+    }
+    if not expected_conflict_path.issubset(declared_valid):
+        errors.append("Course 06 state model must preserve the explicit reviewed-conflict path")
+    guards = state_machine.get("guards", {})
+    required_guard_conditions = {
+        "approval proposal digest equals the current ProposedUpdate digest",
+        "submission revision is current",
+        "requirement-context digest is current",
+        "approval is unexpired",
+        "approval is unused",
+    }
+    receipt_conditions = set(guards.get("valid_receipt_and_current", {}).get("conditions", []))
+    if not required_guard_conditions.issubset(receipt_conditions):
+        errors.append("Course 06 approval guard must define exact proposal and current-context semantics")
+    conflict_conditions = set(guards.get("valid_conflict_replacement_receipt", {}).get("conditions", []))
+    if "approval resolution is replace_verified_value" not in conflict_conditions:
+        errors.append("Course 06 conflict replacement guard must bind the selected resolution")
+    if {"source": "conflicting", "target": "applied", "via": "approved"} not in state_machine.get("required_waypoints", []):
+        errors.append("Course 06 conflict application must pass through the approved waypoint")
 
     schema = payloads[reference / "contracts" / "proposed-update.schema.json"]
     required_proposal_fields = {
         "proposal_id", "submission_id", "submission_revision", "requirement_context_digest",
         "field", "proposed_value", "source_response_id", "source_span", "requirement_id",
-        "model_version", "evidence_ids", "status",
+        "model_version", "evidence_ids", "origin_disposition", "status",
     }
     if set(schema.get("required", [])) != required_proposal_fields:
         errors.append("Course 06 ProposedUpdate schema lost a required trust-boundary field")
@@ -975,14 +1003,25 @@ def check_course_06_executable_requirements() -> list[str]:
         errors.append("Course 06 agent boundary grants consequential authority")
 
     evaluation = payloads[scenario / "evaluation-cases.json"]
-    if len(evaluation.get("cases", [])) != 10 or not evaluation.get("limitations"):
-        errors.append("Course 06 evaluation must contain ten labelled cases and limitations")
+    if len(evaluation.get("cases", [])) != 11 or not evaluation.get("limitations"):
+        errors.append("Course 06 evaluation must contain eleven labelled cases and limitations")
 
     with (reference / "traceability.csv").open(newline="", encoding="utf-8") as handle:
         trace_rows = list(csv.DictReader(handle))
     relations = {row.get("relationship") for row in trace_rows}
     if not {"elaborated_by", "illustrated_by", "evidenced_by", "implemented_by"}.issubset(relations):
         errors.append("Course 06 traceability must connect specification, examples, tests, and work")
+    declared_trace_sources = {
+        item.get("id")
+        for section in ("requirements", "invariants", "state_requirements")
+        for item in contract.get(section, [])
+    }
+    traced_sources = {row.get("source_id") for row in trace_rows}
+    if contract.get("specification", {}).get("traceability_scope") != "complete_reference":
+        errors.append("Course 06 reference must declare its traceability scope")
+    untraced = sorted(declared_trace_sources - traced_sources)
+    if untraced:
+        errors.append(f"Course 06 reference has untraced normative records: {untraced}")
 
     reference_text = "\n".join(
         path.read_text(encoding="utf-8")
@@ -1013,9 +1052,13 @@ def check_course_06_executable_requirements() -> list[str]:
         report = {}
     if report.get("requirement_findings") or report.get("consistency_findings"):
         errors.append("Course 06 reference contract must pass requirement and consistency checks")
+    if report.get("table_shape", {}).get("declared_fact_combinations") != 20 or report.get("table_shape", {}).get("findings"):
+        errors.append("Course 06 decision table must match exactly once across its declared fact space")
+    if report.get("state_graph", {}).get("findings"):
+        errors.append("Course 06 state graph must preserve reachability, terminality, and required waypoints")
     governed = report.get("evaluation", {}).get("governed", {})
-    if governed.get("correct") != 10 or governed.get("unsafe_auto_apply") != 0:
-        errors.append("Course 06 governed evaluation must classify all ten cases without unsafe apply")
+    if governed.get("correct") != 11 or governed.get("unsafe_auto_apply") != 0:
+        errors.append("Course 06 governed evaluation must classify all eleven cases without unsafe apply")
     property_check = report.get("property_check", {})
     if property_check.get("checked_pairs", 0) < 2 or property_check.get("violations") != 0:
         errors.append("Course 06 verified-conflict property must explore multiple pairs without violation")

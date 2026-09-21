@@ -29,9 +29,11 @@ By the end, you can:
 - use `SHALL`, `SHALL NOT`, `SHOULD`, and `MAY` under an explicit interpretation convention;
 - add preconditions, postconditions, frame conditions, failure behavior, and invariants;
 - turn interacting conditions into a complete and deterministic decision table;
+- detect incomplete and overlapping table rows across a declared fact space;
 - write Given/When/Then scenarios as governed examples rather than hidden policy;
 - define a typed proposal contract without confusing schema validity with truth or authorization;
-- model proposal states, guarded transitions, terminal outcomes, and invalid transitions;
+- model proposal states, explicit guard semantics, reachability, terminal outcomes, required
+  waypoints, and invalid transitions;
 - declare artifact authority and stop when normative representations contradict each other;
 - evaluate capability readiness without fabricated completeness percentages;
 - separate extraction quality from deterministic decision and state-transition quality;
@@ -57,8 +59,8 @@ You have succeeded when you can explain why the reference solution:
 
 1. does not treat a user story, scenario, schema, test, or model confidence as sufficient authority;
 2. returns exactly one disposition for every supported combination of relevant facts;
-3. prevents a verified value conflict from reaching the mutation boundary;
-4. binds approval to the exact proposal, submission revision, and requirement context;
+3. prevents a verified value conflict from reaching the mutation boundary automatically or directly;
+4. binds approval to the exact proposal, selected resolution, submission revision, and requirement context;
 5. reports readiness per capability and names each blocker;
 6. measures model extraction separately from application-owned decisions; and
 7. stops on semantic contradiction instead of silently choosing the easiest representation.
@@ -169,7 +171,7 @@ they establish the behavior's boundary.
 Use when behavior persists while the system is in a state:
 
 ```text
-WHILE a proposal is CONFLICTING, THE SYSTEM SHALL prohibit application to submission state.
+WHILE a proposal is CONFLICTING, THE SYSTEM SHALL prohibit direct application to submission state.
 ```
 
 This form is particularly useful when a coding agent might otherwise implement a happy path and
@@ -180,11 +182,13 @@ forget that a prohibition continues to hold across multiple events.
 Use for faults, exceptions, or adversarial conditions:
 
 ```text
-IF a broker response contradicts an existing verified submission value, THEN THE SYSTEM SHALL
-classify the proposal as CONFLICTING and SHALL NOT modify the verified value.
+IF a proposed broker value differs from an existing verified value, THEN THE SYSTEM SHALL classify
+the `ProposedUpdate` as `CONFLICTING`.
 ```
 
-The failure outcome is explicit. “Handle the error” would leave the agent to invent it.
+This requirement owns classification behavior. The separate safety obligation `REQ-BR-001` prohibits
+automatic replacement. Keeping them separate prevents two similar sentences from becoming competing
+normative rules. “Handle the error” would leave the agent to invent both classification and authority.
 
 ### Optional feature
 
@@ -229,13 +233,25 @@ failure behavior
 evidence IDs and normative elaborations
 ```
 
+The reference deliberately separates two responsibilities:
+
+```text
+REQ-BR-001  broad safety obligation: no automatic verified-value replacement
+REQ-BR-005  operational behavior: classify a verified-value mismatch as CONFLICTING
+INV-BR-002  reinforces REQ-BR-001 across the declared value population
+DT-BR-001   elaborates REQ-BR-005 across interacting facts
+```
+
 For `REQ-BR-005`, the important additions are:
 
 - **precondition:** an existing value is verified and the broker proposes a different valid value;
 - **postcondition:** the proposal status is `CONFLICTING`;
-- **frame condition:** the verified submission field is unchanged;
-- **failure behavior:** automatic application is blocked and the case is escalated; and
-- **evidence:** a negative state-transition test and a property check across unequal values.
+- **frame condition:** submission state is unchanged during classification;
+- **failure behavior:** classification stops if verification state is unknown; and
+- **evidence:** the decision-table row and a focused classification test.
+
+`REQ-BR-001` owns the unchanged-value safety claim and its property evidence. This avoids redundant
+normative sentences while preserving traceability between classification and safe mutation.
 
 ### Preconditions
 
@@ -263,7 +279,9 @@ Only the proposal's named submission field may change; every other field remains
 An invariant holds across the declared state space:
 
 ```text
-No proposal in CONFLICTING, STALE, REJECTED, or unresolved mapping state may reach APPLIED.
+No proposal may transition directly from CONFLICTING to APPLIED. A conflict replacement must pass
+through AWAITING_REVIEW and APPROVED with an exact `replace_verified_value` receipt. STALE and
+REJECTED are terminal and cannot reach APPLIED.
 ```
 
 A property check explores a population of generated or enumerated cases. The lab tests all unequal
@@ -291,6 +309,11 @@ defines one disposition per supported combination:
 The executable JSON table gives those rows stable IDs. The lab asserts that representative boundary
 facts match exactly one row. Zero matches means incomplete behavior; multiple matches mean ambiguous
 behavior. Neither condition should be resolved by row order.
+
+The table has an explicit precondition: when an existing value is present, its verification status
+must be known. Trusted code routes `verified = unknown` to clarification before table evaluation.
+Treating unknown as `false` would silently widen automatic-application authority. A decision table is
+deterministic only when its input facts have defined semantics.
 
 ### Decision-table review
 
@@ -360,6 +383,7 @@ candidate field and proposed value
 source response ID and exact source span
 requirement ID and model version
 evidence IDs
+origin disposition
 application-owned status
 ```
 
@@ -395,7 +419,9 @@ The proposal lifecycle is explicit:
 EXTRACTED
   ├─ valid + auto-accept policy ─▶ VALIDATED ─▶ APPLIED
   ├─ valid + review required ───▶ AWAITING_REVIEW ─▶ APPROVED ─▶ APPLIED
-  ├─ verified-value mismatch ───▶ CONFLICTING
+  ├─ verified-value mismatch ───▶ CONFLICTING ─▶ AWAITING_REVIEW
+  │                                      ├─ retain existing ─▶ REJECTED
+  │                                      └─ exact replacement receipt ─▶ APPROVED ─▶ APPLIED
   ├─ ambiguous field ───────────▶ MAPPING_AMBIGUOUS
   ├─ source disagreement ───────▶ SOURCE_CONFLICT
   ├─ attachment only ───────────▶ ATTACHMENT_REVIEW_REQUIRED
@@ -406,6 +432,15 @@ EXTRACTED
 Each transition names an event and guard. The state machine also declares critical invalid
 transitions, such as `CONFLICTING --apply--> APPLIED`. Negative transition tests matter because the
 absence of a happy-path edge is not always enforced by application code.
+
+Powerful guard names are themselves specified. `valid_conflict_replacement_receipt` requires the
+exact current proposal digest, current submission revision, current requirement-context digest,
+unexpired and unused receipt state, conflict origin, and the explicit `replace_verified_value`
+resolution. The graph check also verifies that every declared state is reachable, terminal states
+have no outgoing edges, and every path from `CONFLICTING` to `APPLIED` passes through `APPROVED`.
+
+An invalid domain value is `REJECTED` for mutation but may still be displayed with its evidence and
+reason codes for review or clarification. Reviewability is not application eligibility.
 
 ### Distributed-state edge cases
 
@@ -424,7 +459,8 @@ policy. Those decisions belong in architecture and reliability specifications, n
 ## 9. Bind approval to content and context
 
 Approval is a data object with an accountable reviewer, decision, rationale, proposal digest,
-submission ID and revision, requirement-context digest, issue time, expiry, and consumption state.
+selected resolution, submission ID and revision, requirement-context digest, issue time, expiry, and
+consumption state.
 
 The trusted gate rejects approval when:
 
@@ -433,10 +469,13 @@ The trusted gate rejects approval when:
 - the requirement context changed;
 - the receipt is not yet valid or has expired;
 - the receipt was already consumed;
+- the selected resolution does not match the proposal's origin disposition;
 - the reviewer denied the proposal; or
 - the rationale is missing.
 
-A chat message saying “looks good” is not equivalent. A valid receipt proves only that a named review
+A generic approval cannot replace a verified conflict. That path requires `replace_verified_value`;
+`retain_existing` terminates without mutation, while `accept_proposal` applies only to a non-conflict
+review. A chat message saying “looks good” is not equivalent. A valid receipt proves only that a named review
 decision was recorded for a bounded object under a bounded context. It does not prove that the
 reviewer had authentic authority unless the production identity and authorization system establishes
 that fact.
@@ -478,10 +517,11 @@ The lab's writing checks report targeted findings:
 - `AND_OR_AMBIGUOUS`;
 - `OPEN_ENDED_LIST`;
 - `UNDEFINED_MODIFIER`;
-- `AMBIGUOUS_REFERENT`; and
+- `POSSIBLE_AMBIGUOUS_REFERENT`; and
 - `UNBOUNDED_QUANTIFIER`.
 
-These are review prompts, not proof that a sentence is wrong. “Every proposal retains evidence” is
+These are lexical review prompts, not proof that a sentence is wrong. For example, “When a proposal
+is stale, reject it” may have a perfectly clear referent despite the pronoun finding. “Every proposal retains evidence” is
 reasonable when the proposal population is defined. “The system responds quickly” remains weak until
 an owner establishes the population, measurement point, percentile, threshold, environment, and
 failure behavior.
@@ -501,7 +541,8 @@ In the reference release:
 
 - extract, classify, and create-proposal are ready;
 - applying an unverified value is review-required because `OQ-BR-001` remains open; and
-- overwriting a verified value is prohibited.
+- reviewed conflict replacement is review-required with exact resolution authority; and
+- automatically overwriting a verified value is prohibited.
 
 Uncertainty in one capability does not block all useful work, and progress in another capability does
 not erase the blocker.
@@ -527,6 +568,7 @@ Unknown and ambiguous values remain explicit:
 - multiple plausible fields → `MAPPING_AMBIGUOUS`;
 - multiple credible values → `SOURCE_CONFLICT`;
 - evidence only in an unsupported attachment → `ATTACHMENT_REVIEW_REQUIRED`.
+- existing verification metadata unknown → clarification before the decision table.
 
 The agent is not allowed to make the schema wider so an uncertain value fits.
 
@@ -543,9 +585,9 @@ uncertainty. This course does not evaluate a live model.
 ### Governed decision evaluation
 
 Given fixed proposals and trusted context, compare status, disposition, and state transitions against
-owned expectations. The included synthetic set has ten cases covering auto-acceptance, review,
+owned expectations. The included synthetic set has eleven cases covering auto-acceptance, review,
 conflict, invalid values, no-change, ambiguous mapping, source conflict, unsupported attachment, and
-staleness.
+staleness, plus unknown existing-value verification.
 
 The deliberately unsafe baseline trusts the model's status. The governed path recomputes it. Run:
 
@@ -581,6 +623,10 @@ Traceability then finds:
 
 “Impacted” does not mean “must edit.” It means “must assess.” Record the assessment outcome: modify,
 revalidate unchanged, defer with rationale, or mark not applicable with evidence.
+
+The reference CSV is marked `complete_reference` and gives every normative requirement, invariant,
+and state requirement at least one outgoing elaboration or evidence relationship. That is complete
+for the teaching package—not a claim that production runtime evidence exists.
 
 ## 15. Triangulate specification and evidence
 
@@ -705,6 +751,9 @@ Try these one at a time:
 4. Remove the population from a universal requirement.
 5. Change the requirement-context digest after approval.
 6. Add an unknown field candidate and observe that the schema does not expand.
+7. Delete `DT-08`; observe `DECISION_TABLE_INCOMPLETE` for invalid values.
+8. Add an overlapping table row; observe `DECISION_TABLE_AMBIGUOUS` rather than first-row wins.
+9. Add an orphan state and an outgoing edge from `REJECTED`; inspect reachability and terminal-state findings.
 
 For each mutation, record the detecting gate, the accountable resolver, and what would happen if the
 gate did not exist.
@@ -714,13 +763,16 @@ gate did not exist.
 1. Rewrite “The system should quickly handle broker replies” using an appropriate EARS form and a
    separate measurable non-functional placeholder owned for Course 08.
 2. Split a compound SHALL sentence into singular obligations and define their relationship.
-3. Add a decision-table row for an explicitly unsupported field without overlapping existing rows.
+3. Delete `DT-08`, then add an overlapping row. Explain the difference between incomplete and
+   ambiguous tables and why both are `STOP` findings.
 4. Write one normative example and one informative example; explain the difference in authority.
 5. Add preconditions, postconditions, and frame conditions to a proposal-creation requirement.
 6. Identify three structurally valid proposals that must still fail semantic or policy validation.
-7. Add a negative state-transition test for `STALE --apply--> APPLIED`.
+7. Add a negative state-transition test for `STALE --apply--> APPLIED`, then verify every state is
+   reachable and every conflict-to-application path passes through `APPROVED`.
 8. Design a scenario matrix for field, validity, verification, equality, freshness, and authorization.
-9. Create an approval receipt, change the exact proposal, and explain why replay is rejected.
+9. Create a conflict-replacement receipt, change the exact proposal or resolution, and explain why
+   both mutation and replay are rejected.
 10. Add a labelled evaluation case where the model says `approved` but trusted facts require
     `SOURCE_CONFLICT`.
 11. Change a requirement's failure behavior and trace direct and transitive impact.
@@ -735,7 +787,7 @@ gate did not exist.
 5. How do frame conditions catch defects that a return-value assertion may miss?
 6. What should happen when a normative scenario contradicts a normative decision table?
 7. Why can a JSON-Schema-valid proposal still be unsafe?
-8. Which status values must never reach `APPLIED`?
+8. Which states are terminal, and what mandatory waypoint governs a reviewed conflict replacement?
 9. Why should extraction and deterministic classification be evaluated separately?
 10. What is the difference between impacted and must modify?
 11. What evidence does mutation testing provide?
@@ -754,7 +806,7 @@ gate did not exist.
 | [`scenarios.json`](northstar-broker-response/reference/scenarios.json) | Role-labelled concrete examples |
 | [`state-machine.json`](northstar-broker-response/reference/state-machine.json) | Guarded and prohibited proposal transitions |
 | [`proposed-update.schema.json`](northstar-broker-response/reference/contracts/proposed-update.schema.json) | Structural proposal boundary |
-| [`traceability.csv`](northstar-broker-response/reference/traceability.csv) | Typed change-impact relationships |
+| [`traceability.csv`](northstar-broker-response/reference/traceability.csv) | Complete reference requirement/elaboration/evidence relationships and change-impact graph |
 | [`evaluation-cases.json`](northstar-broker-response/evaluation-cases.json) | Synthetic governed-decision evaluation set |
 | [`tests/test_course_06.py`](../../../tests/test_course_06.py) | Independent executable evidence |
 
