@@ -275,9 +275,9 @@ const QUESTIONS = [
   {
     category: 'Exceptions',
     question: 'Which exception record is structurally credible?',
-    options: ['One bound to requirement and version, limited in scope, independently approved, and expiring', 'A feature comment saying the rule is inconvenient', 'A permanent waiver approved by its requester', 'A copied policy with the strict clause removed'],
+    options: ['One bound to requirement and version, limited in scope, with separate requester and approver records, and expiring', 'A feature comment saying the rule is inconvenient', 'A permanent waiver approved by its requester', 'A copied policy with the strict clause removed'],
     answer: 0,
-    explanation: 'First-class exception metadata preserves the base rule and makes the authorized deviation bounded and reviewable. Production still needs authenticated approval.'
+    explanation: 'First-class exception metadata preserves the base rule and makes the deviation bounded and reviewable. Different identity strings do not establish independent approval; production still needs authenticated authorization.'
   },
   {
     category: 'Impact analysis',
@@ -292,5 +292,19 @@ const QUESTIONS = [
     options: ['The control is implemented but ineffective in the observed runtime path', 'The control is effective because CI passed', 'The requirement should be moved into AGENTS.md', 'Traceability coverage proves production conformance'],
     answer: 0,
     explanation: 'Design-time evidence proves only the tested claim. Runtime bypasses show that the implemented control does not cover the real execution paths, so remediation and new evidence are required.'
+  },
+  {
+    category: 'Decision authority',
+    question: 'A coding agent receives write access to exceptions/**. What else is required before it may approve an exception?',
+    options: ['Explicit semantic decision authority from the authenticated exception authority', 'A matching CODEOWNERS entry', 'A successful file write', 'A feature-owner comment'],
+    answer: 0,
+    explanation: 'Filesystem or tool permission controls whether an operation is possible. It does not grant authority for the policy decision represented by the file.'
+  },
+  {
+    category: 'Impact analysis',
+    question: 'A policy update reaches four downstream artifacts. What may dependency traversal conclude immediately?',
+    options: ['Conformance re-evaluation is required; code migration remains undetermined until owners inspect implementation and evidence', 'All four artifacts are non-compliant', 'Code migration is always required', 'Existing evidence remains valid automatically'],
+    answer: 0,
+    explanation: 'Impact identifies assurance that must be revisited. The current implementation may already satisfy the changed obligation, so migration is a later accountable decision.'
   }
 ];

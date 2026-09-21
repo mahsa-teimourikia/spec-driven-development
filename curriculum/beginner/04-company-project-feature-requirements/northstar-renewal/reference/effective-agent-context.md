@@ -1,7 +1,7 @@
 # GENERATED EFFECTIVE CONTEXT — DO NOT EDIT
 
 Generated for `AI-2048` from stable requirement IDs, revisions, the project
-manifest, `ARCH-031`, and resolver `0.6.0-training`.
+manifest, `ARCH-031`, and resolver `0.7.0-training`.
 
 ## Governing requirements
 
@@ -25,6 +25,9 @@ manifest, `ARCH-031`, and resolver `0.6.0-training`.
 - Protected: `auth/**`, `infrastructure/**`, and enterprise policy.
 - Stop on conflict, uncertain applicability, authorization changes, requested
   weakening, or a required exception.
+- File access and semantic decision authority are checked separately. The agent
+  may implement the approved design but cannot modify fixed controls, reassign
+  decision owners, or approve exceptions.
 - Guidance in `AGENTS.md` is not enforcement. CI checks, runtime review/identity
   gates, network egress, and evidence records provide independent controls.
 
