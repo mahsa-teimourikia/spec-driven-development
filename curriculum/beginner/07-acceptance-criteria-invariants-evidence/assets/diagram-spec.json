@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "id": "requirement-to-runtime-evidence-chain",
+  "title": "From requirement to runtime evidence",
+  "purpose": "Show how a requirement becomes an acceptance contract, verification result, evidence record, measurement, owned gate, release decision, and runtime feedback without collapsing evidence into authority.",
+  "output": {
+    "svg": "requirement-to-runtime-evidence.svg",
+    "medium": "documentation and notebook",
+    "alt_text": "A four-stage verification chain. A requirement is interpreted through acceptance criteria and invariants. Verification methods produce provenance-bearing evidence and measurements. An owner-approved gate turns measurements into a release decision. Runtime evidence feeds drift and violations back to the requirement owner.",
+    "source": "diagram-spec.json rendered by render_diagram.py"
+  },
+  "canvas": {"width": 1640, "height": 900, "background": "#F7F9FC", "margin": 60, "grid": 10},
+  "layout": {"primary_flow": "left-to-right", "min_node_gap": 70, "min_layer_gap": 80, "node_padding": {"x": 22, "y": 16}},
+  "style": {
+    "font_family": "Inter, Arial, sans-serif",
+    "semantic_colors": {
+      "spec": {"fill": "#EAF1FF", "stroke": "#2F6BFF"},
+      "verification": {"fill": "#F0EEFF", "stroke": "#7667E8"},
+      "evidence": {"fill": "#E5F7F6", "stroke": "#16A3A5"},
+      "authority": {"fill": "#FFF1DF", "stroke": "#D97706"},
+      "operations": {"fill": "#E9F8ED", "stroke": "#238636"}
+    }
+  },
+  "groups": [
+    {"id": "intent", "label": "NORMATIVE INTENT", "bounds": {"x": 60, "y": 150, "width": 330, "height": 650}, "fill": "#FFFFFF", "stroke": "#2F6BFF"},
+    {"id": "proof", "label": "VERIFICATION & EVIDENCE", "bounds": {"x": 430, "y": 150, "width": 360, "height": 650}, "fill": "#FFFFFF", "stroke": "#7667E8"},
+    {"id": "decision", "label": "MEASUREMENT & AUTHORITY", "bounds": {"x": 830, "y": 150, "width": 350, "height": 650}, "fill": "#FFFFFF", "stroke": "#D97706"},
+    {"id": "operation", "label": "RELEASE & OPERATION", "bounds": {"x": 1220, "y": 150, "width": 360, "height": 650}, "fill": "#FFFFFF", "stroke": "#238636"}
+  ],
+  "nodes": [
+    {"id": "requirement", "group": "intent", "label": ["Requirement"], "subtitle": "owned obligation · revision", "type": "spec", "bounds": {"x": 100, "y": 240, "width": 250, "height": 110}, "ports": {"left": {"side": "left", "offset": 0.5}, "down": {"side": "bottom", "offset": 0.5}}},
+    {"id": "acceptance", "group": "intent", "label": ["Acceptance & invariant"], "subtitle": "observable example · population", "type": "spec", "bounds": {"x": 100, "y": 500, "width": 250, "height": 110}, "ports": {"in": {"side": "top", "offset": 0.5}, "out": {"side": "right", "offset": 0.5}}},
+    {"id": "verification", "group": "proof", "label": ["Verification method"], "subtitle": "example · property · static · eval", "type": "verification", "bounds": {"x": 480, "y": 240, "width": 260, "height": 110}, "ports": {"in": {"side": "left", "offset": 0.5}, "down": {"side": "bottom", "offset": 0.5}}},
+    {"id": "evidence", "group": "proof", "label": ["Evidence record"], "subtitle": "versions · producer · limitations", "type": "evidence", "bounds": {"x": 480, "y": 500, "width": 260, "height": 110}, "ports": {"in": {"side": "top", "offset": 0.5}, "out": {"side": "right", "offset": 0.5}}},
+    {"id": "measurement", "group": "decision", "label": ["Measurement"], "subtitle": "numerator · denominator · slices", "type": "evidence", "bounds": {"x": 875, "y": 240, "width": 260, "height": 110}, "ports": {"in": {"side": "left", "offset": 0.5}, "down": {"side": "bottom", "offset": 0.5}}},
+    {"id": "gate", "group": "decision", "label": ["Owned gate policy"], "subtitle": "scope · threshold · rationale", "type": "authority", "bounds": {"x": 875, "y": 500, "width": 260, "height": 110}, "ports": {"in": {"side": "top", "offset": 0.5}, "out": {"side": "right", "offset": 0.5}}},
+    {"id": "release", "group": "operation", "label": ["Release decision"], "subtitle": "pass · fail · blocked · review", "type": "authority", "bounds": {"x": 1270, "y": 240, "width": 260, "height": 110}, "ports": {"in": {"side": "left", "offset": 0.5}, "down": {"side": "bottom", "offset": 0.5}}},
+    {"id": "runtime", "group": "operation", "label": ["Runtime evidence"], "subtitle": "prevent · detect · denominator", "type": "operations", "bounds": {"x": 1270, "y": 500, "width": 260, "height": 110}, "ports": {"in": {"side": "top", "offset": 0.5}, "feedback": {"side": "bottom", "offset": 0.5}}}
+  ],
+  "edges": [
+    {"id": "requirement_acceptance", "from": {"node": "requirement", "port": "down"}, "to": {"node": "acceptance", "port": "in"}, "kind": "spec", "label": "interpret", "label_position": [245, 435], "route": [[225, 350], [225, 500]]},
+    {"id": "acceptance_verify", "from": {"node": "acceptance", "port": "out"}, "to": {"node": "verification", "port": "in"}, "kind": "verification", "label": "select method", "label_position": [410, 425], "route": [[350, 555], [410, 555], [410, 295], [480, 295]]},
+    {"id": "verification_evidence", "from": {"node": "verification", "port": "down"}, "to": {"node": "evidence", "port": "in"}, "kind": "verification", "label": "execute", "label_position": [630, 435], "route": [[610, 350], [610, 500]]},
+    {"id": "evidence_measure", "from": {"node": "evidence", "port": "out"}, "to": {"node": "measurement", "port": "in"}, "kind": "evidence", "label": "measure", "label_position": [810, 425], "route": [[740, 555], [810, 555], [810, 295], [875, 295]]},
+    {"id": "measurement_gate", "from": {"node": "measurement", "port": "down"}, "to": {"node": "gate", "port": "in"}, "kind": "authority", "label": "interpret", "label_position": [1025, 435], "route": [[1005, 350], [1005, 500]]},
+    {"id": "gate_release", "from": {"node": "gate", "port": "out"}, "to": {"node": "release", "port": "in"}, "kind": "authority", "label": "authorize", "label_position": [1200, 425], "route": [[1135, 555], [1200, 555], [1200, 295], [1270, 295]]},
+    {"id": "release_runtime", "from": {"node": "release", "port": "down"}, "to": {"node": "runtime", "port": "in"}, "kind": "operations", "label": "observe", "label_position": [1450, 435], "route": [[1400, 350], [1400, 500]]},
+    {"id": "runtime_feedback", "from": {"node": "runtime", "port": "feedback"}, "to": {"node": "requirement", "port": "left"}, "kind": "operations", "label": "drift · violations · learning", "label_position": [820, 735], "route": [[1400, 610], [1400, 720], [80, 720], [80, 295], [100, 295]]}
+  ],
+  "validation": {"no_overlaps": true, "route_around_nodes": true, "orthogonal_routes": true, "min_text_padding": 18, "min_connector_clearance": 12, "verify_port_attachment": true, "verify_contrast": true}
+}

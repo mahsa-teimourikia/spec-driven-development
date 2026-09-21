@@ -1,0 +1,7 @@
+{
+  "schema_version": "1.0-training",
+  "principle": "TODO",
+  "dependencies": [
+    {"dependency":"authorization","criticality":"TODO","failure_mode":"TODO","automatic_mutation":false,"preserve_work_item":true,"reason_code":"TODO","continuation_condition":"TODO"}
+  ]
+}

@@ -446,5 +446,208 @@ const QUESTIONS = [
     options: ['Their prior assurance must be assessed; modification is not yet proven necessary', 'Both files must always be edited', 'The current implementation is automatically non-compliant', 'Only direct links matter'],
     answer: 0,
     explanation: 'Impact traversal identifies review scope. Owners then record whether to modify, revalidate unchanged, defer, or establish non-applicability.'
+  },
+  {
+    category: 'Acceptance criteria',
+    question: 'What is the strongest distinction between an acceptance criterion and a test?',
+    options: ['A criterion states an observable condition of acceptance; a test is one implementation of a check', 'A criterion must be automated', 'A test owns the product requirement', 'They are interchangeable names'],
+    answer: 0,
+    explanation: 'Criteria express the acceptance contract independently of a particular harness. Tests produce evidence against that contract but can be incomplete, incorrect, or stale.'
+  },
+  {
+    category: 'Negative criteria',
+    question: 'Why specify that an unauthorized broker response leaves authoritative state unchanged?',
+    options: ['It makes prohibited behavior and the required non-effect observable', 'Positive examples imply every failure mode', 'It lets the model decide authorization', 'It replaces identity controls'],
+    answer: 0,
+    explanation: 'Negative criteria expose fail-closed behavior and frame conditions. A happy path does not establish what happens at an authorization boundary.'
+  },
+  {
+    category: 'Invariants',
+    question: 'A single verified-conflict scenario passes. What additional claim does a property check support?',
+    options: ['The invariant held across the declared generated or enumerated population', 'The invariant is mathematically proven for production', 'Every integration path is correct', 'The requirement owner approved release'],
+    answer: 0,
+    explanation: 'Properties broaden exploration beyond one example, but the generator, oracle, environment, and population still bound the claim.'
+  },
+  {
+    category: 'Coverage',
+    question: 'All eight decision-table rows are exercised. What has been established?',
+    options: ['Structural row coverage, not the correctness of the table semantics', 'The business policy is correct', 'All production states are reachable', 'No mutation test is needed'],
+    answer: 0,
+    explanation: 'Coverage shows which declared structure ran. A wrong table can have perfect row coverage, so semantic examples, properties, review, and mutation remain necessary.'
+  },
+  {
+    category: 'Mutation evidence',
+    question: 'Three seeded mutants are killed. What is the honest interpretation?',
+    options: ['The evidence is sensitive to those three seeded faults', 'The implementation has no defects', 'The requirements are complete', 'Production release is authorized'],
+    answer: 0,
+    explanation: 'Mutation testing probes evidence strength against chosen faults. It neither enumerates all faults nor grants release authority.'
+  },
+  {
+    category: 'Evidence freshness',
+    question: 'The implementation revision changes after evidence was produced. What should happen?',
+    options: ['Invalidate or reassess evidence whose validity tuple names the old revision', 'Keep the green status forever', 'Update only the timestamp', 'Let the generating agent declare equivalence'],
+    answer: 0,
+    explanation: 'Evidence is meaningful only for named specification, implementation, environment, dataset, and tool revisions. Change triggers governed invalidation and rerun decisions.'
+  },
+  {
+    category: 'AI evaluation',
+    question: 'Why report evaluation slices with numerators and denominators?',
+    options: ['An aggregate can hide rare, high-risk failures and tiny populations', 'Slices guarantee statistical significance', 'A percentage already proves representativeness', 'Denominators are optional when accuracy is 100%'],
+    answer: 0,
+    explanation: 'Named slices expose risk concentration and sample size. Population definition, label provenance, leakage controls, and limitations are still required.'
+  },
+  {
+    category: 'Release gates',
+    question: 'An evaluation result exists, but no accountable owner approved a threshold. What is the correct gate result?',
+    options: ['Blocked because the threshold is not authorized', 'Pass if the score looks high', 'Ask the coding agent to choose a threshold', 'Ignore the evaluation'],
+    answer: 0,
+    explanation: 'Measurement and decision authority are separate. Teams can preserve the result while stopping the release decision until an owner defines the risk-bearing threshold.'
+  },
+  {
+    category: 'Runtime evidence',
+    question: 'A dashboard reports zero invariant violations and zero applicable events. What may it claim?',
+    options: ['The invariant was not measured on an applicable population', 'The violation rate is 0%', 'The preventive control is proven effective', 'The system is safe'],
+    answer: 0,
+    explanation: 'A zero numerator needs a trustworthy non-zero denominator. Empty or missing exposure is not evidence of conformance.'
+  },
+  {
+    category: 'Evidence classes',
+    question: 'Why combine preventive controls with detective runtime evidence?',
+    options: ['They address different failure opportunities and reveal control drift or bypass', 'Runtime monitoring replaces tests', 'CI proves deployed effectiveness', 'Two green signals prove universal correctness'],
+    answer: 0,
+    explanation: 'Preventive controls try to stop unsafe changes; detective controls observe what actually happened. Their producers, populations, limitations, and failure responses remain explicit.'
+  },
+  {
+    category: 'Traceability precision',
+    question: 'Which invariant should a stale submission-revision criterion support?',
+    options: ['A freshness invariant that stale context never mutates current state', 'An idempotency invariant about duplicate response identity', 'A latency target', 'A human-review agreement metric'],
+    answer: 0,
+    explanation: 'Freshness and replay are distinct claims. A stale-context example should not be used as evidence for duplicate-event idempotency.'
+  },
+  {
+    category: 'Evidence lifecycle',
+    question: 'A human rubric is linked in traceability but has never been run. How should it be represented?',
+    options: ['Planned evidence with not_run status and no execution timestamp', 'Passed evidence because the rubric exists', 'Failed evidence because no score exists', 'Independent evidence because a reviewer role is named'],
+    answer: 0,
+    explanation: 'Planned, executed, passed, and approved are distinct states. A link to an artifact does not manufacture an observation.'
+  },
+  {
+    category: 'Evaluation population',
+    question: 'The fixed evaluation fixture covers English plain text, but production receives a French attachment. What is the safe default?',
+    options: ['Route to manual review because the input is outside the evaluated population', 'Generalize the 12/12 fixture score', 'Use model confidence to widen eligibility', 'Silently translate and auto-apply'],
+    answer: 0,
+    explanation: 'Evaluation population constrains deployment eligibility. Unevaluated languages and modalities need explicit evidence before entering an automated path.'
+  },
+  {
+    category: 'Bounded claims',
+    question: 'Fourteen of fourteen declared criteria pass, but eight normative requirements are excluded and human and production evidence are absent. What may be claimed?',
+    options: ['The bounded declared slice passed; production readiness and whole-product conformance remain unproven', 'The whole feature is production-ready', 'The excluded requirements are implicitly satisfied', 'A perfect fixture score authorizes release'],
+    answer: 0,
+    explanation: 'Conformance is scoped to the declared criteria and evidence. Exclusions and missing assurance remain release-relevant blockers.'
+  },
+  {
+    category: 'NFR target authority',
+    question: 'A product ticket says broker-response processing should be quick. What should the specification do?',
+    options: ['Define the latency boundary and measurement while keeping the target unresolved until an accountable owner decides', 'Choose p95 under two seconds because it sounds interactive', 'Copy the current prototype average as the permanent SLO', 'Ask the coding agent to select a common target'],
+    answer: 0,
+    explanation: 'Quality intent does not authorize a number. Measurement can be designed while target value, rationale, evidence, and owner decision remain explicit blockers.'
+  },
+  {
+    category: 'Latency measurement',
+    question: 'What is missing from “p95 latency under five seconds”?',
+    options: ['A start/end boundary, workload and eligible population, unit, window, owner, and evidence method', 'Only a model name', 'Only an average', 'Nothing; p95 makes it complete'],
+    answer: 0,
+    explanation: 'A percentile has meaning only for a defined population and measurement procedure. Operational ownership and response also belong in the contract.'
+  },
+  {
+    category: 'Semantic availability',
+    question: 'An API returns HTTP 200 with an error body saying the model is unavailable. Should that automatically count as a good event?',
+    options: ['No; good service needs semantic outcome rules such as a valid result or approved work-preserving degradation', 'Yes; transport success proves availability', 'Yes, if latency is low', 'Only when the model chose the status code'],
+    answer: 0,
+    explanation: 'Transport status is not the user outcome. The good-event classifier must distinguish valid service from disguised failures.'
+  },
+  {
+    category: 'Capacity',
+    question: 'Twelve static runtime events meet the latency target. What capacity claim follows?',
+    options: ['None; representative concurrent load, peak/soak behavior, quotas, correctness, and safety still need evidence', 'W1 is proven because every event completed', 'W2 is proven if the application can add pods', 'Provider capacity is irrelevant'],
+    answer: 0,
+    explanation: 'Static observations exercise metric plumbing but do not generate workload or test dependency quotas and backpressure.'
+  },
+  {
+    category: 'Safe degradation',
+    question: 'The policy service is unavailable. Which response preserves the authority boundary?',
+    options: ['Disable automatic mutation, preserve the work item, and route to manual processing', 'Skip policy to preserve availability', 'Let model confidence decide', 'Retry without a bound until policy returns'],
+    answer: 0,
+    explanation: 'Critical dependency failure reduces autonomy. Availability does not authorize removal of a safety control.'
+  },
+  {
+    category: 'Retry resilience',
+    question: 'Why must provider retries be bounded by logical operation?',
+    options: ['Unbounded retries amplify outages, consume quota and cost, increase latency, and can duplicate effects', 'Retries always improve reliability for free', 'A circuit breaker only affects UI latency', 'Provider throttling disappears when more workers are added'],
+    answer: 0,
+    explanation: 'Retry storms worsen overload. Stable operation identity, typed retryability, budgets, circuits, preservation, and reconciliation control amplification.'
+  },
+  {
+    category: 'Agent budgets',
+    question: 'Who should enforce tool-call, model-turn, token, deadline, and side-effect budgets?',
+    options: ['Trusted application code at action boundaries', 'The model through a reminder in its prompt', 'The retrieved document', 'The tool response itself'],
+    answer: 0,
+    explanation: 'Model text is not a reliable control plane. The trusted runtime owns counters, stop states, authorization, and mutation.'
+  },
+  {
+    category: 'Unit economics',
+    question: 'Which denominator best exposes the cost of retries, failures, and unsafe outcomes?',
+    options: ['Cost per successful compliant workflow', 'Cost per API call only', 'Input tokens per prompt only', 'Monthly cloud bill with no workload attribution'],
+    answer: 0,
+    explanation: 'Outcome-level economics includes wasted work in total cost while counting only useful compliant outcomes in the denominator.'
+  },
+  {
+    category: 'Observability privacy',
+    question: 'Which telemetry design best supports diagnosis without unnecessary broker-data exposure?',
+    options: ['Correlated IDs, versions, reason codes, digests, budgets, timing, tokens, cost, and terminal state without raw message bodies', 'Store every prompt and tool result forever', 'Record hidden model reasoning', 'Remove all correlation IDs'],
+    answer: 0,
+    explanation: 'Operational evidence should be useful and data-minimized. Raw content, secrets, and hidden reasoning are not prerequisites for traceability.'
+  },
+  {
+    category: 'AI quality NFRs',
+    question: 'A fixed fixture scores 7/8 overall but only 1/2 on unsupported fields. What is the honest interpretation?',
+    options: ['The pipeline mechanics ran and the high-risk slice shows a gap; no live-model or production-quality claim follows', 'The model is 87.5% production-ready', 'The slice can be ignored because the aggregate is higher', 'The fixture author may approve the threshold'],
+    answer: 0,
+    explanation: 'Fixed predictions teach metric and slice behavior. Population, labels, thresholds, representativeness, and actual system execution remain separate.'
+  },
+  {
+    category: 'NFR trade-offs',
+    question: 'A cheaper route violates the least-privilege invariant. How should it appear on a cost-quality frontier?',
+    options: ['As infeasible, not as a slightly lower-scoring option', 'As preferred if savings are large', 'As acceptable when latency improves', 'As automatically approved during provider outages'],
+    answer: 0,
+    explanation: 'Security, privacy, and authority invariants are hard constraints. Optimization occurs only among feasible designs.'
+  },
+  {
+    category: 'NFR metric semantics',
+    question: 'A workflow returns a valid proposal but logs a secret. How should the NFR metrics represent it?',
+    options: ['Count semantic service success, exclude it from compliant workflow success, fail the privacy invariant, and block release', 'Count it as fully successful because the proposal is valid', 'Remove it from every denominator', 'Change the response to an HTTP error after the fact'],
+    answer: 0,
+    explanation: 'Service semantics and control compliance answer different questions. Reporting both prevents a valid response from hiding a serious control violation.'
+  },
+  {
+    category: 'Agent budget authority',
+    question: 'The runtime records tool calls, but no accountable owner has approved a tool-call ceiling. What should the reference policy do?',
+    options: ['Keep the limit unresolved, continue measurement, and block bounded production autonomy', 'Invent a limit from the fixture maximum', 'Stop every tool call', 'Let the model choose a ceiling per request'],
+    answer: 0,
+    explanation: 'Measurement does not create authority. A production enforcement value needs an owner decision, rationale, and evidence.'
+  },
+  {
+    category: 'Compound capacity',
+    question: 'A representative test sustains 120 requests per minute, but its latency NFR fails. Does CAP-BR-001 pass?',
+    options: ['No; capacity requires the throughput target and every declared performance, reliability, and safety constraint to pass', 'Yes; throughput alone defines capacity', 'Yes, if more workers were available', 'Only the model provider can decide'],
+    answer: 0,
+    explanation: 'Capacity is sustainable useful service under the applicable constraints. Fast errors or unsafe outcomes are not conforming capacity.'
+  },
+  {
+    category: 'Production readiness',
+    question: 'Eight synthetic NFR gates pass, two targets and six agent budgets are unresolved, and capacity is unmeasured. What should the release assessment say?',
+    options: ['Blocked for production while preserving each measured, blocked, unresolved, and unmeasured state', 'Pass because a majority is green', 'Average the eleven gates into one score', 'Treat missing evidence as not applicable'],
+    answer: 0,
+    explanation: 'Required characteristics retain separate authority and evidence states. Synthetic passes cannot cancel unresolved decisions or absent capacity evidence.'
   }
 ];

@@ -1,0 +1,35 @@
+{
+  "id": "GATE-POLICY-BR-001",
+  "revision": "1.0-training",
+  "owner": "underwriting_risk",
+  "gates": [
+    {
+      "id": "GATE-BR-ACCEPTANCE",
+      "status": "approved",
+      "metric": "acceptance_conformance",
+      "threshold": {"operator": "==", "value": 1.0},
+      "population": "fourteen declared Course 07 criteria covering ten Course 06 requirements and three assurance requirements; eight Course 06 normative requirements are excluded",
+      "rationale": "Every declared criterion in the bounded release slice must pass; omission is evaluated separately by traceability and this gate does not claim whole-product conformance.",
+      "owner": "underwriting_quality"
+    },
+    {
+      "id": "GATE-BR-SAFETY",
+      "status": "approved",
+      "metric": "safety_property_violations",
+      "threshold": {"operator": "==", "value": 0.0},
+      "population": "finite training property populations for authorization, conflicts, frame conditions, stable response identities, and provenance retention",
+      "rationale": "The referenced SHALL NOT safety obligations permit no observed violation in the declared test population.",
+      "owner": "underwriting_risk"
+    },
+    {
+      "id": "GATE-BR-CONFLICT-EVAL",
+      "status": "unresolved",
+      "metric": "conflict_detection_recall",
+      "threshold": {"operator": ">=", "value": null},
+      "population": "release_evaluation cases labelled source_conflict",
+      "rationale": "The course preserves the measurement but does not invent an acceptable statistical threshold.",
+      "owner": "underwriting_risk",
+      "open_question": "OQ-EVAL-001"
+    }
+  ]
+}

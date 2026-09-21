@@ -1,0 +1,17 @@
+{
+  "id": "TODO",
+  "revision": "TODO",
+  "owner": "TODO",
+  "gates": [
+    {
+      "id": "TODO",
+      "status": "TODO",
+      "metric": "conflict_detection_recall",
+      "threshold": {"operator": ">=", "value": "TODO: do not invent"},
+      "population": "TODO",
+      "rationale": "TODO",
+      "owner": "TODO",
+      "open_question": "TODO"
+    }
+  ]
+}

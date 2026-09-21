@@ -1,0 +1,12 @@
+nfr_id,workload_or_population,measurement_signal,target_decision,evidence_method,response_owner,status
+PERF-BR-001,W1,workflow.duration,TD-PERF-001,load_test + production_sli,Broker Automation Service,planned
+REL-BR-001,W1,workflow.semantic_service_success,TD-REL-001,production_sli + failure_injection,Broker Automation Service,planned
+RES-BR-001,W1,provider.attempt,TD-RES-001,deterministic_test + chaos_test + runtime_trace,Broker Automation Service,planned
+AGENT-NFR-001,W1,authoritative.mutation.committed,TD-AGENT-001,property_test + runtime_trace + audit_record,Broker Automation Service,planned
+COST-BR-001,W1,workflow.attributable_cost,UNRESOLVED,cost_attribution + production_sli,AI Platform FinOps,planned
+OBS-BR-001,W1,workflow.telemetry.complete,TD-OBS-001,schema_validation + production_sli,Broker Automation Service,planned
+AIQ-BR-001,Course07-P1,governed_decision.correct,UNRESOLVED,offline_evaluation + human_review + production_monitoring,AI Quality,planned
+SEC-NFR-001,all model-facing identities,identity.capability.authoritative_mutation,TD-SEC-001,policy_as_code + identity_inventory + deployment_attestation,Underwriting Platform,planned
+SEC-NFR-002,all model-facing mutation paths,architecture.mutation_boundary_bypass_path,TD-SEC-002,architecture_test + policy_as_code + capability_path_review,Underwriting Platform,planned
+PRIV-NFR-001,all broker-response telemetry,telemetry.sensitive_content.detected,TD-PRIV-001,schema_validation + DLP_sampling + runtime_sampling,Broker Automation Service,planned
+CAP-BR-001,W1,load_test.good_throughput,TD-CAP-001,load_test + quota_validation + capacity_review,Underwriting Platform,planned
