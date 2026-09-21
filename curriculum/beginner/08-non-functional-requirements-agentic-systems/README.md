@@ -263,7 +263,7 @@ Only end-to-end performance reflects the user journey; stage timing makes remedi
 
 An average of 1.2 seconds can coexist with p95 of 8 seconds and p99 of 21 seconds. Agentic latency is commonly skewed by route, retries, tool selection, context size, and provider throttling.
 
-This lab uses a documented nearest-rank percentile on a finite synthetic population. It reports the denominator. A production system should preserve histogram semantics, route/slice dimensions, and aggregation correctness.
+This lab uses a documented nearest-rank percentile on a finite synthetic population. It reports the sample size, denominator, source, and boundary. With only 12 observations, its p95 and p99 are pedagogical order statistics—not statistically representative tail estimates. A production system should preserve histogram semantics, route/slice dimensions, aggregation correctness, and a sample-size/uncertainty review.
 
 Google’s SRE guidance defines SLIs as carefully specified quantitative measures and recommends percentiles for skewed behavior. It also warns that target selection is a product/business decision, not merely a technical one. See [Service Level Objectives](https://sre.google/sre-book/service-level-objectives/).
 
@@ -301,16 +301,16 @@ Availability asks whether eligible requests obtain the defined service in the me
 {"status": 200, "body": {"error": "model unavailable"}}
 ```
 
-The course defines a good event as either:
+The course defines a **semantic service success** as either:
 
 1. a valid proposal response; or
 2. an approved graceful-degradation response that preserves work and reduces autonomy.
 
-An arbitrary fallback, empty success, lost work item, or bypassed policy is bad service.
+An arbitrary fallback, empty success, or lost work item is bad service. Control conformance is reported separately: a response can satisfy the semantic service definition while violating privacy, telemetry, or a governed side-effect budget. Such an event remains in the semantic numerator, is excluded from `compliant_workflow_success_ratio`, and blocks release. Keeping both metrics prevents one label from hiding whether the service failed or a control failed.
 
 ### SLI, SLO, and SLA
 
-- **SLI:** the measurement, such as `good_events / eligible_events`.
+- **SLI:** the measurement, such as `semantic_service_successes / eligible_events`.
 - **SLO:** an internal owner-approved target for the SLI.
 - **SLA:** a business agreement with explicit consequences.
 
@@ -366,6 +366,8 @@ Examples:
 
 Fail-open or fail-closed is a dependency-specific risk decision. It must not be chosen by one global slogan.
 
+Every degraded mode also needs an exit contract: a recovery predicate, anti-flap window, and a decision about re-evaluating preserved work. A single successful probe does not automatically restore autonomy.
+
 ## Retries, overload, and circuit breakers
 
 One hundred requests with one initial call and five retries produce 600 provider attempts during a complete outage. Horizontal scale makes the storm larger.
@@ -397,7 +399,7 @@ An agent can reason, retrieve, call tools, replan, and loop. Bound at least:
 
 The model does not own these counters. Trusted application code checks them before the next action and records a typed terminal state.
 
-Side-effect budgets are especially strict. The reference permits at most one exact authoritative mutation for one logical workflow and zero external broker messages for this capability.
+Side-effect budgets are especially strict. The reference has owner provenance for the maximum of three provider attempts and one exact authoritative mutation. Tool calls, model turns, deadline, token, and external-message limits remain unresolved because the source material contains no accountable decision for them. Trusted code measures those dimensions but does not silently enforce invented numbers; bounded production autonomy remains blocked until their owners approve values.
 
 ## Cost and unit economics
 
@@ -414,7 +416,7 @@ tokens / outcome and route
 
 A cheap call that needs four retries may cost more per useful outcome than a more expensive route that succeeds once. Cost per successful compliant workflow is the primary denominator in this course.
 
-The lab measures cost but blocks its gate because no accountable ceiling has been approved. It does not optimize away security, privacy, quality, or resilience.
+The fixture attributes only declared model-inference and tool-API charges. It excludes retrieval infrastructure, compute, telemetry, storage, and human review. Compare cost results only when these attribution boundaries match. The lab measures cost but blocks its gate because no accountable ceiling has been approved. It does not optimize away security, privacy, quality, or resilience.
 
 ## Security and privacy requirements
 
@@ -529,22 +531,25 @@ Established practice includes user-centered SLIs/SLOs, workload models, percenti
 
 Emerging agentic practice adds model/tool/token/route signals, cost per compliant outcome, agent step and side-effect budgets, evaluation/runtime linkage, explicit autonomy-reduction modes, and model/provider portability tests.
 
-Open problems include reliable semantic good-event classification, comparable agent benchmarks, representative rare-risk evaluation, privacy-safe trace analysis, causal attribution across changing models/tools/prompts, and jointly optimizing cost, quality, latency, and safety without hiding hard constraints.
+Open problems include reliable semantic service-success classification, comparable agent benchmarks, representative rare-risk evaluation, privacy-safe trace analysis, causal attribution across changing models/tools/prompts, and jointly optimizing cost, quality, latency, and safety without hiding hard constraints.
 
 ## Worked scenario
 
-The reference package defines ten NFRs:
+> **FICTIONAL TRAINING TARGETS — NOT RECOMMENDED PRODUCTION SLOs.** Every number below exists to exercise the governance and measurement pipeline; none is a benchmark or deployment recommendation.
+
+The reference package defines eleven atomic NFRs:
 
 | ID | Characteristic | Target state | Synthetic result |
 | --- | --- | --- | --- |
 | PERF-BR-001 | p95 end-to-end latency | owner-approved | passes 4800 ≤ 5000 ms on 12 events |
-| REL-BR-001 | semantic good-event ratio | owner-approved | passes 11/12 ≥ 0.90 |
+| REL-BR-001 | semantic service-success ratio | owner-approved | passes 11/12 ≥ 0.90; compliance reported separately |
 | RES-BR-001 | provider attempts | invariant | passes max 3 |
 | AGENT-NFR-001 | authoritative mutations | invariant | passes max 1 |
 | COST-BR-001 | cost per compliant success | unresolved | measured; gate blocked |
 | OBS-BR-001 | redacted trace completeness | owner-approved | passes 12/12 |
 | AIQ-BR-001 | governed-decision quality | unresolved | measured 7/8; gate blocked |
 | SEC-NFR-001 | model-facing mutation credentials | invariant | synthetic policy result passes zero |
+| SEC-NFR-002 | trusted-boundary bypass paths | invariant | synthetic architecture result passes zero |
 | PRIV-NFR-001 | sensitive telemetry events | invariant | passes 0/12 |
 | CAP-BR-001 | sustained W1 capacity | owner-approved | not measured; no load evidence |
 
@@ -570,9 +575,9 @@ Compare [AI-2219-rollout.md](northstar-broker-nfrs/ticket/AI-2219-rollout.md) wi
 
 Inspect p50, p95, and p99 on W1. Add one high-latency event. Observe how the nearest-rank tail changes while the mean may hide the experience.
 
-### 3. Semantic availability
+### 3. Semantic service success versus compliance
 
-Change an approved graceful-degradation outcome to an error envelope. The good-event numerator must fall even if the HTTP transport would have returned 200.
+Change an approved graceful-degradation outcome to an error envelope. The semantic numerator must fall even if the HTTP transport would have returned 200. Then keep the outcome valid but set `authoritative_mutations` to two: semantic success stays constant, compliant success falls, and release blocks.
 
 ### 4. Retry storm
 
@@ -590,9 +595,9 @@ Compare `cost / request` with `cost / successful compliant workflow`. Failed and
 
 Set `raw_broker_content_logged` to true or remove a `run_id`. The validator should report exposure or incompleteness, and OBS/PRIV gates should fail.
 
-### 8. Agent budget failure injection
+### 8. Agent budget governance
 
-Raise tool calls, model turns, tokens, attempts, or authoritative mutations above their limits. The trusted boundary must stop the next action; a model explanation cannot waive the limit.
+Raise provider attempts or authoritative mutations above their owner-approved limits; the trusted boundary must stop the next action. Then raise tool calls or tokens and confirm that the lab reports the measurement but does not invent a threshold. Unresolved limits block production autonomy until approved.
 
 ### 9. Aggregate versus risk slice
 
@@ -600,7 +605,7 @@ Inspect the 7/8 quality aggregate and the 1/2 unsupported-field slice. Decide wh
 
 ### 10. Green fixtures, blocked production
 
-Explain why seven passing gates do not offset two blocked gates, one unmeasured capacity requirement, and the global absence of production evidence.
+Explain why eight passing gates do not offset two blocked gates, one unmeasured capacity requirement, unresolved agent-budget decisions, and the global absence of production evidence.
 
 ## Failure modes and anti-patterns
 
@@ -663,6 +668,9 @@ Do not use process volume as a proxy for risk control.
 12. **Capacity honesty:** Define the minimum load, dependency-quota, correctness, safety, and soak evidence needed to move `CAP-BR-001` from `NOT_MEASURED`.
 13. **Error-budget policy:** Draft response actions without assuming that a target miss automatically authorizes a risky rollback or policy waiver.
 14. **Architecture judgment:** Decide when deterministic parsing, smaller-model routing, manual review, or full model processing is appropriate; preserve evaluation and authority boundaries.
+15. **Feasible region:** Plot or tabulate three designs by latency, cost, reliability, privacy, and mutation safety. Remove every design that violates a hard constraint before comparing optimization objectives.
+16. **Retry-driven tail:** Add one and then two retry attempts to a small subset of events. Recalculate p50/p95/p99 and explain why completion can improve while tail latency and provider load deteriorate.
+17. **Context explosion:** Double retrieved context on each model turn. Project input-token, latency, and cost growth; define the evidence an owner would need before approving token and turn budgets.
 
 ## Review questions
 

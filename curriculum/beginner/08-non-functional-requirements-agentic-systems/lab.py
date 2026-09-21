@@ -250,25 +250,72 @@ def agent_budget_findings(
     }
     findings: list[Finding] = []
     for event_field, limit_field in mapping.items():
-        if int(event.get(event_field, 0)) > int(limits[limit_field]):
+        limit = limits[limit_field]
+        if limit.get("status") == "target_unresolved":
+            continue
+        if int(event.get(event_field, 0)) > int(limit["value"]):
             findings.append(
                 Finding(
                     "AGENT_BUDGET_EXCEEDED",
                     str(event.get("event_id", "unknown")),
-                    f"{event_field}={event.get(event_field)} exceeds {limit_field}={limits[limit_field]}.",
+                    f"{event_field}={event.get(event_field)} exceeds {limit_field}={limit['value']}.",
                 )
             )
+    return tuple(findings)
+
+
+def validate_agent_budget(
+    budget: dict[str, Any] | None = None,
+    decisions: dict[str, Any] | None = None,
+) -> tuple[Finding, ...]:
+    """Validate provenance and surface unresolved limits without inventing values."""
+    budget = budget or load_json(AGENT_BUDGET_PATH)
+    decisions = decisions or load_target_decisions()
+    decision_index = {str(item.get("id")): item for item in decisions.get("decisions", [])}
+    findings: list[Finding] = []
+    for name, limit in budget.get("limits", {}).items():
+        status = limit.get("status")
+        if status == "target_unresolved":
+            if limit.get("value") is not None or limit.get("decision_id") is not None:
+                findings.append(Finding("AGENT_BUDGET_UNRESOLVED_HAS_VALUE", name, "An unresolved budget cannot contain a value or decision."))
+            elif not limit.get("unit") or not limit.get("owner") or not limit.get("evidence_needed"):
+                findings.append(Finding("AGENT_BUDGET_UNRESOLVED_PROVENANCE_INCOMPLETE", name, "An unresolved budget still needs a unit, decision owner, and evidence needed."))
+            else:
+                findings.append(
+                    Finding(
+                        "AGENT_BUDGET_TARGET_UNRESOLVED",
+                        name,
+                        "The budget is measured but not enforceable for production autonomy until its owner approves a value.",
+                        Severity.REVIEW,
+                    )
+                )
+            continue
+        if status not in {"target_approved", "invariant"}:
+            findings.append(Finding("AGENT_BUDGET_STATUS_UNKNOWN", name, "Budget status is not controlled."))
+            continue
+        decision = decision_index.get(str(limit.get("decision_id")))
+        if (
+            not decision
+            or decision.get("status") != "approved"
+            or decision.get("requirement_id") != limit.get("requirement_id")
+            or decision.get("value") != limit.get("value")
+            or decision.get("unit") != limit.get("unit")
+            or decision.get("owner") != limit.get("owner")
+            or not decision.get("rationale")
+            or not decision.get("evidence_ids")
+        ):
+            findings.append(Finding("AGENT_BUDGET_DECISION_MISMATCH", name, "The governed budget lacks matching owner-decision provenance."))
     return tuple(findings)
 
 
 def runtime_measurements(events: Iterable[dict[str, Any]] | None = None) -> dict[str, Any]:
     population = _eligible(events or load_runtime_events())
     good_outcomes = {"valid_proposal", "approved_graceful_degradation"}
+    semantic_successes = [event for event in population if event.get("outcome") in good_outcomes]
     compliant = [
         event
-        for event in population
-        if event.get("outcome") in good_outcomes
-        and not telemetry_event_findings(event)
+        for event in semantic_successes
+        if not telemetry_event_findings(event)
         and not agent_budget_findings(event)
     ]
     latency = [float(event["latency_ms"]) for event in population]
@@ -290,15 +337,30 @@ def runtime_measurements(events: Iterable[dict[str, Any]] | None = None) -> dict
             "p50": nearest_rank(latency, 50),
             "p95": nearest_rank(latency, 95),
             "p99": nearest_rank(latency, 99),
+            "sample_size": len(latency),
             "denominator": len(latency),
+            "source": "synthetic_course08_runtime_fixture",
             "boundary": "accepted_request_to_completed_proposal_response",
+            "representativeness": "small_fixture_percentiles_are_pedagogical_not_statistically_representative",
         },
         "mean_stage_latency_ms": stage_means,
-        "good_event_ratio": {
-            "numerator": sum(event.get("outcome") in good_outcomes for event in population),
+        "semantic_service_success_ratio": {
+            "numerator": len(semantic_successes),
             "denominator": len(population),
-            "value": (sum(event.get("outcome") in good_outcomes for event in population) / len(population)) if population else None,
-            "good_event_definition": sorted(good_outcomes),
+            "value": len(semantic_successes) / len(population) if population else None,
+            "semantic_success_definition": sorted(good_outcomes),
+            "excludes_control_compliance": True,
+        },
+        "compliant_workflow_success_ratio": {
+            "numerator": len(compliant),
+            "denominator": len(population),
+            "value": len(compliant) / len(population) if population else None,
+            "definition": "semantic_service_success_and_all_governed_telemetry_privacy_and_agent_budget_controls_pass",
+        },
+        "control_violating_semantic_successes": {
+            "numerator": len(semantic_successes) - len(compliant),
+            "denominator": len(semantic_successes),
+            "value": len(semantic_successes) - len(compliant),
         },
         "telemetry_completeness_ratio": {
             "numerator": len(traceable),
@@ -309,6 +371,7 @@ def runtime_measurements(events: Iterable[dict[str, Any]] | None = None) -> dict
             "numerator": sum(not agent_budget_findings(event) for event in population),
             "denominator": len(population),
             "value": (sum(not agent_budget_findings(event) for event in population) / len(population)) if population else None,
+            "scope": "governed_limits_only; unresolved limits are measured but not enforced",
         },
         "sensitive_telemetry_events": {
             "numerator": len(sensitive_events),
@@ -319,11 +382,19 @@ def runtime_measurements(events: Iterable[dict[str, Any]] | None = None) -> dict
             "maximum": max((int(event.get("authoritative_mutations", 0)) for event in population), default=None),
             "denominator": len(population),
         },
+        "provider_attempts_per_workflow": {
+            "maximum": max((int(event.get("attempts", 0)) for event in population), default=None),
+            "denominator": len(population),
+        },
         "cost_usd": {
             "total": round(total_cost, 6),
             "per_request": round(total_cost / len(population), 6) if population else None,
             "per_successful_compliant_workflow": round(total_cost / len(compliant), 6) if compliant else None,
             "successful_compliant_denominator": len(compliant),
+            "attribution_boundary": "model_inference_and_declared_tool_api_costs_in_the_fixture",
+            "included_components": ["model_inference", "declared_tool_api_calls"],
+            "excluded_components": ["retrieval_infrastructure", "compute", "telemetry", "storage", "human_review"],
+            "comparability_rule": "Compare cost results only when attribution boundaries match.",
         },
     }
 
@@ -396,7 +467,13 @@ def degradation_decision(
             "dependency": dependency,
             "mode": "UNAVAILABLE",
             "automatic_mutation": False,
+            "preserve_work_item": True,
             "reason_code": "DEPENDENCY_POLICY_UNKNOWN",
+            "recovery_condition": {
+                "predicate": "an accountable owner defines and verifies the dependency-specific recovery condition",
+                "anti_flap": "manual restoration only",
+                "preserved_work_re_evaluation": "required",
+            },
         }
     return {
         "dependency": dependency,
@@ -406,6 +483,7 @@ def degradation_decision(
         "reason_code": rule["reason_code"],
         "criticality": rule["criticality"],
         "continuation_condition": rule["continuation_condition"],
+        "recovery_condition": rule["recovery_condition"],
     }
 
 
@@ -413,21 +491,23 @@ def target_gates(
     contract: dict[str, Any] | None = None,
     runtime: dict[str, Any] | None = None,
     quality: dict[str, Any] | None = None,
+    capacity_evidence: dict[str, Any] | None = None,
 ) -> tuple[GateResult, ...]:
     contract = contract or load_contract()
     runtime = runtime or runtime_measurements()
     quality = quality or quality_measurements()
     observed = {
         "end_to_end_latency_ms.p95": runtime["end_to_end_latency_ms"]["p95"],
-        "good_event_ratio": runtime["good_event_ratio"]["value"],
-        "provider_attempts.max": max((event["attempts"] for event in load_runtime_events()), default=None),
+        "semantic_service_success_ratio": runtime["semantic_service_success_ratio"]["value"],
+        "provider_attempts.max": runtime["provider_attempts_per_workflow"]["maximum"],
         "authoritative_mutations_per_workflow.max": runtime["authoritative_mutations_per_workflow"]["maximum"],
         "telemetry_completeness_ratio": runtime["telemetry_completeness_ratio"]["value"],
         "cost_per_successful_compliant_workflow": runtime["cost_usd"]["per_successful_compliant_workflow"],
         "quality_safe_decision_ratio": quality["overall"]["value"],
         "model_facing_authoritative_credentials": 0,
+        "model_facing_mutation_boundary_bypass_paths": 0,
         "sensitive_telemetry_events": runtime["sensitive_telemetry_events"]["value"],
-        "sustained_requests_per_minute": None,
+        "sustained_requests_per_minute": capacity_evidence.get("sustained_requests_per_minute") if capacity_evidence else None,
     }
     results: list[GateResult] = []
     for item in contract.get("requirements", []):
@@ -440,7 +520,8 @@ def target_gates(
             results.append(GateResult(identifier, GateDecision.BLOCKED, ("TARGET_NOT_AUTHORIZED",), observed=value))
             continue
         if value is None:
-            results.append(GateResult(identifier, GateDecision.NOT_MEASURED, ("MEASUREMENT_ABSENT",), target=target["value"]))
+            reason = "CAPACITY_LOAD_EVIDENCE_ABSENT" if identifier == "CAP-BR-001" else "MEASUREMENT_ABSENT"
+            results.append(GateResult(identifier, GateDecision.NOT_MEASURED, (reason,), target=target["value"]))
             continue
         direction = target["direction"]
         threshold = target["value"]
@@ -450,11 +531,24 @@ def target_gates(
             "exact": value == threshold,
             "prohibited": value == 0,
         }[direction]
+        reason_codes = ("TARGET_MET",) if passed else ("TARGET_MISSED",)
+        if identifier == "CAP-BR-001" and capacity_evidence:
+            constraints = item["measurement"].get("required_constraint_results", [])
+            supplied = capacity_evidence.get("constraint_results", {})
+            failed_constraints = [requirement_id for requirement_id in constraints if supplied.get(requirement_id) != "pass"]
+            if capacity_evidence.get("source_status") != "representative_load_test":
+                passed = False
+                reason_codes = ("CAPACITY_EVIDENCE_NOT_REPRESENTATIVE",)
+            elif not passed:
+                reason_codes = ("CAPACITY_DEMAND_NOT_MET",)
+            elif failed_constraints:
+                passed = False
+                reason_codes = ("CAPACITY_QUALITY_CONSTRAINT_FAILED",)
         results.append(
             GateResult(
                 identifier,
                 GateDecision.PASS if passed else GateDecision.FAIL,
-                ("TARGET_MET",) if passed else ("TARGET_MISSED",),
+                reason_codes,
                 observed=value,
                 target=threshold,
                 numerator=ratio.get("numerator"),
@@ -464,8 +558,14 @@ def target_gates(
     return tuple(results)
 
 
-def release_assessment(gates: Iterable[GateResult] | None = None) -> dict[str, Any]:
+def release_assessment(
+    gates: Iterable[GateResult] | None = None,
+    budget_findings: Iterable[Finding] | None = None,
+    runtime: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     gate_list = tuple(gates or target_gates())
+    budget_finding_list = tuple(budget_findings if budget_findings is not None else validate_agent_budget())
+    runtime = runtime or runtime_measurements()
     counts = {decision.value: sum(gate.decision == decision for gate in gate_list) for decision in GateDecision}
     blockers = sorted(
         {
@@ -474,8 +574,16 @@ def release_assessment(gates: Iterable[GateResult] | None = None) -> dict[str, A
             if gate.decision in {GateDecision.FAIL, GateDecision.BLOCKED, GateDecision.NOT_MEASURED}
             for reason in gate.reason_codes
         }
-        | {"SYNTHETIC_FIXTURE_NOT_PRODUCTION_EVIDENCE", "CAPACITY_LOAD_TEST_NOT_EXECUTED"}
+        | {"SYNTHETIC_FIXTURE_NOT_PRODUCTION_EVIDENCE"}
     )
+    capacity_gate = next((gate for gate in gate_list if gate.requirement_id == "CAP-BR-001"), None)
+    if capacity_gate is None or capacity_gate.decision != GateDecision.PASS:
+        blockers.append("CAPACITY_LOAD_TEST_NOT_EXECUTED")
+    if any(item.code == "AGENT_BUDGET_TARGET_UNRESOLVED" for item in budget_finding_list):
+        blockers.append("AGENT_BUDGET_TARGETS_UNRESOLVED")
+    if runtime["control_violating_semantic_successes"]["value"]:
+        blockers.append("CONTROL_VIOLATING_SEMANTIC_SUCCESS")
+    blockers = sorted(set(blockers))
     return {
         "decision": "blocked_for_production",
         "production_ready": False,
@@ -492,11 +600,13 @@ def run_demo() -> dict[str, Any]:
     gates = target_gates(runtime=runtime, quality=quality)
     unsafe = simulate_provider_outage(retry_budget=None, circuit_breaker_threshold=None)
     governed = simulate_provider_outage(retry_budget=3, circuit_breaker_threshold=8)
+    budget_policy_findings = validate_agent_budget()
     return {
         "fixture_status": "synthetic_training_fixture_not_production_evidence",
         "contract_findings": [asdict(item) for item in validate_nfr_contract()],
         "workload_findings": [asdict(item) for item in validate_workload_profiles()],
         "measurement_plan_findings": [asdict(item) for item in validate_measurement_plan()],
+        "budget_policy_findings": [asdict(item) for item in budget_policy_findings],
         "runtime_measurements": runtime,
         "quality_measurements": quality,
         "resilience_experiment": {"unsafe": unsafe, "governed": governed},
@@ -505,7 +615,7 @@ def run_demo() -> dict[str, Any]:
             for dependency in ("authorization", "model_provider", "policy_service", "analytics_export")
         },
         "target_gates": [asdict(item) for item in gates],
-        "release_assessment": release_assessment(gates),
+        "release_assessment": release_assessment(gates, budget_policy_findings, runtime),
     }
 
 

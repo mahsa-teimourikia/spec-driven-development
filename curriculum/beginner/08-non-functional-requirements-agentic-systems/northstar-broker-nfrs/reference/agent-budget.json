@@ -1,20 +1,22 @@
 {
-  "schema_version": "1.0-training",
-  "fixture_status": "fictional_owner_approved_training_policy",
+  "schema_version": "1.1-training",
+  "fixture_status": "fictional_mixed_governed_and_unresolved_training_policy",
   "logical_operation_id_required": true,
   "limits": {
-    "provider_attempts": 3,
-    "tool_calls": 6,
-    "model_turns": 3,
-    "wall_clock_ms": 10000,
-    "input_tokens": 8000,
-    "output_tokens": 1200,
-    "authoritative_mutations": 1,
-    "external_broker_messages": 0
+    "provider_attempts": {"status":"invariant","value":3,"unit":"attempts_per_logical_workflow","decision_id":"TD-RES-001","requirement_id":"RES-BR-001","owner":"AI Platform Architecture","evidence_needed":null},
+    "tool_calls": {"status":"target_unresolved","value":null,"unit":"calls_per_logical_workflow","decision_id":null,"requirement_id":null,"owner":"AI Platform Architecture","evidence_needed":"representative tool-use distributions and failure-mode analysis"},
+    "model_turns": {"status":"target_unresolved","value":null,"unit":"turns_per_logical_workflow","decision_id":null,"requirement_id":null,"owner":"AI Platform Architecture","evidence_needed":"workflow complexity and convergence evidence"},
+    "wall_clock_ms": {"status":"target_unresolved","value":null,"unit":"ms_per_logical_workflow","decision_id":null,"requirement_id":null,"owner":"Commercial Underwriting Product","evidence_needed":"representative end-to-end workflow evidence"},
+    "input_tokens": {"status":"target_unresolved","value":null,"unit":"tokens_per_logical_workflow","decision_id":null,"requirement_id":null,"owner":"AI Platform FinOps","evidence_needed":"context-growth and quality trade-off evidence"},
+    "output_tokens": {"status":"target_unresolved","value":null,"unit":"tokens_per_logical_workflow","decision_id":null,"requirement_id":null,"owner":"AI Platform FinOps","evidence_needed":"output-size and quality trade-off evidence"},
+    "authoritative_mutations": {"status":"invariant","value":1,"unit":"mutations_per_logical_workflow","decision_id":"TD-AGENT-001","requirement_id":"AGENT-NFR-001","owner":"Underwriting Risk","evidence_needed":null},
+    "external_broker_messages": {"status":"target_unresolved","value":null,"unit":"messages_per_logical_workflow","decision_id":null,"requirement_id":null,"owner":"Commercial Underwriting Product and Underwriting Risk","evidence_needed":"approved communication workflow and recipient controls"}
   },
+  "unresolved_limit_behavior": "Measure and report the dimension, but do not silently enforce an invented value. Block bounded production autonomy until the accountable owner approves the limit.",
   "exhaustion": {
+    "governed_limits_only": true,
     "new_provider_calls": "stop",
-    "new_tool_calls": "stop",
+    "new_tool_calls": "stop_only_after_tool_call_limit_is_owner_approved",
     "authoritative_mutation": "block_unless_already_atomically_committed",
     "work_item": "preserve",
     "disposition": "manual_review",

@@ -6,7 +6,7 @@ Do not begin by choosing numbers. Begin by defining measurement semantics and id
 2. Record discovered or requested target decisions in `target-decisions.json`. Keep values `null` where authority or evidence is absent.
 3. Complete `measurement-plan.json` with signals, aggregation, producer, retention owner, content policy, and limitations.
 4. Define dependency-specific failure modes in `degradation-policy.json`. Degradation must reduce autonomy rather than remove a control.
-5. Add execution and side-effect limits to `agent-budget.json` and define budget-exhaustion behavior.
+5. Add execution and side-effect limits to `agent-budget.json` only when each value has an accountable owner decision. Leave unsupported limits unresolved and define how they block bounded production autonomy.
 6. Link each NFR to its workload/population, measurement, decision, evidence, and response owner in `traceability.csv`.
 
 Before comparing with the reference, explain:

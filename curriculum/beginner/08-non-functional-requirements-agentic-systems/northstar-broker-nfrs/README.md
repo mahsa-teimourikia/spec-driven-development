@@ -19,16 +19,19 @@ Northstar Mutual is moving the Course 06–07 broker-response capability from a 
 
 The runtime events, quality cases, workload figures, and owner decisions are fictional teaching fixtures. They exercise percentile, ratio, slice, cost-denominator, retry, budget, and gating mechanics. They are not production telemetry, live-model results, load-test evidence, contractual SLAs, or authorization to deploy.
 
-The reference package intentionally leaves the cost and AI-quality targets unresolved and capacity unmeasured. A mature NFR process can preserve useful measurements while still returning `BLOCKED` or `NOT_MEASURED`.
+The reference package intentionally leaves the cost and AI-quality targets unresolved, six agent-budget dimensions unapproved, and capacity unmeasured. A mature NFR process can preserve useful measurements while still returning `BLOCKED` or `NOT_MEASURED`.
+
+> **FICTIONAL TRAINING TARGETS — NOT RECOMMENDED PRODUCTION SLOs.** The target values demonstrate traceability and gating mechanics only.
 
 ## What good work looks like
 
 - every requirement identifies its characteristic, population, measurement method, unit, window, owner, target state, evidence method, and failure response;
 - approved numeric targets trace to explicit owner decisions and evidence IDs;
 - unresolved targets remain `null`, never guessed from phrases such as “fast” or “cost-effective”;
-- semantic good events distinguish valid service and approved graceful degradation from error envelopes;
+- semantic service success distinguishes valid service and approved graceful degradation from error envelopes, while compliant success remains a separate metric;
 - latency states start/end boundaries and workload;
 - reliability, quality, and cost preserve numerators and denominators;
 - model-provider failure, policy failure, and telemetry failure do not silently weaken authorization or mutation controls;
-- retries, tool calls, model turns, tokens, and side effects are bounded by trusted application code; and
+- trusted application code enforces only owner-approved provider-attempt and mutation limits; unresolved tool, turn, token, deadline, and messaging budgets block bounded production autonomy;
+- degraded modes have explicit recovery predicates, anti-flap behavior, and preserved-work re-evaluation rules;
 - production readiness remains blocked until real load, telemetry, representative evaluation, quota, and owner evidence exist.

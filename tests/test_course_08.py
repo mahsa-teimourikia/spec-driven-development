@@ -28,10 +28,10 @@ class Course08NFRTests(unittest.TestCase):
     def test_reference_measurement_plan_covers_every_nfr(self) -> None:
         self.assertEqual(lab.validate_measurement_plan(), ())
 
-    def test_contract_has_ten_quality_requirements(self) -> None:
+    def test_contract_has_eleven_atomic_quality_requirements(self) -> None:
         requirements = lab.load_contract()["requirements"]
-        self.assertEqual(len(requirements), 10)
-        self.assertEqual(len({item["characteristic"] for item in requirements}), 10)
+        self.assertEqual(len(requirements), 11)
+        self.assertEqual(len({item["characteristic"] for item in requirements}), 11)
 
     def test_unresolved_targets_do_not_smuggle_values(self) -> None:
         unresolved = [item for item in lab.load_contract()["requirements"] if item["target"]["status"] == "target_unresolved"]
@@ -88,22 +88,40 @@ class Course08NFRTests(unittest.TestCase):
         self.assertEqual((latency["p50"], latency["p95"], latency["p99"]), (1850.0, 4800.0, 4800.0))
         self.assertEqual(latency["denominator"], 12)
         self.assertEqual(latency["boundary"], "accepted_request_to_completed_proposal_response")
+        self.assertIn("not_statistically_representative", latency["representativeness"])
 
     def test_semantic_good_events_include_only_approved_degradation(self) -> None:
-        metric = lab.runtime_measurements()["good_event_ratio"]
+        metric = lab.runtime_measurements()["semantic_service_success_ratio"]
         self.assertEqual((metric["numerator"], metric["denominator"]), (11, 12))
-        self.assertNotIn("error", metric["good_event_definition"])
+        self.assertNotIn("error", metric["semantic_success_definition"])
+        self.assertTrue(metric["excludes_control_compliance"])
 
     def test_http_like_error_outcome_reduces_good_event_ratio(self) -> None:
         events = copy.deepcopy(lab.load_runtime_events())
         events[0]["outcome"] = "error"
-        metric = lab.runtime_measurements(events)["good_event_ratio"]
+        metric = lab.runtime_measurements(events)["semantic_service_success_ratio"]
         self.assertEqual((metric["numerator"], metric["denominator"]), (10, 12))
+
+    def test_semantic_success_does_not_hide_control_violation(self) -> None:
+        events = copy.deepcopy(lab.load_runtime_events())
+        events[0]["authoritative_mutations"] = 2
+        result = lab.runtime_measurements(events)
+        self.assertEqual(result["semantic_service_success_ratio"]["numerator"], 11)
+        self.assertEqual(result["compliant_workflow_success_ratio"]["numerator"], 10)
+        self.assertEqual(result["control_violating_semantic_successes"]["value"], 1)
+        release = lab.release_assessment(runtime=result)
+        self.assertIn("CONTROL_VIOLATING_SEMANTIC_SUCCESS", release["blockers"])
+
+    def test_privacy_gate_retains_numerator_and_denominator(self) -> None:
+        gate = {item.requirement_id: item for item in lab.target_gates()}["PRIV-NFR-001"]
+        self.assertEqual((gate.numerator, gate.denominator), (0, 12))
 
     def test_cost_per_compliant_success_exposes_failed_work(self) -> None:
         cost = lab.runtime_measurements()["cost_usd"]
         self.assertGreater(cost["per_successful_compliant_workflow"], cost["per_request"])
         self.assertEqual(cost["successful_compliant_denominator"], 11)
+        self.assertEqual(cost["included_components"], ["model_inference", "declared_tool_api_calls"])
+        self.assertIn("human_review", cost["excluded_components"])
 
     def test_runtime_output_is_visibly_synthetic(self) -> None:
         self.assertEqual(lab.runtime_measurements()["evidence_status"], "synthetic_training_fixture_not_production_evidence")
@@ -121,12 +139,23 @@ class Course08NFRTests(unittest.TestCase):
         codes = {item.code for item in lab.telemetry_event_findings(event)}
         self.assertEqual(codes, {"TELEMETRY_RAW_CONTENT_EXPOSED", "TELEMETRY_SECRET_EXPOSED"})
 
-    def test_agent_budget_detects_loop_and_side_effect_excess(self) -> None:
+    def test_agent_budget_enforces_only_governed_limits(self) -> None:
         event = copy.deepcopy(lab.load_runtime_events()[0])
-        event["tool_calls"] = 7
+        event["tool_calls"] = 700
         event["authoritative_mutations"] = 2
         findings = lab.agent_budget_findings(event)
-        self.assertEqual([item.code for item in findings], ["AGENT_BUDGET_EXCEEDED", "AGENT_BUDGET_EXCEEDED"])
+        self.assertEqual([item.code for item in findings], ["AGENT_BUDGET_EXCEEDED"])
+        self.assertIn("authoritative_mutations", findings[0].message)
+
+    def test_unresolved_agent_budgets_block_bounded_production_autonomy(self) -> None:
+        findings = lab.validate_agent_budget()
+        unresolved = [item.subject_id for item in findings if item.code == "AGENT_BUDGET_TARGET_UNRESOLVED"]
+        self.assertEqual(set(unresolved), {"tool_calls", "model_turns", "wall_clock_ms", "input_tokens", "output_tokens", "external_broker_messages"})
+        self.assertTrue(all(item.severity == lab.Severity.REVIEW for item in findings))
+
+    def test_governed_agent_budgets_trace_to_owner_decisions(self) -> None:
+        findings = lab.validate_agent_budget()
+        self.assertNotIn("AGENT_BUDGET_DECISION_MISMATCH", {item.code for item in findings})
 
     def test_reference_events_conform_to_agent_budget(self) -> None:
         self.assertTrue(all(not lab.agent_budget_findings(event) for event in lab.load_runtime_events()))
@@ -151,6 +180,13 @@ class Course08NFRTests(unittest.TestCase):
         for dependency in ("authorization", "policy_service", "model_provider", "retrieval"):
             self.assertFalse(lab.degradation_decision(dependency)["automatic_mutation"])
 
+    def test_every_degradation_mode_has_exit_criteria(self) -> None:
+        for dependency in ("authorization", "model_provider", "policy_service", "retrieval", "analytics_export"):
+            recovery = lab.degradation_decision(dependency)["recovery_condition"]
+            self.assertTrue(recovery["predicate"])
+            self.assertTrue(recovery["anti_flap"])
+            self.assertTrue(recovery["preserved_work_re_evaluation"])
+
     def test_noncritical_analytics_may_buffer(self) -> None:
         result = lab.degradation_decision("analytics_export")
         self.assertEqual(result["mode"], "NORMAL_WITH_BUFFERED_ANALYTICS")
@@ -174,7 +210,7 @@ class Course08NFRTests(unittest.TestCase):
 
     def test_approved_fixture_targets_pass_but_do_not_authorize_release(self) -> None:
         gates = {item.requirement_id: item for item in lab.target_gates()}
-        for requirement_id in ("PERF-BR-001", "REL-BR-001", "RES-BR-001", "AGENT-NFR-001", "OBS-BR-001", "SEC-NFR-001", "PRIV-NFR-001"):
+        for requirement_id in ("PERF-BR-001", "REL-BR-001", "RES-BR-001", "AGENT-NFR-001", "OBS-BR-001", "SEC-NFR-001", "SEC-NFR-002", "PRIV-NFR-001"):
             self.assertEqual(gates[requirement_id].decision, lab.GateDecision.PASS)
 
     def test_unresolved_targets_remain_blocked_even_when_measured(self) -> None:
@@ -187,14 +223,30 @@ class Course08NFRTests(unittest.TestCase):
     def test_capacity_is_not_inferred_from_static_events(self) -> None:
         gate = {item.requirement_id: item for item in lab.target_gates()}["CAP-BR-001"]
         self.assertEqual(gate.decision, lab.GateDecision.NOT_MEASURED)
-        self.assertEqual(gate.reason_codes, ("MEASUREMENT_ABSENT",))
+        self.assertEqual(gate.reason_codes, ("CAPACITY_LOAD_EVIDENCE_ABSENT",))
 
-    def test_release_remains_blocked_after_seven_fixture_passes(self) -> None:
+    def test_capacity_requires_throughput_and_quality_constraints(self) -> None:
+        constraint_ids = next(
+            item["measurement"]["required_constraint_results"]
+            for item in lab.load_contract()["requirements"]
+            if item["id"] == "CAP-BR-001"
+        )
+        evidence = {"source_status": "representative_load_test", "sustained_requests_per_minute": 120, "constraint_results": {item: "pass" for item in constraint_ids}}
+        gate = {item.requirement_id: item for item in lab.target_gates(capacity_evidence=evidence)}["CAP-BR-001"]
+        self.assertEqual(gate.decision, lab.GateDecision.PASS)
+
+        evidence["constraint_results"]["PERF-BR-001"] = "fail"
+        gate = {item.requirement_id: item for item in lab.target_gates(capacity_evidence=evidence)}["CAP-BR-001"]
+        self.assertEqual(gate.decision, lab.GateDecision.FAIL)
+        self.assertEqual(gate.reason_codes, ("CAPACITY_QUALITY_CONSTRAINT_FAILED",))
+
+    def test_release_remains_blocked_after_eight_fixture_passes(self) -> None:
         release = lab.release_assessment()
         self.assertEqual(release["decision"], "blocked_for_production")
         self.assertFalse(release["production_ready"])
-        self.assertEqual(release["gate_counts"], {"pass": 7, "fail": 0, "blocked": 2, "not_measured": 1})
+        self.assertEqual(release["gate_counts"], {"pass": 8, "fail": 0, "blocked": 2, "not_measured": 1})
         self.assertIn("SYNTHETIC_FIXTURE_NOT_PRODUCTION_EVIDENCE", release["blockers"])
+        self.assertIn("AGENT_BUDGET_TARGETS_UNRESOLVED", release["blockers"])
 
     def test_traceability_links_every_nfr_without_claiming_execution(self) -> None:
         with (lab.REFERENCE_ROOT / "traceability.csv").open(encoding="utf-8", newline="") as handle:

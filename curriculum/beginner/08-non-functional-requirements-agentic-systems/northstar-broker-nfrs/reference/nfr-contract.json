@@ -1,6 +1,7 @@
 {
   "schema_version": "1.0-training",
   "fixture_status": "synthetic_owner_decisions_for_instruction_only",
+  "target_context": "FICTIONAL TRAINING TARGETS — NOT RECOMMENDED PRODUCTION SLOS",
   "scenario": "AI-2219 commercial-underwriting rollout",
   "requirements": [
     {
@@ -18,9 +19,9 @@
     {
       "id": "REL-BR-001",
       "characteristic": "workflow_reliability",
-      "statement": "Eligible W1 requests SHALL produce either a valid proposal response or an approved graceful-degradation response at the owner-approved good-event ratio.",
+      "statement": "Eligible W1 requests SHALL produce either a valid proposal response or an approved graceful-degradation response at the owner-approved semantic service-success ratio; control compliance is measured separately.",
       "population": {"workload_profile": "W1", "eligible_only": true},
-      "measurement": {"metric": "good_event_ratio", "unit": "ratio", "method": "semantic_good_events_divided_by_eligible_events", "window": "rolling_28_days"},
+      "measurement": {"metric": "semantic_service_success_ratio", "unit": "ratio", "method": "semantic_service_successes_divided_by_eligible_events_independent_of_control_compliance", "window": "rolling_28_days"},
       "target": {"status": "target_approved", "direction": "minimum", "value": 0.9, "unit": "ratio", "decision_id": "TD-REL-001"},
       "owner": {"decision": "Commercial Underwriting Product", "measurement": "Underwriting Platform SRE", "response": "Broker Automation Service"},
       "criticality": "service_objective",
@@ -42,7 +43,7 @@
     {
       "id": "AGENT-NFR-001",
       "characteristic": "authoritative_side_effect_budget",
-      "statement": "A broker-response workflow SHALL perform at most one authoritative mutation and model-facing execution SHALL NOT bypass the trusted mutation boundary.",
+      "statement": "A broker-response workflow SHALL perform at most one authoritative mutation per logical workflow.",
       "population": {"workload_profile": "W1", "eligible_only": true},
       "measurement": {"metric": "authoritative_mutations_per_workflow.max", "unit": "mutations_per_logical_workflow", "method": "maximum_committed_mutations_by_run_id", "window": "per_workflow"},
       "target": {"status": "invariant", "direction": "maximum", "value": 1, "unit": "mutations_per_logical_workflow", "decision_id": "TD-AGENT-001"},
@@ -52,11 +53,23 @@
       "evidence_methods": ["property_test", "runtime_trace", "audit_record"]
     },
     {
+      "id": "SEC-NFR-002",
+      "characteristic": "trusted_mutation_boundary_integrity",
+      "statement": "Model-facing execution SHALL have zero paths that bypass the independently authorized trusted mutation boundary.",
+      "population": {"execution_environment": "model_facing", "all_deployments": true},
+      "measurement": {"metric": "model_facing_mutation_boundary_bypass_paths", "unit": "bypass_paths", "method": "architecture_policy_and_capability_path_analysis", "window": "per_release_and_continuous_drift_scan"},
+      "target": {"status": "invariant", "direction": "prohibited", "value": 0, "unit": "bypass_paths", "decision_id": "TD-SEC-002"},
+      "owner": {"decision": "Product Security", "measurement": "Product Security", "response": "Underwriting Platform"},
+      "criticality": "security_invariant",
+      "failure_behavior": "Block deployment or disable the bypass path; service targets cannot override the trusted boundary.",
+      "evidence_methods": ["architecture_test", "policy_as_code", "capability_path_review"]
+    },
+    {
       "id": "COST-BR-001",
       "characteristic": "workflow_unit_economics",
       "statement": "The service SHALL measure cost per successful compliant workflow by route, workload class, and outcome before an accountable owner approves a ceiling.",
       "population": {"workload_profile": "W1", "eligible_only": true},
-      "measurement": {"metric": "cost_per_successful_compliant_workflow", "unit": "USD_per_successful_compliant_workflow", "method": "total_attributable_cost_divided_by_successful_compliant_workflows", "window": "rolling_28_days"},
+      "measurement": {"metric": "cost_per_successful_compliant_workflow", "unit": "USD_per_successful_compliant_workflow", "method": "declared_model_inference_and_tool_api_cost_divided_by_successful_compliant_workflows; compare only matching boundaries", "window": "rolling_28_days"},
       "target": {"status": "target_unresolved", "direction": "maximum", "value": null, "unit": "USD_per_successful_compliant_workflow", "decision_id": null},
       "owner": {"decision": "Commercial Underwriting Product and FinOps", "measurement": "AI Platform FinOps", "response": "Broker Automation Service"},
       "criticality": "optimization_objective",
@@ -116,7 +129,7 @@
       "characteristic": "sustained_capacity",
       "statement": "The production topology SHALL sustain the W1 request rate while meeting approved latency, reliability, and safety requirements.",
       "population": {"workload_profile": "W1", "eligible_only": true},
-      "measurement": {"metric": "sustained_requests_per_minute", "unit": "requests_per_minute", "method": "representative_load_test_with_dependency_quotas", "window": "30_minute_steady_state_plus_peak_burst"},
+      "measurement": {"metric": "sustained_requests_per_minute", "unit": "requests_per_minute", "method": "representative_load_test_with_dependency_quotas_and_all_required_constraint_results_passing", "window": "30_minute_steady_state_plus_peak_burst", "required_constraint_results": ["PERF-BR-001", "REL-BR-001", "RES-BR-001", "AGENT-NFR-001", "SEC-NFR-001", "SEC-NFR-002", "PRIV-NFR-001"]},
       "target": {"status": "target_approved", "direction": "minimum", "value": 120, "unit": "requests_per_minute", "decision_id": "TD-CAP-001"},
       "owner": {"decision": "Commercial Underwriting Product", "measurement": "Performance Engineering", "response": "Underwriting Platform"},
       "criticality": "release_control",

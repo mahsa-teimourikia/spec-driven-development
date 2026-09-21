@@ -1295,9 +1295,10 @@ def check_course_08_non_functional_requirements() -> list[str]:
     expected_ids = {
         "PERF-BR-001", "REL-BR-001", "RES-BR-001", "AGENT-NFR-001", "COST-BR-001",
         "OBS-BR-001", "AIQ-BR-001", "SEC-NFR-001", "PRIV-NFR-001", "CAP-BR-001",
+        "SEC-NFR-002",
     }
     if {item.get("id") for item in requirements} != expected_ids:
-        errors.append("Course 08 must retain ten production-quality requirements")
+        errors.append("Course 08 must retain eleven atomic production-quality requirements")
     unresolved = {item.get("id") for item in requirements if item.get("target", {}).get("status") == "target_unresolved"}
     if unresolved != {"COST-BR-001", "AIQ-BR-001"}:
         errors.append("Course 08 cost and AI-quality targets must remain explicitly unresolved")
@@ -1339,11 +1340,16 @@ def check_course_08_non_functional_requirements() -> list[str]:
         errors.append("Course 08 reference contract, workloads, and measurement plan must validate cleanly")
     runtime_report = report.get("runtime_measurements", {})
     latency = runtime_report.get("end_to_end_latency_ms", {})
-    reliability = runtime_report.get("good_event_ratio", {})
+    reliability = runtime_report.get("semantic_service_success_ratio", {})
+    compliant = runtime_report.get("compliant_workflow_success_ratio", {})
     if (latency.get("p50"), latency.get("p95"), latency.get("p99"), latency.get("denominator")) != (1850.0, 4800.0, 4800.0, 12):
         errors.append("Course 08 must preserve boundary-labelled p50/p95/p99 latency with denominator")
     if (reliability.get("numerator"), reliability.get("denominator")) != (11, 12):
-        errors.append("Course 08 semantic good-event ratio must retain its numerator and denominator")
+        errors.append("Course 08 semantic service-success ratio must retain its numerator and denominator")
+    if (compliant.get("numerator"), compliant.get("denominator")) != (11, 12):
+        errors.append("Course 08 compliant workflow success must remain a separately labelled metric")
+    if latency.get("sample_size") != 12 or "not_statistically_representative" not in latency.get("representativeness", ""):
+        errors.append("Course 08 small-sample percentiles must disclose sample size and representativeness")
     if runtime_report.get("evidence_status") != "synthetic_training_fixture_not_production_evidence":
         errors.append("Course 08 runtime output must be visibly synthetic and non-production")
     quality_report = report.get("quality_measurements", {})
@@ -1357,16 +1363,25 @@ def check_course_08_non_functional_requirements() -> list[str]:
     degradation = report.get("degradation", {})
     if any(degradation.get(name, {}).get("automatic_mutation") is not False for name in ("authorization", "model_provider", "policy_service")):
         errors.append("Course 08 critical dependency degradation must reduce automation")
+    if any(not degradation.get(name, {}).get("recovery_condition") for name in ("authorization", "model_provider", "policy_service", "analytics_export")):
+        errors.append("Course 08 degradation modes must include explicit recovery and exit criteria")
+    budget_findings = report.get("budget_policy_findings", [])
+    if sum(item.get("code") == "AGENT_BUDGET_TARGET_UNRESOLVED" for item in budget_findings) != 6:
+        errors.append("Course 08 must surface six unresolved agent-budget decisions instead of inventing limits")
     gates = {item.get("requirement_id"): item for item in report.get("target_gates", [])}
-    if sum(item.get("decision") == "pass" for item in gates.values()) != 7:
-        errors.append("Course 08 reference fixture must retain seven bounded target passes")
+    if sum(item.get("decision") == "pass" for item in gates.values()) != 8:
+        errors.append("Course 08 reference fixture must retain eight bounded target passes")
     if gates.get("COST-BR-001", {}).get("decision") != "blocked" or gates.get("AIQ-BR-001", {}).get("decision") != "blocked":
         errors.append("Course 08 measured but unauthorized cost and quality targets must remain blocked")
     if gates.get("CAP-BR-001", {}).get("decision") != "not_measured":
         errors.append("Course 08 static events must not be presented as capacity evidence")
+    if gates.get("PRIV-NFR-001", {}).get("numerator") != 0 or gates.get("PRIV-NFR-001", {}).get("denominator") != 12:
+        errors.append("Course 08 privacy gate must retain numerator and denominator")
     release = report.get("release_assessment", {})
     if release.get("production_ready") is not False or release.get("claim") != "nfr_contract_and_measurement_pipeline_exercised_only":
         errors.append("Course 08 synthetic NFR exercise must not claim production readiness")
+    if "AGENT_BUDGET_TARGETS_UNRESOLVED" not in release.get("blockers", []):
+        errors.append("Course 08 unresolved agent budgets must block bounded production autonomy")
     return errors
 
 

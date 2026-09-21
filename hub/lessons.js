@@ -362,10 +362,10 @@ const course08 = {
   outcomes: [
     'Write NFRs with explicit populations, workload profiles, boundaries, units, statistics, windows, owners, evidence methods, and failure responses.',
     'Keep unresolved targets explicit and trace approved values to accountable owner decisions and evidence.',
-    'Measure percentile latency, semantic good events, trace completeness, budget conformance, quality slices, and cost per successful compliant workflow.',
+    'Measure percentile latency with sample-size caveats; keep semantic service success separate from control-compliant success; and preserve privacy, quality, and cost denominators.',
     'Distinguish throughput, current capacity, scalability, SLIs, internal SLOs, external SLAs, invariants, and error-budget policies.',
-    'Design dependency-specific degradation that preserves work and reduces autonomy rather than skipping controls.',
-    'Bound retries, provider calls, model turns, tools, tokens, deadlines, and authoritative side effects in trusted application code.',
+    'Design dependency-specific degradation with recovery criteria that preserves work and reduces autonomy rather than skipping controls.',
+    'Enforce owner-approved retry and side-effect budgets in trusted code while leaving unsupported limits unresolved and release-blocking.',
     'Specify least privilege and privacy-safe observability with correlation IDs, versions, budgets, reason codes, and no raw broker content.',
     'Separate fixed synthetic measurement exercises from live-model, load-test, runtime, and production-readiness evidence.'
   ],
@@ -377,7 +377,7 @@ const course08 = {
   labs: [
     {
       title: 'Lab A — Measure and govern production qualities',
-      description: 'Validate owner-sourced targets, calculate latency tails and semantic outcomes, compare cost denominators, inject retry/telemetry/budget failures, and preserve an honest blocked release.',
+      description: 'Validate owner-sourced targets, separate semantic from compliant success, disclose small-sample latency limits, compare cost boundaries, inject governed failures, and preserve an honest blocked release.',
       command: 'python3 curriculum/beginner/08-non-functional-requirements-agentic-systems/lab.py',
       links: [['View the NFR lab', `${REPO}/blob/main/curriculum/beginner/08-non-functional-requirements-agentic-systems/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/beginner/08-non-functional-requirements-agentic-systems/nfr_engineering.ipynb`]]
     },
@@ -395,9 +395,9 @@ const course08 = {
     ['ISO/IEC 25010:2023 product quality model', 'https://www.iso.org/standard/78176.html']
   ],
   checkpoint: {
-    question: 'The synthetic fixture passes latency and reliability, but the AI-quality target is unresolved and W1 capacity has not been load-tested. What is the correct production decision?',
+    question: 'The synthetic fixture passes eight NFR gates, but AI quality and six agent budgets lack owner decisions and W1 capacity has not been load-tested. What is the correct production decision?',
     options: [
-      'Block production readiness, retain the bounded measurements, and obtain authorized quality and representative capacity evidence.',
+      'Block production readiness, retain the bounded measurements, and obtain authorized budget, quality, and representative capacity evidence.',
       'Deploy because most synthetic gates pass.',
       'Ask the coding agent to select common quality and capacity thresholds.'
     ],

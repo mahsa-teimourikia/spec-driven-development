@@ -623,9 +623,30 @@ const QUESTIONS = [
     explanation: 'Security, privacy, and authority invariants are hard constraints. Optimization occurs only among feasible designs.'
   },
   {
+    category: 'NFR metric semantics',
+    question: 'A workflow returns a valid proposal but logs a secret. How should the NFR metrics represent it?',
+    options: ['Count semantic service success, exclude it from compliant workflow success, fail the privacy invariant, and block release', 'Count it as fully successful because the proposal is valid', 'Remove it from every denominator', 'Change the response to an HTTP error after the fact'],
+    answer: 0,
+    explanation: 'Service semantics and control compliance answer different questions. Reporting both prevents a valid response from hiding a serious control violation.'
+  },
+  {
+    category: 'Agent budget authority',
+    question: 'The runtime records tool calls, but no accountable owner has approved a tool-call ceiling. What should the reference policy do?',
+    options: ['Keep the limit unresolved, continue measurement, and block bounded production autonomy', 'Invent a limit from the fixture maximum', 'Stop every tool call', 'Let the model choose a ceiling per request'],
+    answer: 0,
+    explanation: 'Measurement does not create authority. A production enforcement value needs an owner decision, rationale, and evidence.'
+  },
+  {
+    category: 'Compound capacity',
+    question: 'A representative test sustains 120 requests per minute, but its latency NFR fails. Does CAP-BR-001 pass?',
+    options: ['No; capacity requires the throughput target and every declared performance, reliability, and safety constraint to pass', 'Yes; throughput alone defines capacity', 'Yes, if more workers were available', 'Only the model provider can decide'],
+    answer: 0,
+    explanation: 'Capacity is sustainable useful service under the applicable constraints. Fast errors or unsafe outcomes are not conforming capacity.'
+  },
+  {
     category: 'Production readiness',
-    question: 'Seven synthetic NFR gates pass, two targets are unresolved, and capacity is unmeasured. What should the release assessment say?',
-    options: ['Blocked for production while preserving each measured, blocked, and unmeasured state', 'Pass because a majority is green', 'Average the ten gates into one score', 'Treat missing evidence as not applicable'],
+    question: 'Eight synthetic NFR gates pass, two targets and six agent budgets are unresolved, and capacity is unmeasured. What should the release assessment say?',
+    options: ['Blocked for production while preserving each measured, blocked, unresolved, and unmeasured state', 'Pass because a majority is green', 'Average the eleven gates into one score', 'Treat missing evidence as not applicable'],
     answer: 0,
     explanation: 'Required characteristics retain separate authority and evidence states. Synthetic passes cannot cancel unresolved decisions or absent capacity evidence.'
   }
