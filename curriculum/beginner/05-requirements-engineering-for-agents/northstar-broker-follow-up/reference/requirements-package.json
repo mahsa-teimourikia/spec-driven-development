@@ -1,0 +1,180 @@
+{
+  "specification": {
+    "id": "AI-2176",
+    "revision": "91abef-training",
+    "status": "approved_for_draft_only",
+    "owner": "underwriting_product_owner",
+    "updated_at": "2026-09-20T17:00:00Z"
+  },
+  "problem": "Underwriters spend time identifying absent submission information and composing repetitive broker follow-up messages, while unsupported requests and stale drafts could create broker burden or disclose policyholder information.",
+  "scope": {
+    "in": [
+      "commercial property submissions in the authenticated broker portal",
+      "missing-item analysis against current underwriting requirements",
+      "broker-message drafting and underwriter review"
+    ],
+    "out": [
+      "coverage, pricing, acceptance, rejection, or risk decisions",
+      "free-form requests unsupported by current underwriting requirements",
+      "automatic delivery while OQ-017 remains open"
+    ],
+    "non_goals": [
+      "replace underwriters",
+      "change underwriting policy",
+      "select a model or persistence technology"
+    ]
+  },
+  "glossary": [
+    {"term": "missing item", "definition": "A required datum or document that is absent or invalid in a named submission revision and traces to a current underwriting requirement."},
+    {"term": "draft", "definition": "Proposed broker communication that has no delivery authority."},
+    {"term": "approval receipt", "definition": "A single-use record bound to exact content, subject, versions, reviewer, rationale, and expiry."},
+    {"term": "current", "definition": "The version read from the authoritative application state at the decision boundary."}
+  ],
+  "sources": [
+    {"id": "SRC-TICKET-2176", "kind": "ticket", "owner": "underwriting_product", "version": "1", "locator": "ticket/AI-2176.md"},
+    {"id": "SRC-UW-REQ-12", "kind": "domain_requirement", "owner": "underwriting_governance", "version": "12.4-training", "locator": "sources/underwriting-requirements.json"},
+    {"id": "SRC-DECISIONS", "kind": "decision_record", "owner": "named_stakeholders", "version": "2026-09-20", "locator": "sources/stakeholder-decisions.md"},
+    {"id": "SRC-OPS-Q2", "kind": "operational", "owner": "underwriting_operations", "version": "2026-Q2-training", "locator": "sources/operating-baseline.json"}
+  ],
+  "capabilities": [
+    {"id": "analyze_missing_items", "autonomy_level": 1, "description": "Propose a structured missing-item plan for review."},
+    {"id": "draft_message", "autonomy_level": 1, "description": "Prepare a broker follow-up draft without sending it."},
+    {"id": "send_message", "autonomy_level": 0, "description": "Remain disabled until owners resolve the delivery policy and production controls."}
+  ],
+  "requirements": [
+    {
+      "id": "REQ-FU-001",
+      "revision": "a1",
+      "capability": "analyze_missing_items",
+      "normative_strength": "SHALL",
+      "priority": "must",
+      "status": "approved",
+      "owner": "underwriting_governance",
+      "source_ids": ["SRC-UW-REQ-12", "SRC-DECISIONS"],
+      "statement": "When an authenticated underwriter requests analysis of a supported submission revision, the system SHALL return one structured MissingItem for each absent or invalid item required by the current underwriting rule set.",
+      "preconditions": ["submission identity and revision are current", "requesting underwriter is authorized", "underwriting rule set is current"],
+      "behavior": {"output": "MissingItem[]", "required_fields": ["id", "requirement_id", "label", "evidence_ids"]},
+      "postconditions": ["every item traces to one current requirement", "every item cites submission evidence"],
+      "evidence": {"method": "contract and invariant tests", "cases": ["complete", "missing", "invalid", "unknown requirement"]}
+    },
+    {
+      "id": "INV-FU-001",
+      "revision": "b2",
+      "capability": "analyze_missing_items",
+      "normative_strength": "SHALL_NOT",
+      "priority": "must",
+      "status": "approved",
+      "owner": "underwriting_governance",
+      "source_ids": ["SRC-UW-REQ-12"],
+      "statement": "The system SHALL NOT classify an item as missing unless a current underwriting requirement requires it for the submission context.",
+      "preconditions": ["submission context is known"],
+      "behavior": {"prohibited_outcome": "unsupported missing item"},
+      "postconditions": ["unsupported proposals enter review_required"],
+      "evidence": {"method": "negative invariant test", "cases": ["model adds unsupported request"]}
+    },
+    {
+      "id": "REQ-FU-042",
+      "revision": "c3",
+      "capability": "draft_message",
+      "normative_strength": "SHALL",
+      "priority": "must",
+      "status": "approved",
+      "owner": "broker_experience_owner",
+      "source_ids": ["SRC-DECISIONS"],
+      "statement": "When a validated missing-item plan exists, the system SHALL create a draft whose requested items correspond exactly to that plan.",
+      "preconditions": ["missing-item plan passed schema, semantic, and policy validation"],
+      "behavior": {"input": "MissingItem[]", "output": "Draft", "correspondence": "exact item IDs"},
+      "postconditions": ["no unsupported additions", "no omissions", "no external delivery"],
+      "evidence": {"method": "correspondence precision and recall", "population": "versioned labelled drafting cases"}
+    },
+    {
+      "id": "HITL-FU-003",
+      "revision": "d4",
+      "capability": "draft_message",
+      "normative_strength": "SHALL",
+      "priority": "must",
+      "status": "approved",
+      "owner": "underwriting_operations",
+      "source_ids": ["SRC-DECISIONS"],
+      "statement": "When an approved draft changes, the system SHALL invalidate the prior approval and require a new receipt bound to the changed draft digest.",
+      "preconditions": ["a prior approval receipt exists"],
+      "behavior": {"compare": "approved draft digest to current draft digest"},
+      "postconditions": ["changed content has no reusable approval authority"],
+      "evidence": {"method": "digest-mismatch negative test", "cases": ["body edit", "item edit", "broker change"]}
+    },
+    {
+      "id": "SEC-FU-003",
+      "revision": "e5",
+      "capability": "send_message",
+      "normative_strength": "SHALL",
+      "priority": "must",
+      "status": "approved",
+      "owner": "identity_security",
+      "source_ids": ["SRC-DECISIONS"],
+      "statement": "Before any delivery attempt, trusted application code SHALL verify that the broker identity is authorized for the current submission.",
+      "preconditions": ["authenticated application context exists"],
+      "behavior": {"authorization_source": "application identity and relationship service"},
+      "postconditions": ["denial or unknown blocks delivery"],
+      "evidence": {"method": "authorization boundary tests", "cases": ["authorized", "wrong broker", "unknown relationship"]}
+    },
+    {
+      "id": "REL-FU-002",
+      "revision": "f6",
+      "capability": "send_message",
+      "normative_strength": "SHALL_NOT",
+      "priority": "must",
+      "status": "approved",
+      "owner": "messaging_platform",
+      "source_ids": ["SRC-DECISIONS"],
+      "statement": "The delivery adapter SHALL NOT create more than one external message for one logical operation ID.",
+      "preconditions": ["logical operation ID is stable across retries"],
+      "behavior": {"duplicate_policy": "reconcile known or unknown outcome before retry"},
+      "postconditions": ["duplicate attempt is blocked or returns the prior result"],
+      "evidence": {"method": "duplicate and uncertain-outcome tests", "cases": ["duplicate", "timeout after provider acceptance"]}
+    },
+    {
+      "id": "OBS-FU-001",
+      "revision": "g7",
+      "capability": "analyze_missing_items",
+      "normative_strength": "SHALL",
+      "priority": "should",
+      "status": "approved",
+      "owner": "underwriting_operations",
+      "source_ids": ["SRC-DECISIONS"],
+      "statement": "For each missing-item decision, the system SHALL record the submission revision, underwriting requirement ID, analysis version, outcome, and reason code without storing message content in telemetry.",
+      "preconditions": ["analysis reaches a terminal outcome"],
+      "behavior": {"telemetry_fields": ["submission_revision", "requirement_id", "analysis_version", "outcome", "reason_code"]},
+      "postconditions": ["investigation metadata exists", "message content is excluded"],
+      "evidence": {"method": "telemetry contract test", "cases": ["proceed", "abstain", "clarify", "escalate"]}
+    }
+  ],
+  "invariants": [
+    {"id": "INV-PLAN-SUPPORT", "statement": "Every MissingItem traces to current authoritative rules and observed evidence.", "requirement_ids": ["REQ-FU-001", "INV-FU-001"]},
+    {"id": "INV-DRAFT-CORRESPONDENCE", "statement": "A draft neither adds nor omits MissingItems from the validated plan.", "requirement_ids": ["REQ-FU-042"]},
+    {"id": "INV-APPROVAL-EXACT", "statement": "Approval applies only to the exact draft, subject, broker, and current versions.", "requirement_ids": ["HITL-FU-003", "SEC-FU-003"]},
+    {"id": "INV-NO-DUPLICATE-SEND", "statement": "One logical operation creates at most one external message.", "requirement_ids": ["REL-FU-002"]}
+  ],
+  "questions": [
+    {"id": "OQ-009", "kind": "unknown", "text": "Which labelled case set and owner-approved threshold will govern model-quality release?", "owner": "model_risk_owner", "status": "open", "blocks_capabilities": []},
+    {"id": "OQ-017", "kind": "policy_decision", "text": "May any category be delivered without underwriter approval, and under which accountable policy?", "owner": "underwriting_governance", "status": "open", "blocks_capabilities": ["send_message"]},
+    {"id": "OQ-021", "kind": "design_question", "text": "Which approved generation service best meets the validated contract?", "owner": "solution_architect", "status": "open", "blocks_capabilities": []}
+  ],
+  "failure_matrix": [
+    {"category": "transport", "retryable": true, "max_attempts": 2, "terminal_outcome": "escalate", "reason_code": "TRANSPORT_RETRY_EXHAUSTED"},
+    {"category": "schema", "retryable": false, "max_attempts": 0, "terminal_outcome": "abstain", "reason_code": "SCHEMA_INVALID"},
+    {"category": "safety", "retryable": false, "max_attempts": 0, "terminal_outcome": "escalate", "reason_code": "SAFETY_POLICY_DENIED"},
+    {"category": "evidence", "retryable": false, "max_attempts": 0, "terminal_outcome": "clarify", "reason_code": "EVIDENCE_INSUFFICIENT"},
+    {"category": "quality", "retryable": false, "max_attempts": 0, "terminal_outcome": "abstain", "reason_code": "QUALITY_GATE_FAILED"}
+  ],
+  "tasks": [
+    {"id": "TASK-01", "title": "Implement MissingItem contract and authoritative rule lookup", "requirement_ids": ["REQ-FU-001", "INV-FU-001", "OBS-FU-001"]},
+    {"id": "TASK-02", "title": "Implement draft correspondence validator", "requirement_ids": ["REQ-FU-042"]},
+    {"id": "TASK-03", "title": "Implement proposal-bound approval validation", "requirement_ids": ["HITL-FU-003", "SEC-FU-003"]},
+    {"id": "TASK-04", "title": "Implement idempotent delivery adapter after OQ-017 closes", "requirement_ids": ["REL-FU-002"]}
+  ],
+  "agent_authority": {
+    "allowed": ["extract candidate requirements", "propose clarification questions", "draft MissingItems", "draft broker communication", "run deterministic validation"],
+    "forbidden": ["answer owner questions", "change underwriting policy", "approve requirements", "approve a draft", "authorize a broker", "send a message"],
+    "stop_conditions": ["source conflict", "missing authority", "stale context", "unsupported item", "invalid approval", "unknown delivery outcome"]
+  }
+}

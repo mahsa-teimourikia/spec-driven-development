@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc" viewBox="0 0 1640 930">
+<title id="title">Evidence-aware requirements discovery for agents</title>
+<desc id="desc">Four-stage left-to-right workflow. Versioned sources and stakeholder viewpoints enter a discovery register. Deterministic and human review expose assumptions, ambiguities, and conflicts. An agent proposes prioritized clarification questions, but accountable owners provide decision records. A bounded change specification reaches ready only when blocking findings close; otherwise the workflow stops or requests clarification.</desc>
+<defs>
+        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="7" flood-color="#16324F" flood-opacity="0.09"/></filter>
+        <marker id="arrow-evidence" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#087F7B"/></marker>
+        <marker id="arrow-analysis" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#7667E8"/></marker>
+        <marker id="arrow-decision" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#D97706"/></marker>
+        <marker id="arrow-output" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#2F6BFF"/></marker>
+        <marker id="arrow-ready" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#238636"/></marker>
+        <style>text{font-family:Inter,Arial,sans-serif;fill:#16324F}.title{font-size:30px;font-weight:750}.subtitle{font-size:16px;fill:#52606D}.group{font-size:14px;font-weight:750;letter-spacing:1.4px;fill:#52606D}.label{font-size:17px;font-weight:700}.note{font-size:13px;fill:#52606D}.edge{font-size:13px;font-weight:650;fill:#52606D;paint-order:stroke;stroke:#F7F9FC;stroke-width:8px}</style>
+        </defs>
+<rect width="100%" height="100%" fill="#F7F9FC"/>
+<text x="50" y="58" class="title">Evidence-aware requirements discovery for agents</text>
+<text x="50" y="90" class="subtitle">Agents propose findings and questions; accountable owners decide; trusted code evaluates readiness.</text>
+<g filter="url(#shadow)"><rect x="50" y="145" width="350" height="700" rx="18" fill="#FFFFFF" stroke="#D7DEE8"/></g><text x="74" y="183" class="group">ATTRIBUTED INPUTS</text>
+<g filter="url(#shadow)"><rect x="440" y="145" width="350" height="700" rx="18" fill="#FFFFFF" stroke="#D7DEE8"/></g><text x="464" y="183" class="group">DISCOVERY WORKSPACE</text>
+<g filter="url(#shadow)"><rect x="830" y="145" width="370" height="700" rx="18" fill="#FFFFFF" stroke="#D7DEE8"/></g><text x="854" y="183" class="group">DECISION BOUNDARY</text>
+<g filter="url(#shadow)"><rect x="1240" y="145" width="350" height="700" rx="18" fill="#FFFFFF" stroke="#D7DEE8"/></g><text x="1264" y="183" class="group">SPECIFICATION INTAKE</text>
+<polyline points="360,310 420,310 420,292 480,292" fill="none" stroke="#087F7B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-evidence)"/>
+<text x="420" y="270" text-anchor="middle" class="edge">provenance</text>
+<polyline points="360,625 420,625 420,340 480,340" fill="none" stroke="#087F7B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-evidence)"/>
+<polyline points="615,370 615,565" fill="none" stroke="#7667E8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-analysis)"/>
+<text x="665" y="485" text-anchor="middle" class="edge">inspect</text>
+<polyline points="750,625 815,625 815,310 880,310" fill="none" stroke="#D97706" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-decision)"/>
+<text x="815" y="495" text-anchor="middle" class="edge">prioritize</text>
+<polyline points="1015,370 1015,565" fill="none" stroke="#D97706" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-decision)"/>
+<text x="1075" y="485" text-anchor="middle" class="edge">owner answers</text>
+<polyline points="1150,625 1215,625 1215,310 1280,310" fill="none" stroke="#2F6BFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-output)"/>
+<text x="1220" y="495" text-anchor="middle" class="edge">incorporate</text>
+<polyline points="1415,370 1415,565" fill="none" stroke="#238636" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-ready)"/>
+<text x="1475" y="485" text-anchor="middle" class="edge">evaluate</text>
+<g><rect x="90" y="250" width="270" height="120" rx="14" fill="#E5F7F6" stroke="#087F7B" stroke-width="2"/><text x="110" y="292" class="label">Versioned sources</text><text x="110" y="323" class="note">ticket · policy · process · telemetry</text></g>
+<g><rect x="90" y="565" width="270" height="120" rx="14" fill="#E5F7F6" stroke="#087F7B" stroke-width="2"/><text x="110" y="607" class="label">Stakeholder viewpoints</text><text x="110" y="638" class="note">roles · interests · decision rights</text></g>
+<g><rect x="480" y="250" width="270" height="120" rx="14" fill="#F0EEFF" stroke="#7667E8" stroke-width="2"/><text x="500" y="292" class="label">Discovery register</text><text x="500" y="323" class="note">facts · candidates · assumptions</text></g>
+<g><rect x="480" y="565" width="270" height="120" rx="14" fill="#F0EEFF" stroke="#7667E8" stroke-width="2"/><text x="500" y="607" class="label">Quality findings</text><text x="500" y="638" class="note">ambiguity · conflict · coverage</text></g>
+<g><rect x="880" y="250" width="270" height="120" rx="14" fill="#FFF1DF" stroke="#D97706" stroke-width="2"/><text x="900" y="292" class="label">Clarification queue</text><text x="900" y="323" class="note">agent proposes · budget is bounded</text></g>
+<g><rect x="880" y="565" width="270" height="120" rx="14" fill="#FFF1DF" stroke="#D97706" stroke-width="2"/><text x="900" y="607" class="label">Owner decision records</text><text x="900" y="638" class="note">human authority · cited evidence</text></g>
+<g><rect x="1280" y="250" width="270" height="120" rx="14" fill="#EAF1FF" stroke="#2F6BFF" stroke-width="2"/><text x="1300" y="292" class="label">Bounded change spec</text><text x="1300" y="323" class="note">scope · non-goals · proposals</text></g>
+<g><rect x="1280" y="565" width="270" height="120" rx="14" fill="#E9F8ED" stroke="#238636" stroke-width="2"/><text x="1300" y="607" class="label">READY · REVIEW · STOP</text><text x="1300" y="638" class="note">trusted application owns status</text></g>
+</svg>

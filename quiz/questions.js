@@ -306,5 +306,54 @@ const QUESTIONS = [
     options: ['Conformance re-evaluation is required; code migration remains undetermined until owners inspect implementation and evidence', 'All four artifacts are non-compliant', 'Code migration is always required', 'Existing evidence remains valid automatically'],
     answer: 0,
     explanation: 'Impact identifies assurance that must be revisited. The current implementation may already satisfy the changed obligation, so migration is a later accountable decision.'
+  },
+  {
+    category: 'Requirements discovery',
+    question: 'Why should AI-2176 establish a system boundary before rewriting the ticket as requirements?',
+    options: ['To separate analysis and drafting from identity, underwriting policy, approval, and message-delivery authority', 'To select a programming language', 'To let the model decide every external behavior', 'To eliminate the need for stakeholder input'],
+    answer: 0,
+    explanation: 'A boundary defines what the feature controls, which population it serves, what authority it has, and which claims its evidence can support.'
+  },
+  {
+    category: 'Requirement quality',
+    question: 'A requirement passes every structural check in the Course 05 lab. What has been established?',
+    options: ['Its declared structure and selected review rules pass; truth, completeness, feasibility, and authority remain separate questions', 'The requirement is approved for production', 'Every stakeholder agrees', 'The implementation conforms'],
+    answer: 0,
+    explanation: 'Deterministic checks expose declared defects but cannot prove semantic completeness or authenticate an owner decision.'
+  },
+  {
+    category: 'Clarification',
+    question: 'An agent answers OQ-017 itself and labels the producer underwriting_governance. What should happen?',
+    options: ['STOP until an authenticated accountable owner records a decision bound to evidence', 'Accept the answer because the role label is correct', 'Accept it if the JSON parses', 'Treat model confidence as approval'],
+    answer: 0,
+    explanation: 'Natural-language role claims and typed fields do not create authority. The agent may draft; the trusted workflow must record the actual owner decision.'
+  },
+  {
+    category: 'Capability boundaries',
+    question: 'OQ-017 blocks automatic delivery but not missing-item analysis. What is the correct release shape?',
+    options: ['Keep send disabled while bounded analysis and review-only drafting proceed', 'Let the model decide simple cases', 'Block every capability', 'Treat a draft as authorization'],
+    answer: 0,
+    explanation: 'Questions should block only affected capabilities. Reducing autonomy preserves useful work without silently granting delivery authority.'
+  },
+  {
+    category: 'Approval',
+    question: 'An underwriter approved a draft, then the agent added one more request. What is required?',
+    options: ['Invalidate the receipt and obtain new approval for the changed draft digest', 'Reuse approval because the broker is unchanged', 'Send if the new wording is professional', 'Update only the timestamp'],
+    answer: 0,
+    explanation: 'Approval applies to exact content and context. A changed proposal has no inherited authority.'
+  },
+  {
+    category: 'Evaluation',
+    question: 'The evidence-aware detector gets 5/5 recall on eight synthetic cases. What is the strongest justified conclusion?',
+    options: ['It found every labelled defect in that fixture; transfer and semantic completeness remain unproven', 'It proves the requirements are complete', 'It outperforms every model', 'No human review is required'],
+    answer: 0,
+    explanation: 'Evaluation claims are bounded by the dataset, labels, detector, and conditions. Small synthetic fixtures are regression evidence, not general benchmarks.'
+  },
+  {
+    category: 'Draft correspondence',
+    question: 'Why does Course 05 measure both precision and recall for a broker-message draft?',
+    options: ['Precision exposes unsupported requests; recall exposes omitted validated items', 'Two metrics always prove production quality', 'Recall authorizes delivery', 'Precision replaces domain rules'],
+    answer: 0,
+    explanation: 'Additions can burden brokers and omissions can prolong the cycle. Both metrics remain bounded to a named labelled population.'
   }
 ];

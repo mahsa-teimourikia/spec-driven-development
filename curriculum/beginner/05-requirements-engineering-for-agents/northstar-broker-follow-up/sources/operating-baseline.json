@@ -1,0 +1,12 @@
+{
+  "period": "2026-Q2-training",
+  "population": "synthetic commercial-property portal submissions",
+  "submissions": 1200,
+  "submissions_requiring_follow_up": 438,
+  "median_manual_draft_minutes": 7.4,
+  "p95_manual_draft_minutes": 18.1,
+  "limitations": [
+    "Synthetic instructional data; not a benchmark or production target.",
+    "The baseline does not establish an acceptable model-quality threshold."
+  ]
+}

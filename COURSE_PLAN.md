@@ -84,7 +84,7 @@ Each future course follows this learning arc, adapted where the subject demands 
 
 | Course | Level folder | Topic | Status | Prerequisite | Learner evidence |
 | --- | --- | --- | --- | --- | --- |
-| 05 | beginner/05 | Requirements engineering for agents | Planned | C01–C04 | Bounded change specification and ambiguity findings |
+| 05 | beginner/05 | Requirements engineering for coding agents | **Available** | C01–C04 | AI-2176 ambiguity register, typed requirements, capability gates, exact-content approval, failure matrix, traceability, and evaluation evidence |
 | 06 | beginner/06 | User stories, EARS, SHALL requirements, scenarios | Planned | C05 | Rewritten requirement set with positive/negative scenarios |
 | 07 | beginner/07 | Acceptance criteria and invariants | Planned | C06 | Executable criteria, invariants, counterexamples |
 | 08 | beginner/08 | Non-functional requirements | Planned | C06–C07 | Workload model, SLO-like criteria, measurement plan |
@@ -242,6 +242,22 @@ specialization semantics, enforcement, ownership, and change propagation.
   manifest and structured fixture metadata; it does not authenticate enterprise
   publishers, replace legal/policy judgment, configure external products, or
   prove deployed enforcement.
+
+## Course 05 design record
+
+Course 05 begins Part II by separating requirements discovery from the deeper
+syntax and evidence design taught in Courses 06–08. Its focused capability is
+to transform an ambiguous agentic-feature request into observable, owned,
+versioned requirements and deterministic execution boundaries without allowing
+an agent to manufacture domain truth or decision authority.
+
+- **Scenario:** ticket `AI-2176` asks Northstar Mutual to inspect underwriting submissions, identify missing information, draft broker follow-up, and perhaps auto-send “simple” cases while leaving scope, definitions, authority, failure behavior, freshness, and measurement underspecified.
+- **Core artifact:** a structured requirements package with stable IDs, revisions, sources, owners, glossary, scope, capabilities, requirements, invariants, open questions, failure rules, tasks, and an explicit agent-authority boundary.
+- **Lab A:** compare a lexical ambiguity baseline with evidence-aware review rules; validate requirement structure and provenance; gate capabilities independently; validate missing-item and draft correspondence; inject stale and changed-approval failures; and inspect semantic change and traceability findings.
+- **Lab B:** read ticket, domain rules, stakeholder decisions, and an operational baseline; complete an ambiguity register and starter package; then compare with the reference only after explaining every unresolved decision.
+- **Technology context:** compare repository-native Markdown plus structured metadata, JSON/YAML schemas, requirements platforms/ReqIF, model-based tools, and Spec Kit clarification/checklist flows by the guarantees they actually provide.
+- **Evaluation:** report precision and recall for both requirement-review detection and draft correspondence with explicit populations, numerators, denominators, and limitations. The fixture does not invent a production model-quality threshold.
+- **Boundaries:** analysis and drafting may proceed at autonomy level 1, but automatic delivery stays disabled while `OQ-017` is open. Trusted application code—not a model, prompt, typed object, or simulated receipt—must validate current context, authorization, exact-content approval, policy, and idempotency.
 
 ## Risk boundaries
 

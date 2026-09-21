@@ -457,4 +457,4 @@ Before applying this pattern in a real enterprise:
 
 ## What comes next
 
-[Course 05: Requirements engineering for agents](../README.md) moves from ownership and placement to elicitation, ambiguity removal, quality criteria, and agent-ready requirement structures.
+[Course 05: Requirements engineering for coding agents](../05-requirements-engineering-for-agents/README.md) moves from ownership and placement to ambiguity removal, executable requirements, capability-level gates, and bounded runtime authority.
