@@ -29,7 +29,7 @@
   "limitations": [
     "The bundle is a deterministic training fixture, not a signed attestation.",
     "Producer identities and revisions are descriptive rather than authenticated.",
-    "No production runtime evidence or live model evaluation is included.",
+    "No production runtime evidence or live-model result is included; the statistical record is a fixed-prediction pipeline exercise.",
     "A green bundle supports only the explicitly scoped Course 07 claims."
   ]
 }

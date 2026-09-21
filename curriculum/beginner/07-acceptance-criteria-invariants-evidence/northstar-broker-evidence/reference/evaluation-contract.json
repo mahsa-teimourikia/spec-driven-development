@@ -21,6 +21,12 @@
     "prompt_examples_must_not_overlap": true,
     "development_cases_included": false
   },
+  "deployment_eligibility": {
+    "eligible_profile": {"language": "English", "modality": "plain_text", "handwritten": false, "field_class_source": "population.field_classes"},
+    "default_for_out_of_population_input": "manual_review",
+    "reason_code": "OUTSIDE_EVALUATED_POPULATION",
+    "authority_note": "Model confidence cannot expand the evaluated population or enable an unsupported automated path."
+  },
   "metrics": ["exact_outcome_accuracy", "slice_accuracy", "conflict_detection_recall"],
   "known_limitations": [
     "The dataset is small and synthetic.",

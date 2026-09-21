@@ -1,6 +1,9 @@
 {
   "id": "RUNTIME-FIXTURE-BR-001",
   "revision": "1.0-training",
+  "source": "synthetic_course07_event_fixture",
+  "evidence_status": "simulated_not_production",
+  "production_evidence": false,
   "observed_window": "synthetic-training-window",
   "events": [
     {"id": "RT-01", "existing_verified": true, "existing_value": 1998, "proposed_value": 2001, "mutation_mode": "reviewed", "mutation_applied": false},
@@ -11,6 +14,7 @@
     {"id": "RT-06", "existing_verified": false, "existing_value": null, "proposed_value": 2001, "mutation_mode": "automatic", "mutation_applied": true}
   ],
   "limitations": [
+    "THIS IS NOT PRODUCTION EVIDENCE.",
     "Events are synthetic and do not prove production instrumentation completeness or control effectiveness.",
     "The fixture does not authenticate producers or detect a legacy endpoint absent from telemetry."
   ]

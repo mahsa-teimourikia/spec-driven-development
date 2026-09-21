@@ -2,6 +2,7 @@
   "records": [
     {
       "evidence_id": "EVID-HUMAN-RUBRIC",
+      "lifecycle_state": "planned",
       "type": "human_evaluation",
       "evidence_class": "human_judgment",
       "requirement_ids": ["SEC-BR-001"],

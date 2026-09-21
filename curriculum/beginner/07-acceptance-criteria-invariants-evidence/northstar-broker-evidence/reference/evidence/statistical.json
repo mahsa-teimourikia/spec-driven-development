@@ -2,13 +2,14 @@
   "records": [
     {
       "evidence_id": "EVID-EVAL-BR-001",
-      "type": "ai_evaluation",
+      "lifecycle_state": "executed",
+      "type": "synthetic_evaluation_fixture",
       "evidence_class": "statistical_quality",
       "requirement_ids": ["REQ-BR-031", "SEC-BR-001"],
       "acceptance_ids": ["AC-BR-031-A", "AC-SEC-001"],
       "producer": {"id": "underwriting-quality-fixture", "relationship_to_implementation": "separate_context", "identity_authenticated": false},
       "validity": {"specification_revision": "1.1-training", "implementation_revision": "course06-2dd6bc2-training", "environment_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "dataset_revision": "broker-response-eval-v1-training", "tool_revision": "course07-lab-1.0-training"},
-      "result": {"status": "measured", "numerator": 12, "denominator": 12, "executed_at": "2026-09-21T17:00:00Z", "gate_status": "unresolved"},
+      "result": {"status": "measured", "numerator": 12, "denominator": 12, "executed_at": "2026-09-21T17:00:00Z", "gate_status": "unresolved", "claim": "pipeline_mechanics_only_not_model_quality"},
       "limitations": ["Predictions are fixed synthetic fixtures; no model is evaluated and no statistical-quality threshold is authorized."]
     }
   ]

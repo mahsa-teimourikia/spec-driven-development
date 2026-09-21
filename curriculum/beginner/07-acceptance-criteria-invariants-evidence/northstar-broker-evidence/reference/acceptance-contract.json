@@ -71,6 +71,13 @@
       "population": "authenticated responses identified by stable response identity"
     },
     {
+      "id": "INV-BR-005",
+      "source": "AI-2219@1.1-training",
+      "class": "safety",
+      "statement": "A ProposedUpdate derived from stale authoritative context never mutates current submission state.",
+      "population": "proposal application attempts whose submission revision or requirement-context digest is no longer current"
+    },
+    {
       "id": "FRAME-BR-001",
       "source": "AI-2219@1.1-training",
       "class": "frame_condition",
@@ -166,8 +173,8 @@
     {
       "id": "AC-BR-036-A",
       "kind": "staleness",
-      "requirement_ids": ["REQ-BR-035", "REQ-BR-036"],
-      "invariant_ids": ["INV-BR-004"],
+      "requirement_ids": ["REQ-BR-036"],
+      "invariant_ids": ["INV-BR-005"],
       "risk": "critical",
       "given": ["the proposal submission revision is S16", "the current revision is S17"],
       "when": ["classification or application is attempted"],

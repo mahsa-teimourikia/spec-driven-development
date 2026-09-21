@@ -314,6 +314,7 @@ const course07 = {
     'Use seeded specification and code mutations to test evidence sensitivity without claiming complete correctness.',
     'Define AI evaluation populations, slices, label provenance, split controls, and explicit denominators.',
     'Validate evidence provenance, freshness, invalidation, independence, and limitations.',
+    'Route unevaluated languages, modalities, and field classes away from automated processing.',
     'Keep measured quality separate from threshold ownership and release authority.',
     'Connect preventive evidence to runtime signals with a trustworthy applicable population.'
   ],

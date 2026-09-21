@@ -2,6 +2,7 @@
   "records": [
     {
       "evidence_id": "EVID-MUTATION",
+      "lifecycle_state": "executed",
       "type": "security_test",
       "evidence_class": "deterministic_conformance",
       "requirement_ids": ["REQ-BR-001", "REQ-BR-003", "REQ-BR-005"],

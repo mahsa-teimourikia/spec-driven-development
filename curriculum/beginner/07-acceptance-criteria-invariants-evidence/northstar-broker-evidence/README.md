@@ -24,7 +24,7 @@ Then read the [verification ticket](ticket/AI-2219-verification.md).
 4. Complete the [evaluation contract](workshop/starter/evaluation-contract.json), including population,
    label provenance, split policy, metrics, and limitations.
 5. Complete the [human rubric](workshop/starter/human-rubric.json), including qualifications, independent rating, anchors, adjudication, and agreement denominators; keep its status `not_run`.
-6. Complete the [evidence manifest](workshop/starter/evidence/manifest.json) without representing not-run work as pass.
+6. Complete the [evidence manifest](workshop/starter/evidence/manifest.json) and mark each record `planned` or `executed` without representing not-run work as pass.
 7. Complete the [gate policy](workshop/starter/gate-policy.json). Leave the statistical threshold unresolved unless the supplied sources authorize it.
 8. Connect requirement → criterion/invariant → evidence in [traceability](workshop/starter/traceability.csv).
 9. Run the Course 07 lab and tests. Inject at least one semantic mutant and one stale-evidence failure.
@@ -35,7 +35,8 @@ Then read the [verification ticket](ticket/AI-2219-verification.md).
 - Deterministic acceptance and safety gates may pass for the finite training populations.
 - The statistical extraction-quality gate remains blocked because `OQ-EVAL-001` has no approved threshold.
 - Human evidence is `not_run`.
-- Runtime evidence is simulated and does not authorize a production release.
+- Runtime evidence is visibly labelled simulated and does not authorize a production release.
+- Inputs outside the evaluated language, modality, and field population route to manual review.
 - Producer names, digests, and revisions are fixture metadata, not signed attestations.
 
 ## Run

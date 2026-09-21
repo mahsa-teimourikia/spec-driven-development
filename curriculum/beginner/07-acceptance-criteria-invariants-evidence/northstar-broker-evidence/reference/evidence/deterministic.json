@@ -2,6 +2,7 @@
   "records": [
     {
       "evidence_id": "EVID-AC-SUITE",
+      "lifecycle_state": "executed",
       "type": "integration_test",
       "evidence_class": "deterministic_conformance",
       "requirement_ids": ["REQ-BR-001", "REQ-BR-003", "REQ-BR-005", "REQ-BR-020", "REQ-BR-021", "REQ-BR-030", "REQ-BR-031", "REQ-BR-035", "REQ-BR-036", "REQ-BR-037", "SEC-BR-001", "OBS-BR-001", "COMPAT-BR-001"],
@@ -13,6 +14,7 @@
     },
     {
       "evidence_id": "EVID-DT-COVERAGE",
+      "lifecycle_state": "executed",
       "type": "contract_test",
       "evidence_class": "deterministic_conformance",
       "requirement_ids": ["REQ-BR-005"],
@@ -24,6 +26,7 @@
     },
     {
       "evidence_id": "EVID-STATE-GRAPH",
+      "lifecycle_state": "executed",
       "type": "integration_test",
       "evidence_class": "deterministic_conformance",
       "requirement_ids": ["REQ-BR-001", "REQ-BR-037"],
@@ -35,6 +38,7 @@
     },
     {
       "evidence_id": "EVID-STATIC-TOOLS",
+      "lifecycle_state": "executed",
       "type": "security_test",
       "evidence_class": "deterministic_conformance",
       "requirement_ids": ["SEC-BR-001", "REQ-BR-031"],
@@ -46,6 +50,7 @@
     },
     {
       "evidence_id": "EVID-CONTRACT-VERSION",
+      "lifecycle_state": "executed",
       "type": "contract_test",
       "evidence_class": "deterministic_conformance",
       "requirement_ids": ["COMPAT-BR-001", "REQ-BR-030"],

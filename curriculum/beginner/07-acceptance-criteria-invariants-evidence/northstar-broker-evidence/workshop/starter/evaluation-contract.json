@@ -7,6 +7,7 @@
   "dataset_revision": "TODO",
   "labeling": {"seed_source": "TODO", "required_fields": ["TODO"]},
   "split_policy": {"release_split": "TODO", "prompt_examples_must_not_overlap": true},
+  "deployment_eligibility": {"eligible_profile": "TODO", "default_for_out_of_population_input": "TODO", "reason_code": "TODO", "authority_note": "TODO"},
   "metrics": ["TODO"],
   "known_limitations": ["TODO"]
 }

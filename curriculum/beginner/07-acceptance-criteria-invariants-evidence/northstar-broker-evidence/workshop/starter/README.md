@@ -1,7 +1,8 @@
 # Starter workspace
 
 Complete the `TODO` fields without copying the reference first. Preserve stable IDs, name exclusions,
-and separate measurement from gate policy. A safe solution may leave a capability blocked.
+separate measurement from gate policy, and distinguish planned evidence from executed results. A safe
+solution may leave a capability blocked or route an unevaluated population to manual review.
 
 Required deliverables:
 

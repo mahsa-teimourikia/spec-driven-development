@@ -279,7 +279,7 @@ pretending that examples, coverage, an AI score, or a green pipeline proves univ
 
 - **Scenario:** the Northstar team must decide what evidence supports release of the AI-2219 broker-response capability and which claims still require owners, production telemetry, or wider evaluation.
 - **Core artifact:** an acceptance contract linking requirements to positive, negative, boundary, failure, stale-context, security, compatibility, and state criteria; broad invariants and frame conditions remain distinct.
-- **Lab A:** execute fourteen criteria, four bounded properties, complete table/state checks, seeded specification and code mutants, tool-boundary checks, evidence freshness, traceability, and owner-controlled gates.
+- **Lab A:** execute fourteen criteria, five bounded properties, complete table/state checks, seeded specification and code mutants, tool-boundary checks, evidence freshness, traceability, and owner-controlled gates.
 - **Lab B:** repair a weak verification ticket, define evaluation population and slices, complete an evidence manifest and traceability graph, and leave an unowned statistical threshold blocked rather than inventing release authority.
 - **Evaluation:** compare a deliberately weak fixed-output baseline with a governed fixed-output fixture across twelve labelled cases and five slices. Both are teaching fixtures; no live model is evaluated and no production-quality claim is made.
 - **Evidence:** every record names its producer relationship, revisions, environment or dataset context, numerator, denominator, timestamp, and limitations. Mutation sensitivity and structural coverage remain bounded claims.

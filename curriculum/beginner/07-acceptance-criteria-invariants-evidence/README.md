@@ -42,7 +42,7 @@ The course succeeds when a learner can take one consequential requirement and pr
 - an owned gate—or a visible blocker when no threshold is authorized; and
 - a production-monitoring design that preserves the applicable-event denominator.
 
-The repository reference demonstrates this across fourteen criteria, four executable properties,
+The repository reference demonstrates this across fourteen criteria, five executable properties,
 all eight Course 06 decision-table rows, three seeded mutants, twelve synthetic evaluation cases,
 and a synthetic runtime population. These are teaching populations, not universal correctness claims.
 
@@ -163,7 +163,7 @@ For every supported verified value V and valid different value P:
 automatic replacement is prohibited.
 ```
 
-Course 07 uses five invariant classes:
+Course 07 declares five invariants plus one frame condition:
 
 | ID | Class | Population |
 | --- | --- | --- |
@@ -171,6 +171,7 @@ Course 07 uses five invariant classes:
 | `INV-BR-002` | Safety | Comparable verified and proposed values |
 | `INV-BR-003` | Functional/provenance | Applied broker-provided updates |
 | `INV-BR-004` | Safety/idempotency | Responses with stable identity |
+| `INV-BR-005` | Safety/freshness | Proposals derived from stale authoritative context |
 | `FRAME-BR-001` | Frame condition | Unrelated fields around an authorized update |
 
 Examples do not replace properties. Properties do not replace examples. Examples are reviewable
@@ -294,7 +295,7 @@ non-applicability.
 | Release | relevant evaluation, gate policy, approval, deployment checks |
 | Production | runtime conformance, bypass detection, drift, control effectiveness |
 
-A typo does not require the entire model evaluation. A change to verified-value conflict handling
+A typo does not require the entire evaluation portfolio. A change to verified-value conflict handling
 probably deserves example, property, state, authorization, integration, mutation, and runtime-control
 review. Use the requirement/risk graph to select evidence; do not reward ceremony volume.
 
@@ -342,6 +343,23 @@ cases still says `2 / 2`, not simply “green.” Overall performance cannot hid
 
 The included predictions are fixed fixtures. They demonstrate the evaluation computation and show a
 naive baseline performing worse than the governed fixture. They do not measure a live model.
+
+### Connect evaluation population to deployment eligibility
+
+Evaluation scope is also an execution boundary. The reference policy permits the automated path only
+for English plain-text inputs in the evaluated field classes. Attachments, handwriting, French text,
+or a new field class route to manual review with explicit reason codes. Model confidence cannot widen
+that population:
+
+```text
+input profile → evaluated population?
+                 ├─ yes → automated path may remain eligible; all other controls still apply
+                 └─ no  → manual review; do not generalize the fixture result
+```
+
+When a later release adds `sprinkler_system`, the prior dataset is not automatically worthless.
+Evidence for unchanged covered fields may remain relevant, but the release has a visible partial
+coverage gap until the new field receives representative evidence.
 
 ### Ground truth and leakage
 
@@ -435,8 +453,9 @@ For critical invariants, combine:
 | Monitoring | Detective control-violation events |
 | Audit | Traceable mutation history and reconciliation |
 
-The synthetic runtime fixture reports `0 violations / 5 applicable conflict events`. It teaches the
-denominator rule but cannot establish production effectiveness. An empty population returns
+Every runtime result is labelled `SIMULATED COURSE FIXTURE — NOT PRODUCTION EVIDENCE`. The fixture
+reports `0 violations / 5 applicable conflict events`. It teaches the denominator rule but cannot
+establish production effectiveness. An empty population returns
 `not_measured`, never 100% compliant. Runtime telemetry should use stable names and privacy-aware
 attributes; [OpenTelemetry semantic conventions](https://opentelemetry.io/docs/concepts/semantic-conventions/)
 illustrate why shared signal semantics matter.
@@ -463,6 +482,22 @@ invariants to evidence, and safety invariants to runtime monitoring.
 The bundle intentionally includes `not_run` human evidence and simulated—not production—runtime
 evidence. Missing assurance is visible rather than converted into fake success.
 
+Traceability preserves lifecycle state. An executed result uses `evidenced_by` or `monitored_by`;
+the human rubric uses `planned_evidence`. A relationship to a rubric therefore cannot be read as a
+completed or passing human evaluation.
+
+The release assessment prints the acceptance result beside its scope:
+
+```text
+ACCEPTANCE GATE  14 / 14 PASS
+SCOPE            10 Course 06 requirements + 3 assurance requirements
+EXCLUDED         8 normative requirements
+CLAIM            bounded high-risk slice conformance only
+PRODUCTION       BLOCKED
+```
+
+A green declared slice is not a whole-product correctness or production-readiness claim.
+
 ## 17. Technology landscape
 
 | Mechanism | Strength | Limitation | Use here |
@@ -474,7 +509,7 @@ evidence. Missing assurance is visible rather than converted into fake success.
 | Cosmic Ray/mutmut/Stryker family | Tests sensitivity to code faults | Equivalent and unrepresentative mutants | Production mutation option |
 | JSON Schema/contract tooling | Interface and compatibility checks | Structure is not authorization or domain truth | ProposedUpdate contracts |
 | Static analysis/policy-as-code | Fast, independent architecture and dependency checks | Sees only encoded rules and accessible artifacts | Tool-boundary evidence |
-| Evaluation harnesses | Slice and regression measurement | Dataset, label, leakage, and threshold risks | AI fixture evaluation |
+| Evaluation harnesses | Slice and regression measurement | Dataset, label, leakage, and threshold risks | Fixed-prediction pipeline exercise |
 | in-toto/SLSA attestations | Authenticated supply-chain provenance patterns | Does not itself prove product behavior | Production evidence evolution |
 | OpenTelemetry | Shared runtime signal model | Telemetry completeness and privacy remain design work | Continuous conformance evolution |
 
@@ -486,7 +521,7 @@ criteria, properties, evidence, and gates is easy to inspect with the standard l
 
 1. Select the high-risk requirement slice and state exclusions.
 2. Author fourteen criteria with stable IDs and observable outcomes.
-3. Derive safety, provenance, idempotency, and frame-condition invariants.
+3. Derive safety, provenance, idempotency, freshness, and frame-condition invariants.
 4. Execute Course 06 behavior through an independent Course 07 harness.
 5. Measure row coverage and state-path safety.
 6. Explore bounded properties and capture counterexamples.
@@ -600,6 +635,15 @@ The workflow should produce precise findings, not a generic quality score.
 8. Define an evidence invalidation rule for a prompt change and justify each affected class.
 9. Design preventive and detective controls for `INV-BR-004` under concurrent delivery.
 10. Propose production attestation and evidence-retention architecture without treating provenance as behavior proof.
+11. **Green evidence, wrong claim:** given `14 / 14` criteria, five passing properties, and `0 / 5`
+    simulated violations, decide whether AI-2219 is production-ready. Name every unresolved gate,
+    unexecuted evidence class, excluded population, and missing production signal.
+12. **Evidence laundering:** compare `EVID-001` from Agent A with `EVID-002` labelled independent but
+    derived entirely from `EVID-001`. Record the shared information lineage and explain why a new
+    producer label does not create an independent observation.
+13. **Partial dataset invalidation:** add `sprinkler_system` to supported fields without adding cases.
+    Report the new coverage denominator, the missing field, the evidence that may remain relevant,
+    and the release work that must reopen.
 
 ## 25. Review questions
 

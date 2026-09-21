@@ -27,6 +27,12 @@ class Course07AcceptanceEvidenceTests(unittest.TestCase):
         codes = {item.code for item in lab.validate_acceptance_contract(contract)}
         self.assertIn("AC_IMPLEMENTATION_COUPLED", codes)
 
+    def test_acceptance_contract_rejects_unknown_invariant_link(self) -> None:
+        contract = json.loads(json.dumps(lab.load_contract()))
+        contract["acceptance_criteria"][0]["invariant_ids"] = ["INV-UNKNOWN"]
+        codes = {item.code for item in lab.validate_acceptance_contract(contract)}
+        self.assertIn("AC_INVARIANT_UNKNOWN", codes)
+
     def test_acceptance_suite_passes_the_declared_high_risk_slice(self) -> None:
         results = lab.run_acceptance_suite()
         self.assertEqual(len(results), 14)
@@ -63,6 +69,8 @@ class Course07AcceptanceEvidenceTests(unittest.TestCase):
         result = next(item for item in lab.run_acceptance_suite() if item.criterion_id == "AC-BR-036-A")
         self.assertTrue(result.passed)
         self.assertIn("status=stale", result.observations)
+        self.assertEqual(result.requirement_ids, ("REQ-BR-036",))
+        self.assertEqual(result.invariant_ids, ("INV-BR-005",))
 
     def test_duplicate_response_identity_is_blocked(self) -> None:
         result = next(item for item in lab.run_acceptance_suite() if item.criterion_id == "AC-BR-035-A")
@@ -108,7 +116,14 @@ class Course07AcceptanceEvidenceTests(unittest.TestCase):
         self.assertEqual(results["PROP-BR-002"].checked, 90)
         self.assertEqual(results["PROP-FRAME-BR-001"].checked, 3)
         self.assertEqual(results["PROP-BR-004"].checked, 3)
+        self.assertEqual(results["PROP-BR-003"].checked, 3)
         self.assertTrue(all(item.violations == 0 for item in results.values()))
+
+    def test_provenance_invariant_has_direct_behavioral_property_evidence(self) -> None:
+        records = {item["evidence_id"]: item for item in lab.load_evidence_records()}
+        evidence = records["EVID-PROP-PROVENANCE"]
+        self.assertEqual(evidence["invariant_ids"], ["INV-BR-003"])
+        self.assertEqual((evidence["result"]["numerator"], evidence["result"]["denominator"]), (3, 3))
 
     def test_specification_mutation_breaks_conflict_property(self) -> None:
         course06 = lab.load_course06()
@@ -148,6 +163,25 @@ class Course07AcceptanceEvidenceTests(unittest.TestCase):
         governed = lab.evaluation_metrics(prediction_key="governed_prediction")
         self.assertLess(baseline["overall"]["value"], governed["overall"]["value"])
         self.assertTrue(any("no language model" in item.lower() for item in governed["limitations"]))
+        self.assertEqual(governed["claim"], "pipeline_mechanics_only_not_model_quality")
+
+    def test_out_of_population_inputs_route_to_manual_review(self) -> None:
+        french = lab.population_disposition(
+            {"language": "French", "modality": "plain_text", "handwritten": False, "field_class": "construction_year"}
+        )
+        attachment = lab.population_disposition(
+            {"language": "English", "modality": "attachment", "handwritten": False, "field_class": "construction_year"}
+        )
+        self.assertEqual(french["disposition"], "manual_review")
+        self.assertIn("LANGUAGE_OUTSIDE_EVALUATED_POPULATION", french["reason_codes"])
+        self.assertEqual(attachment["disposition"], "manual_review")
+
+    def test_new_supported_field_creates_partial_dataset_gap(self) -> None:
+        result = lab.evaluation_field_coverage(("construction_year", "occupancy", "building_value", "sprinkler_system"))
+        self.assertEqual(result["status"], "coverage_gap")
+        self.assertEqual(result["missing_supported_fields"], ("sprinkler_system",))
+        self.assertEqual((result["numerator"], result["denominator"]), (3, 4))
+        self.assertFalse(result["prior_evidence_wholly_invalid"])
 
     def test_human_rubric_is_a_protocol_not_fabricated_evidence(self) -> None:
         rubric = lab.load_json(lab.REFERENCE_ROOT / "human-rubric.json")
@@ -170,11 +204,23 @@ class Course07AcceptanceEvidenceTests(unittest.TestCase):
         events = lab.load_json(lab.RUNTIME_EVENTS_PATH)["events"]
         result = lab.runtime_invariant_rate(events)
         self.assertEqual((result["violations"], result["applicable_events"]), (0, 5))
+        self.assertEqual(result["evidence_status"], "simulated_not_production")
+        self.assertFalse(result["production_evidence"])
 
     def test_evidence_bundle_has_validity_provenance_and_limitations(self) -> None:
         records = lab.load_evidence_records()
-        self.assertEqual(len(records), 13)
+        self.assertEqual(len(records), 14)
         self.assertEqual(lab.evidence_bundle_findings(records=records), ())
+        states = {item["evidence_id"]: item["lifecycle_state"] for item in records}
+        self.assertEqual(states["EVID-HUMAN-RUBRIC"], "planned")
+        self.assertTrue(all(state == "executed" for identifier, state in states.items() if identifier != "EVID-HUMAN-RUBRIC"))
+
+    def test_planned_evidence_cannot_be_presented_as_passed(self) -> None:
+        human = next(item for item in lab.load_evidence_records() if item["evidence_id"] == "EVID-HUMAN-RUBRIC")
+        changed = json.loads(json.dumps(human))
+        changed["result"] = {"status": "pass", "numerator": 1, "denominator": 1, "executed_at": "2026-09-21T17:00:00Z"}
+        codes = {item.code for item in lab.evidence_bundle_findings(records=(changed,))}
+        self.assertIn("PLANNED_EVIDENCE_MISREPRESENTED", codes)
 
     def test_measured_pass_cannot_hide_its_denominator(self) -> None:
         records = list(lab.load_evidence_records())
@@ -201,6 +247,17 @@ class Course07AcceptanceEvidenceTests(unittest.TestCase):
         self.assertFalse(assessment["producer_identity_authenticated"])
         self.assertIn("identity_unverified", assessment["claim"])
 
+    def test_derived_evidence_is_not_laundered_as_independent(self) -> None:
+        derived = {
+            "evidence_id": "EVID-002",
+            "producer": {"relationship_to_implementation": "independent_evaluator", "identity_authenticated": True},
+            "derived_from_evidence_ids": ["EVID-001"],
+            "independent_observation": False,
+        }
+        assessment = lab.independence_assessment(derived)
+        self.assertEqual(assessment["declared_independence"], "derivative")
+        self.assertEqual(assessment["claim"], "derived_evidence_not_independent")
+
     def test_traceability_connects_scope_criteria_invariants_and_evidence(self) -> None:
         self.assertEqual(lab.traceability_findings(), ())
 
@@ -214,6 +271,16 @@ class Course07AcceptanceEvidenceTests(unittest.TestCase):
         self.assertEqual(result["acceptance"], {"passed": 14, "total": 14})
         self.assertEqual(result["runtime"]["applicable_events"], 5)
         self.assertGreaterEqual(len(result["limitations"]), 4)
+        self.assertFalse(result["release_assessment"]["whole_product_conformance"])
+
+    def test_green_bounded_evidence_does_not_claim_production_readiness(self) -> None:
+        result = lab.release_assessment()
+        self.assertEqual(result["acceptance_gate"], {"decision": "pass", "passed": 14, "total": 14})
+        self.assertEqual(result["scope"]["course06_requirement_count"], 10)
+        self.assertEqual(result["scope"]["assurance_requirement_count"], 3)
+        self.assertEqual(result["scope"]["excluded_normative_requirement_count"], 8)
+        self.assertFalse(result["production_ready"])
+        self.assertIn("HUMAN_EVALUATION_NOT_EXECUTED", result["blockers"])
 
 
 if __name__ == "__main__":

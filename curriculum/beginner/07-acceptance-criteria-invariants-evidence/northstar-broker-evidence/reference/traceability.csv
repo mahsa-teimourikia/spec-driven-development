@@ -8,7 +8,6 @@ REQ-BR-020,AC-BR-020-F1,verified_by,acceptance_criterion
 REQ-BR-021,AC-BR-021-A,verified_by,acceptance_criterion
 REQ-BR-030,AC-BR-030-A,verified_by,acceptance_criterion
 REQ-BR-031,AC-BR-031-A,verified_by,acceptance_criterion
-REQ-BR-035,AC-BR-036-A,verified_by,acceptance_criterion
 REQ-BR-036,AC-BR-036-A,verified_by,acceptance_criterion
 REQ-BR-035,AC-BR-035-A,verified_by,acceptance_criterion
 REQ-BR-037,AC-BR-037-A,verified_by,acceptance_criterion
@@ -32,12 +31,14 @@ AC-OBS-001,EVID-AC-SUITE,evidenced_by,evidence
 AC-COMPAT-001,EVID-CONTRACT-VERSION,evidenced_by,evidence
 INV-BR-001,EVID-PROP-AUTH,evidenced_by,evidence
 INV-BR-002,EVID-PROP-CONFLICT,evidenced_by,evidence
-INV-BR-003,EVID-CONTRACT-VERSION,evidenced_by,evidence
+INV-BR-003,EVID-PROP-PROVENANCE,evidenced_by,evidence
+INV-BR-003,EVID-CONTRACT-VERSION,supported_by,evidence
 INV-BR-004,EVID-AC-SUITE,evidenced_by,evidence
 INV-BR-004,EVID-PROP-IDEMPOTENCY,evidenced_by,evidence
+INV-BR-005,EVID-AC-SUITE,evidenced_by,evidence
 FRAME-BR-001,EVID-PROP-FRAME,evidenced_by,evidence
 REQ-BR-005,EVID-DT-COVERAGE,evidenced_by,evidence
 REQ-BR-001,EVID-MUTATION,evidenced_by,evidence
 REQ-BR-031,EVID-EVAL-BR-001,evidenced_by,evidence
-SEC-BR-001,EVID-HUMAN-RUBRIC,evidenced_by,evidence
+SEC-BR-001,EVID-HUMAN-RUBRIC,planned_evidence,evidence
 INV-BR-002,EVID-RUNTIME-BR-001,monitored_by,evidence

@@ -204,6 +204,7 @@ def validate_acceptance_contract(contract: dict[str, Any] | None = None) -> tupl
     scoped = set(contract.get("scope", {}).get("requirement_ids", []))
     assurance = {str(item.get("id")) for item in contract.get("assurance_requirements", [])}
     valid_requirements = scoped | assurance
+    valid_invariants = {str(item.get("id")) for item in contract.get("invariants", [])}
     for criterion in criteria:
         identifier = str(criterion.get("id"))
         missing = sorted(field for field in required_fields if not criterion.get(field))
@@ -218,6 +219,11 @@ def validate_acceptance_contract(contract: dict[str, Any] | None = None) -> tupl
         if unknown_requirements:
             findings.append(
                 Finding("AC_REQUIREMENT_OUT_OF_SCOPE", identifier, "Criterion cites an out-of-scope requirement.", evidence_ids=tuple(unknown_requirements))
+            )
+        unknown_invariants = sorted(set(criterion.get("invariant_ids", [])) - valid_invariants)
+        if unknown_invariants:
+            findings.append(
+                Finding("AC_INVARIANT_UNKNOWN", identifier, "Criterion cites an unknown invariant.", evidence_ids=tuple(unknown_invariants))
             )
         if any("Service." in text or "()" in text for field in ("given", "when", "then") for text in criterion.get(field, [])):
             findings.append(Finding("AC_IMPLEMENTATION_COUPLED", identifier, "Criterion exposes an implementation detail."))
@@ -543,6 +549,32 @@ def idempotency_property() -> PropertyResult:
     return PropertyResult("PROP-BR-004", len(response_ids), len(counterexamples), tuple(counterexamples))
 
 
+def provenance_property() -> PropertyResult:
+    """Check that every applied value in the finite population retains source identity."""
+    course06 = load_course06()
+    values = (1800, 2001, 2100)
+    counterexamples: list[str] = []
+    for value in values:
+        proposal, context = _fixture_objects(proposed_value=value, existing_value=None)
+        decision = _classify(proposal, context)
+        update = course06.materialize_update(proposal, decision)
+        if update is None:
+            counterexamples.append(f"value={value}:proposal_not_materialized")
+            continue
+        authorization = course06.authorize_application(update, context)
+        _, changed = course06.apply_in_memory({"construction_year": None}, update, authorization)
+        provenance_complete = bool(
+            update.source_response_id == proposal.source_response_id
+            and update.source_span == proposal.evidence[0].source_span
+            and update.requirement_id
+            and update.model_version
+            and update.evidence_ids
+        )
+        if changed != ("construction_year",) or not provenance_complete:
+            counterexamples.append(f"value={value}:changed={changed}:provenance={provenance_complete}")
+    return PropertyResult("PROP-BR-003", len(values), len(counterexamples), tuple(counterexamples))
+
+
 def property_suite(
     *,
     table: dict[str, Any] | None = None,
@@ -553,6 +585,7 @@ def property_suite(
         conflict_property(table=table),
         frame_property(),
         idempotency_property(),
+        provenance_property(),
     )
 
 
@@ -656,6 +689,8 @@ def evaluation_metrics(
     conflict_hits = sum(item.get(prediction_key) == "source_conflict" for item in conflict_population)
     conflict = Ratio(conflict_hits, len(conflict_population))
     return {
+        "evaluation_mode": "fixed_prediction_pipeline_exercise",
+        "claim": "pipeline_mechanics_only_not_model_quality",
         "dataset_id": cases.get("dataset", {}).get("id"),
         "dataset_revision": cases.get("dataset", {}).get("revision"),
         "prediction_key": prediction_key,
@@ -670,6 +705,51 @@ def evaluation_metrics(
     }
 
 
+def population_disposition(
+    profile: dict[str, Any],
+    contract: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Route inputs outside the evaluated population away from the automated path."""
+    contract = contract or load_evaluation_contract()
+    population = contract.get("population", {})
+    reasons: list[str] = []
+    if profile.get("language") not in set(population.get("language", [])):
+        reasons.append("LANGUAGE_OUTSIDE_EVALUATED_POPULATION")
+    if profile.get("modality") != "plain_text":
+        reasons.append("MODALITY_OUTSIDE_EVALUATED_POPULATION")
+    if profile.get("handwritten") is True:
+        reasons.append("HANDWRITING_OUTSIDE_EVALUATED_POPULATION")
+    if profile.get("field_class") not in set(population.get("field_classes", [])):
+        reasons.append("FIELD_CLASS_OUTSIDE_EVALUATED_POPULATION")
+    return {
+        "disposition": "manual_review" if reasons else "automated_path_eligible",
+        "reason_codes": tuple(reasons) if reasons else ("EVALUATION_POPULATION_SUPPORTED",),
+        "generalization_claim": False,
+        "interpretation": "Population eligibility is deterministic routing, not a model-confidence decision.",
+    }
+
+
+def evaluation_field_coverage(
+    supported_fields: Iterable[str],
+    cases: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Report partial dataset invalidation when product field support expands."""
+    cases = cases or load_json(EVALUATION_CASES_PATH)
+    supported = {str(item) for item in supported_fields}
+    covered = {str(item.get("field")) for item in cases.get("cases", []) if item.get("field")}
+    missing = tuple(sorted(supported - covered))
+    retained = tuple(sorted(supported & covered))
+    return {
+        "status": "coverage_gap" if missing else "current_for_declared_fields",
+        "covered_supported_fields": retained,
+        "missing_supported_fields": missing,
+        "numerator": len(retained),
+        "denominator": len(supported),
+        "prior_evidence_wholly_invalid": False,
+        "interpretation": "A new field creates a scoped coverage gap; prior evidence for unchanged covered fields may remain relevant after review.",
+    }
+
+
 def evaluation_contract_findings(
     contract: dict[str, Any] | None = None,
     cases: dict[str, Any] | None = None,
@@ -677,13 +757,16 @@ def evaluation_contract_findings(
     contract = contract or load_evaluation_contract()
     cases = cases or load_json(EVALUATION_CASES_PATH)
     findings: list[Finding] = []
-    required = {"id", "revision", "owner", "population", "exclusions", "dataset_revision", "labeling", "split_policy", "known_limitations"}
+    required = {"id", "revision", "owner", "population", "exclusions", "dataset_revision", "labeling", "split_policy", "deployment_eligibility", "known_limitations"}
     missing = sorted(field for field in required if not contract.get(field))
     if missing:
         findings.append(Finding("EVAL_CONTRACT_INCOMPLETE", str(contract.get("id")), f"Missing: {missing}."))
     dataset = cases.get("dataset", {})
     if contract.get("dataset_revision") != dataset.get("revision"):
         findings.append(Finding("EVAL_DATASET_REVISION_MISMATCH", str(contract.get("id")), "Evaluation contract and dataset revisions differ."))
+    eligibility = contract.get("deployment_eligibility", {})
+    if eligibility.get("default_for_out_of_population_input") != "manual_review":
+        findings.append(Finding("EVAL_POPULATION_FAIL_OPEN", str(contract.get("id")), "Out-of-population inputs must default to manual review."))
     ids = [str(item.get("id")) for item in cases.get("cases", [])]
     if len(ids) != len(set(ids)):
         findings.append(Finding("EVAL_CASE_ID_DUPLICATE", str(contract.get("id")), "Evaluation case IDs are duplicated."))
@@ -721,7 +804,7 @@ def evidence_bundle_findings(
         findings.append(Finding("EVIDENCE_ID_DUPLICATE", duplicate, "Evidence ID is duplicated."))
     allowed_classes = {item.value for item in EvidenceClass}
     required_record = {
-        "evidence_id", "type", "evidence_class", "requirement_ids", "producer",
+        "evidence_id", "lifecycle_state", "type", "evidence_class", "requirement_ids", "producer",
         "validity", "result", "limitations",
     }
     for record in records:
@@ -739,8 +822,17 @@ def evidence_bundle_findings(
         if not str(validity.get("environment_digest", "")).startswith("sha256:"):
             findings.append(Finding("EVIDENCE_ENVIRONMENT_DIGEST_INVALID", identifier, "Environment digest is not explicit."))
         result = record.get("result", {})
-        if result.get("status") in {"pass", "fail"} and result.get("denominator") is None:
+        lifecycle = record.get("lifecycle_state")
+        if lifecycle not in {"planned", "executed"}:
+            findings.append(Finding("EVIDENCE_LIFECYCLE_UNKNOWN", identifier, "Evidence lifecycle must be planned or executed."))
+        if lifecycle == "planned" and (result.get("status") != "not_run" or result.get("executed_at") is not None):
+            findings.append(Finding("PLANNED_EVIDENCE_MISREPRESENTED", identifier, "Planned evidence must remain not_run with no execution timestamp."))
+        if lifecycle == "executed" and (result.get("status") == "not_run" or result.get("executed_at") is None):
+            findings.append(Finding("EXECUTED_EVIDENCE_INCOMPLETE", identifier, "Executed evidence needs an execution result and timestamp."))
+        if result.get("status") in {"pass", "fail", "measured", "simulated"} and result.get("denominator") is None:
             findings.append(Finding("EVIDENCE_DENOMINATOR_MISSING", identifier, "Measured evidence must preserve its denominator."))
+        if record.get("evidence_class") == EvidenceClass.RUNTIME.value and record.get("production_evidence") is not False:
+            findings.append(Finding("RUNTIME_PROVENANCE_AMBIGUOUS", identifier, "Course fixture runtime evidence must explicitly declare production_evidence=false."))
         if not record.get("limitations"):
             findings.append(Finding("EVIDENCE_LIMITATIONS_MISSING", identifier, "Evidence limitations are not recorded."))
     return tuple(findings)
@@ -790,11 +882,21 @@ def independence_assessment(record: dict[str, Any]) -> dict[str, Any]:
     else:
         level = "unknown"
     authenticated = bool(producer.get("identity_authenticated", False))
+    derived_from = tuple(str(item) for item in record.get("derived_from_evidence_ids", []))
+    independent_observation = bool(record.get("independent_observation", False))
+    if derived_from and not independent_observation:
+        level = "derivative"
     return {
         "evidence_id": record.get("evidence_id"),
         "declared_independence": level,
         "producer_identity_authenticated": authenticated,
-        "claim": level if authenticated else f"declared_{level}_identity_unverified",
+        "derived_from_evidence_ids": derived_from,
+        "independent_observation": independent_observation,
+        "claim": (
+            "derived_evidence_not_independent"
+            if level == "derivative"
+            else level if authenticated else f"declared_{level}_identity_unverified"
+        ),
     }
 
 
@@ -811,11 +913,14 @@ def runtime_invariant_rate(events: Iterable[dict[str, Any]]) -> dict[str, Any]:
     ]
     ratio = Ratio(len(violations), len(population))
     return {
+        "evidence_source": "synthetic_course07_event_fixture",
+        "evidence_status": "simulated_not_production",
+        "production_evidence": False,
         "violations": ratio.numerator,
         "applicable_events": ratio.denominator,
         "rate": ratio.value,
         "status": "measured" if ratio.denominator else "not_measured",
-        "interpretation": "A zero numerator is meaningful only with a non-zero, trustworthy denominator.",
+        "interpretation": "Synthetic training result only. A zero numerator is meaningful only with a non-zero, trustworthy denominator; this is not production evidence.",
     }
 
 
@@ -863,6 +968,39 @@ def gate_results() -> tuple[GateResult, ...]:
     return tuple(evaluate_gate(gate, measurements) for gate in policy.get("gates", []))
 
 
+def release_assessment() -> dict[str, Any]:
+    """Make the bounded claim and unresolved production blockers impossible to miss."""
+    contract = load_contract()
+    acceptance = run_acceptance_suite(contract)
+    gates = {item.gate_id: item for item in gate_results()}
+    human = next(item for item in load_evidence_records() if item.get("evidence_id") == "EVID-HUMAN-RUBRIC")
+    acceptance_gate = gates["GATE-BR-ACCEPTANCE"]
+    blockers: list[str] = []
+    if gates["GATE-BR-CONFLICT-EVAL"].decision != GateDecision.PASS:
+        blockers.append("STATISTICAL_THRESHOLD_NOT_AUTHORIZED")
+    if human.get("lifecycle_state") != "executed":
+        blockers.append("HUMAN_EVALUATION_NOT_EXECUTED")
+    blockers.extend(("PRODUCTION_RUNTIME_EVIDENCE_ABSENT", "EXCLUDED_POPULATIONS_NOT_AUTOMATION_ELIGIBLE"))
+    return {
+        "decision": "blocked_for_production" if blockers else "eligible_for_release_review",
+        "acceptance_gate": {
+            "decision": acceptance_gate.decision.value,
+            "passed": sum(item.passed for item in acceptance),
+            "total": len(acceptance),
+        },
+        "scope": {
+            "course06_requirement_count": len(contract.get("scope", {}).get("requirement_ids", [])),
+            "assurance_requirement_count": len(contract.get("assurance_requirements", [])),
+            "excluded_normative_requirement_count": len(contract.get("scope", {}).get("excluded_requirement_ids", [])),
+            "excluded_requirement_ids": tuple(contract.get("scope", {}).get("excluded_requirement_ids", [])),
+        },
+        "claim": "bounded_high_risk_slice_conformance_only",
+        "whole_product_conformance": False,
+        "production_ready": False,
+        "blockers": tuple(blockers),
+    }
+
+
 def traceability_findings(
     contract: dict[str, Any] | None = None,
     records: tuple[dict[str, Any], ...] | None = None,
@@ -881,6 +1019,7 @@ def traceability_findings(
     for identifier in sorted(scoped - linked_from):
         findings.append(Finding("REQUIREMENT_ACCEPTANCE_UNLINKED", identifier, "Scoped requirement has no traceability edge."))
     record_ids = {str(item.get("evidence_id")) for item in records}
+    record_states = {str(item.get("evidence_id")): item.get("lifecycle_state") for item in records}
     targets = {str(row.get("target_id")) for row in rows}
     for identifier in sorted(criteria - linked_from):
         findings.append(Finding("AC_EVIDENCE_UNLINKED", identifier, "Acceptance criterion has no evidence edge."))
@@ -893,6 +1032,15 @@ def traceability_findings(
     )
     for identifier in unknown_evidence:
         findings.append(Finding("TRACE_UNKNOWN_EVIDENCE", identifier, "Traceability cites unknown evidence."))
+    for row in rows:
+        if row.get("target_type") != "evidence":
+            continue
+        target = str(row.get("target_id"))
+        relationship = row.get("relationship")
+        if record_states.get(target) == "planned" and relationship != "planned_evidence":
+            findings.append(Finding("PLANNED_EVIDENCE_TREATED_AS_RESULT", target, "A planned evidence artifact must use the planned_evidence relationship."))
+        if record_states.get(target) == "executed" and relationship == "planned_evidence":
+            findings.append(Finding("EXECUTED_EVIDENCE_MARKED_PLANNED", target, "Executed evidence must not use a planned-only relationship."))
     orphan_evidence = sorted(record_ids - targets)
     for identifier in orphan_evidence:
         findings.append(Finding("EVIDENCE_ORPHAN", identifier, "Evidence is not reached by the traceability graph."))
@@ -911,6 +1059,7 @@ def claim_to_proof_map() -> dict[str, Any]:
         "mutations": {"killed": mutations["killed"], "total": mutations["total"]},
         "evaluation": evaluation["overall"],
         "runtime": runtime,
+        "release_assessment": release_assessment(),
         "limitations": (
             "The fixture provides deterministic regression evidence, not proof over all inputs or production paths.",
             "Evaluation predictions are fixed synthetic outputs; no language model is evaluated.",
@@ -939,12 +1088,19 @@ def run_demo() -> dict[str, Any]:
             "baseline": evaluation_metrics(prediction_key="baseline_prediction"),
             "governed": evaluation_metrics(prediction_key="governed_prediction"),
         },
+        "population_eligibility": {
+            "supported": population_disposition({"language": "English", "modality": "plain_text", "handwritten": False, "field_class": "construction_year"}),
+            "french": population_disposition({"language": "French", "modality": "plain_text", "handwritten": False, "field_class": "construction_year"}),
+            "attachment": population_disposition({"language": "English", "modality": "attachment", "handwritten": False, "field_class": "construction_year"}),
+        },
+        "evaluation_field_coverage": evaluation_field_coverage(("construction_year", "occupancy", "building_value", "sprinkler_system")),
         "evidence_findings": [asdict(item) for item in evidence_bundle_findings(records=records)],
         "freshness": [asdict(item) for item in evidence_freshness(records=records)],
         "independence": [independence_assessment(item) for item in records],
         "traceability_findings": [asdict(item) for item in traceability_findings(records=records)],
         "tool_boundary_findings": [asdict(item) for item in tool_boundary_findings()],
         "gates": [asdict(item) for item in gate_results()],
+        "release_assessment": release_assessment(),
         "runtime": runtime_invariant_rate(load_json(RUNTIME_EVENTS_PATH).get("events", [])),
         "claim_to_proof": claim_to_proof_map(),
     }

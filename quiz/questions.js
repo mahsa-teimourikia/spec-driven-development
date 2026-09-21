@@ -516,5 +516,33 @@ const QUESTIONS = [
     options: ['They address different failure opportunities and reveal control drift or bypass', 'Runtime monitoring replaces tests', 'CI proves deployed effectiveness', 'Two green signals prove universal correctness'],
     answer: 0,
     explanation: 'Preventive controls try to stop unsafe changes; detective controls observe what actually happened. Their producers, populations, limitations, and failure responses remain explicit.'
+  },
+  {
+    category: 'Traceability precision',
+    question: 'Which invariant should a stale submission-revision criterion support?',
+    options: ['A freshness invariant that stale context never mutates current state', 'An idempotency invariant about duplicate response identity', 'A latency target', 'A human-review agreement metric'],
+    answer: 0,
+    explanation: 'Freshness and replay are distinct claims. A stale-context example should not be used as evidence for duplicate-event idempotency.'
+  },
+  {
+    category: 'Evidence lifecycle',
+    question: 'A human rubric is linked in traceability but has never been run. How should it be represented?',
+    options: ['Planned evidence with not_run status and no execution timestamp', 'Passed evidence because the rubric exists', 'Failed evidence because no score exists', 'Independent evidence because a reviewer role is named'],
+    answer: 0,
+    explanation: 'Planned, executed, passed, and approved are distinct states. A link to an artifact does not manufacture an observation.'
+  },
+  {
+    category: 'Evaluation population',
+    question: 'The fixed evaluation fixture covers English plain text, but production receives a French attachment. What is the safe default?',
+    options: ['Route to manual review because the input is outside the evaluated population', 'Generalize the 12/12 fixture score', 'Use model confidence to widen eligibility', 'Silently translate and auto-apply'],
+    answer: 0,
+    explanation: 'Evaluation population constrains deployment eligibility. Unevaluated languages and modalities need explicit evidence before entering an automated path.'
+  },
+  {
+    category: 'Bounded claims',
+    question: 'Fourteen of fourteen declared criteria pass, but eight normative requirements are excluded and human and production evidence are absent. What may be claimed?',
+    options: ['The bounded declared slice passed; production readiness and whole-product conformance remain unproven', 'The whole feature is production-ready', 'The excluded requirements are implicitly satisfied', 'A perfect fixture score authorizes release'],
+    answer: 0,
+    explanation: 'Conformance is scoped to the declared criteria and evidence. Exclusions and missing assurance remain release-relevant blockers.'
   }
 ];

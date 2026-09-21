@@ -1139,8 +1139,11 @@ def check_course_07_acceptance_evidence() -> list[str]:
         errors.append("Course 07 high-risk scope must retain ten Course 06 requirements")
     if len(criteria) != 14 or not required_kinds.issubset(kinds):
         errors.append("Course 07 must retain fourteen diverse observable acceptance criteria")
-    if len(contract.get("invariants", [])) != 5:
-        errors.append("Course 07 must retain four invariants and one frame condition")
+    if len(contract.get("invariants", [])) != 6:
+        errors.append("Course 07 must retain five invariants and one frame condition")
+    stale_criterion = next((item for item in criteria if item.get("id") == "AC-BR-036-A"), {})
+    if stale_criterion.get("requirement_ids") != ["REQ-BR-036"] or stale_criterion.get("invariant_ids") != ["INV-BR-005"]:
+        errors.append("Course 07 stale-context criterion must not reuse replay/idempotency traceability")
     rubric = payloads[reference / "human-rubric.json"]
     protocol = rubric.get("review_protocol", {})
     if rubric.get("status") != "template_only_not_run" or rubric.get("release_threshold") is not None:
@@ -1155,10 +1158,17 @@ def check_course_07_acceptance_evidence() -> list[str]:
         for record in payloads[path].get("records", [])
     ]
     expected_classes = {"deterministic_conformance", "statistical_quality", "human_judgment", "runtime_operational"}
-    if len(records) != 13 or {item.get("evidence_class") for item in records} != expected_classes:
-        errors.append("Course 07 evidence bundle must retain thirteen records across all four evidence classes")
+    if len(records) != 14 or {item.get("evidence_class") for item in records} != expected_classes:
+        errors.append("Course 07 evidence bundle must retain fourteen records across all four evidence classes")
     if any(not item.get("limitations") for item in records):
         errors.append("Course 07 evidence records must declare limitations")
+    record_map = {item.get("evidence_id"): item for item in records}
+    if record_map.get("EVID-PROP-PROVENANCE", {}).get("invariant_ids") != ["INV-BR-003"]:
+        errors.append("Course 07 provenance invariant needs direct behavioral property evidence")
+    if record_map.get("EVID-HUMAN-RUBRIC", {}).get("lifecycle_state") != "planned":
+        errors.append("Course 07 unexecuted human rubric must remain planned evidence")
+    if any(item.get("lifecycle_state") != "executed" for item in records if item.get("evidence_id") != "EVID-HUMAN-RUBRIC"):
+        errors.append("Course 07 executed evidence records must declare their lifecycle state")
 
     reference_text = "\n".join(path.read_text(encoding="utf-8") for path in reference.rglob("*") if path.is_file())
     if "TODO" in reference_text:
@@ -1184,8 +1194,8 @@ def check_course_07_acceptance_evidence() -> list[str]:
     if report.get("acceptance", {}).get("passed") != 14 or report.get("acceptance", {}).get("total") != 14:
         errors.append("Course 07 acceptance suite must pass all fourteen declared criteria")
     properties = report.get("properties", [])
-    if len(properties) != 4 or any(item.get("violations") != 0 or item.get("checked", 0) == 0 for item in properties):
-        errors.append("Course 07 must exercise four non-empty bounded properties without reference violations")
+    if len(properties) != 5 or any(item.get("violations") != 0 or item.get("checked", 0) == 0 for item in properties):
+        errors.append("Course 07 must exercise five non-empty bounded properties without reference violations")
     coverage = report.get("decision_table_coverage", {})
     if (coverage.get("covered"), coverage.get("total")) != (8, 8) or coverage.get("failed_case_ids"):
         errors.append("Course 07 must retain complete decision-table row coverage with no reference failures")
@@ -1202,8 +1212,22 @@ def check_course_07_acceptance_evidence() -> list[str]:
     runtime = report.get("runtime", {})
     if (runtime.get("violations"), runtime.get("applicable_events")) != (0, 5):
         errors.append("Course 07 runtime fixture must retain an explicit non-zero applicable population")
+    if runtime.get("production_evidence") is not False or runtime.get("evidence_status") != "simulated_not_production":
+        errors.append("Course 07 runtime output must be visibly labelled simulated and non-production")
+    release = report.get("release_assessment", {})
+    scope = release.get("scope", {})
+    if release.get("production_ready") is not False or release.get("claim") != "bounded_high_risk_slice_conformance_only":
+        errors.append("Course 07 green bounded evidence must not claim production readiness")
+    if (scope.get("course06_requirement_count"), scope.get("assurance_requirement_count"), scope.get("excluded_normative_requirement_count")) != (10, 3, 8):
+        errors.append("Course 07 release assessment must expose included and excluded scope")
+    populations = report.get("population_eligibility", {})
+    if populations.get("french", {}).get("disposition") != "manual_review" or populations.get("attachment", {}).get("disposition") != "manual_review":
+        errors.append("Course 07 out-of-population inputs must route to manual review")
+    field_coverage = report.get("evaluation_field_coverage", {})
+    if field_coverage.get("missing_supported_fields") != ["sprinkler_system"] or field_coverage.get("prior_evidence_wholly_invalid") is not False:
+        errors.append("Course 07 must report new-field evaluation gaps as partial invalidation")
     freshness = report.get("freshness", [])
-    if len(freshness) != 13 or any(not item.get("current") for item in freshness):
+    if len(freshness) != 14 or any(not item.get("current") for item in freshness):
         errors.append("Course 07 reference evidence must be current for the declared fixture revisions")
     return errors
 
