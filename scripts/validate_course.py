@@ -791,7 +791,7 @@ def main() -> None:
         "Course 02 artifact stack": check_course_02_artifact_stack,
         "Course 03 hierarchy": check_course_03_hierarchy,
         "Course 04 ownership": check_course_04_ownership,
-        "Course 05 requirements discovery": check_course_05_discovery,
+        "Course 05 requirements engineering": check_course_05_discovery,
         "diagrams": render_and_validate_diagrams,
         "labs": run_labs,
         "repository labs": run_repository_labs,

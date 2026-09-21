@@ -77,6 +77,15 @@ class Course05RequirementsTests(unittest.TestCase):
             {"UNSUPPORTED_MISSING_ITEM", "MISSING_ITEM_EVIDENCE_INVALID"},
         )
 
+    def test_missing_item_ids_are_unique(self) -> None:
+        duplicate = replace(self.plan[1], id="MI-001")
+        findings = lab.validate_missing_items(
+            (self.plan[0], duplicate),
+            current_requirement_ids={"REQ-FU-001"},
+            observed_evidence_ids={"EV-LOSS-EMPTY", "EV-SIGNED-ABSENT"},
+        )
+        self.assertIn("DUPLICATE_MISSING_ITEM", {item.code for item in findings})
+
     def test_draft_rejects_unsupported_addition_and_omission(self) -> None:
         changed = replace(self.draft, missing_item_ids=("MI-001", "MI-999"))
         findings = lab.validate_draft(self.plan, changed)
@@ -127,6 +136,19 @@ class Course05RequirementsTests(unittest.TestCase):
             now=self.now,
         )
         self.assertIn("DELIVERY_OUTCOME_UNKNOWN", unknown.reason_codes)
+
+    def test_invalid_or_future_approval_time_fails_closed(self) -> None:
+        malformed = replace(self.receipt, expires_at="not-a-time")
+        malformed_result = lab.authorize_send(
+            self.draft, malformed, self.context, now=self.now
+        )
+        self.assertIn("APPROVAL_TIME_INVALID", malformed_result.reason_codes)
+        naive = replace(self.receipt, issued_at="2026-09-20T16:00:00")
+        naive_result = lab.authorize_send(self.draft, naive, self.context, now=self.now)
+        self.assertIn("APPROVAL_TIME_INVALID", naive_result.reason_codes)
+        future = replace(self.receipt, issued_at="2026-09-20T19:00:00Z")
+        future_result = lab.authorize_send(self.draft, future, self.context, now=self.now)
+        self.assertIn("APPROVAL_NOT_YET_VALID", future_result.reason_codes)
 
     def test_only_declared_transient_failure_is_retryable(self) -> None:
         retry = lab.failure_decision(self.package, "transport", attempts=0)

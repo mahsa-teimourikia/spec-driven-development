@@ -281,6 +281,30 @@ def requirement_quality_findings(package: dict[str, Any]) -> tuple[Finding, ...]
                     "Requirement refers to an undeclared capability.",
                 )
             )
+        if requirement.get("normative_strength") not in {"SHALL", "SHALL_NOT", "SHOULD", "MAY"}:
+            findings.append(
+                Finding(
+                    "NORMATIVE_STRENGTH_INVALID",
+                    identifier,
+                    "Normative strength must use the declared conformance vocabulary.",
+                )
+            )
+        if requirement.get("priority") not in {"must", "should", "could"}:
+            findings.append(
+                Finding(
+                    "PRIORITY_INVALID",
+                    identifier,
+                    "Delivery priority must remain separate from normative strength.",
+                )
+            )
+        if requirement.get("status") not in {"proposed", "approved", "rejected", "superseded"}:
+            findings.append(
+                Finding(
+                    "REQUIREMENT_STATUS_INVALID",
+                    identifier,
+                    "Requirement lifecycle state is outside the declared vocabulary.",
+                )
+            )
         findings.extend(lexical_findings(requirement))
     return tuple(findings)
 
@@ -323,6 +347,14 @@ def validate_missing_items(
         evidence_id for item in items for evidence_id in item.evidence_ids
     }
     findings: list[Finding] = []
+    for duplicate in sorted(_duplicates(item.id for item in items)):
+        findings.append(
+            Finding(
+                "DUPLICATE_MISSING_ITEM",
+                duplicate,
+                "MissingItem IDs must be unique within one analysis result.",
+            )
+        )
     for item in items:
         if item.requirement_id not in current_requirement_ids:
             findings.append(
@@ -368,8 +400,14 @@ def validate_draft(plan: Iterable[MissingItem], draft: Draft) -> tuple[Finding, 
         findings.append(
             Finding("DRAFT_OMISSION", "draft", "Draft omits validated items.", evidence_ids=omissions)
         )
-    if not draft.subject.strip() or not draft.body.strip():
-        findings.append(Finding("DRAFT_CONTENT_EMPTY", "draft", "Draft subject and body are required."))
+    if not draft.broker_id.strip() or not draft.subject.strip() or not draft.body.strip():
+        findings.append(
+            Finding(
+                "DRAFT_CONTENT_EMPTY",
+                "draft",
+                "Draft broker, subject, and body are required.",
+            )
+        )
     return tuple(findings)
 
 
@@ -421,8 +459,20 @@ def authorize_send(
             reasons.append("SUBMISSION_CONTEXT_STALE")
         if receipt.requirements_revision != context.requirements_revision:
             reasons.append("REQUIREMENTS_CONTEXT_STALE")
-        if _parse_time(receipt.expires_at) <= current_time:
-            reasons.append("APPROVAL_EXPIRED")
+        try:
+            issued_at = _parse_time(receipt.issued_at)
+            expires_at = _parse_time(receipt.expires_at)
+            if issued_at.tzinfo is None or expires_at.tzinfo is None:
+                raise ValueError("approval timestamps must include a timezone")
+        except ValueError:
+            reasons.append("APPROVAL_TIME_INVALID")
+        else:
+            if issued_at > current_time:
+                reasons.append("APPROVAL_NOT_YET_VALID")
+            if expires_at <= issued_at:
+                reasons.append("APPROVAL_WINDOW_INVALID")
+            if expires_at <= current_time:
+                reasons.append("APPROVAL_EXPIRED")
     if reasons:
         escalate = {
             "SEND_POLICY_DISABLED",
