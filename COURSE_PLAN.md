@@ -234,7 +234,7 @@ specialization semantics, enforcement, ownership, and change propagation.
   Backstage ownership metadata, GitHub CODEOWNERS/rulesets, Cedar, and portable
   repository manifests by the guarantee each actually provides.
 - **Evaluation:** explicit denominators for source coverage, relationship
-  integrity, machine-enforcement coverage, changed-parent impact recall,
+  integrity, requirement-level enforcement mapping coverage, changed-parent impact recall,
   unauthorized-write rejection, valid-context readiness, and observed runtime
   control effectiveness. Agent-behavior signals remain separate counts rather
   than a composite governance score.

@@ -108,9 +108,20 @@ Rank_{child} \ge Rank_{parent}
 
 For a required Boolean, `true` cannot become `false` downstream.
 
-The Course 04 resolver makes the same principle executable with a deliberately small **fixed-versus-delegated control** model. A specialization must preserve every fixed parent value. It may bind a delegated field only when the specialization owner matches the named decision owner. `ARCH-032-weakening.json` attempts to make `AI-030` human review optional and is rejected with explicit reason codes. A production system needs domain-specific schemas, richer types for sets and thresholds, trusted publishers, and a defined conflict model.
+The Course 04 resolver makes the same principle executable with a deliberately small **fixed-versus-delegated control** model. A specialization cannot bind a fixed parent field—even to repeat the same value—because repetition would imply a decision right the child does not have. It may bind a delegated field only when the specialization owner matches the named decision owner. `ARCH-032-weakening.json` attempts to bind and weaken `AI-030` human review and is rejected with explicit reason codes. A production system needs domain-specific schemas, richer types for sets and thresholds, trusted publishers, and a defined conflict model.
 
-An authorized exception is different from specialization. It may permit a bounded weakening, but only through its own owner, approver, version, scope, conditions, and expiry. Calling a weakening a “specialization” hides a governance decision in an engineering artifact.
+| Record | Meaning | Example |
+| --- | --- | --- |
+| Binding | “This owner is making a delegated decision.” | Project Architecture selects `ReviewServiceV2` for `review_mechanism` |
+| Conformance claim | “This design claims to support a fixed parent obligation.” | `ReviewReceipt.rationale` is claimed to support `review_rationale` |
+
+The fixture's `supported_parent_controls: "design_claim_only"` values are deliberately
+small teaching shorthand. They are unauthenticated design claims—not proof of
+implementation, test execution, or runtime effectiveness. A production record
+should link each parent control to named design elements, implementation
+artifacts, and evidence IDs.
+
+An authorized exception is different from specialization. It may permit a bounded weakening, but only through its own owner, approver, version, scope, conditions, and expiry. Calling a weakening a “specialization” hides a governance decision in an engineering artifact. The lab can verify that requester and approver records differ; it cannot authenticate either identity or establish actual independence.
 
 ## 5. Select sources; do not vendor policy
 
@@ -191,7 +202,21 @@ AI-030@4.0-training
        └─ TEST-REVIEW-004 EVIDENCES REQ-REN-004    ← evidence review
 ```
 
-The direct child is stale because it evaluated an older policy version. The transitive feature may still be locally consistent with `ARCH-031`, but it is affected by the unresolved upstream change. “Affected” does not mean “non-compliant”; it means the prior evidence is insufficient for the new version.
+The direct child is stale because it evaluated an older policy version. The transitive feature may still be locally consistent with `ARCH-031`, but it is affected by the unresolved upstream change. “Affected” does not mean “non-compliant,” and it does not prove code migration is needed. It means the prior evidence is insufficient for the new version.
+
+```text
+impact detected
+      ↓
+conformance re-evaluation required
+      ↓
+existing implementation satisfies the new obligation?
+      ├─ yes → refresh traceability/evidence
+      └─ no  → migration required
+```
+
+The deterministic analyzer stops at conformance re-evaluation. It reports
+`migration_required = null` until an accountable owner evaluates the actual
+design, implementation, and evidence.
 
 A useful impact report therefore separates:
 
@@ -214,7 +239,19 @@ The generated context preserves:
 - valid exception IDs; and
 - an explicit `READY` or `STOP` gate.
 
-`agent-boundary.json` permits writes to feature, implementation, test, and evaluation paths while treating policy, architecture, authentication, infrastructure, and exception sources as protected. Filesystem restrictions alone are not a complete security boundary, but the model makes decision rights testable and reviewable.
+`agent-boundary.json` permits writes to feature, implementation, test, and evaluation paths while treating policy, architecture, authentication, infrastructure, and exception sources as protected. It also names permitted and prohibited decision types. Filesystem restrictions alone are not a complete security boundary: even if an agent gains write access to `exceptions/**`, that does not authorize it to approve an exception.
+
+```text
+path or tool permits write?
+            +
+actor has authority for the represented decision?
+            ↓
+       both must pass
+```
+
+Policy authority, artifact ownership, repository review routing, and filesystem
+permission remain distinct. `CODEOWNERS` may route a review without changing
+who owns the underlying policy decision.
 
 ---
 
@@ -256,7 +293,7 @@ The baseline should report:
 - gate: `ready`;
 - ownership completeness: `5/5` applicable requirements;
 - specialization traceability: `1/1` selected specialization;
-- machine-enforcement coverage: `5/5` applicable requirements;
+- requirement-level enforcement mapping coverage: `5/5` applicable requirements;
 - valid exception coverage: `1/1`; and
 - an impact set of `4/4` labelled descendants for the `AI-030` update.
 
@@ -290,12 +327,12 @@ Report ratios with numerator and denominator. A percentage without the candidate
 | --- | --- | --- | ---: |
 | Ownership completeness | applicable requirements with a meaning owner | applicable requirements | 5/5 |
 | Specialization traceability | selected specializations linked to their parent in the graph | selected specializations | 1/1 |
-| Machine-enforcement coverage | applicable requirements with automated enforcement and named evidence | applicable requirements | 5/5 |
+| Requirement-level enforcement mapping coverage | applicable requirements with an automated enforcement mapping and named evidence | applicable requirements | 5/5 |
 | Valid-exception coverage | structurally valid selected exceptions | selected `EXCEPTS` edges | 1/1 |
 | Unauthorized-write rejection | protected paths rejected | protected-path test cases | measure in tests |
 | Impact recall | known affected descendants returned | known affected descendants | 4/4 for `AI-030` |
 
-These metrics measure internal fixture behavior. They do not prove the declared owner is authentic, the policy is legally sufficient, or the runtime control is deployed.
+These metrics measure internal fixture behavior. They do not prove the declared owner is authentic, the policy is legally sufficient, or the runtime control is deployed. Control-level enforcement coverage is explicitly `not_measured`: one requirement-level gate may enforce only part of a multi-control requirement. Production measurement needs a denominator of individual machine-enforceable controls and a mapping from each control to its mechanism and evidence.
 
 ### Measure process, outcomes, and agent behavior separately
 
@@ -357,6 +394,7 @@ comparison, and remediation while preserving those limitations.
 | Treat tests as ownership | A test can encode an unauthorized interpretation | Trace tests to approved requirements and owners |
 | Ignore parent versions | Changes remain invisible until production drift appears | Bind every edge and run impact analysis on change |
 | Assume centralization means one repository | Physical storage and decision authority are different | Use federated sources with explicit owners and schemas |
+| Treat write access or CODEOWNERS as policy authority | File operations and review routing do not confer decision rights | Check both path permission and semantic authorization |
 
 ## 17. Production hardening
 
@@ -385,6 +423,10 @@ Before applying this pattern in a real enterprise:
    why passing integration tests no longer establish control effectiveness.
 8. Record two clarification requests and one scope-expansion request. Explain
    why their counts require qualitative context rather than a target of zero.
+9. Make Project Architecture bind `reviewer_role`, even though `AI-030`
+   delegates that decision to Underwriting Risk. Then add a CODEOWNERS rule for
+   the engineering platform team. Explain why neither artifact reassigns policy
+   authority and why the resolver returns `SPECIALIZATION_OWNER_UNAUTHORIZED`.
 
 ## Knowledge checkpoint
 

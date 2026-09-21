@@ -586,7 +586,9 @@ def check_course_04_ownership() -> list[str]:
             if not exception.get(field):
                 errors.append(f"Course 04 exception lacks required field: {field}")
         if exception.get("requester") == exception.get("approver"):
-            errors.append("Course 04 exception must demonstrate independent approval")
+            errors.append(
+                "Course 04 exception must keep separate requester and approver records"
+            )
         modification = exception.get("modification", {})
         if not modification.get("field") or not modification.get("expected"):
             errors.append("Course 04 exception must name its modified control and value")
@@ -600,6 +602,43 @@ def check_course_04_ownership() -> list[str]:
             errors.append("Course 04 manifest must select the valid specialization only")
         if manifest.get("exception_ids") != ["EXC-014"]:
             errors.append("Course 04 manifest must select the governed exception")
+
+    boundary_path = scenario / "project" / "agent-boundary.json"
+    if boundary_path.exists():
+        boundary = json.loads(boundary_path.read_text(encoding="utf-8"))
+        authority = boundary.get("decision_authority", {})
+        if not authority.get("permitted") or not authority.get("prohibited"):
+            errors.append(
+                "Course 04 agent boundary must separate path access from decision authority"
+            )
+        if "approve_exception" not in authority.get("prohibited", []):
+            errors.append("Course 04 coding agent must not approve exceptions")
+
+    specialization_path = scenario / "project" / "architecture" / "ARCH-031.json"
+    parent_path = scenario / "catalog" / "enterprise" / "ai-governance" / "AI-030.json"
+    if specialization_path.exists() and parent_path.exists():
+        specialization = json.loads(specialization_path.read_text(encoding="utf-8"))
+        parent = json.loads(parent_path.read_text(encoding="utf-8"))
+        rebound = set(specialization.get("bindings", {})) & set(
+            parent.get("fixed_controls", {})
+        )
+        if rebound:
+            errors.append(
+                "Course 04 valid specialization rebinds fixed controls: "
+                + ", ".join(sorted(rebound))
+            )
+
+    impact_path = scenario / "reference" / "impact-analysis.json"
+    if impact_path.exists():
+        impact = json.loads(impact_path.read_text(encoding="utf-8"))
+        if impact.get("impact_detected") is not True:
+            errors.append("Course 04 reference must identify the upstream impact")
+        if impact.get("conformance_reevaluation_required") is not True:
+            errors.append("Course 04 reference must require conformance re-evaluation")
+        if impact.get("migration_required") is not None:
+            errors.append(
+                "Course 04 dependency traversal must not pre-judge code migration"
+            )
 
     runtime_path = scenario / "reference" / "runtime-evidence.json"
     if runtime_path.exists():

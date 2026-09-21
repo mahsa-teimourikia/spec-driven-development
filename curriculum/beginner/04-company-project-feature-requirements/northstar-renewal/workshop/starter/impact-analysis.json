@@ -2,6 +2,9 @@
   "change": {"requirement": "AI-030", "from_version": "3.0-training", "to_version": "4.0-training"},
   "affected_controls": ["TODO"],
   "affected_artifacts": [{"id": "TODO", "status": "TODO"}],
+  "impact_detected": "TODO",
+  "conformance_reevaluation_required": "TODO",
+  "migration_required": "TODO: true, false, or null pending review",
   "recommended_action": "TODO",
   "automation_boundary": "TODO"
 }

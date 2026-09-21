@@ -4,4 +4,4 @@ The v4 candidate adds a changed fixed obligation. `ARCH-031` is a direct special
 
 AI Governance owns the changed meaning. Project Architecture re-evaluates `ARCH-031`. Renewal Product rechecks feature acceptance. Underwriter Engineering and the Review Platform reassess implementation and runtime enforcement. AI Quality and test owners regenerate evidence where the changed control affects their claims.
 
-“Affected” means the old assurance is insufficient for the new revision. It does not, by itself, prove compliance or non-compliance. The agent stops until accountable owners review the changed obligation, update bindings, and regenerate required evidence.
+“Affected” means the old assurance is insufficient for the new revision. It does not, by itself, prove compliance, non-compliance, or that code migration is required. The analyzer records impact and requires conformance re-evaluation; `migration_required` remains undetermined until accountable owners inspect the existing design, implementation, and evidence. The agent stops until that review either confirms compatibility and refreshes evidence or authorizes migration work.

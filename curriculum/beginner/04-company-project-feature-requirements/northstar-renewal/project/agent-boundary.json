@@ -3,5 +3,9 @@
   "writable": ["src/renewal/**", "tests/renewal/**", "evals/renewal/**", "specs/renewal/**"],
   "read_only": ["docs/adr/**", "project/policy-manifest.json", "catalog/**", "exceptions/**"],
   "prohibited": ["auth/**", "infrastructure/**", "enterprise-policy/**"],
+  "decision_authority": {
+    "permitted": ["implement_approved_design"],
+    "prohibited": ["modify_fixed_control", "reassign_decision_owner", "approve_exception"]
+  },
   "stop_conditions": ["policy_conflict", "uncertain_applicability", "authorization_change_required", "policy_exception_required"]
 }

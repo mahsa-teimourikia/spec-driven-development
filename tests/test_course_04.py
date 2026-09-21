@@ -60,8 +60,35 @@ class Course04ResolutionTests(unittest.TestCase):
         unsafe = lab.load_specialization(lab.SCENARIO_ROOT / "project" / "architecture" / "ARCH-032-weakening.json")
         findings = lab.validate_specialization(unsafe, self.requirements[unsafe.parent_requirement_id])
         codes = {item.code for item in findings}
-        self.assertIn("SPECIALIZATION_FIELD_NOT_DELEGATED", codes)
+        self.assertIn("SPECIALIZATION_BINDS_FIXED_CONTROL", codes)
         self.assertIn("SPECIALIZATION_WEAKENS_PARENT", codes)
+
+    def test_specialization_cannot_rebind_fixed_control_to_same_value(self) -> None:
+        specialization = self.scenario["specializations"][0]
+        repeated = replace(
+            specialization,
+            bindings=(lab.Binding("human_review", "required"),),
+        )
+        findings = lab.validate_specialization(repeated, self.requirements["AI-030"])
+        self.assertEqual(
+            {item.code for item in findings},
+            {"SPECIALIZATION_BINDS_FIXED_CONTROL"},
+        )
+
+    def test_project_owner_cannot_reassign_domain_delegation(self) -> None:
+        specialization = self.scenario["specializations"][0]
+        unauthorized = replace(
+            specialization,
+            bindings=(lab.Binding("reviewer_role", "senior_underwriter"),),
+        )
+        findings = lab.validate_specialization(
+            unauthorized,
+            self.requirements["AI-030"],
+        )
+        self.assertEqual(
+            {item.code for item in findings},
+            {"SPECIALIZATION_OWNER_UNAUTHORIZED"},
+        )
 
     def test_stale_parent_revision_requires_review(self) -> None:
         specialization = self.scenario["specializations"][0]
@@ -78,6 +105,22 @@ class Course04ResolutionTests(unittest.TestCase):
         self.assertEqual(len(findings), 2)
         self.assertTrue(all(item.code == "SCOPE_EXPANSION_REQUIRED" for item in findings))
 
+    def test_writable_path_does_not_grant_decision_authority(self) -> None:
+        boundary = self.scenario["boundary"]
+        expanded = replace(
+            boundary,
+            writable=boundary.writable + ("exceptions/**",),
+            read_only=tuple(
+                pattern for pattern in boundary.read_only if pattern != "exceptions/**"
+            ),
+        )
+        self.assertEqual(lab.validate_write_paths(("exceptions/EXC-015.json",), expanded), [])
+        findings = lab.validate_decision_actions(("approve_exception",), expanded)
+        self.assertEqual(
+            [item.code for item in findings],
+            ["DECISION_AUTHORITY_REQUIRED"],
+        )
+
     def test_agent_instruction_cannot_weaken_policy(self) -> None:
         findings = lab.validate_agent_instruction(
             "AGENT-UNSAFE",
@@ -86,7 +129,7 @@ class Course04ResolutionTests(unittest.TestCase):
         )
         self.assertEqual([item.code for item in findings], ["AGENT_INSTRUCTION_EXCEEDS_AUTHORITY"])
 
-    def test_selected_exception_is_versioned_scoped_and_independently_approved(self) -> None:
+    def test_selected_exception_has_separate_requester_and_approver_records(self) -> None:
         report = lab.resolve_project()
         self.assertEqual([item.id for item in report.exceptions], ["EXC-014"])
         exception = report.exceptions[0]
@@ -118,7 +161,35 @@ class Course04ResolutionTests(unittest.TestCase):
         impact = lab.analyze_impact(old, new, graph, artifact_types, specialization)
         impacted_ids = {item.artifact_id for item in impact.impacted}
         self.assertTrue({"ARCH-031", "REQ-REN-004", "ReviewServiceAdapter", "TEST-REVIEW-004"}.issubset(impacted_ids))
-        self.assertTrue(impact.migration_required)
+        self.assertTrue(impact.impact_detected)
+        self.assertTrue(impact.conformance_reevaluation_required)
+        self.assertIsNone(impact.migration_required)
+
+    def test_design_support_claim_requires_reverification_after_change(self) -> None:
+        old = self.requirements["AI-030"]
+        changed_controls = tuple(
+            lab.Control(item.field, "required_with_reason_code")
+            if item.field == "review_rationale"
+            else item
+            for item in old.fixed_controls
+        )
+        new = replace(
+            old,
+            source=replace(old.source, version="4.0-training", revision="ai030v4-training"),
+            fixed_controls=changed_controls,
+        )
+        impact = lab.analyze_impact(
+            old,
+            new,
+            self.scenario["graph"],
+            {"ARCH-031": "project"},
+            self.scenario["specializations"][0],
+        )
+        architecture = next(
+            item for item in impact.impacted if item.artifact_id == "ARCH-031"
+        )
+        self.assertEqual(architecture.status, "requires_review")
+        self.assertIn("unverified_design_claim=review_rationale", architecture.reason)
 
     def test_copied_policy_drift_is_visible(self) -> None:
         finding = lab.copied_policy_drift(
@@ -132,7 +203,14 @@ class Course04ResolutionTests(unittest.TestCase):
         report = lab.resolve_project()
         metrics = lab.evaluation_metrics(report, self.scenario["manifest"], self.scenario["graph"])
         self.assertEqual(metrics["ownership_completeness"], {"covered": 5, "total": 5, "percent": 100.0})
-        self.assertEqual(metrics["machine_enforcement_coverage"], {"covered": 5, "total": 5, "percent": 100.0})
+        self.assertEqual(
+            metrics["requirement_level_enforcement_mapping_coverage"],
+            {"covered": 5, "total": 5, "percent": 100.0},
+        )
+        self.assertEqual(
+            metrics["control_level_enforcement_coverage"]["status"],
+            "not_measured",
+        )
         self.assertEqual(metrics["valid_exception_coverage"], {"covered": 1, "total": 1, "percent": 100.0})
         context = lab.compose_agent_context(report)
         self.assertIn("enterprise-policy:ai-governance/AI-030.json@3.0-training#ai030v3-training", context)

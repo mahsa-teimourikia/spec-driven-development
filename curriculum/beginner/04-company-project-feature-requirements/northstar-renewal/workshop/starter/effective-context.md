@@ -13,6 +13,7 @@ Gate: TODO
 ## Write boundary
 
 - TODO: writable, read-only, prohibited, and out-of-scope paths.
+- TODO: separate path/tool permission from authority for the represented decision.
 
 ## Stop states
 

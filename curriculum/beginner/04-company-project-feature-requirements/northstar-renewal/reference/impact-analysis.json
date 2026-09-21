@@ -7,7 +7,11 @@
     {"id": "ReviewServiceAdapter", "type": "implementation", "status": "requires_review"},
     {"id": "TEST-REVIEW-004", "type": "evidence", "status": "requires_review"}
   ],
+  "impact_detected": true,
+  "conformance_reevaluation_required": true,
+  "migration_required": null,
+  "migration_decision": "undetermined_pending_owner_review",
   "recommended_action": "create_change_spec",
-  "migration_deadline": "2026-10-31",
+  "reevaluation_deadline": "2026-10-31",
   "automation_boundary": "The analyzer reports dependencies and gaps; it does not edit project artifacts or interpret policy authority."
 }

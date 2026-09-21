@@ -21,7 +21,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 SCENARIO_ROOT = HERE / "northstar-renewal"
-RESOLVER_VERSION = "0.6.0-training"
+RESOLVER_VERSION = "0.7.0-training"
 
 
 class Layer(str, Enum):
@@ -196,6 +196,8 @@ class AgentBoundary:
     writable: tuple[str, ...]
     read_only: tuple[str, ...]
     prohibited: tuple[str, ...]
+    permitted_decisions: tuple[str, ...]
+    prohibited_decisions: tuple[str, ...]
     stop_conditions: tuple[str, ...]
 
 
@@ -249,7 +251,9 @@ class ImpactReport:
     change_type: str
     affected_controls: tuple[str, ...]
     impacted: tuple[ImpactItem, ...]
-    migration_required: bool
+    impact_detected: bool
+    conformance_reevaluation_required: bool
+    migration_required: bool | None
 
 
 @dataclass(frozen=True)
@@ -410,6 +414,8 @@ def load_boundary(path: Path) -> AgentBoundary:
         writable=tuple(payload["writable"]),
         read_only=tuple(payload["read_only"]),
         prohibited=tuple(payload["prohibited"]),
+        permitted_decisions=tuple(payload["decision_authority"]["permitted"]),
+        prohibited_decisions=tuple(payload["decision_authority"]["prohibited"]),
         stop_conditions=tuple(payload["stop_conditions"]),
     )
 
@@ -621,22 +627,25 @@ def validate_specialization(
     delegated = {item.field: item for item in parent.delegated_controls}
     for binding in specialization.bindings:
         if binding.field in fixed:
+            findings.append(
+                Finding(
+                    Severity.ERROR,
+                    "SPECIALIZATION_BINDS_FIXED_CONTROL",
+                    specialization.id,
+                    (
+                        f"{binding.field} is fixed by {parent.id}; record support as "
+                        "a conformance claim instead of rebinding it."
+                    ),
+                )
+            )
             if binding.value != fixed[binding.field]:
-                findings.extend(
-                    [
-                        Finding(
-                            Severity.ERROR,
-                            "SPECIALIZATION_FIELD_NOT_DELEGATED",
-                            specialization.id,
-                            f"{binding.field} is fixed by {parent.id}.",
-                        ),
-                        Finding(
-                            Severity.ERROR,
-                            "SPECIALIZATION_WEAKENS_PARENT",
-                            specialization.id,
-                            f"{fixed[binding.field]} cannot become {binding.value}.",
-                        ),
-                    ]
+                findings.append(
+                    Finding(
+                        Severity.ERROR,
+                        "SPECIALIZATION_WEAKENS_PARENT",
+                        specialization.id,
+                        f"{fixed[binding.field]} cannot become {binding.value}.",
+                    )
                 )
         elif binding.field in delegated:
             decision = delegated[binding.field]
@@ -914,6 +923,30 @@ def validate_write_paths(paths: Iterable[str], boundary: AgentBoundary) -> list[
     return findings
 
 
+def validate_decision_actions(
+    actions: Iterable[str], boundary: AgentBoundary
+) -> list[Finding]:
+    """Validate semantic authority independently of file or tool access."""
+    allowed = set(boundary.permitted_decisions)
+    prohibited = set(boundary.prohibited_decisions)
+    findings: list[Finding] = []
+    for action in actions:
+        if action not in allowed:
+            disposition = "explicitly prohibited" if action in prohibited else "not delegated"
+            findings.append(
+                Finding(
+                    Severity.ERROR,
+                    "DECISION_AUTHORITY_REQUIRED",
+                    action,
+                    (
+                        f"Decision is {disposition}; writable paths or repository review "
+                        "ownership do not grant policy authority."
+                    ),
+                )
+            )
+    return findings
+
+
 def create_scope_expansion_request(
     path: str, affected_requirements: Iterable[str]
 ) -> dict[str, object]:
@@ -992,13 +1025,20 @@ def analyze_impact(
         status = "requires_review"
         reason = f"Depends on changed {old.id} controls: {', '.join(affected_controls)}"
         if artifact_id == specialization.id:
-            missing = [field for field in affected_controls if support.get(field) != "supported"]
+            missing = [field for field in affected_controls if support.get(field) is None]
             uncertain = [field for field in affected_controls if support.get(field) == "unknown"]
+            design_claims = [
+                field
+                for field in affected_controls
+                if support.get(field) == "design_claim_only"
+            ]
             details = []
             if missing:
                 details.append("missing=" + ",".join(missing))
             if uncertain:
                 details.append("uncertain=" + ",".join(uncertain))
+            if design_claims:
+                details.append("unverified_design_claim=" + ",".join(design_claims))
             reason = "; ".join(details) or "specialization remains compatible"
             status = "requires_review" if details else "compatible"
         impacted.append(
@@ -1009,6 +1049,12 @@ def analyze_impact(
                 reason,
             )
         )
+    impact_detected = bool(
+        affected_controls
+        or old.source.revision != new.source.revision
+        or old.source.version != new.source.version
+    )
+    review_required = impact_detected and bool(impacted)
     return ImpactReport(
         requirement_id=old.id,
         from_version=old.source.version,
@@ -1016,7 +1062,9 @@ def analyze_impact(
         change_type="obligation_changed",
         affected_controls=affected_controls,
         impacted=tuple(impacted),
-        migration_required=bool(affected_controls),
+        impact_detected=impact_detected,
+        conformance_reevaluation_required=review_required,
+        migration_required=None if review_required else False,
     )
 
 
@@ -1076,10 +1124,17 @@ def evaluation_metrics(
             "total": len(report.specializations),
             "percent": percentage(linked, len(report.specializations)),
         },
-        "machine_enforcement_coverage": {
+        "requirement_level_enforcement_mapping_coverage": {
             "covered": enforced,
             "total": enforceable,
             "percent": percentage(enforced, enforceable),
+        },
+        "control_level_enforcement_coverage": {
+            "status": "not_measured",
+            "reason": (
+                "The teaching fixture maps enforcement at requirement level; it does "
+                "not prove that every fixed control has an independent machine control."
+            ),
         },
         "policy_freshness": {
             "covered": fresh,

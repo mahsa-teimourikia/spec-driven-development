@@ -1,7 +1,7 @@
 {
   "release": "underwriter-assistant:3.2.0-training",
   "change": "AI-2048",
-  "resolver": {"version": "0.6.0-training"},
+  "resolver": {"version": "0.7.0-training"},
   "governing_requirements": [
     {"id": "AI-030", "revision": "ai030v3-training", "disposition": "specialized", "specialization": "ARCH-031"},
     {"id": "AI-041", "revision": "ai041v22-training", "disposition": "inherited"},

@@ -3,5 +3,9 @@
   "writable": ["TODO"],
   "read_only": ["TODO"],
   "prohibited": ["TODO"],
+  "decision_authority": {
+    "permitted": ["TODO"],
+    "prohibited": ["TODO"]
+  },
   "stop_conditions": ["TODO"]
 }

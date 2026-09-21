@@ -19,3 +19,4 @@
 ## Stop condition
 
 - TODO: explain why “affected” is neither automatic non-compliance nor permission to keep the old assurance claim.
+- TODO: explain why dependency traversal can require conformance re-evaluation without proving that code migration is required.
