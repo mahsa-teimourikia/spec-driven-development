@@ -303,6 +303,57 @@ const course06 = {
   }
 };
 
+const course07 = {
+  id: 'c07', course: 7, level: 'beginner', part: 'II · Executable specifications', status: 'available',
+  title: 'Acceptance criteria, invariants, and evidence',
+  summary: 'Turn executable requirements into layered, provenance-bearing assurance while keeping measurements, owner thresholds, release authority, and runtime effectiveness distinct.',
+  outcomes: [
+    'Distinguish requirements, acceptance criteria, tests, evidence, and release decisions.',
+    'Write positive, negative, boundary, failure, stale-context, security, and compatibility criteria with observable outcomes.',
+    'Pair examples with invariants, frame conditions, table coverage, state checks, and bounded properties.',
+    'Use seeded specification and code mutations to test evidence sensitivity without claiming complete correctness.',
+    'Define AI evaluation populations, slices, label provenance, split controls, and explicit denominators.',
+    'Validate evidence provenance, freshness, invalidation, independence, and limitations.',
+    'Keep measured quality separate from threshold ownership and release authority.',
+    'Connect preventive evidence to runtime signals with a trustworthy applicable population.'
+  ],
+  readme: `${REPO}/blob/main/curriculum/beginner/07-acceptance-criteria-invariants-evidence/README.md`,
+  notebook: `${REPO}/blob/main/curriculum/beginner/07-acceptance-criteria-invariants-evidence/acceptance_evidence.ipynb`,
+  lab: `${REPO}/blob/main/curriculum/beginner/07-acceptance-criteria-invariants-evidence/lab.py`,
+  repoFixture: `${REPO}/tree/main/curriculum/beginner/07-acceptance-criteria-invariants-evidence/northstar-broker-evidence`,
+  run: 'python3 curriculum/beginner/07-acceptance-criteria-invariants-evidence/lab.py',
+  labs: [
+    {
+      title: 'Lab A — Build the assurance portfolio',
+      description: 'Execute criteria and properties, inspect structural coverage, kill seeded mutants, measure evaluation slices, validate evidence freshness, and apply owner-controlled gates.',
+      command: 'python3 curriculum/beginner/07-acceptance-criteria-invariants-evidence/lab.py',
+      links: [['View the evidence lab', `${REPO}/blob/main/curriculum/beginner/07-acceptance-criteria-invariants-evidence/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/beginner/07-acceptance-criteria-invariants-evidence/acceptance_evidence.ipynb`]]
+    },
+    {
+      title: 'Lab B — Govern AI-2219 release evidence',
+      description: 'Repair a weak verification ticket, author an acceptance and evaluation contract, complete traceability and an evidence manifest, and preserve an unresolved threshold as a blocker.',
+      command: 'Open the ticket and starter workspace; run Lab A before consulting the reference.',
+      links: [['Open the workshop', `${REPO}/tree/main/curriculum/beginner/07-acceptance-criteria-invariants-evidence/northstar-broker-evidence`], ['Complete the starter package', `${REPO}/tree/main/curriculum/beginner/07-acceptance-criteria-invariants-evidence/northstar-broker-evidence/workshop/starter`], ['Inspect the reference evidence bundle', `${REPO}/tree/main/curriculum/beginner/07-acceptance-criteria-invariants-evidence/northstar-broker-evidence/reference/evidence`]]
+    }
+  ],
+  references: [
+    ['Cucumber Gherkin reference', 'https://cucumber.io/docs/gherkin/reference/'],
+    ['Hypothesis documentation', 'https://hypothesis.readthedocs.io/'],
+    ['in-toto Attestation Framework', 'https://github.com/in-toto/attestation'],
+    ['NIST AI Risk Management Framework', 'https://www.nist.gov/itl/ai-risk-management-framework']
+  ],
+  checkpoint: {
+    question: 'The governed fixture scores 12/12, but the release threshold has no accountable owner. What should the gate do?',
+    options: [
+      'Block as THRESHOLD_NOT_AUTHORIZED while retaining the measurement and its limitations.',
+      'Choose 95% because it is a common quality target.',
+      'Release because a perfect fixture score proves production quality.'
+    ],
+    answer: 0,
+    explanation: 'A measurement is evidence, not decision authority. The small synthetic fixture also cannot justify a production-quality claim; an accountable owner must approve the threshold and its risk rationale.'
+  }
+};
+
 function planned(course, level, part, title, summary) {
   return {
     id: `c${String(course).padStart(2, '0')}`, course, level, part,
@@ -320,7 +371,7 @@ const LESSONS = [
   course04,
   course05,
   course06,
-  planned(7, 'beginner', 'II · Executable specifications', 'Acceptance criteria and invariants', 'Define examples and properties that produce meaningful conformance evidence.'),
+  course07,
   planned(8, 'beginner', 'II · Executable specifications', 'Non-functional requirements', 'Make security, reliability, performance, accessibility, and operability measurable.'),
   planned(9, 'beginner', 'II · Executable specifications', 'Architecture Decision Records', 'Capture consequential decisions, alternatives, rationale, and consequences.'),
   planned(10, 'beginner', 'II · Executable specifications', 'Requirement traceability', 'Link intent through design, tasks, code, tests, approvals, and operational evidence.'),

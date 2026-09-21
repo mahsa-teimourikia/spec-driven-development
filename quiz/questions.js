@@ -446,5 +446,75 @@ const QUESTIONS = [
     options: ['Their prior assurance must be assessed; modification is not yet proven necessary', 'Both files must always be edited', 'The current implementation is automatically non-compliant', 'Only direct links matter'],
     answer: 0,
     explanation: 'Impact traversal identifies review scope. Owners then record whether to modify, revalidate unchanged, defer, or establish non-applicability.'
+  },
+  {
+    category: 'Acceptance criteria',
+    question: 'What is the strongest distinction between an acceptance criterion and a test?',
+    options: ['A criterion states an observable condition of acceptance; a test is one implementation of a check', 'A criterion must be automated', 'A test owns the product requirement', 'They are interchangeable names'],
+    answer: 0,
+    explanation: 'Criteria express the acceptance contract independently of a particular harness. Tests produce evidence against that contract but can be incomplete, incorrect, or stale.'
+  },
+  {
+    category: 'Negative criteria',
+    question: 'Why specify that an unauthorized broker response leaves authoritative state unchanged?',
+    options: ['It makes prohibited behavior and the required non-effect observable', 'Positive examples imply every failure mode', 'It lets the model decide authorization', 'It replaces identity controls'],
+    answer: 0,
+    explanation: 'Negative criteria expose fail-closed behavior and frame conditions. A happy path does not establish what happens at an authorization boundary.'
+  },
+  {
+    category: 'Invariants',
+    question: 'A single verified-conflict scenario passes. What additional claim does a property check support?',
+    options: ['The invariant held across the declared generated or enumerated population', 'The invariant is mathematically proven for production', 'Every integration path is correct', 'The requirement owner approved release'],
+    answer: 0,
+    explanation: 'Properties broaden exploration beyond one example, but the generator, oracle, environment, and population still bound the claim.'
+  },
+  {
+    category: 'Coverage',
+    question: 'All eight decision-table rows are exercised. What has been established?',
+    options: ['Structural row coverage, not the correctness of the table semantics', 'The business policy is correct', 'All production states are reachable', 'No mutation test is needed'],
+    answer: 0,
+    explanation: 'Coverage shows which declared structure ran. A wrong table can have perfect row coverage, so semantic examples, properties, review, and mutation remain necessary.'
+  },
+  {
+    category: 'Mutation evidence',
+    question: 'Three seeded mutants are killed. What is the honest interpretation?',
+    options: ['The evidence is sensitive to those three seeded faults', 'The implementation has no defects', 'The requirements are complete', 'Production release is authorized'],
+    answer: 0,
+    explanation: 'Mutation testing probes evidence strength against chosen faults. It neither enumerates all faults nor grants release authority.'
+  },
+  {
+    category: 'Evidence freshness',
+    question: 'The implementation revision changes after evidence was produced. What should happen?',
+    options: ['Invalidate or reassess evidence whose validity tuple names the old revision', 'Keep the green status forever', 'Update only the timestamp', 'Let the generating agent declare equivalence'],
+    answer: 0,
+    explanation: 'Evidence is meaningful only for named specification, implementation, environment, dataset, and tool revisions. Change triggers governed invalidation and rerun decisions.'
+  },
+  {
+    category: 'AI evaluation',
+    question: 'Why report evaluation slices with numerators and denominators?',
+    options: ['An aggregate can hide rare, high-risk failures and tiny populations', 'Slices guarantee statistical significance', 'A percentage already proves representativeness', 'Denominators are optional when accuracy is 100%'],
+    answer: 0,
+    explanation: 'Named slices expose risk concentration and sample size. Population definition, label provenance, leakage controls, and limitations are still required.'
+  },
+  {
+    category: 'Release gates',
+    question: 'An evaluation result exists, but no accountable owner approved a threshold. What is the correct gate result?',
+    options: ['Blocked because the threshold is not authorized', 'Pass if the score looks high', 'Ask the coding agent to choose a threshold', 'Ignore the evaluation'],
+    answer: 0,
+    explanation: 'Measurement and decision authority are separate. Teams can preserve the result while stopping the release decision until an owner defines the risk-bearing threshold.'
+  },
+  {
+    category: 'Runtime evidence',
+    question: 'A dashboard reports zero invariant violations and zero applicable events. What may it claim?',
+    options: ['The invariant was not measured on an applicable population', 'The violation rate is 0%', 'The preventive control is proven effective', 'The system is safe'],
+    answer: 0,
+    explanation: 'A zero numerator needs a trustworthy non-zero denominator. Empty or missing exposure is not evidence of conformance.'
+  },
+  {
+    category: 'Evidence classes',
+    question: 'Why combine preventive controls with detective runtime evidence?',
+    options: ['They address different failure opportunities and reveal control drift or bypass', 'Runtime monitoring replaces tests', 'CI proves deployed effectiveness', 'Two green signals prove universal correctness'],
+    answer: 0,
+    explanation: 'Preventive controls try to stop unsafe changes; detective controls observe what actually happened. Their producers, populations, limitations, and failure responses remain explicit.'
   }
 ];

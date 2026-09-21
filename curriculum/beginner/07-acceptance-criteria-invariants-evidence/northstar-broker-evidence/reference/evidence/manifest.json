@@ -1,0 +1,35 @@
+{
+  "bundle_id": "EVIDENCE-BUNDLE-AI-2219-COURSE07",
+  "revision": "1.0-training",
+  "release": {
+    "change_id": "AI-2219",
+    "capability": "broker_response_proposal_processing",
+    "implementation_revision": "course06-2dd6bc2-training"
+  },
+  "specification": {
+    "id": "AI-2219",
+    "revision": "1.1-training",
+    "acceptance_contract": "AC-CONTRACT-AI-2219@1.0-training"
+  },
+  "current_context": {
+    "specification_revision": "1.1-training",
+    "implementation_revision": "course06-2dd6bc2-training",
+    "environment_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "dataset_revision": "broker-response-eval-v1-training",
+    "tool_revision": "course07-lab-1.0-training"
+  },
+  "record_files": [
+    "deterministic.json",
+    "properties.json",
+    "mutation.json",
+    "statistical.json",
+    "human.json",
+    "runtime.json"
+  ],
+  "limitations": [
+    "The bundle is a deterministic training fixture, not a signed attestation.",
+    "Producer identities and revisions are descriptive rather than authenticated.",
+    "No production runtime evidence or live model evaluation is included.",
+    "A green bundle supports only the explicitly scoped Course 07 claims."
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "records": [
+    {
+      "evidence_id": "EVID-MUTATION",
+      "type": "security_test",
+      "evidence_class": "deterministic_conformance",
+      "requirement_ids": ["REQ-BR-001", "REQ-BR-003", "REQ-BR-005"],
+      "acceptance_ids": ["AC-BR-003-B", "AC-BR-005-A"],
+      "producer": {"id": "course07-mutation-harness", "relationship_to_implementation": "independent_evaluator", "identity_authenticated": false},
+      "validity": {"specification_revision": "1.1-training", "implementation_revision": "course06-2dd6bc2-training", "environment_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "tool_revision": "course07-lab-1.0-training"},
+      "result": {"status": "pass", "numerator": 3, "denominator": 3, "executed_at": "2026-09-21T17:00:00Z"},
+      "limitations": ["Only three deliberately seeded mutants are assessed; a perfect mutation score is not proof of complete test quality."]
+    }
+  ]
+}

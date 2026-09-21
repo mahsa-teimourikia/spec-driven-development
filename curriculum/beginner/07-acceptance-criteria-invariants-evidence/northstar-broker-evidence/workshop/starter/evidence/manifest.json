@@ -1,0 +1,14 @@
+{
+  "bundle_id": "TODO",
+  "release": {"change_id": "AI-2219", "capability": "TODO", "implementation_revision": "TODO"},
+  "specification": {"id": "AI-2219", "revision": "TODO", "acceptance_contract": "TODO"},
+  "current_context": {
+    "specification_revision": "TODO",
+    "implementation_revision": "TODO",
+    "environment_digest": "TODO",
+    "dataset_revision": "TODO",
+    "tool_revision": "TODO"
+  },
+  "record_files": ["TODO"],
+  "limitations": ["TODO"]
+}

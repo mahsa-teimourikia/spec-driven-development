@@ -86,7 +86,7 @@ Each future course follows this learning arc, adapted where the subject demands 
 | --- | --- | --- | --- | --- | --- |
 | 05 | beginner/05 | Requirements engineering for coding agents | **Available** | C01–C04 | AI-2176 ambiguity register, typed requirements, capability gates, exact-content approval, failure matrix, traceability, and evaluation evidence |
 | 06 | beginner/06 | User stories, EARS, SHALL requirements, scenarios | **Available** | C05 | AI-2219 EARS/SHALL requirements, decision table, scenarios, proposal contract, guarded states, contradiction tests, and governed-decision evidence |
-| 07 | beginner/07 | Acceptance criteria and invariants | Planned | C06 | Executable criteria, invariants, counterexamples |
+| 07 | beginner/07 | Acceptance criteria, invariants, and evidence | **Available** | C06 | AI-2219 acceptance contract, bounded properties, mutation evidence, evaluation slices, provenance-bearing evidence bundle, owned gates, and runtime denominators |
 | 08 | beginner/08 | Non-functional requirements | Planned | C06–C07 | Workload model, SLO-like criteria, measurement plan |
 | 09 | beginner/09 | Architecture Decision Records | Planned | C02, C08 | ADR with alternatives, consequences, supersession rule |
 | 10 | beginner/10 | Requirement traceability | Planned | C05–C09 | Bidirectional intent → design → task → code → evidence graph |
@@ -271,6 +271,20 @@ model can direct agents and tests without turning examples, schemas, or model ou
 - **Technology context:** compare EARS, Gherkin, decision tables, JSON Schema, state machines, property-based testing, and requirements platforms by the guarantee each provides rather than by file format.
 - **Evaluation:** separate a deliberately unsafe model-status baseline from governed application decisions on a labelled synthetic population; retain numerators, denominators, unsafe-action counts, properties, coverage, and explicit limitations.
 - **Boundaries:** the model proposes observations; trusted code owns status, policy, approval, transitions, and mutation. Applying an unverified value remains review-required while `OQ-BR-001` is open. A verified conflicting value cannot be replaced automatically or directly; an authorized reviewed replacement must name that exact resolution and bind the current proposal and context.
+
+## Course 07 design record
+
+Course 07 turns the Course 06 behavioral contract into a layered assurance portfolio without
+pretending that examples, coverage, an AI score, or a green pipeline proves universal correctness.
+
+- **Scenario:** the Northstar team must decide what evidence supports release of the AI-2219 broker-response capability and which claims still require owners, production telemetry, or wider evaluation.
+- **Core artifact:** an acceptance contract linking requirements to positive, negative, boundary, failure, stale-context, security, compatibility, and state criteria; broad invariants and frame conditions remain distinct.
+- **Lab A:** execute fourteen criteria, four bounded properties, complete table/state checks, seeded specification and code mutants, tool-boundary checks, evidence freshness, traceability, and owner-controlled gates.
+- **Lab B:** repair a weak verification ticket, define evaluation population and slices, complete an evidence manifest and traceability graph, and leave an unowned statistical threshold blocked rather than inventing release authority.
+- **Evaluation:** compare a deliberately weak fixed-output baseline with a governed fixed-output fixture across twelve labelled cases and five slices. Both are teaching fixtures; no live model is evaluated and no production-quality claim is made.
+- **Evidence:** every record names its producer relationship, revisions, environment or dataset context, numerator, denominator, timestamp, and limitations. Mutation sensitivity and structural coverage remain bounded claims.
+- **Runtime boundary:** a zero invariant-violation count is meaningful only with a trustworthy non-zero applicable population. Synthetic runtime events illustrate denominator semantics but do not establish deployed effectiveness.
+- **Production upgrade:** authenticated attestations, immutable artifacts, representative and leakage-controlled datasets, human-rater calibration, real contract environments, and runtime observability are explicitly deferred to production systems.
 
 ## Risk boundaries
 

@@ -1,0 +1,25 @@
+{
+  "id": "RUBRIC-BR-001",
+  "revision": "TODO",
+  "status": "template_only_not_run",
+  "purpose": "TODO: name the judgment claim that deterministic checks do not cover",
+  "population": "TODO: name the sampled evaluation population and high-risk slices",
+  "review_protocol": {
+    "reviewers_per_case": "TODO",
+    "independent_before_adjudication": "TODO",
+    "blind_to_system_variant": "TODO",
+    "qualification": "TODO",
+    "adjudication": "TODO",
+    "agreement_measure": "TODO: preserve numerators and denominators"
+  },
+  "dimensions": [
+    {
+      "id": "TODO",
+      "question": "TODO",
+      "anchors": {"0": "TODO", "1": "TODO", "2": "TODO"}
+    }
+  ],
+  "release_threshold": null,
+  "open_question": "OQ-EVAL-001",
+  "limitations": ["TODO: do not represent this template as executed evidence"]
+}

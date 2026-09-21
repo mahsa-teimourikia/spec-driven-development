@@ -1,0 +1,31 @@
+{
+  "id": "EVAL-BR-001",
+  "revision": "1.0-training",
+  "owner": "underwriting_quality",
+  "purpose": "Measure deterministic fixture predictions across requirement-derived broker-response slices without presenting them as live model quality.",
+  "population": {
+    "product": "commercial_property",
+    "response_types": ["single_field", "correction", "conflicting_source", "ambiguous_mapping", "instruction_like_content"],
+    "field_classes": ["construction_year", "occupancy", "building_value"],
+    "language": ["English"]
+  },
+  "exclusions": ["attachments", "handwriting", "French-language responses", "production broker identities"],
+  "dataset_revision": "broker-response-eval-v1-training",
+  "labeling": {
+    "seed_source": "synthetic domain-authored cases",
+    "required_fields": ["source", "reviewer", "adjudication"],
+    "authority_note": "Fixture reviewer names are descriptive metadata, not authenticated identity evidence."
+  },
+  "split_policy": {
+    "release_split": "release_evaluation",
+    "prompt_examples_must_not_overlap": true,
+    "development_cases_included": false
+  },
+  "metrics": ["exact_outcome_accuracy", "slice_accuracy", "conflict_detection_recall"],
+  "known_limitations": [
+    "The dataset is small and synthetic.",
+    "Predictions are fixed teaching fixtures; no language model is invoked.",
+    "Critical production slices such as attachments and bilingual responses are excluded.",
+    "No statistical-quality threshold is authorized in this course fixture."
+  ]
+}

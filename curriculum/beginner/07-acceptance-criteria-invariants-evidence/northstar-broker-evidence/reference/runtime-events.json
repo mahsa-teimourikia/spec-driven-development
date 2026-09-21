@@ -1,0 +1,17 @@
+{
+  "id": "RUNTIME-FIXTURE-BR-001",
+  "revision": "1.0-training",
+  "observed_window": "synthetic-training-window",
+  "events": [
+    {"id": "RT-01", "existing_verified": true, "existing_value": 1998, "proposed_value": 2001, "mutation_mode": "reviewed", "mutation_applied": false},
+    {"id": "RT-02", "existing_verified": true, "existing_value": 2005, "proposed_value": 2006, "mutation_mode": "automatic", "mutation_applied": false},
+    {"id": "RT-03", "existing_verified": true, "existing_value": "office", "proposed_value": "retail", "mutation_mode": "reviewed", "mutation_applied": false},
+    {"id": "RT-04", "existing_verified": true, "existing_value": 900000, "proposed_value": 950000, "mutation_mode": "automatic", "mutation_applied": false},
+    {"id": "RT-05", "existing_verified": true, "existing_value": 2010, "proposed_value": 2011, "mutation_mode": "reviewed", "mutation_applied": true},
+    {"id": "RT-06", "existing_verified": false, "existing_value": null, "proposed_value": 2001, "mutation_mode": "automatic", "mutation_applied": true}
+  ],
+  "limitations": [
+    "Events are synthetic and do not prove production instrumentation completeness or control effectiveness.",
+    "The fixture does not authenticate producers or detect a legacy endpoint absent from telemetry."
+  ]
+}

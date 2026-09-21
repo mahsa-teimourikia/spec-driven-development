@@ -1,0 +1,12 @@
+{
+  "id": "TODO",
+  "revision": "TODO",
+  "owner": "TODO",
+  "population": {"product": "TODO", "response_types": ["TODO"], "field_classes": ["TODO"], "language": ["TODO"]},
+  "exclusions": ["TODO"],
+  "dataset_revision": "TODO",
+  "labeling": {"seed_source": "TODO", "required_fields": ["TODO"]},
+  "split_policy": {"release_split": "TODO", "prompt_examples_must_not_overlap": true},
+  "metrics": ["TODO"],
+  "known_limitations": ["TODO"]
+}

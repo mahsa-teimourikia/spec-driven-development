@@ -1,0 +1,59 @@
+{
+  "records": [
+    {
+      "evidence_id": "EVID-AC-SUITE",
+      "type": "integration_test",
+      "evidence_class": "deterministic_conformance",
+      "requirement_ids": ["REQ-BR-001", "REQ-BR-003", "REQ-BR-005", "REQ-BR-020", "REQ-BR-021", "REQ-BR-030", "REQ-BR-031", "REQ-BR-035", "REQ-BR-036", "REQ-BR-037", "SEC-BR-001", "OBS-BR-001", "COMPAT-BR-001"],
+      "acceptance_ids": ["AC-BR-003-B", "AC-BR-005-A", "AC-BR-020-B1", "AC-BR-020-F1", "AC-BR-021-A", "AC-BR-030-A", "AC-BR-031-A", "AC-BR-036-A", "AC-BR-035-A", "AC-BR-037-A", "AC-STATE-002", "AC-SEC-001", "AC-OBS-001", "AC-COMPAT-001"],
+      "producer": {"id": "course07-independent-harness", "relationship_to_implementation": "independent_evaluator", "identity_authenticated": false},
+      "validity": {"specification_revision": "1.1-training", "implementation_revision": "course06-2dd6bc2-training", "environment_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "tool_revision": "course07-lab-1.0-training"},
+      "result": {"status": "pass", "numerator": 14, "denominator": 14, "executed_at": "2026-09-21T17:00:00Z"},
+      "limitations": ["Finite deterministic fixtures do not prove behavior for every production input or execution path."]
+    },
+    {
+      "evidence_id": "EVID-DT-COVERAGE",
+      "type": "contract_test",
+      "evidence_class": "deterministic_conformance",
+      "requirement_ids": ["REQ-BR-005"],
+      "acceptance_ids": ["AC-BR-005-A"],
+      "producer": {"id": "course07-ci", "relationship_to_implementation": "deterministic_ci_control", "identity_authenticated": false},
+      "validity": {"specification_revision": "1.1-training", "implementation_revision": "course06-2dd6bc2-training", "environment_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "tool_revision": "course07-lab-1.0-training"},
+      "result": {"status": "pass", "numerator": 8, "denominator": 8, "executed_at": "2026-09-21T17:00:00Z"},
+      "limitations": ["Row coverage is structural evidence and does not establish that table semantics are correct."]
+    },
+    {
+      "evidence_id": "EVID-STATE-GRAPH",
+      "type": "integration_test",
+      "evidence_class": "deterministic_conformance",
+      "requirement_ids": ["REQ-BR-001", "REQ-BR-037"],
+      "acceptance_ids": ["AC-STATE-002", "AC-BR-037-A"],
+      "producer": {"id": "course07-ci", "relationship_to_implementation": "deterministic_ci_control", "identity_authenticated": false},
+      "validity": {"specification_revision": "1.1-training", "implementation_revision": "course06-2dd6bc2-training", "environment_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "tool_revision": "course07-lab-1.0-training"},
+      "result": {"status": "pass", "numerator": 2, "denominator": 2, "executed_at": "2026-09-21T17:00:00Z"},
+      "limitations": ["Graph checks validate declared transitions, not distributed transaction behavior or production authorization systems."]
+    },
+    {
+      "evidence_id": "EVID-STATIC-TOOLS",
+      "type": "security_test",
+      "evidence_class": "deterministic_conformance",
+      "requirement_ids": ["SEC-BR-001", "REQ-BR-031"],
+      "acceptance_ids": ["AC-SEC-001", "AC-BR-031-A"],
+      "producer": {"id": "course07-ci", "relationship_to_implementation": "deterministic_ci_control", "identity_authenticated": false},
+      "validity": {"specification_revision": "1.1-training", "implementation_revision": "course06-2dd6bc2-training", "environment_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "tool_revision": "course07-lab-1.0-training"},
+      "result": {"status": "pass", "numerator": 3, "denominator": 3, "executed_at": "2026-09-21T17:00:00Z"},
+      "limitations": ["The manifest fixture cannot detect undeclared tools, runtime permission drift, or an external service bypass."]
+    },
+    {
+      "evidence_id": "EVID-CONTRACT-VERSION",
+      "type": "contract_test",
+      "evidence_class": "deterministic_conformance",
+      "requirement_ids": ["COMPAT-BR-001", "REQ-BR-030"],
+      "acceptance_ids": ["AC-COMPAT-001", "AC-BR-030-A"],
+      "producer": {"id": "course07-consumer-suite", "relationship_to_implementation": "independent_evaluator", "identity_authenticated": false},
+      "validity": {"specification_revision": "1.1-training", "implementation_revision": "course06-2dd6bc2-training", "environment_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "tool_revision": "course07-lab-1.0-training"},
+      "result": {"status": "pass", "numerator": 1, "denominator": 1, "executed_at": "2026-09-21T17:00:00Z"},
+      "limitations": ["Only the explicit unsupported-version behavior is exercised; no real message broker or deployed consumer is tested."]
+    }
+  ]
+}

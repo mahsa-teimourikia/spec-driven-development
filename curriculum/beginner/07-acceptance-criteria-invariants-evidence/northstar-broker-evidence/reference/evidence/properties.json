@@ -1,0 +1,48 @@
+{
+  "records": [
+    {
+      "evidence_id": "EVID-PROP-AUTH",
+      "type": "property_test",
+      "evidence_class": "deterministic_conformance",
+      "requirement_ids": ["REQ-BR-003"],
+      "invariant_ids": ["INV-BR-001"],
+      "producer": {"id": "course07-property-harness", "relationship_to_implementation": "independent_evaluator", "identity_authenticated": false},
+      "validity": {"specification_revision": "1.1-training", "implementation_revision": "course06-2dd6bc2-training", "environment_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "tool_revision": "course07-lab-1.0-training"},
+      "result": {"status": "pass", "numerator": 4, "denominator": 4, "executed_at": "2026-09-21T17:00:00Z"},
+      "limitations": ["The finite value set is regression evidence, not a proof over all identities, contexts, or network paths."]
+    },
+    {
+      "evidence_id": "EVID-PROP-CONFLICT",
+      "type": "property_test",
+      "evidence_class": "deterministic_conformance",
+      "requirement_ids": ["REQ-BR-001", "REQ-BR-005"],
+      "invariant_ids": ["INV-BR-002"],
+      "producer": {"id": "course07-property-harness", "relationship_to_implementation": "independent_evaluator", "identity_authenticated": false},
+      "validity": {"specification_revision": "1.1-training", "implementation_revision": "course06-2dd6bc2-training", "environment_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "tool_revision": "course07-lab-1.0-training"},
+      "result": {"status": "pass", "numerator": 90, "denominator": 90, "executed_at": "2026-09-21T17:00:00Z"},
+      "limitations": ["The property explores a bounded integer population and cannot establish correctness for every field type or production path."]
+    },
+    {
+      "evidence_id": "EVID-PROP-FRAME",
+      "type": "property_test",
+      "evidence_class": "deterministic_conformance",
+      "requirement_ids": ["REQ-BR-020"],
+      "invariant_ids": ["FRAME-BR-001"],
+      "producer": {"id": "course07-property-harness", "relationship_to_implementation": "independent_evaluator", "identity_authenticated": false},
+      "validity": {"specification_revision": "1.1-training", "implementation_revision": "course06-2dd6bc2-training", "environment_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "tool_revision": "course07-lab-1.0-training"},
+      "result": {"status": "pass", "numerator": 3, "denominator": 3, "executed_at": "2026-09-21T17:00:00Z"},
+      "limitations": ["The in-memory fixture does not test database triggers, concurrent writers, or downstream side effects."]
+    },
+    {
+      "evidence_id": "EVID-PROP-IDEMPOTENCY",
+      "type": "property_test",
+      "evidence_class": "deterministic_conformance",
+      "requirement_ids": ["REQ-BR-035"],
+      "invariant_ids": ["INV-BR-004"],
+      "producer": {"id": "course07-property-harness", "relationship_to_implementation": "independent_evaluator", "identity_authenticated": false},
+      "validity": {"specification_revision": "1.1-training", "implementation_revision": "course06-2dd6bc2-training", "environment_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "tool_revision": "course07-lab-1.0-training"},
+      "result": {"status": "pass", "numerator": 3, "denominator": 3, "executed_at": "2026-09-21T17:00:00Z"},
+      "limitations": ["The fixture checks stable identities in memory; it does not prove atomic deduplication across distributed consumers."]
+    }
+  ]
+}
