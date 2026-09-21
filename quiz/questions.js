@@ -243,5 +243,54 @@ const QUESTIONS = [
     options: ['Stable requirement IDs, source locators, exception IDs and conditions, and unresolved stop states', 'Only a prose summary of the desired implementation', 'Every policy in the company regardless of scope', 'The model conversation but not source versions'],
     answer: 0,
     explanation: 'Loss-aware compression keeps decisions traceable and refreshable. Removing provenance or exception conditions creates apparently simple but unauditable instructions.'
+  },
+  {
+    category: 'Requirement placement',
+    question: 'Where should an enterprise-wide minimum for human review be owned?',
+    options: ['By the enterprise policy authority, with local implementations linked to it', 'Independently in every feature ticket', 'Only in AGENTS.md', 'By whichever repository changes most often'],
+    answer: 0,
+    explanation: 'Ownership follows decision rights. Projects and features consume and implement the invariant without becoming alternate policy publishers.'
+  },
+  {
+    category: 'Ownership',
+    question: 'Who owns the runtime review-receipt gate when Enterprise AI Governance owns the human-review requirement?',
+    options: ['The named enforcement or platform owner; policy ownership and control operation can differ', 'The coding agent', 'Nobody because the policy owner must operate every control', 'The feature ticket author automatically'],
+    answer: 0,
+    explanation: 'Requirement, implementation, and enforcement ownership are distinct. Explicit mappings preserve accountability across the control chain.'
+  },
+  {
+    category: 'Specialization',
+    question: 'Enterprise policy allows Azure OpenAI or AWS Bedrock. Which project specialization is valid?',
+    options: ['Allow only AWS Bedrock', 'Allow AWS Bedrock and an unapproved direct provider', 'Allow any provider mentioned in a ticket', 'Disable the gateway requirement'],
+    answer: 0,
+    explanation: 'An allowlist specialization is monotonic when the child set is a subset of the parent set.'
+  },
+  {
+    category: 'Enforcement',
+    question: 'Why is a rule in AGENTS.md not sufficient enforcement for a production release gate?',
+    options: ['It guides agent behavior but does not prevent the runtime state transition', 'Markdown cannot contain requirement IDs', 'Agents never read repository instructions', 'Only legal documents can describe controls'],
+    answer: 0,
+    explanation: 'Documentation and instructions help contributors operate. Preventive enforcement must block prohibited behavior at an observable boundary.'
+  },
+  {
+    category: 'Exceptions',
+    question: 'Which exception record is structurally credible?',
+    options: ['One bound to requirement and version, limited in scope, independently approved, and expiring', 'A feature comment saying the rule is inconvenient', 'A permanent waiver approved by its requester', 'A copied policy with the strict clause removed'],
+    answer: 0,
+    explanation: 'First-class exception metadata preserves the base rule and makes the authorized deviation bounded and reviewable. Production still needs authenticated approval.'
+  },
+  {
+    category: 'Impact analysis',
+    question: 'AI-030 changes version. A project implementation cites the old version, and a feature implements that project control. What is affected?',
+    options: ['The direct project binding and the transitive feature consumer both require review', 'Only the central policy file', 'Only the feature because it is closest to code', 'Nothing until a test fails'],
+    answer: 0,
+    explanation: 'Versioned graph traversal finds both direct and transitive consumers. Affected means prior assurance must be re-evaluated, not that non-compliance is already proven.'
+  },
+  {
+    category: 'Control effectiveness',
+    question: 'The review-gate integration test passes, but runtime telemetry shows 18% of recommendations bypass the gate through a legacy endpoint. What is the correct conclusion?',
+    options: ['The control is implemented but ineffective in the observed runtime path', 'The control is effective because CI passed', 'The requirement should be moved into AGENTS.md', 'Traceability coverage proves production conformance'],
+    answer: 0,
+    explanation: 'Design-time evidence proves only the tested claim. Runtime bypasses show that the implemented control does not cover the real execution paths, so remediation and new evidence are required.'
   }
 ];

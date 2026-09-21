@@ -1,0 +1,16 @@
+{
+  "id": "ARCH-031",
+  "parent_requirement_id": "AI-030",
+  "parent_revision": "ai030v3-training",
+  "owner": "Project Architecture",
+  "source": {"repository": "underwriter-assistant", "path": "docs/adr/ADR-031-review-service.md", "version": "3.0-training", "revision": "arch031v3-training"},
+  "bindings": {"human_review": "required", "review_mechanism": "ReviewServiceV2"},
+  "supported_parent_controls": {
+    "human_review": "supported",
+    "review_timing": "supported",
+    "reviewer_identity": "supported",
+    "review_decision": "supported",
+    "review_rationale": "supported",
+    "review_timestamp": "supported"
+  }
+}

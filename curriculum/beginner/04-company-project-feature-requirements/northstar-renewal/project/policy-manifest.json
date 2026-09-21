@@ -1,0 +1,21 @@
+{
+  "project": "underwriter-assistant",
+  "policy_sources": [
+    "enterprise/ai-governance",
+    "enterprise/security",
+    "enterprise/payments",
+    "platform/ai",
+    "domain/underwriting"
+  ],
+  "specialization_ids": ["ARCH-031"],
+  "exception_ids": ["EXC-014"],
+  "context_preserve": [
+    "requirement_id",
+    "source_revision",
+    "meaning_owner",
+    "fixed_controls",
+    "delegated_controls",
+    "enforcement",
+    "evidence_ids"
+  ]
+}

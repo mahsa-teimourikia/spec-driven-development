@@ -1,0 +1,6 @@
+requirement_id,specification,agent_instruction,ci,runtime,evidence,evidence_owner
+AI-030,yes,yes,review-receipt integration test,ReviewServiceGate,TEST-REVIEW-004,Underwriter Engineering
+UW-041,yes,yes,reviewer authorization test,underwriter role authorization,SEC-AUTH-011,Identity Platform
+AI-007,yes,yes,direct-provider-call policy,gateway-only network egress,GATEWAY-TELEMETRY-007,AI Platform
+AI-041,yes,yes,renewal evaluation gate,quality monitoring,EVAL-RENEWAL-002,AI Quality
+SEC-100,yes,yes,authentication boundary test,Corporate OIDC,SEC-AUTH-011,Identity Platform

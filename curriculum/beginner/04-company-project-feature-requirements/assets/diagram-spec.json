@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "id": "requirement-ownership-propagation",
+  "title": "Requirement authority, specialization, and enforcement",
+  "purpose": "Show authoritative policy sources flowing through a version-pinned project manifest into project and feature requirements, with separately owned enforcement and bounded agent access.",
+  "output": {
+    "svg": "requirement-propagation.svg",
+    "alt_text": "Four-stage diagram. Enterprise and domain policy sources feed a project policy manifest. Versioned relationships connect the manifest to project specializations and feature behavior. Machine controls enforce the requirements, while a bounded coding agent reads effective context but cannot write policy or exception sources. Policy changes propagate back through the relationship graph for impact review."
+  },
+  "canvas": {"width": 1640, "height": 960, "background": "#F7F9FC"},
+  "style": {
+    "font_family": "Inter, Arial, sans-serif",
+    "semantic_colors": {
+      "authority": {"fill": "#EAF1FF", "stroke": "#2F6BFF"},
+      "manifest": {"fill": "#F0EEFF", "stroke": "#7667E8"},
+      "local": {"fill": "#E5F7F6", "stroke": "#087F7B"},
+      "control": {"fill": "#E9F8ED", "stroke": "#238636"},
+      "stop": {"fill": "#FFF1DF", "stroke": "#D97706"}
+    }
+  },
+  "groups": [
+    {"id": "authority", "label": "AUTHORITY PLANE", "bounds": {"x": 50, "y": 145, "width": 340, "height": 730}, "fill": "#FFFFFF", "stroke": "#D7DEE8"},
+    {"id": "project", "label": "PROJECT RESOLUTION", "bounds": {"x": 430, "y": 145, "width": 390, "height": 730}, "fill": "#FFFFFF", "stroke": "#D7DEE8"},
+    {"id": "delivery", "label": "LOCAL DELIVERY", "bounds": {"x": 860, "y": 145, "width": 340, "height": 730}, "fill": "#FFFFFF", "stroke": "#D7DEE8"},
+    {"id": "execution", "label": "ENFORCEMENT AND EVIDENCE", "bounds": {"x": 1240, "y": 145, "width": 350, "height": 730}, "fill": "#FFFFFF", "stroke": "#D7DEE8"}
+  ],
+  "nodes": [
+    {"id": "enterprise", "group": "authority", "label": ["Enterprise policy"], "subtitle": "AI-007 · AI-030 · SEC-*", "type": "authority", "bounds": {"x": 90, "y": 245, "width": 260, "height": 120}, "ports": {"out": {"side": "right", "offset": 0.5}, "impact": {"side": "bottom", "offset": 0.5}}},
+    {"id": "domain", "group": "authority", "label": ["Domain policy"], "subtitle": "UW-041 · owned by risk council", "type": "authority", "bounds": {"x": 90, "y": 535, "width": 260, "height": 120}, "ports": {"out": {"side": "right", "offset": 0.5}}},
+    {"id": "manifest", "group": "project", "label": ["Policy-source manifest"], "subtitle": "sources · versions · relationships", "type": "manifest", "bounds": {"x": 475, "y": 280, "width": 300, "height": 130}, "ports": {"enterprise": {"side": "left", "offset": 0.3}, "domain": {"side": "left", "offset": 0.75}, "out": {"side": "right", "offset": 0.5}, "impact": {"side": "bottom", "offset": 0.5}}},
+    {"id": "stop", "group": "project", "label": ["STOP states"], "subtitle": "stale · weaker · unauthorized", "type": "stop", "bounds": {"x": 500, "y": 600, "width": 250, "height": 115}, "ports": {"in": {"side": "top", "offset": 0.5}}},
+    {"id": "project_req", "group": "delivery", "label": ["Project requirements"], "subtitle": "specialize and implement", "type": "local", "bounds": {"x": 900, "y": 240, "width": 260, "height": 120}, "ports": {"in": {"side": "left", "offset": 0.5}, "down": {"side": "bottom", "offset": 0.5}, "control": {"side": "right", "offset": 0.5}}},
+    {"id": "feature_req", "group": "delivery", "label": ["Feature behavior"], "subtitle": "observable acceptance boundary", "type": "local", "bounds": {"x": 900, "y": 545, "width": 260, "height": 120}, "ports": {"in": {"side": "top", "offset": 0.5}, "control": {"side": "right", "offset": 0.5}}},
+    {"id": "enforcement", "group": "execution", "label": ["Machine controls"], "subtitle": "CI · infrastructure · runtime", "type": "control", "bounds": {"x": 1285, "y": 260, "width": 260, "height": 125}, "ports": {"project": {"side": "left", "offset": 0.35}, "feature": {"side": "left", "offset": 0.75}, "down": {"side": "bottom", "offset": 0.5}}},
+    {"id": "agent", "group": "execution", "label": ["Bounded coding agent"], "subtitle": "read context · protected writes", "type": "manifest", "bounds": {"x": 1285, "y": 575, "width": 260, "height": 120}, "ports": {"in": {"side": "top", "offset": 0.5}}}
+  ],
+  "edges": [
+    {"id": "enterprise-manifest", "from": {"node": "enterprise", "port": "out"}, "to": {"node": "manifest", "port": "enterprise"}, "kind": "authority", "label": "select + pin", "label_position": [410, 295], "route": [[350, 305], [420, 305], [420, 319], [475, 319]]},
+    {"id": "domain-manifest", "from": {"node": "domain", "port": "out"}, "to": {"node": "manifest", "port": "domain"}, "kind": "authority", "route": [[350, 595], [405, 595], [405, 377.5], [475, 377.5]]},
+    {"id": "manifest-project", "from": {"node": "manifest", "port": "out"}, "to": {"node": "project_req", "port": "in"}, "kind": "relationship", "label": "typed edges", "label_position": [840, 315], "route": [[775, 345], [840, 345], [840, 300], [900, 300]]},
+    {"id": "manifest-stop", "from": {"node": "manifest", "port": "impact"}, "to": {"node": "stop", "port": "in"}, "kind": "stop", "label": "validation", "label_position": [690, 520], "route": [[625, 410], [625, 540], [625, 540], [625, 600]]},
+    {"id": "project-feature", "from": {"node": "project_req", "port": "down"}, "to": {"node": "feature_req", "port": "in"}, "kind": "relationship", "label": "implements", "label_position": [1085, 460], "route": [[1030, 360], [1030, 545]]},
+    {"id": "project-control", "from": {"node": "project_req", "port": "control"}, "to": {"node": "enforcement", "port": "project"}, "kind": "control", "route": [[1160, 300], [1220, 300], [1220, 303.75], [1285, 303.75]]},
+    {"id": "feature-control", "from": {"node": "feature_req", "port": "control"}, "to": {"node": "enforcement", "port": "feature"}, "kind": "control", "route": [[1160, 605], [1215, 605], [1215, 353.75], [1285, 353.75]]},
+    {"id": "control-agent", "from": {"node": "enforcement", "port": "down"}, "to": {"node": "agent", "port": "in"}, "kind": "control", "label": "effective context", "label_position": [1480, 500], "route": [[1415, 385], [1415, 575]]}
+  ],
+  "validation": {"no_overlaps": true, "orthogonal_routes": true, "verify_port_attachment": true, "min_text_padding": 18}
+}

@@ -1,0 +1,11 @@
+{
+  "id": "REQ-REN-004",
+  "owner": "Renewal Product",
+  "source": {"repository": "underwriter-assistant", "path": "specs/renewal/spec.md", "version": "1.0-training", "revision": "reqren004-training"},
+  "derived_from": ["AI-030", "UW-041"],
+  "controls": {
+    "review_mechanism": "ReviewServiceV2",
+    "reviewer_role": "authorized_underwriter",
+    "review_receipt": "identity,decision,rationale,timestamp"
+  }
+}

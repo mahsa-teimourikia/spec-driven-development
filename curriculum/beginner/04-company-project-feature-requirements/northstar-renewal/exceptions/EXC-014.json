@@ -1,0 +1,30 @@
+{
+  "id": "EXC-014",
+  "requirement_id": "AI-007",
+  "requirement_revision": "ai007v4-training",
+  "scope": {
+    "project": "underwriter-assistant",
+    "feature_ids": ["REQ-REN-001"]
+  },
+  "requester": "Renewal Product",
+  "approver": "AI Platform",
+  "approval_record": "GRC-8841-training",
+  "modification": {
+    "field": "model_gateway",
+    "expected": "legacy_enterprise_gateway_proxy"
+  },
+  "rationale": "The renewal feature needs a temporary compatibility proxy while its approved gateway adapter is migrated.",
+  "conditions": [
+    "Restrict egress to the AI Platform-managed compatibility proxy.",
+    "Preserve gateway request and response audit events.",
+    "Complete migration to the current enterprise AI gateway before expiry."
+  ],
+  "expires_on": "2026-12-31",
+  "status": "active",
+  "source": {
+    "repository": "enterprise-exceptions",
+    "path": "ai/EXC-014.json",
+    "version": "1.0-training",
+    "revision": "exc014-training"
+  }
+}

@@ -1,0 +1,6 @@
+artifact_or_control,accountable,responsible,consulted,informed
+AI-030 meaning,AI Governance,AI Governance Policy Team,Legal and affected domains,AI delivery teams
+UW-041 reviewer role,Underwriting Risk,Underwriting Standards Team,Identity Platform,Underwriting product teams
+ARCH-031 specialization,Project Architecture,Underwriter Engineering,AI Governance and Review Platform,Renewal Product
+ReviewServiceGate,Underwriter Engineering,Review Platform,AI Governance and Underwriting Risk,Renewal Product
+EXC-014 decision,AI Platform,AI Platform,Renewal Product and Product Security,Affected control owners

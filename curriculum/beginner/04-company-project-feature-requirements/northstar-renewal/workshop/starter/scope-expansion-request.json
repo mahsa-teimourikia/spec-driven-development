@@ -1,0 +1,9 @@
+{
+  "id": "SCOPE-004",
+  "blocked_task": "TASK-REN-03",
+  "requested_change": "auth/reviewer_roles.py",
+  "reason": "TODO",
+  "affected_requirements": ["TODO"],
+  "required_reviewers": ["TODO"],
+  "status": "proposed_not_authorized"
+}

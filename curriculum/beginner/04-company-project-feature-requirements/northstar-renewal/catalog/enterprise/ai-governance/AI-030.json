@@ -1,0 +1,32 @@
+{
+  "id": "AI-030",
+  "title": "Consequential AI human review",
+  "statement": "Consequential AI recommendations SHALL receive authorized human review before use and retain a complete review receipt.",
+  "layer": "enterprise",
+  "meaning_owner": "AI Governance",
+  "status": "active",
+  "effective_from": "2026-05-01",
+  "source_domain": "enterprise/ai-governance",
+  "source": {"repository": "enterprise-policy", "path": "ai-governance/AI-030.json", "version": "3.0-training", "revision": "ai030v3-training"},
+  "scope": [{"field": "risk_class", "allowed_values": ["consequential"]}],
+  "fixed_controls": {
+    "human_review": "required",
+    "review_timing": "before_consequential_use",
+    "reviewer_identity": "required",
+    "review_decision": "required",
+    "review_rationale": "required",
+    "review_timestamp": "required"
+  },
+  "delegated_controls": {
+    "reviewer_role": {"owner": "Underwriting Risk", "agent_authority": "none"},
+    "review_mechanism": {"owner": "Project Architecture", "agent_authority": "propose"},
+    "implementation_structure": {"owner": "Engineering", "agent_authority": "decide"}
+  },
+  "enforcement": [
+    {"plane": "ci", "mechanism": "review-receipt integration test", "owner": "Developer Platform", "automated": true},
+    {"plane": "runtime", "mechanism": "ReviewServiceGate", "owner": "Underwriter Engineering", "automated": true}
+  ],
+  "evidence_ids": ["TEST-REVIEW-004"],
+  "recommended_capabilities": ["CAP-REVIEW-SERVICE-002"],
+  "exception_owner": "AI Governance"
+}

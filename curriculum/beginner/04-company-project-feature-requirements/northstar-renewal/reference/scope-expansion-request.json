@@ -1,0 +1,9 @@
+{
+  "id": "SCOPE-004",
+  "blocked_task": "TASK-REN-03",
+  "requested_change": "auth/reviewer_roles.py",
+  "reason": "Review Service requires a missing mapping for authorized underwriting reviewers.",
+  "affected_requirements": ["AI-030", "UW-041", "SEC-100"],
+  "required_reviewers": ["identity-platform", "product-security"],
+  "status": "proposed_not_authorized"
+}

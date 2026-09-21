@@ -146,6 +146,58 @@ const course03 = {
   }
 };
 
+const course04 = {
+  id: 'c04', course: 4, level: 'beginner', part: 'I · SDD foundations', status: 'available',
+  title: 'Company vs project vs feature requirements',
+  summary: 'Place requirements where decision authority belongs, specialize them without silent weakening, map machine enforcement, and propagate central changes to affected project and feature work.',
+  outcomes: [
+    'Place enterprise, domain, project, and feature requirements according to decision rights and scope.',
+    'Distinguish requirement owners, consumers, implementation owners, and enforcement owners.',
+    'Model versioned INHERITS, SPECIALIZES, IMPLEMENTS, EVIDENCES, EXCEPTS, and SUPERSEDES relationships.',
+    'Reject project or feature specializations that widen an allowlist, lower a minimum, or disable a required control.',
+    'Separate documentation from detective and preventive enforcement.',
+    'Select authoritative sources through a compact project manifest instead of copying central policy.',
+    'Trace direct and transitive impact when a central requirement version changes.',
+    'Constrain coding-agent writes while preserving IDs, provenance, enforcement, exceptions, and stop states.',
+    'Separate release reproducibility, runtime control effectiveness, delivery outcomes, and agent-behavior signals.'
+  ],
+  readme: `${REPO}/blob/main/curriculum/beginner/04-company-project-feature-requirements/README.md`,
+  notebook: `${REPO}/blob/main/curriculum/beginner/04-company-project-feature-requirements/requirement_ownership.ipynb`,
+  lab: `${REPO}/blob/main/curriculum/beginner/04-company-project-feature-requirements/lab.py`,
+  repoFixture: `${REPO}/tree/main/curriculum/beginner/04-company-project-feature-requirements/northstar-renewal`,
+  run: 'python3 curriculum/beginner/04-company-project-feature-requirements/lab.py',
+  labs: [
+    {
+      title: 'Lab A — Resolve ownership and propagation',
+      description: 'Discover version-pinned sources, validate typed relationships and monotonic specialization, distinguish machine enforcement from documentation, and trace a central-policy change.',
+      command: 'python3 curriculum/beginner/04-company-project-feature-requirements/lab.py',
+      links: [['View the resolver', `${REPO}/blob/main/curriculum/beginner/04-company-project-feature-requirements/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/beginner/04-company-project-feature-requirements/requirement_ownership.ipynb`]]
+    },
+    {
+      title: 'Lab B — Govern renewal recommendations AI-2048',
+      description: 'Complete requirement placement, RACI, relationship, enforcement, impact, and bounded-context artifacts before comparing them with the reference decisions.',
+      command: 'Open the ticket and starter workspace; run Lab A before consulting the reference.',
+      links: [['Open the workshop', `${REPO}/tree/main/curriculum/beginner/04-company-project-feature-requirements/northstar-renewal`], ['Complete the starter artifacts', `${REPO}/tree/main/curriculum/beginner/04-company-project-feature-requirements/northstar-renewal/workshop/starter`], ['Inspect the reference decisions', `${REPO}/tree/main/curriculum/beginner/04-company-project-feature-requirements/northstar-renewal/reference`]]
+    }
+  ],
+  references: [
+    ['NIST OSCAL profile layer', 'https://pages.nist.gov/OSCAL/learn/concepts/layer/control/profile/'],
+    ['Open Policy Agent management APIs', 'https://www.openpolicyagent.org/docs/management-introduction'],
+    ['Cedar policy language guide', 'https://docs.cedarpolicy.com/'],
+    ['GitHub rulesets', 'https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/about-rulesets']
+  ],
+  checkpoint: {
+    question: 'A feature owner adds human_review = false even though enterprise policy requires review. What should happen?',
+    options: [
+      'STOP: the feature weakens inherited policy and needs an independently approved, scoped exception.',
+      'Accept it because feature requirements are closest to the code.',
+      'Accept it whenever feature-owned tests pass.'
+    ],
+    answer: 0,
+    explanation: 'Specificity and test coverage do not create authority. Normal specialization must preserve or strengthen the parent; an authorized weakening requires a first-class exception.'
+  }
+};
+
 function planned(course, level, part, title, summary) {
   return {
     id: `c${String(course).padStart(2, '0')}`, course, level, part,
@@ -160,7 +212,7 @@ const LESSONS = [
   course01,
   course02,
   course03,
-  planned(4, 'beginner', 'I · SDD foundations', 'Company vs project vs feature requirements', 'Resolve scope, ownership, inheritance, specialization, and conflicts across levels.'),
+  course04,
   planned(5, 'beginner', 'II · Executable specifications', 'Requirements engineering for agents', 'Discover assumptions and express requirements that constrain agent action.'),
   planned(6, 'beginner', 'II · Executable specifications', 'User stories, EARS, SHALL requirements, and scenarios', 'Use complementary requirement forms without mistaking syntax for quality.'),
   planned(7, 'beginner', 'II · Executable specifications', 'Acceptance criteria and invariants', 'Define examples and properties that produce meaningful conformance evidence.'),

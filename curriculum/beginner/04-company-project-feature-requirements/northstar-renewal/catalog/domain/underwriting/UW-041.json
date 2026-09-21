@@ -1,0 +1,24 @@
+{
+  "id": "UW-041",
+  "title": "Renewal recommendation approval",
+  "statement": "Renewal recommendations affecting premium or coverage SHALL be approved by an authorized underwriter.",
+  "layer": "domain",
+  "meaning_owner": "Underwriting Risk",
+  "status": "active",
+  "effective_from": "2026-03-15",
+  "source_domain": "domain/underwriting",
+  "source": {"repository": "domain-standards", "path": "underwriting/UW-041.json", "version": "2.1-training", "revision": "uw041v21-training"},
+  "scope": [{"field": "decision_domain", "allowed_values": ["renewal"]}],
+  "fixed_controls": {"underwriter_approval": "required"},
+  "delegated_controls": {
+    "reviewer_role": {"owner": "Underwriting Risk", "agent_authority": "none"},
+    "review_evidence": {"owner": "Underwriting Risk", "agent_authority": "none"}
+  },
+  "enforcement": [
+    {"plane": "ci", "mechanism": "reviewer authorization test", "owner": "Underwriter Engineering", "automated": true},
+    {"plane": "runtime", "mechanism": "underwriter role authorization", "owner": "Identity Platform", "automated": true}
+  ],
+  "evidence_ids": ["SEC-AUTH-011", "TEST-REVIEW-004"],
+  "recommended_capabilities": ["CAP-REVIEW-SERVICE-002"],
+  "exception_owner": "Underwriting Risk"
+}

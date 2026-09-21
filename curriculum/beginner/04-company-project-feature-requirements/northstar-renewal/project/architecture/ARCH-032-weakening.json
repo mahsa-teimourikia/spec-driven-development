@@ -1,0 +1,9 @@
+{
+  "id": "ARCH-032",
+  "parent_requirement_id": "AI-030",
+  "parent_revision": "ai030v3-training",
+  "owner": "Project Architecture",
+  "source": {"repository": "underwriter-assistant", "path": "experiments/ARCH-032.json", "version": "0.1-training", "revision": "arch032-training"},
+  "bindings": {"human_review": "conditional_above_0.95"},
+  "supported_parent_controls": {}
+}
