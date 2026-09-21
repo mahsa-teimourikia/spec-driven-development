@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0-training",
+  "fixture_status": "fictional_owner_approved_training_policy",
+  "logical_operation_id_required": true,
+  "limits": {
+    "provider_attempts": 3,
+    "tool_calls": 6,
+    "model_turns": 3,
+    "wall_clock_ms": 10000,
+    "input_tokens": 8000,
+    "output_tokens": 1200,
+    "authoritative_mutations": 1,
+    "external_broker_messages": 0
+  },
+  "exhaustion": {
+    "new_provider_calls": "stop",
+    "new_tool_calls": "stop",
+    "authoritative_mutation": "block_unless_already_atomically_committed",
+    "work_item": "preserve",
+    "disposition": "manual_review",
+    "reason_code": "EXECUTION_BUDGET_EXHAUSTED"
+  },
+  "authority_boundary": "The model may propose work. Trusted application code owns budgets, authorization, mutation, reconciliation, and terminal state."
+}

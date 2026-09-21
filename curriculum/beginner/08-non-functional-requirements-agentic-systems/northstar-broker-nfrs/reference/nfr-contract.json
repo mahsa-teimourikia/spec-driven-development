@@ -1,0 +1,127 @@
+{
+  "schema_version": "1.0-training",
+  "fixture_status": "synthetic_owner_decisions_for_instruction_only",
+  "scenario": "AI-2219 commercial-underwriting rollout",
+  "requirements": [
+    {
+      "id": "PERF-BR-001",
+      "characteristic": "end_to_end_latency",
+      "statement": "For eligible W1 requests, the p95 interval from accepted request to completed proposal response SHALL remain at or below the owner-approved target.",
+      "population": {"workload_profile": "W1", "eligible_only": true},
+      "measurement": {"metric": "end_to_end_latency_ms.p95", "unit": "ms", "method": "nearest_rank_percentile", "start": "accepted_request", "end": "completed_proposal_response", "window": "rolling_28_days"},
+      "target": {"status": "target_approved", "direction": "maximum", "value": 5000, "unit": "ms", "decision_id": "TD-PERF-001"},
+      "owner": {"decision": "Commercial Underwriting Product", "measurement": "Underwriting Platform SRE", "response": "Broker Automation Service"},
+      "criticality": "service_objective",
+      "failure_behavior": "Preserve the work item and reduce autonomy according to the failing dependency.",
+      "evidence_methods": ["load_test", "production_sli"]
+    },
+    {
+      "id": "REL-BR-001",
+      "characteristic": "workflow_reliability",
+      "statement": "Eligible W1 requests SHALL produce either a valid proposal response or an approved graceful-degradation response at the owner-approved good-event ratio.",
+      "population": {"workload_profile": "W1", "eligible_only": true},
+      "measurement": {"metric": "good_event_ratio", "unit": "ratio", "method": "semantic_good_events_divided_by_eligible_events", "window": "rolling_28_days"},
+      "target": {"status": "target_approved", "direction": "minimum", "value": 0.9, "unit": "ratio", "decision_id": "TD-REL-001"},
+      "owner": {"decision": "Commercial Underwriting Product", "measurement": "Underwriting Platform SRE", "response": "Broker Automation Service"},
+      "criticality": "service_objective",
+      "failure_behavior": "Count invalid success envelopes as bad events and investigate by outcome and dependency slice.",
+      "evidence_methods": ["production_sli", "failure_injection"]
+    },
+    {
+      "id": "RES-BR-001",
+      "characteristic": "bounded_provider_retry",
+      "statement": "Each logical workflow SHALL make no more than three provider attempts and SHALL route preserved work to manual processing when the budget is exhausted.",
+      "population": {"workload_profile": "W1", "eligible_only": true},
+      "measurement": {"metric": "provider_attempts.max", "unit": "attempts_per_logical_workflow", "method": "maximum_attempt_count_by_run_id", "window": "per_workflow"},
+      "target": {"status": "invariant", "direction": "maximum", "value": 3, "unit": "attempts_per_logical_workflow", "decision_id": "TD-RES-001"},
+      "owner": {"decision": "AI Platform Architecture", "measurement": "Broker Automation Service", "response": "Broker Automation Service"},
+      "criticality": "safety_limit",
+      "failure_behavior": "Stop provider calls, open the circuit when configured, preserve the item, and route to manual processing.",
+      "evidence_methods": ["deterministic_test", "chaos_test", "runtime_trace"]
+    },
+    {
+      "id": "AGENT-NFR-001",
+      "characteristic": "authoritative_side_effect_budget",
+      "statement": "A broker-response workflow SHALL perform at most one authoritative mutation and model-facing execution SHALL NOT bypass the trusted mutation boundary.",
+      "population": {"workload_profile": "W1", "eligible_only": true},
+      "measurement": {"metric": "authoritative_mutations_per_workflow.max", "unit": "mutations_per_logical_workflow", "method": "maximum_committed_mutations_by_run_id", "window": "per_workflow"},
+      "target": {"status": "invariant", "direction": "maximum", "value": 1, "unit": "mutations_per_logical_workflow", "decision_id": "TD-AGENT-001"},
+      "owner": {"decision": "Underwriting Risk", "measurement": "Broker Automation Service", "response": "Broker Automation Service"},
+      "criticality": "safety_limit",
+      "failure_behavior": "Block further mutation, reconcile the logical operation, and require independent review.",
+      "evidence_methods": ["property_test", "runtime_trace", "audit_record"]
+    },
+    {
+      "id": "COST-BR-001",
+      "characteristic": "workflow_unit_economics",
+      "statement": "The service SHALL measure cost per successful compliant workflow by route, workload class, and outcome before an accountable owner approves a ceiling.",
+      "population": {"workload_profile": "W1", "eligible_only": true},
+      "measurement": {"metric": "cost_per_successful_compliant_workflow", "unit": "USD_per_successful_compliant_workflow", "method": "total_attributable_cost_divided_by_successful_compliant_workflows", "window": "rolling_28_days"},
+      "target": {"status": "target_unresolved", "direction": "maximum", "value": null, "unit": "USD_per_successful_compliant_workflow", "decision_id": null},
+      "owner": {"decision": "Commercial Underwriting Product and FinOps", "measurement": "AI Platform FinOps", "response": "Broker Automation Service"},
+      "criticality": "optimization_objective",
+      "failure_behavior": "Continue measurement; do not weaken quality, privacy, authorization, or resilience controls to reduce cost.",
+      "evidence_methods": ["cost_attribution", "production_sli"]
+    },
+    {
+      "id": "OBS-BR-001",
+      "characteristic": "decision_trace_completeness",
+      "statement": "Eligible workflows SHALL emit the required correlation, version, decision, budget, latency, token, and cost fields without raw broker content.",
+      "population": {"workload_profile": "W1", "eligible_only": true},
+      "measurement": {"metric": "telemetry_completeness_ratio", "unit": "ratio", "method": "complete_redacted_events_divided_by_eligible_events", "window": "rolling_24_hours"},
+      "target": {"status": "target_approved", "direction": "minimum", "value": 1.0, "unit": "ratio", "decision_id": "TD-OBS-001"},
+      "owner": {"decision": "Underwriting Platform SRE", "measurement": "Telemetry Platform", "response": "Broker Automation Service"},
+      "criticality": "release_control",
+      "failure_behavior": "Block production rollout when consequential decisions cannot be correlated and audited.",
+      "evidence_methods": ["schema_validation", "production_sli"]
+    },
+    {
+      "id": "AIQ-BR-001",
+      "characteristic": "safe_decision_quality",
+      "statement": "The system SHALL measure governed-decision correctness overall and by high-risk slice on a representative, leakage-controlled evaluation population.",
+      "population": {"evaluation_contract": "Course07-P1", "representative_production_population_required": true},
+      "measurement": {"metric": "quality_safe_decision_ratio", "unit": "ratio", "method": "correct_governed_decisions_divided_by_labelled_cases", "window": "per_model_workflow_dataset_revision"},
+      "target": {"status": "target_unresolved", "direction": "minimum", "value": null, "unit": "ratio", "decision_id": null},
+      "owner": {"decision": "Underwriting Risk and AI Quality", "measurement": "AI Quality", "response": "Broker Automation Service"},
+      "criticality": "release_control",
+      "failure_behavior": "Keep automatic application disabled until population, slice, and threshold decisions are approved.",
+      "evidence_methods": ["offline_evaluation", "human_review", "production_monitoring"]
+    },
+    {
+      "id": "SEC-NFR-001",
+      "characteristic": "least_privilege",
+      "statement": "The model-facing execution environment SHALL possess zero credentials capable of authoritative submission mutation.",
+      "population": {"execution_environment": "model_facing", "all_deployments": true},
+      "measurement": {"metric": "model_facing_authoritative_credentials", "unit": "credentials", "method": "deployed_identity_capability_inventory", "window": "per_release_and_continuous_drift_scan"},
+      "target": {"status": "invariant", "direction": "prohibited", "value": 0, "unit": "credentials", "decision_id": "TD-SEC-001"},
+      "owner": {"decision": "Product Security", "measurement": "Identity Platform", "response": "Underwriting Platform"},
+      "criticality": "security_invariant",
+      "failure_behavior": "Block deployment or revoke the capability; latency and availability targets cannot override this invariant.",
+      "evidence_methods": ["policy_as_code", "identity_inventory", "deployment_attestation"]
+    },
+    {
+      "id": "PRIV-NFR-001",
+      "characteristic": "telemetry_data_minimization",
+      "statement": "Telemetry SHALL contain zero raw broker-message bodies and zero secrets; approved IDs, digests, metrics, and reason codes remain available for diagnosis.",
+      "population": {"telemetry_stream": "broker_response_processing", "all_environments": true},
+      "measurement": {"metric": "sensitive_telemetry_events", "unit": "events", "method": "schema_policy_and_sampling_scan", "window": "continuous"},
+      "target": {"status": "invariant", "direction": "prohibited", "value": 0, "unit": "events", "decision_id": "TD-PRIV-001"},
+      "owner": {"decision": "Privacy Office", "measurement": "Telemetry Platform", "response": "Broker Automation Service"},
+      "criticality": "privacy_invariant",
+      "failure_behavior": "Stop affected export, preserve minimal local audit evidence, and start the incident path.",
+      "evidence_methods": ["schema_validation", "data_loss_prevention_scan", "runtime_sampling"]
+    },
+    {
+      "id": "CAP-BR-001",
+      "characteristic": "sustained_capacity",
+      "statement": "The production topology SHALL sustain the W1 request rate while meeting approved latency, reliability, and safety requirements.",
+      "population": {"workload_profile": "W1", "eligible_only": true},
+      "measurement": {"metric": "sustained_requests_per_minute", "unit": "requests_per_minute", "method": "representative_load_test_with_dependency_quotas", "window": "30_minute_steady_state_plus_peak_burst"},
+      "target": {"status": "target_approved", "direction": "minimum", "value": 120, "unit": "requests_per_minute", "decision_id": "TD-CAP-001"},
+      "owner": {"decision": "Commercial Underwriting Product", "measurement": "Performance Engineering", "response": "Underwriting Platform"},
+      "criticality": "release_control",
+      "failure_behavior": "Do not claim W1 readiness; revise topology, quotas, or rollout scope without weakening safety controls.",
+      "evidence_methods": ["load_test", "quota_validation", "capacity_review"]
+    }
+  ]
+}

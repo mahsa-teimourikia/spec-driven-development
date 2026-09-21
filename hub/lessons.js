@@ -355,6 +355,57 @@ const course07 = {
   }
 };
 
+const course08 = {
+  id: 'c08', course: 8, level: 'beginner', part: 'II · Executable specifications', status: 'available',
+  title: 'Non-functional requirements for agentic systems',
+  summary: 'Turn performance, reliability, resilience, security, privacy, observability, cost, capacity, and AI-quality expectations into owned, measurable contracts without inventing targets.',
+  outcomes: [
+    'Write NFRs with explicit populations, workload profiles, boundaries, units, statistics, windows, owners, evidence methods, and failure responses.',
+    'Keep unresolved targets explicit and trace approved values to accountable owner decisions and evidence.',
+    'Measure percentile latency, semantic good events, trace completeness, budget conformance, quality slices, and cost per successful compliant workflow.',
+    'Distinguish throughput, current capacity, scalability, SLIs, internal SLOs, external SLAs, invariants, and error-budget policies.',
+    'Design dependency-specific degradation that preserves work and reduces autonomy rather than skipping controls.',
+    'Bound retries, provider calls, model turns, tools, tokens, deadlines, and authoritative side effects in trusted application code.',
+    'Specify least privilege and privacy-safe observability with correlation IDs, versions, budgets, reason codes, and no raw broker content.',
+    'Separate fixed synthetic measurement exercises from live-model, load-test, runtime, and production-readiness evidence.'
+  ],
+  readme: `${REPO}/blob/main/curriculum/beginner/08-non-functional-requirements-agentic-systems/README.md`,
+  notebook: `${REPO}/blob/main/curriculum/beginner/08-non-functional-requirements-agentic-systems/nfr_engineering.ipynb`,
+  lab: `${REPO}/blob/main/curriculum/beginner/08-non-functional-requirements-agentic-systems/lab.py`,
+  repoFixture: `${REPO}/tree/main/curriculum/beginner/08-non-functional-requirements-agentic-systems/northstar-broker-nfrs`,
+  run: 'python3 curriculum/beginner/08-non-functional-requirements-agentic-systems/lab.py',
+  labs: [
+    {
+      title: 'Lab A — Measure and govern production qualities',
+      description: 'Validate owner-sourced targets, calculate latency tails and semantic outcomes, compare cost denominators, inject retry/telemetry/budget failures, and preserve an honest blocked release.',
+      command: 'python3 curriculum/beginner/08-non-functional-requirements-agentic-systems/lab.py',
+      links: [['View the NFR lab', `${REPO}/blob/main/curriculum/beginner/08-non-functional-requirements-agentic-systems/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/beginner/08-non-functional-requirements-agentic-systems/nfr_engineering.ipynb`]]
+    },
+    {
+      title: 'Lab B — Govern AI-2219 production readiness',
+      description: 'Repair a vague rollout ticket; complete workload, target, measurement, degradation, budget, and traceability artifacts; and explain every unresolved or unmeasured blocker.',
+      command: 'Open the ticket and starter workspace; run Lab A before consulting the reference.',
+      links: [['Open the workshop', `${REPO}/tree/main/curriculum/beginner/08-non-functional-requirements-agentic-systems/northstar-broker-nfrs`], ['Complete the starter package', `${REPO}/tree/main/curriculum/beginner/08-non-functional-requirements-agentic-systems/northstar-broker-nfrs/workshop/starter`], ['Inspect the reference contract', `${REPO}/blob/main/curriculum/beginner/08-non-functional-requirements-agentic-systems/northstar-broker-nfrs/reference/nfr-contract.json`]]
+    }
+  ],
+  references: [
+    ['Google SRE — Service Level Objectives', 'https://sre.google/sre-book/service-level-objectives/'],
+    ['OpenTelemetry semantic conventions', 'https://opentelemetry.io/docs/specs/semconv/'],
+    ['NIST AI Risk Management Framework', 'https://www.nist.gov/itl/ai-risk-management-framework'],
+    ['ISO/IEC 25010:2023 product quality model', 'https://www.iso.org/standard/78176.html']
+  ],
+  checkpoint: {
+    question: 'The synthetic fixture passes latency and reliability, but the AI-quality target is unresolved and W1 capacity has not been load-tested. What is the correct production decision?',
+    options: [
+      'Block production readiness, retain the bounded measurements, and obtain authorized quality and representative capacity evidence.',
+      'Deploy because most synthetic gates pass.',
+      'Ask the coding agent to select common quality and capacity thresholds.'
+    ],
+    answer: 0,
+    explanation: 'A measured value cannot authorize its own target, static events do not establish capacity, and synthetic results are not production evidence. Each required characteristic retains its own state rather than disappearing into a composite score.'
+  }
+};
+
 function planned(course, level, part, title, summary) {
   return {
     id: `c${String(course).padStart(2, '0')}`, course, level, part,
@@ -373,7 +424,7 @@ const LESSONS = [
   course05,
   course06,
   course07,
-  planned(8, 'beginner', 'II · Executable specifications', 'Non-functional requirements', 'Make security, reliability, performance, accessibility, and operability measurable.'),
+  course08,
   planned(9, 'beginner', 'II · Executable specifications', 'Architecture Decision Records', 'Capture consequential decisions, alternatives, rationale, and consequences.'),
   planned(10, 'beginner', 'II · Executable specifications', 'Requirement traceability', 'Link intent through design, tasks, code, tests, approvals, and operational evidence.'),
   planned(11, 'intermediate', 'III · SDD frameworks', 'GitHub Spec Kit', 'Use constitution, clarification, planning, checks, analysis, implementation, and convergence.'),

@@ -544,5 +544,89 @@ const QUESTIONS = [
     options: ['The bounded declared slice passed; production readiness and whole-product conformance remain unproven', 'The whole feature is production-ready', 'The excluded requirements are implicitly satisfied', 'A perfect fixture score authorizes release'],
     answer: 0,
     explanation: 'Conformance is scoped to the declared criteria and evidence. Exclusions and missing assurance remain release-relevant blockers.'
+  },
+  {
+    category: 'NFR target authority',
+    question: 'A product ticket says broker-response processing should be quick. What should the specification do?',
+    options: ['Define the latency boundary and measurement while keeping the target unresolved until an accountable owner decides', 'Choose p95 under two seconds because it sounds interactive', 'Copy the current prototype average as the permanent SLO', 'Ask the coding agent to select a common target'],
+    answer: 0,
+    explanation: 'Quality intent does not authorize a number. Measurement can be designed while target value, rationale, evidence, and owner decision remain explicit blockers.'
+  },
+  {
+    category: 'Latency measurement',
+    question: 'What is missing from “p95 latency under five seconds”?',
+    options: ['A start/end boundary, workload and eligible population, unit, window, owner, and evidence method', 'Only a model name', 'Only an average', 'Nothing; p95 makes it complete'],
+    answer: 0,
+    explanation: 'A percentile has meaning only for a defined population and measurement procedure. Operational ownership and response also belong in the contract.'
+  },
+  {
+    category: 'Semantic availability',
+    question: 'An API returns HTTP 200 with an error body saying the model is unavailable. Should that automatically count as a good event?',
+    options: ['No; good service needs semantic outcome rules such as a valid result or approved work-preserving degradation', 'Yes; transport success proves availability', 'Yes, if latency is low', 'Only when the model chose the status code'],
+    answer: 0,
+    explanation: 'Transport status is not the user outcome. The good-event classifier must distinguish valid service from disguised failures.'
+  },
+  {
+    category: 'Capacity',
+    question: 'Twelve static runtime events meet the latency target. What capacity claim follows?',
+    options: ['None; representative concurrent load, peak/soak behavior, quotas, correctness, and safety still need evidence', 'W1 is proven because every event completed', 'W2 is proven if the application can add pods', 'Provider capacity is irrelevant'],
+    answer: 0,
+    explanation: 'Static observations exercise metric plumbing but do not generate workload or test dependency quotas and backpressure.'
+  },
+  {
+    category: 'Safe degradation',
+    question: 'The policy service is unavailable. Which response preserves the authority boundary?',
+    options: ['Disable automatic mutation, preserve the work item, and route to manual processing', 'Skip policy to preserve availability', 'Let model confidence decide', 'Retry without a bound until policy returns'],
+    answer: 0,
+    explanation: 'Critical dependency failure reduces autonomy. Availability does not authorize removal of a safety control.'
+  },
+  {
+    category: 'Retry resilience',
+    question: 'Why must provider retries be bounded by logical operation?',
+    options: ['Unbounded retries amplify outages, consume quota and cost, increase latency, and can duplicate effects', 'Retries always improve reliability for free', 'A circuit breaker only affects UI latency', 'Provider throttling disappears when more workers are added'],
+    answer: 0,
+    explanation: 'Retry storms worsen overload. Stable operation identity, typed retryability, budgets, circuits, preservation, and reconciliation control amplification.'
+  },
+  {
+    category: 'Agent budgets',
+    question: 'Who should enforce tool-call, model-turn, token, deadline, and side-effect budgets?',
+    options: ['Trusted application code at action boundaries', 'The model through a reminder in its prompt', 'The retrieved document', 'The tool response itself'],
+    answer: 0,
+    explanation: 'Model text is not a reliable control plane. The trusted runtime owns counters, stop states, authorization, and mutation.'
+  },
+  {
+    category: 'Unit economics',
+    question: 'Which denominator best exposes the cost of retries, failures, and unsafe outcomes?',
+    options: ['Cost per successful compliant workflow', 'Cost per API call only', 'Input tokens per prompt only', 'Monthly cloud bill with no workload attribution'],
+    answer: 0,
+    explanation: 'Outcome-level economics includes wasted work in total cost while counting only useful compliant outcomes in the denominator.'
+  },
+  {
+    category: 'Observability privacy',
+    question: 'Which telemetry design best supports diagnosis without unnecessary broker-data exposure?',
+    options: ['Correlated IDs, versions, reason codes, digests, budgets, timing, tokens, cost, and terminal state without raw message bodies', 'Store every prompt and tool result forever', 'Record hidden model reasoning', 'Remove all correlation IDs'],
+    answer: 0,
+    explanation: 'Operational evidence should be useful and data-minimized. Raw content, secrets, and hidden reasoning are not prerequisites for traceability.'
+  },
+  {
+    category: 'AI quality NFRs',
+    question: 'A fixed fixture scores 7/8 overall but only 1/2 on unsupported fields. What is the honest interpretation?',
+    options: ['The pipeline mechanics ran and the high-risk slice shows a gap; no live-model or production-quality claim follows', 'The model is 87.5% production-ready', 'The slice can be ignored because the aggregate is higher', 'The fixture author may approve the threshold'],
+    answer: 0,
+    explanation: 'Fixed predictions teach metric and slice behavior. Population, labels, thresholds, representativeness, and actual system execution remain separate.'
+  },
+  {
+    category: 'NFR trade-offs',
+    question: 'A cheaper route violates the least-privilege invariant. How should it appear on a cost-quality frontier?',
+    options: ['As infeasible, not as a slightly lower-scoring option', 'As preferred if savings are large', 'As acceptable when latency improves', 'As automatically approved during provider outages'],
+    answer: 0,
+    explanation: 'Security, privacy, and authority invariants are hard constraints. Optimization occurs only among feasible designs.'
+  },
+  {
+    category: 'Production readiness',
+    question: 'Seven synthetic NFR gates pass, two targets are unresolved, and capacity is unmeasured. What should the release assessment say?',
+    options: ['Blocked for production while preserving each measured, blocked, and unmeasured state', 'Pass because a majority is green', 'Average the ten gates into one score', 'Treat missing evidence as not applicable'],
+    answer: 0,
+    explanation: 'Required characteristics retain separate authority and evidence states. Synthetic passes cannot cancel unresolved decisions or absent capacity evidence.'
   }
 ];

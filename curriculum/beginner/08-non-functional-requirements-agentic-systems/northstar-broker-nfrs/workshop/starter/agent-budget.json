@@ -1,0 +1,7 @@
+{
+  "schema_version": "1.0-training",
+  "logical_operation_id_required": true,
+  "limits": {"provider_attempts":"TODO","tool_calls":"TODO","model_turns":"TODO","wall_clock_ms":"TODO","input_tokens":"TODO","output_tokens":"TODO","authoritative_mutations":1,"external_broker_messages":0},
+  "exhaustion": {"new_provider_calls":"TODO","new_tool_calls":"TODO","authoritative_mutation":"TODO","work_item":"preserve","disposition":"TODO","reason_code":"TODO"},
+  "authority_boundary": "TODO"
+}

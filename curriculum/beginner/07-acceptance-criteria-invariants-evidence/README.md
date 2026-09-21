@@ -691,6 +691,6 @@ The workflow should produce precise findings, not a generic quality score.
 
 ## Next course
 
-[Course 08 — Non-functional requirements](../../README.md) will extend observable contracts to
-security, reliability, performance, accessibility, privacy, operability, workload models, and
-SLO-like criteria.
+[Course 08 — Non-functional requirements for agentic systems](../08-non-functional-requirements-agentic-systems/README.md)
+extends observable contracts to performance, reliability, capacity, resilience, security, privacy,
+observability, cost, agent budgets, AI quality, workload models, and owner-controlled objectives.

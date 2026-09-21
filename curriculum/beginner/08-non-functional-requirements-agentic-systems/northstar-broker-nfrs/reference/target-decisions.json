@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0-training",
+  "fixture_status": "fictional_owner_decisions_for_instruction_only",
+  "decisions": [
+    {"id":"TD-PERF-001","requirement_id":"PERF-BR-001","status":"approved","value":5000,"unit":"ms","owner":"Commercial Underwriting Product","approved_at":"2026-09-18T17:00:00Z","rationale":"The interactive underwriting workflow needs a bounded wait while retaining the governed validation path.","evidence_ids":["BASELINE-MANUAL-014","PROTOTYPE-W1-009"]},
+    {"id":"TD-REL-001","requirement_id":"REL-BR-001","status":"approved","value":0.9,"unit":"ratio","owner":"Commercial Underwriting Product","approved_at":"2026-09-18T17:05:00Z","rationale":"Approved graceful degradation counts as service only when work is preserved and autonomy is reduced.","evidence_ids":["PILOT-OUTCOME-021","MANUAL-FALLBACK-006"]},
+    {"id":"TD-RES-001","requirement_id":"RES-BR-001","status":"approved","value":3,"unit":"attempts_per_logical_workflow","owner":"AI Platform Architecture","approved_at":"2026-09-18T17:10:00Z","rationale":"Bounds retry amplification while permitting one initial attempt and two transient retries.","evidence_ids":["PROVIDER-QUOTA-012","FAILURE-INJECTION-004"]},
+    {"id":"TD-AGENT-001","requirement_id":"AGENT-NFR-001","status":"approved","value":1,"unit":"mutations_per_logical_workflow","owner":"Underwriting Risk","approved_at":"2026-09-18T17:15:00Z","rationale":"The Course 06 mutation boundary permits one exact authoritative update for one approved logical operation.","evidence_ids":["REQ-BR-033","INV-BR-002"]},
+    {"id":"TD-OBS-001","requirement_id":"OBS-BR-001","status":"approved","value":1.0,"unit":"ratio","owner":"Underwriting Platform SRE","approved_at":"2026-09-18T17:20:00Z","rationale":"Every consequential workflow must remain correlatable before rollout; payload content is not required.","evidence_ids":["AUDIT-CONTROL-018","TRACE-DESIGN-007"]},
+    {"id":"TD-SEC-001","requirement_id":"SEC-NFR-001","status":"approved","value":0,"unit":"credentials","owner":"Product Security","approved_at":"2026-09-18T17:25:00Z","rationale":"Model-facing code proposes; a separately authorized trusted boundary mutates.","evidence_ids":["SEC-100","COURSE06-MUTATION-BOUNDARY"]},
+    {"id":"TD-PRIV-001","requirement_id":"PRIV-NFR-001","status":"approved","value":0,"unit":"events","owner":"Privacy Office","approved_at":"2026-09-18T17:30:00Z","rationale":"Correlation IDs, digests, versions, and reason codes support operations without copying broker content or secrets.","evidence_ids":["PRIV-018","TELEMETRY-DATA-ASSESSMENT-003"]},
+    {"id":"TD-CAP-001","requirement_id":"CAP-BR-001","status":"approved","value":120,"unit":"requests_per_minute","owner":"Commercial Underwriting Product","approved_at":"2026-09-18T17:35:00Z","rationale":"W1 is the approved pilot planning profile; production capacity still needs representative load evidence.","evidence_ids":["CAPACITY-DECISION-014","W1"]}
+  ]
+}

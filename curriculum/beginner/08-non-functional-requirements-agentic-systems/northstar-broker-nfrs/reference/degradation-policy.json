@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0-training",
+  "principle": "Dependency degradation reduces autonomy; it never removes a safety control.",
+  "dependencies": [
+    {"dependency":"authorization","criticality":"safety_critical","failure_mode":"UNAVAILABLE","automatic_mutation":false,"preserve_work_item":true,"reason_code":"AUTHORIZATION_STATE_UNKNOWN","continuation_condition":"none; authorization must be re-established"},
+    {"dependency":"model_provider","criticality":"workflow_dependency","failure_mode":"DEGRADED_AI","automatic_mutation":false,"preserve_work_item":true,"reason_code":"MODEL_PROVIDER_UNAVAILABLE","continuation_condition":"deterministic parsing or manual processing only"},
+    {"dependency":"policy_service","criticality":"safety_critical","failure_mode":"MANUAL_ONLY","automatic_mutation":false,"preserve_work_item":true,"reason_code":"POLICY_STATE_UNKNOWN","continuation_condition":"manual processing after policy state is established"},
+    {"dependency":"retrieval","criticality":"decision_dependency","failure_mode":"DEGRADED_RETRIEVAL","automatic_mutation":false,"preserve_work_item":true,"reason_code":"GROUNDING_UNAVAILABLE","continuation_condition":"manual processing with authoritative source access"},
+    {"dependency":"analytics_export","criticality":"non_critical","failure_mode":"NORMAL_WITH_BUFFERED_ANALYTICS","automatic_mutation":true,"preserve_work_item":true,"reason_code":"ANALYTICS_EXPORT_BUFFERED","continuation_condition":"all independent authorization, policy, validation, freshness, and mutation controls pass"}
+  ]
+}
