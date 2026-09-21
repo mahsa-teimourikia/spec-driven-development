@@ -9,7 +9,7 @@ The beginner path establishes the operating model and then builds the requiremen
 5. [Requirements engineering for coding agents](05-requirements-engineering-for-agents/README.md) — **available**
 6. [Writing executable requirements](06-writing-executable-requirements/README.md) — **available**
 7. [Acceptance criteria, invariants, and evidence](07-acceptance-criteria-invariants-evidence/README.md) — **available**
-8. Non-functional requirements — planned
+8. [Non-functional requirements for agentic systems](08-non-functional-requirements-agentic-systems/README.md) — **available**
 9. Architecture Decision Records — planned
 10. Requirement traceability — planned
 

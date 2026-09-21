@@ -87,7 +87,7 @@ Each future course follows this learning arc, adapted where the subject demands 
 | 05 | beginner/05 | Requirements engineering for coding agents | **Available** | C01–C04 | AI-2176 ambiguity register, typed requirements, capability gates, exact-content approval, failure matrix, traceability, and evaluation evidence |
 | 06 | beginner/06 | User stories, EARS, SHALL requirements, scenarios | **Available** | C05 | AI-2219 EARS/SHALL requirements, decision table, scenarios, proposal contract, guarded states, contradiction tests, and governed-decision evidence |
 | 07 | beginner/07 | Acceptance criteria, invariants, and evidence | **Available** | C06 | AI-2219 acceptance contract, bounded properties, mutation evidence, evaluation slices, provenance-bearing evidence bundle, owned gates, and runtime denominators |
-| 08 | beginner/08 | Non-functional requirements | Planned | C06–C07 | Workload model, SLO-like criteria, measurement plan |
+| 08 | beginner/08 | Non-functional requirements for agentic systems | **Available** | C06–C07 | AI-2219 workload profiles, NFR contract, owner-approved and unresolved targets, semantic SLIs, degradation policy, agent budgets, unit economics, and blocked production assessment |
 | 09 | beginner/09 | Architecture Decision Records | Planned | C02, C08 | ADR with alternatives, consequences, supersession rule |
 | 10 | beginner/10 | Requirement traceability | Planned | C05–C09 | Bidirectional intent → design → task → code → evidence graph |
 
@@ -285,6 +285,20 @@ pretending that examples, coverage, an AI score, or a green pipeline proves univ
 - **Evidence:** every record names its producer relationship, revisions, environment or dataset context, numerator, denominator, timestamp, and limitations. Mutation sensitivity and structural coverage remain bounded claims.
 - **Runtime boundary:** a zero invariant-violation count is meaningful only with a trustworthy non-zero applicable population. Synthetic runtime events illustrate denominator semantics but do not establish deployed effectiveness.
 - **Production upgrade:** authenticated attestations, immutable artifacts, representative and leakage-controlled datasets, human-rater calibration, real contract environments, and runtime observability are explicitly deferred to production systems.
+
+## Course 08 design record
+
+Course 08 turns the Course 06–07 behavioral and evidence contracts into a production-quality contract without inventing performance, reliability, quality, cost, or capacity targets.
+
+- **Scenario:** the AI-2219 broker-response pilot is being considered for rollout across Commercial Underwriting, but the request contains only vague adjectives such as fast, scalable, reliable, secure, and cost-effective.
+- **Core artifact:** eleven atomic NFRs across latency, semantic reliability, retry resilience, agent side-effect cardinality, trusted-boundary integrity, unit economics, observability, AI quality, least privilege, privacy, and capacity. Every requirement names population, measurement, target state, ownership, evidence, and failure response.
+- **Target governance:** nine approved or invariant requirement values trace to fictional owner decisions with rationale and evidence IDs; cost, AI-quality, and six agent-budget targets remain explicitly unresolved. Numbers never emerge from the vague rollout ticket.
+- **Lab A:** validate contracts and workload profiles; calculate p50/p95/p99 with small-sample disclosure, separate semantic from compliant success, trace completeness, governed-budget conformance, cost per successful compliant workflow, and quality slices; then apply owner-controlled gates.
+- **Lab B:** repair the rollout ticket, complete workload, target-decision, measurement, degradation, budget, and traceability artifacts, and explain every remaining blocker before consulting the reference.
+- **Failure experiments:** contrast a 600-call retry storm with bounded retries and an eight-call circuit threshold; inject raw-content telemetry, missing correlation, loops, and excess side effects; verify that critical dependency failure reduces autonomy.
+- **Evidence boundary:** runtime events, workload figures, owner decisions, costs, and fixed quality predictions are synthetic teaching fixtures. They do not prove live-model quality, provider behavior, production SLO attainment, or W1 capacity.
+- **Release result:** eight fixture gates pass, cost and AI-quality targets remain blocked, capacity is not measured, six agent budgets lack owner decisions, and production readiness remains false. Separate states replace a misleading composite score.
+- **Production upgrade:** authenticated telemetry, representative load and quota tests, durable operation identity, atomic budget/mutation accounting, calibrated evaluation, capability attestations, cost reconciliation, and owner-controlled operational response remain required.
 
 ## Risk boundaries
 

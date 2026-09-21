@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0-training",
+  "logical_operation_id_required": true,
+  "limits": {
+    "provider_attempts":{"status":"TODO","value":"TODO","unit":"TODO","decision_id":"TODO","requirement_id":"TODO","owner":"TODO","evidence_needed":"TODO"},
+    "tool_calls":{"status":"target_unresolved","value":null,"unit":"calls_per_logical_workflow","decision_id":null,"requirement_id":null,"owner":"TODO","evidence_needed":"TODO"},
+    "model_turns":{"status":"target_unresolved","value":null,"unit":"turns_per_logical_workflow","decision_id":null,"requirement_id":null,"owner":"TODO","evidence_needed":"TODO"},
+    "wall_clock_ms":{"status":"target_unresolved","value":null,"unit":"ms_per_logical_workflow","decision_id":null,"requirement_id":null,"owner":"TODO","evidence_needed":"TODO"},
+    "input_tokens":{"status":"target_unresolved","value":null,"unit":"tokens_per_logical_workflow","decision_id":null,"requirement_id":null,"owner":"TODO","evidence_needed":"TODO"},
+    "output_tokens":{"status":"target_unresolved","value":null,"unit":"tokens_per_logical_workflow","decision_id":null,"requirement_id":null,"owner":"TODO","evidence_needed":"TODO"},
+    "authoritative_mutations":{"status":"TODO","value":1,"unit":"mutations_per_logical_workflow","decision_id":"TODO","requirement_id":"AGENT-NFR-001","owner":"TODO","evidence_needed":"TODO"},
+    "external_broker_messages":{"status":"target_unresolved","value":null,"unit":"messages_per_logical_workflow","decision_id":null,"requirement_id":null,"owner":"TODO","evidence_needed":"TODO"}
+  },
+  "exhaustion": {"new_provider_calls":"TODO","new_tool_calls":"TODO","authoritative_mutation":"TODO","work_item":"preserve","disposition":"TODO","reason_code":"TODO"},
+  "authority_boundary": "TODO"
+}

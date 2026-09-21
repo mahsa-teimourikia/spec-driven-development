@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0-training",
+  "requirements": [
+    {
+      "id": "PERF-BR-001",
+      "characteristic": "TODO",
+      "statement": "TODO: replace 'fast' with a measurable obligation without inventing a target.",
+      "population": {"workload_profile": "TODO"},
+      "measurement": {"metric": "TODO", "unit": "TODO", "method": "TODO", "window": "TODO"},
+      "target": {"status": "target_unresolved", "direction": "maximum", "value": null, "unit": "TODO", "decision_id": null},
+      "owner": {"decision": "TODO", "measurement": "TODO", "response": "TODO"},
+      "criticality": "TODO",
+      "failure_behavior": "TODO",
+      "evidence_methods": ["TODO"]
+    }
+  ]
+}
