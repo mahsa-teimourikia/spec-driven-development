@@ -7,17 +7,25 @@
     "non_goals": ["replace underwriters", "change underwriting policy"]
   },
   "glossary": [
-    {"term": "missing item", "definition": "TODO"},
+    {"term": "requirement gap", "definition": "TODO: distinguish missing, invalid, unverified, and conflicting"},
+    {"term": "observation evidence", "definition": "TODO: define revision-bound evidence of absence or invalidity"},
     {"term": "draft", "definition": "Proposed communication with no delivery authority."}
   ],
   "sources": [
     {"id": "SRC-TICKET-2176", "kind": "ticket", "owner": "underwriting_product", "version": "1", "locator": "ticket/AI-2176.md"},
     {"id": "SRC-UW-REQ-12", "kind": "domain_requirement", "owner": "underwriting_governance", "version": "12.4-training", "locator": "sources/underwriting-requirements.json"}
   ],
+  "release": {
+    "id": "release-1-draft-only",
+    "status": "TODO",
+    "included_capabilities": ["TODO"],
+    "deferred_capabilities": ["send_message"],
+    "blocked_by": ["OQ-017"]
+  },
   "capabilities": [
-    {"id": "analyze_missing_items", "autonomy_level": 1, "description": "TODO"},
-    {"id": "draft_message", "autonomy_level": 1, "description": "TODO"},
-    {"id": "send_message", "autonomy_level": 0, "description": "Disabled while OQ-017 is open."}
+    {"id": "analyze_missing_items", "autonomy_level": 1, "release_status": "TODO", "description": "TODO"},
+    {"id": "draft_message", "autonomy_level": 1, "release_status": "TODO", "description": "TODO"},
+    {"id": "send_message", "autonomy_level": 0, "release_status": "deferred", "description": "Disabled while OQ-017 is open."}
   ],
   "requirements": [
     {
@@ -27,11 +35,12 @@
       "normative_strength": "SHALL",
       "priority": "must",
       "status": "proposed",
+      "release_applicability": {"release_id": "release-1-draft-only", "status": "TODO", "blocked_by": []},
       "owner": "TODO",
       "source_ids": ["SRC-UW-REQ-12"],
       "statement": "TODO: write one observable obligation.",
       "preconditions": ["TODO"],
-      "behavior": {"output": "MissingItem[]"},
+      "behavior": {"output": "RequirementGap[]", "required_fields": ["TODO"]},
       "postconditions": ["TODO"],
       "evidence": {"method": "TODO"}
     }
@@ -43,10 +52,10 @@
     {"id": "OQ-017", "kind": "policy_decision", "text": "May any category be delivered without underwriter approval, and under which accountable policy?", "owner": "underwriting_governance", "status": "open", "blocks_capabilities": ["send_message"]}
   ],
   "failure_matrix": [
-    {"category": "schema", "retryable": false, "max_attempts": 0, "terminal_outcome": "abstain", "reason_code": "SCHEMA_INVALID"}
+    {"category": "schema", "retryable": false, "max_attempts": 0, "terminal_outcome": "block", "reason_code": "SCHEMA_INVALID"}
   ],
   "tasks": [
-    {"id": "TASK-01", "title": "TODO", "requirement_ids": ["REQ-FU-001"]}
+    {"id": "TASK-01", "title": "TODO", "release_status": "TODO", "blocked_by": [], "requirement_ids": ["REQ-FU-001"]}
   ],
   "agent_authority": {
     "allowed": ["extract candidate requirements", "propose clarification questions", "run deterministic validation"],

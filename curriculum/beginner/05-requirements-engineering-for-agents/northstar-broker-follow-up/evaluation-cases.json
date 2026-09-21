@@ -1,12 +1,12 @@
 {
   "cases": [
     {"id": "E-01", "statement": "Prepare accurate broker messages quickly.", "source_supported": true, "owner_present": true, "observable": false, "expected_finding": true},
-    {"id": "E-02", "statement": "Return MissingItem records for absent fields required by UW-REQ-12.", "source_supported": true, "owner_present": true, "observable": true, "expected_finding": false},
+    {"id": "E-02", "statement": "Return typed RequirementGap records for absent fields required by UW-REQ-12.", "source_supported": true, "owner_present": true, "observable": true, "expected_finding": false},
     {"id": "E-03", "statement": "Store every submission summary for 30 days.", "source_supported": false, "owner_present": true, "observable": true, "expected_finding": true},
     {"id": "E-04", "statement": "Send the draft after validation.", "source_supported": true, "owner_present": false, "observable": true, "expected_finding": true},
     {"id": "E-05", "statement": "Before retrieval, authorize the underwriter for the submission.", "source_supported": true, "owner_present": true, "observable": true, "expected_finding": false},
     {"id": "E-06", "statement": "Handle all broker cases.", "source_supported": true, "owner_present": true, "observable": false, "expected_finding": true},
-    {"id": "E-07", "statement": "The draft shall reference each validated MissingItem ID.", "source_supported": true, "owner_present": true, "observable": true, "expected_finding": false},
+    {"id": "E-07", "statement": "The draft shall reference each validated RequirementGap ID.", "source_supported": true, "owner_present": true, "observable": true, "expected_finding": false},
     {"id": "E-08", "statement": "Use the existing underwriting agent.", "source_supported": false, "owner_present": false, "observable": false, "expected_finding": true}
   ]
 }

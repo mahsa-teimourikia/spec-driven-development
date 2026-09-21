@@ -10,7 +10,7 @@
   "scope": {
     "in": [
       "commercial property submissions in the authenticated broker portal",
-      "missing-item analysis against current underwriting requirements",
+      "requirement-gap analysis against current underwriting requirements",
       "broker-message drafting and underwriter review"
     ],
     "out": [
@@ -25,7 +25,9 @@
     ]
   },
   "glossary": [
-    {"term": "missing item", "definition": "A required datum or document that is absent or invalid in a named submission revision and traces to a current underwriting requirement."},
+    {"term": "requirement gap", "definition": "A typed missing, invalid, unverified, or conflicting condition in a named submission revision that traces to a current underwriting requirement."},
+    {"term": "requirement evidence", "definition": "The authoritative rule or source that creates an obligation."},
+    {"term": "observation evidence", "definition": "A revision-bound field observation that establishes how the submission differs from the obligation."},
     {"term": "draft", "definition": "Proposed broker communication that has no delivery authority."},
     {"term": "approval receipt", "definition": "A single-use record bound to exact content, subject, versions, reviewer, rationale, and expiry."},
     {"term": "current", "definition": "The version read from the authoritative application state at the decision boundary."}
@@ -36,10 +38,17 @@
     {"id": "SRC-DECISIONS", "kind": "decision_record", "owner": "named_stakeholders", "version": "2026-09-20", "locator": "sources/stakeholder-decisions.md"},
     {"id": "SRC-OPS-Q2", "kind": "operational", "owner": "underwriting_operations", "version": "2026-Q2-training", "locator": "sources/operating-baseline.json"}
   ],
+  "release": {
+    "id": "release-1-draft-only",
+    "status": "approved_for_draft_only",
+    "included_capabilities": ["analyze_missing_items", "draft_message"],
+    "deferred_capabilities": ["send_message"],
+    "blocked_by": ["OQ-017"]
+  },
   "capabilities": [
-    {"id": "analyze_missing_items", "autonomy_level": 1, "description": "Propose a structured missing-item plan for review."},
-    {"id": "draft_message", "autonomy_level": 1, "description": "Prepare a broker follow-up draft without sending it."},
-    {"id": "send_message", "autonomy_level": 0, "description": "Remain disabled until owners resolve the delivery policy and production controls."}
+    {"id": "analyze_missing_items", "autonomy_level": 1, "release_status": "active", "description": "Propose a structured requirement-gap plan for review."},
+    {"id": "draft_message", "autonomy_level": 1, "release_status": "active", "description": "Prepare a broker follow-up draft without sending it."},
+    {"id": "send_message", "autonomy_level": 0, "release_status": "deferred", "description": "Remain disabled until owners resolve the delivery policy and production controls."}
   ],
   "requirements": [
     {
@@ -49,12 +58,13 @@
       "normative_strength": "SHALL",
       "priority": "must",
       "status": "approved",
+      "release_applicability": {"release_id": "release-1-draft-only", "status": "active", "blocked_by": []},
       "owner": "underwriting_governance",
       "source_ids": ["SRC-UW-REQ-12", "SRC-DECISIONS"],
-      "statement": "When an authenticated underwriter requests analysis of a supported submission revision, the system SHALL return one structured MissingItem for each absent or invalid item required by the current underwriting rule set.",
+      "statement": "When an authenticated underwriter requests analysis of a supported submission revision, the system SHALL return one structured RequirementGap for each missing, invalid, unverified, or conflicting condition governed by the current underwriting rule set.",
       "preconditions": ["submission identity and revision are current", "requesting underwriter is authorized", "underwriting rule set is current"],
-      "behavior": {"output": "MissingItem[]", "required_fields": ["id", "requirement_id", "label", "evidence_ids"]},
-      "postconditions": ["every item traces to one current requirement", "every item cites submission evidence"],
+      "behavior": {"output": "RequirementGap[]", "required_fields": ["id", "requirement_id", "field", "label", "status", "reason_code", "requirement_evidence_ids", "observation"]},
+      "postconditions": ["each gap traces to one current requirement", "each gap cites requirement evidence and revision-bound observation evidence"],
       "evidence": {"method": "contract and invariant tests", "cases": ["complete", "missing", "invalid", "unknown requirement"]}
     },
     {
@@ -64,11 +74,12 @@
       "normative_strength": "SHALL_NOT",
       "priority": "must",
       "status": "approved",
+      "release_applicability": {"release_id": "release-1-draft-only", "status": "active", "blocked_by": []},
       "owner": "underwriting_governance",
       "source_ids": ["SRC-UW-REQ-12"],
       "statement": "The system SHALL NOT classify an item as missing unless a current underwriting requirement requires it for the submission context.",
       "preconditions": ["submission context is known"],
-      "behavior": {"prohibited_outcome": "unsupported missing item"},
+      "behavior": {"prohibited_outcome": "unsupported requirement gap"},
       "postconditions": ["unsupported proposals enter review_required"],
       "evidence": {"method": "negative invariant test", "cases": ["model adds unsupported request"]}
     },
@@ -79,11 +90,12 @@
       "normative_strength": "SHALL",
       "priority": "must",
       "status": "approved",
+      "release_applicability": {"release_id": "release-1-draft-only", "status": "active", "blocked_by": []},
       "owner": "broker_experience_owner",
       "source_ids": ["SRC-DECISIONS"],
-      "statement": "When a validated missing-item plan exists, the system SHALL create a draft whose requested items correspond exactly to that plan.",
-      "preconditions": ["missing-item plan passed schema, semantic, and policy validation"],
-      "behavior": {"input": "MissingItem[]", "output": "Draft", "correspondence": "exact item IDs"},
+      "statement": "When a validated requirement-gap plan exists, the system SHALL create a draft whose requested items correspond exactly to that plan.",
+      "preconditions": ["requirement-gap plan passed schema, semantic, and policy validation"],
+      "behavior": {"input": "RequirementGap[]", "output": "Draft", "correspondence": "exact gap IDs"},
       "postconditions": ["no unsupported additions", "no omissions", "no external delivery"],
       "evidence": {"method": "correspondence precision and recall", "population": "versioned labelled drafting cases"}
     },
@@ -94,6 +106,7 @@
       "normative_strength": "SHALL",
       "priority": "must",
       "status": "approved",
+      "release_applicability": {"release_id": "release-1-draft-only", "status": "active", "blocked_by": []},
       "owner": "underwriting_operations",
       "source_ids": ["SRC-DECISIONS"],
       "statement": "When an approved draft changes, the system SHALL invalidate the prior approval and require a new receipt bound to the changed draft digest.",
@@ -109,6 +122,7 @@
       "normative_strength": "SHALL",
       "priority": "must",
       "status": "approved",
+      "release_applicability": {"release_id": "release-1-draft-only", "status": "deferred", "blocked_by": ["OQ-017"]},
       "owner": "identity_security",
       "source_ids": ["SRC-DECISIONS"],
       "statement": "Before any delivery attempt, trusted application code SHALL verify that the broker identity is authorized for the current submission.",
@@ -124,6 +138,7 @@
       "normative_strength": "SHALL_NOT",
       "priority": "must",
       "status": "approved",
+      "release_applicability": {"release_id": "release-1-draft-only", "status": "deferred", "blocked_by": ["OQ-017"]},
       "owner": "messaging_platform",
       "source_ids": ["SRC-DECISIONS"],
       "statement": "The delivery adapter SHALL NOT create more than one external message for one logical operation ID.",
@@ -139,19 +154,20 @@
       "normative_strength": "SHALL",
       "priority": "should",
       "status": "approved",
+      "release_applicability": {"release_id": "release-1-draft-only", "status": "active", "blocked_by": []},
       "owner": "underwriting_operations",
       "source_ids": ["SRC-DECISIONS"],
-      "statement": "For each missing-item decision, the system SHALL record the submission revision, underwriting requirement ID, analysis version, outcome, and reason code without storing message content in telemetry.",
+      "statement": "For each requirement-gap decision, the system SHALL record the submission revision, underwriting requirement ID, analysis version, outcome, and reason code without storing message content in telemetry.",
       "preconditions": ["analysis reaches a terminal outcome"],
       "behavior": {"telemetry_fields": ["submission_revision", "requirement_id", "analysis_version", "outcome", "reason_code"]},
       "postconditions": ["investigation metadata exists", "message content is excluded"],
-      "evidence": {"method": "telemetry contract test", "cases": ["proceed", "abstain", "clarify", "escalate"]}
+      "evidence": {"method": "telemetry contract test", "cases": ["proceed", "block", "abstain", "clarify", "escalate"]}
     }
   ],
   "invariants": [
-    {"id": "INV-PLAN-SUPPORT", "statement": "Every MissingItem traces to current authoritative rules and observed evidence.", "requirement_ids": ["REQ-FU-001", "INV-FU-001"]},
-    {"id": "INV-DRAFT-CORRESPONDENCE", "statement": "A draft neither adds nor omits MissingItems from the validated plan.", "requirement_ids": ["REQ-FU-042"]},
-    {"id": "INV-APPROVAL-EXACT", "statement": "Approval applies only to the exact draft, subject, broker, and current versions.", "requirement_ids": ["HITL-FU-003", "SEC-FU-003"]},
+    {"id": "INV-PLAN-SUPPORT", "statement": "Each RequirementGap traces to current authoritative rules and revision-bound observation evidence.", "requirement_ids": ["REQ-FU-001", "INV-FU-001"]},
+    {"id": "INV-DRAFT-CORRESPONDENCE", "statement": "A draft neither adds nor omits RequirementGaps from the validated plan.", "requirement_ids": ["REQ-FU-042"]},
+    {"id": "INV-APPROVAL-EXACT", "statement": "Approval applies only to the exact draft, subject, broker, and effective requirement context digest.", "requirement_ids": ["HITL-FU-003", "SEC-FU-003"]},
     {"id": "INV-NO-DUPLICATE-SEND", "statement": "One logical operation creates at most one external message.", "requirement_ids": ["REL-FU-002"]}
   ],
   "questions": [
@@ -161,19 +177,19 @@
   ],
   "failure_matrix": [
     {"category": "transport", "retryable": true, "max_attempts": 2, "terminal_outcome": "escalate", "reason_code": "TRANSPORT_RETRY_EXHAUSTED"},
-    {"category": "schema", "retryable": false, "max_attempts": 0, "terminal_outcome": "abstain", "reason_code": "SCHEMA_INVALID"},
+    {"category": "schema", "retryable": false, "max_attempts": 0, "terminal_outcome": "block", "reason_code": "SCHEMA_INVALID"},
     {"category": "safety", "retryable": false, "max_attempts": 0, "terminal_outcome": "escalate", "reason_code": "SAFETY_POLICY_DENIED"},
     {"category": "evidence", "retryable": false, "max_attempts": 0, "terminal_outcome": "clarify", "reason_code": "EVIDENCE_INSUFFICIENT"},
     {"category": "quality", "retryable": false, "max_attempts": 0, "terminal_outcome": "abstain", "reason_code": "QUALITY_GATE_FAILED"}
   ],
   "tasks": [
-    {"id": "TASK-01", "title": "Implement MissingItem contract and authoritative rule lookup", "requirement_ids": ["REQ-FU-001", "INV-FU-001", "OBS-FU-001"]},
-    {"id": "TASK-02", "title": "Implement draft correspondence validator", "requirement_ids": ["REQ-FU-042"]},
-    {"id": "TASK-03", "title": "Implement proposal-bound approval validation", "requirement_ids": ["HITL-FU-003", "SEC-FU-003"]},
-    {"id": "TASK-04", "title": "Implement idempotent delivery adapter after OQ-017 closes", "requirement_ids": ["REL-FU-002"]}
+    {"id": "TASK-01", "title": "Implement RequirementGap contract and authoritative rule lookup", "release_status": "active", "blocked_by": [], "requirement_ids": ["REQ-FU-001", "INV-FU-001", "OBS-FU-001"]},
+    {"id": "TASK-02", "title": "Implement draft correspondence validator", "release_status": "active", "blocked_by": [], "requirement_ids": ["REQ-FU-042"]},
+    {"id": "TASK-03", "title": "Implement proposal-bound approval validation", "release_status": "active", "blocked_by": [], "requirement_ids": ["HITL-FU-003"]},
+    {"id": "TASK-04", "title": "Implement authorization and idempotent delivery controls after OQ-017 closes", "release_status": "deferred", "blocked_by": ["OQ-017"], "requirement_ids": ["SEC-FU-003", "REL-FU-002"]}
   ],
   "agent_authority": {
-    "allowed": ["extract candidate requirements", "propose clarification questions", "draft MissingItems", "draft broker communication", "run deterministic validation"],
+    "allowed": ["extract candidate requirements", "propose clarification questions", "draft RequirementGaps", "draft broker communication", "run deterministic validation"],
     "forbidden": ["answer owner questions", "change underwriting policy", "approve requirements", "approve a draft", "authorize a broker", "send a message"],
     "stop_conditions": ["source conflict", "missing authority", "stale context", "unsupported item", "invalid approval", "unknown delivery outcome"]
   }

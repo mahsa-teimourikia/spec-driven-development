@@ -330,7 +330,7 @@ const QUESTIONS = [
   },
   {
     category: 'Capability boundaries',
-    question: 'OQ-017 blocks automatic delivery but not missing-item analysis. What is the correct release shape?',
+    question: 'OQ-017 blocks automatic delivery but not requirement-gap analysis. What is the correct release shape?',
     options: ['Keep send disabled while bounded analysis and review-only drafting proceed', 'Let the model decide simple cases', 'Block every capability', 'Treat a draft as authorization'],
     answer: 0,
     explanation: 'Questions should block only affected capabilities. Reducing autonomy preserves useful work without silently granting delivery authority.'
@@ -355,5 +355,19 @@ const QUESTIONS = [
     options: ['Precision exposes unsupported requests; recall exposes omitted validated items', 'Two metrics always prove production quality', 'Recall authorizes delivery', 'Precision replaces domain rules'],
     answer: 0,
     explanation: 'Additions can burden brokers and omissions can prolong the cycle. Both metrics remain bounded to a named labelled population.'
+  },
+  {
+    category: 'Release applicability',
+    question: 'SEC-FU-003 is approved, but send_message is deferred from Release 1 by OQ-017. Is that contradictory?',
+    options: ['No. Requirement lifecycle, release applicability, and capability readiness are independent states', 'Yes. Every approved requirement must ship immediately', 'Yes. Deferred requirements must be rejected', 'No, because approval automatically enables send'],
+    answer: 0,
+    explanation: 'Approval preserves durable intent. A release can defer that obligation and its capability while retaining traceability to the blocker and future work.'
+  },
+  {
+    category: 'Evidence semantics',
+    question: 'How should the system represent a required document that exists but fails validation?',
+    options: ['As an invalid RequirementGap with rule evidence and revision-bound value_invalid observation evidence', 'As missing because both states need follow-up', 'As absent without citing the submission revision', 'As approved if the schema parses'],
+    answer: 0,
+    explanation: 'Missing, invalid, unverified, and conflicting are different operational states. The rule explains why the document is required; the observation explains what was found in the named revision.'
   }
 ];

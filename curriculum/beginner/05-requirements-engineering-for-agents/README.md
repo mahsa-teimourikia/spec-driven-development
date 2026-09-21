@@ -69,7 +69,7 @@ The central boundary is:
 
 ```text
 model or coding agent
-  proposes requirements, MissingItems, drafts, questions, and tasks
+  proposes requirements, RequirementGaps, drafts, questions, and tasks
                          │
                          ▼
 trusted application code
@@ -135,8 +135,8 @@ The reference package expresses `REQ-FU-001` as:
 
 ```text
 When an authenticated underwriter requests analysis of a supported submission
-revision, the system SHALL return one structured MissingItem for each absent or
-invalid item required by the current underwriting rule set.
+revision, the system SHALL return one structured RequirementGap for each missing,
+invalid, unverified, or conflicting condition governed by the current rule set.
 ```
 
 This is singular enough to evaluate, but not tied to a model vendor, queue, cache, or UI. Its data
@@ -156,8 +156,25 @@ Review each requirement for:
 - failure behavior and epistemic behavior; and
 - freedom from premature solution choices.
 
-Lexical checks can flag “fast,” “accurate,” “all,” or a long compound sentence. They cannot prove the
-requirement is complete, correct, feasible, or authorized. That remains an evidence-backed review.
+Lexical checks can flag “fast,” “accurate,” or a long compound sentence. Universal quantifiers such
+as “all” and “every” are not automatically vague: they trigger `UNIVERSAL_QUANTIFIER_REVIEW`, which
+asks whether the governed population is explicit. Neither kind of finding proves the requirement is
+complete, correct, feasible, or authorized. That remains an evidence-backed review.
+
+### Requirement lifecycle ≠ release scope ≠ capability readiness
+
+These are three independent decisions:
+
+| Dimension | Question | AI-2176 send example |
+| --- | --- | --- |
+| Requirement lifecycle | Has an accountable owner approved the obligation? | `SEC-FU-003` and `REL-FU-002` are approved requirements. |
+| Release applicability | Is that obligation active in this release? | Both are deferred from `release-1-draft-only` and linked to `OQ-017`. |
+| Capability readiness | May the capability execute now? | `send_message` is not ready: it is deferred, autonomy level 0, and policy-blocked. |
+
+Approval preserves a requirement as durable intent; it does not silently add the capability to every
+release. Conversely, putting a capability in scope does not prove its requirements are complete or
+its controls are ready. The reference tasks make the same distinction: `TASK-04` is traceable to the
+approved send requirements but explicitly deferred until `OQ-017` closes.
 
 ## 3. Use normative language carefully
 
@@ -190,17 +207,17 @@ the system SHALL evaluate required items against that exact revision.
 Given/When/Then scenarios provide examples:
 
 ```gherkin
-Given loss history is required and absent from submission revision 7
+Given loss history is required and present as an empty value in submission revision 7
 When an authorized underwriter requests analysis
-Then the result contains one MissingItem linked to the loss-history rule
-And the result cites the observed empty field
+Then the result contains one invalid RequirementGap linked to the loss-history rule
+And the result separately cites the rule and the observed empty value
 ```
 
 Neither form guarantees truth. A precisely worded requirement can still encode the wrong policy, and
 a scenario proves one example rather than a universal property. Use an invariant for the latter:
 
 ```text
-Every MissingItem traces to a current authoritative rule and observed evidence.
+Every RequirementGap traces to a current authoritative rule and revision-bound observation evidence.
 ```
 
 ## 5. Model state and boundaries
@@ -237,6 +254,16 @@ Treat these states differently:
 
 Collapsing them into “missing” invites unsupported messages and unsafe retries.
 
+The `RequirementGap` contract makes the distinction executable with a `status`, `reason_code`, and
+typed observation. It also separates two kinds of evidence:
+
+- **requirement evidence** identifies the authoritative rule that creates the obligation; and
+- **observation evidence** records a field-level fact such as `field_absent` or `value_invalid`, bound
+  to the exact submission revision.
+
+Absence is therefore not proven by citing an absent object. It is established by a trusted
+observation that the named field was absent in a named revision.
+
 ## 6. Separate domain decision from generation
 
 The model does not decide what underwriting requires. The pipeline is:
@@ -248,7 +275,7 @@ current rule set + current submission revision
 deterministic/authorized domain evaluation
           │
           ▼
-validated MissingItem[] plan
+validated RequirementGap[] plan
           │
           ▼
 model drafts wording from the plan
@@ -272,9 +299,10 @@ An agent needs explicit choices when it does not know:
 | Outcome | Use when | Example |
 | --- | --- | --- |
 | `proceed` | evidence and authority satisfy the bounded action | produce a review-only draft |
-| `abstain` | output cannot satisfy a quality or schema contract | malformed structured output |
+| `block` | a deterministic operational precondition failed | invalid approval, schema, policy, or authorization |
+| `abstain` | the model or evidence quality is insufficient for a reliable proposal | model-quality gate failed |
 | `clarify` | a resolvable fact or owner decision is missing | rule applicability is unknown |
-| `escalate` | consequence or policy requires accountable review | authorization denied or send policy unresolved |
+| `escalate` | accountable intervention or reconciliation is required | delivery outcome is unknown |
 
 “Low confidence” is not enough unless confidence is calibrated for a named population and consequence.
 Use reason codes and evidence IDs rather than private chain-of-thought.
@@ -316,12 +344,17 @@ change. A trustworthy send gate re-checks current state and binds approval to:
 
 ```text
 submission ID + exact submission revision
-requirements revision
+effective requirement-context digest
 broker identity
 exact draft digest
 reviewer identity + decision + rationale
 issuance + expiry + single-use state
 ```
+
+The effective context digest covers the specification revision, release scope, source versions, and
+applicable requirement identities, revisions, lifecycle states, and release applicability. A single
+`requirements_revision` string would not identify that composed context. This applies the Course 03
+effective-specification principle at the approval boundary.
 
 Editing the draft invalidates approval. A consumed receipt cannot be replayed. The application—not
 the model—checks these properties immediately before the external effect. Production consumption must
@@ -373,7 +406,7 @@ Keep these measurement layers separate:
 
 | Layer | Example |
 | --- | --- |
-| Per-case invariant | no unsupported MissingItem |
+| Per-case invariant | no unsupported RequirementGap |
 | Aggregate component quality | correspondence precision/recall by slice |
 | Operational SLO | analysis latency for a declared workload |
 | Safety outcome | actual unauthorized or duplicate messages |
@@ -424,8 +457,8 @@ by CI and executes without credentials.
 
 ## Exercises
 
-1. **Implementation:** add `document_invalid` to the MissingItem contract and write a negative test
-   proving it cannot be collapsed into `document_missing`.
+1. **Implementation:** add a `conflicting` RequirementGap fixture and write a negative test proving
+   it cannot be collapsed into `missing` or `invalid`.
 2. **Diagnosis:** mutate the approved draft body after receipt creation. Explain every reason code and
    why a new approval—not a retry—is required.
 3. **Requirements review:** rewrite “professional” without prescribing message copy or a user
@@ -435,11 +468,21 @@ by CI and executes without credentials.
 5. **Change management:** add rationale to the approval contract, create a semantic diff, and decide
    which tasks and tests need replanning.
 6. **Governance:** propose the evidence required before moving send from autonomy level 0 to level 2.
+7. **Over-specification:** decompose “The system SHALL use LangChain `StructuredOutputParser` with
+   GPT-5.6 behind FastAPI and persist results in Redis.” Preserve the outcome as a requirement; move
+   `StructuredOutputParser` to a design decision, FastAPI to an architecture/interface decision,
+   Redis to a persistence decision, and GPT-5.6 to a technology/model decision. For each choice,
+   identify the accountable owner and evidence that would make the constraint legitimate rather than
+   accidental.
+8. **Under-specification:** engineer “Follow up with brokers appropriately.” Discover and record the
+   actor, trigger, input and version, authoritative rule source, observable behavior, typed failure
+   states, authorization boundary, and conformance evidence. Do not select implementation technology
+   or grant send authority while those facts remain unresolved.
 
 ## Review questions
 
 1. Why can an open question block send without blocking analysis and drafting?
-2. Why is a schema-valid MissingItem still untrusted?
+2. Why is a schema-valid RequirementGap still untrusted?
 3. What is the difference between a clarification and an escalation?
 4. Why do precision and recall answer different broker-burden questions?
 5. What does `SPEC_CONTEXT_STALE` prove, and what does it not prove?

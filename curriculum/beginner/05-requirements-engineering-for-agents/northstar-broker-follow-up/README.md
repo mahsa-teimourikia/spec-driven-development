@@ -24,9 +24,10 @@ Your goal is to convert that ambiguity into a bounded requirements package witho
 
 ## Expected result
 
-Missing-item analysis and drafting can progress as bounded, review-only capabilities. Automatic send
-remains disabled because `OQ-017` is unresolved. This is intentional: one open question blocks only
-the capability whose safety and authority depend on it.
+Requirement-gap analysis and drafting can progress as bounded, review-only capabilities. The send
+requirements remain approved durable intent, but they and `TASK-04` are deferred from Release 1.
+Automatic send remains disabled because `OQ-017` is unresolved. This is intentional: one open
+question blocks only the capability whose safety and authority depend on it.
 
 ## Evidence boundary
 
