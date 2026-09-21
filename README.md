@@ -81,7 +81,7 @@ Course 05 turns a sparse AI feature request into bounded, executable requirement
 - distinguish unknowns, ambiguities, conflicts, design questions, and policy decisions;
 - write source-backed requirements with stable identity, scope, owners, states, and evidence methods;
 - let analysis and drafting proceed while an unresolved policy question keeps delivery disabled;
-- validate MissingItem contracts and exact draft correspondence around probabilistic generation;
+- validate typed RequirementGap states, evidence provenance, and exact draft correspondence around probabilistic generation;
 - bind approval to exact content, current submission and requirement revisions, and broker authority;
 - define fail-closed behavior, bounded retries, idempotency, and unknown-outcome reconciliation;
 - detect stale agent context, semantic requirement changes, orphan tasks, and unimplemented requirements; and

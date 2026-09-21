@@ -733,7 +733,7 @@ def check_course_05_discovery() -> list[str]:
     reference_path = scenario / "reference" / "requirements-package.json"
     reference = json.loads(reference_path.read_text(encoding="utf-8"))
     required_sections = {
-        "specification", "problem", "scope", "glossary", "sources", "capabilities",
+        "specification", "problem", "scope", "glossary", "sources", "release", "capabilities",
         "requirements", "invariants", "questions", "failure_matrix", "tasks", "agent_authority",
     }
     missing_sections = required_sections - reference.keys()
@@ -748,6 +748,34 @@ def check_course_05_discovery() -> list[str]:
     }
     if send_questions != {"OQ-017"}:
         errors.append("Course 05 automatic send must remain blocked only by open question OQ-017")
+    release = reference.get("release", {})
+    if set(release.get("included_capabilities", [])) != {"analyze_missing_items", "draft_message"}:
+        errors.append("Course 05 Release 1 must include only analysis and drafting")
+    if release.get("deferred_capabilities") != ["send_message"] or release.get("blocked_by") != ["OQ-017"]:
+        errors.append("Course 05 send capability must be explicitly deferred by OQ-017")
+    send_requirements = [
+        item for item in reference.get("requirements", []) if item.get("capability") == "send_message"
+    ]
+    if not send_requirements or any(item.get("status") != "approved" for item in send_requirements):
+        errors.append("Course 05 send controls must remain approved durable requirements")
+    if any(
+        item.get("release_applicability")
+        != {"release_id": "release-1-draft-only", "status": "deferred", "blocked_by": ["OQ-017"]}
+        for item in send_requirements
+    ):
+        errors.append("Course 05 approved send requirements must be deferred from Release 1")
+    analysis_requirement = next(
+        (item for item in reference.get("requirements", []) if item.get("id") == "REQ-FU-001"),
+        {},
+    )
+    required_gap_fields = {
+        "id", "requirement_id", "field", "label", "status", "reason_code",
+        "requirement_evidence_ids", "observation",
+    }
+    if analysis_requirement.get("behavior", {}).get("output") != "RequirementGap[]":
+        errors.append("Course 05 analysis output must use typed RequirementGap records")
+    if set(analysis_requirement.get("behavior", {}).get("required_fields", [])) != required_gap_fields:
+        errors.append("Course 05 RequirementGap contract is missing typed status or evidence fields")
     if "send a message" not in reference.get("agent_authority", {}).get("forbidden", []):
         errors.append("Course 05 agent boundary must forbid sending a message")
     requirement_ids = {item["id"] for item in reference.get("requirements", [])}
@@ -758,6 +786,9 @@ def check_course_05_discovery() -> list[str]:
     }
     if requirement_ids - task_links:
         errors.append("Course 05 reference contains approved requirements without task links")
+    task_04 = next((item for item in reference.get("tasks", []) if item.get("id") == "TASK-04"), {})
+    if task_04.get("release_status") != "deferred" or task_04.get("blocked_by") != ["OQ-017"]:
+        errors.append("Course 05 TASK-04 must remain deferred until OQ-017 closes")
 
     evaluation = json.loads((scenario / "evaluation-cases.json").read_text(encoding="utf-8"))
     cases = evaluation.get("cases", [])

@@ -30,9 +30,17 @@ class Severity(str, Enum):
 
 class Outcome(str, Enum):
     PROCEED = "proceed"
+    BLOCK = "block"
     ABSTAIN = "abstain"
     CLARIFY = "clarify"
     ESCALATE = "escalate"
+
+
+class GapStatus(str, Enum):
+    MISSING = "missing"
+    INVALID = "invalid"
+    UNVERIFIED = "unverified"
+    CONFLICTING = "conflicting"
 
 
 @dataclass(frozen=True)
@@ -81,16 +89,31 @@ class ClassificationMetrics:
 class CapabilityStatus:
     capability: str
     ready: bool
+    release_status: str
+    active_requirement_ids: tuple[str, ...]
+    deferred_requirement_ids: tuple[str, ...]
     blocking_question_ids: tuple[str, ...]
     reason_codes: tuple[str, ...]
 
 
 @dataclass(frozen=True)
-class MissingItem:
+class ObservationEvidence:
+    id: str
+    submission_revision: str
+    field: str
+    observation: str
+
+
+@dataclass(frozen=True)
+class RequirementGap:
     id: str
     requirement_id: str
+    field: str
     label: str
-    evidence_ids: tuple[str, ...]
+    status: GapStatus
+    reason_code: str
+    requirement_evidence_ids: tuple[str, ...]
+    observation: ObservationEvidence
 
 
 @dataclass(frozen=True)
@@ -98,7 +121,7 @@ class Draft:
     broker_id: str
     subject: str
     body: str
-    missing_item_ids: tuple[str, ...]
+    gap_ids: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -110,7 +133,7 @@ class ApprovalReceipt:
     broker_id: str
     submission_id: str
     submission_revision: str
-    requirements_revision: str
+    effective_context_digest: str
     issued_at: str
     expires_at: str
     consumed: bool = False
@@ -120,7 +143,7 @@ class ApprovalReceipt:
 class SendContext:
     submission_id: str
     submission_revision: str
-    requirements_revision: str
+    effective_context_digest: str
     broker_id: str
     broker_authorized: bool
     send_policy_enabled: bool
@@ -140,11 +163,17 @@ VAGUE_PATTERNS = tuple(
         r"\baccurate\b",
         r"\bquick(?:ly)?\b",
         r"\bprofessional\b",
-        r"\ball\b",
-        r"\bevery\b",
         r"\bsimple\b",
     )
 )
+
+UNIVERSAL_QUANTIFIER_PATTERN = re.compile(r"\b(?:all|every)\b", re.IGNORECASE)
+OBSERVATION_BY_STATUS = {
+    GapStatus.MISSING: "field_absent",
+    GapStatus.INVALID: "value_invalid",
+    GapStatus.UNVERIFIED: "validation_unavailable",
+    GapStatus.CONFLICTING: "sources_conflict",
+}
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -174,6 +203,7 @@ def structural_findings(package: dict[str, Any]) -> tuple[Finding, ...]:
         "scope",
         "glossary",
         "sources",
+        "release",
         "capabilities",
         "requirements",
         "invariants",
@@ -225,6 +255,16 @@ def lexical_findings(requirement: dict[str, Any]) -> tuple[Finding, ...]:
                     Severity.REVIEW,
                 )
             )
+    quantifier = UNIVERSAL_QUANTIFIER_PATTERN.search(statement)
+    if quantifier:
+        findings.append(
+            Finding(
+                "UNIVERSAL_QUANTIFIER_REVIEW",
+                subject,
+                f"Review {quantifier.group(0)!r}: is the governed population explicitly defined?",
+                Severity.REVIEW,
+            )
+        )
     return tuple(findings)
 
 
@@ -242,6 +282,7 @@ def requirement_quality_findings(package: dict[str, Any]) -> tuple[Finding, ...]
                 "normative_strength",
                 "priority",
                 "status",
+                "release_applicability",
                 "owner",
                 "statement",
                 "preconditions",
@@ -305,22 +346,65 @@ def requirement_quality_findings(package: dict[str, Any]) -> tuple[Finding, ...]
                     "Requirement lifecycle state is outside the declared vocabulary.",
                 )
             )
+        applicability = requirement.get("release_applicability", {})
+        if applicability.get("release_id") != package.get("release", {}).get("id"):
+            findings.append(
+                Finding(
+                    "RELEASE_REFERENCE_INVALID",
+                    identifier,
+                    "Requirement release applicability must reference the current release.",
+                )
+            )
+        if applicability.get("status") not in {"active", "deferred", "excluded"}:
+            findings.append(
+                Finding(
+                    "RELEASE_APPLICABILITY_INVALID",
+                    identifier,
+                    "Release applicability must be active, deferred, or excluded.",
+                )
+            )
+        if applicability.get("status") == "deferred" and not applicability.get("blocked_by"):
+            findings.append(
+                Finding(
+                    "DEFERRED_REQUIREMENT_UNEXPLAINED",
+                    identifier,
+                    "A deferred requirement needs an explicit blocker or release rationale.",
+                )
+            )
         findings.extend(lexical_findings(requirement))
     return tuple(findings)
 
 
 def capability_readiness(package: dict[str, Any]) -> tuple[CapabilityStatus, ...]:
-    """Block only capabilities affected by open questions or incomplete requirements."""
+    """Report release readiness separately from requirement lifecycle approval."""
     blocked_by_quality: dict[str, set[str]] = {}
     requirements = {item.get("id"): item for item in package.get("requirements", [])}
     for finding in requirement_quality_findings(package):
         requirement = requirements.get(finding.subject_id)
-        if requirement and finding.severity == Severity.STOP:
+        applicability = requirement.get("release_applicability", {}) if requirement else {}
+        if requirement and applicability.get("status") == "active" and finding.severity == Severity.STOP:
             blocked_by_quality.setdefault(str(requirement.get("capability")), set()).add(finding.code)
 
     results = []
     for capability in package.get("capabilities", []):
         identifier = str(capability.get("id"))
+        capability_requirements = [
+            item for item in package.get("requirements", []) if item.get("capability") == identifier
+        ]
+        active_requirement_ids = tuple(
+            sorted(
+                str(item.get("id"))
+                for item in capability_requirements
+                if item.get("release_applicability", {}).get("status") == "active"
+            )
+        )
+        deferred_requirement_ids = tuple(
+            sorted(
+                str(item.get("id"))
+                for item in capability_requirements
+                if item.get("release_applicability", {}).get("status") == "deferred"
+            )
+        )
         open_questions = sorted(
             str(question.get("id"))
             for question in package.get("questions", [])
@@ -329,51 +413,118 @@ def capability_readiness(package: dict[str, Any]) -> tuple[CapabilityStatus, ...
         reasons = set(blocked_by_quality.get(identifier, set()))
         if open_questions:
             reasons.add("OPEN_BLOCKING_QUESTION")
+        release_status = str(capability.get("release_status", "active"))
+        if release_status != "active":
+            reasons.add("CAPABILITY_DEFERRED")
         if int(capability.get("autonomy_level", 0)) == 0 and identifier == "send_message":
             reasons.add("CAPABILITY_DISABLED")
         results.append(
-            CapabilityStatus(identifier, not reasons, tuple(open_questions), tuple(sorted(reasons)))
+            CapabilityStatus(
+                identifier,
+                not reasons,
+                release_status,
+                active_requirement_ids,
+                deferred_requirement_ids,
+                tuple(open_questions),
+                tuple(sorted(reasons)),
+            )
         )
     return tuple(results)
 
 
-def validate_missing_items(
-    items: Iterable[MissingItem],
+def validate_requirement_gaps(
+    gaps: Iterable[RequirementGap],
     current_requirement_ids: set[str],
-    observed_evidence_ids: set[str] | None = None,
+    trusted_requirement_evidence_ids: set[str],
+    current_submission_revision: str,
+    observed_evidence_ids: set[str],
 ) -> tuple[Finding, ...]:
-    items = tuple(items)
-    observed_evidence_ids = observed_evidence_ids or {
-        evidence_id for item in items for evidence_id in item.evidence_ids
-    }
+    gaps = tuple(gaps)
     findings: list[Finding] = []
-    for duplicate in sorted(_duplicates(item.id for item in items)):
+    for duplicate in sorted(_duplicates(gap.id for gap in gaps)):
         findings.append(
             Finding(
-                "DUPLICATE_MISSING_ITEM",
+                "DUPLICATE_REQUIREMENT_GAP",
                 duplicate,
-                "MissingItem IDs must be unique within one analysis result.",
+                "RequirementGap IDs must be unique within one analysis result.",
             )
         )
-    for item in items:
-        if item.requirement_id not in current_requirement_ids:
+    for gap in gaps:
+        if gap.requirement_id not in current_requirement_ids:
             findings.append(
                 Finding(
-                    "UNSUPPORTED_MISSING_ITEM",
-                    item.id,
-                    "MissingItem does not trace to a current underwriting requirement.",
-                    evidence_ids=(item.requirement_id,),
+                    "UNSUPPORTED_REQUIREMENT_GAP",
+                    gap.id,
+                    "RequirementGap does not trace to a current underwriting requirement.",
+                    evidence_ids=(gap.requirement_id,),
                 )
             )
-        if not item.evidence_ids or not set(item.evidence_ids).issubset(observed_evidence_ids):
+        if not gap.requirement_evidence_ids:
             findings.append(
                 Finding(
-                    "MISSING_ITEM_EVIDENCE_INVALID",
-                    item.id,
-                    "MissingItem lacks observed evidence from the current submission revision.",
-                    evidence_ids=item.evidence_ids,
+                    "REQUIREMENT_EVIDENCE_MISSING",
+                    gap.id,
+                    "RequirementGap lacks the rule or source evidence that creates the obligation.",
                 )
             )
+        elif not set(gap.requirement_evidence_ids).issubset(trusted_requirement_evidence_ids):
+            findings.append(
+                Finding(
+                    "REQUIREMENT_EVIDENCE_UNKNOWN",
+                    gap.id,
+                    "RequirementGap cites rule evidence outside the trusted current source set.",
+                    evidence_ids=gap.requirement_evidence_ids,
+                )
+            )
+        observation = gap.observation
+        if observation.id not in observed_evidence_ids:
+            findings.append(
+                Finding(
+                    "OBSERVATION_EVIDENCE_UNKNOWN",
+                    gap.id,
+                    "Observation evidence is not from the trusted current-submission evidence set.",
+                    evidence_ids=(observation.id,),
+                )
+            )
+        if observation.submission_revision != current_submission_revision:
+            findings.append(
+                Finding(
+                    "OBSERVATION_CONTEXT_STALE",
+                    gap.id,
+                    "Observation evidence is not bound to the current submission revision.",
+                    evidence_ids=(observation.id,),
+                )
+            )
+        if observation.field != gap.field:
+            findings.append(
+                Finding(
+                    "OBSERVATION_FIELD_MISMATCH",
+                    gap.id,
+                    "Observation evidence names a different field from the proposed gap.",
+                    evidence_ids=(observation.id,),
+                )
+            )
+        expected_observation = OBSERVATION_BY_STATUS.get(gap.status)
+        if expected_observation is None:
+            findings.append(
+                Finding(
+                    "GAP_STATUS_INVALID",
+                    gap.id,
+                    "RequirementGap status must be missing, invalid, unverified, or conflicting.",
+                )
+            )
+        elif observation.observation != expected_observation:
+            findings.append(
+                Finding(
+                    "GAP_STATUS_EVIDENCE_MISMATCH",
+                    gap.id,
+                    f"Status {gap.status.value!r} requires observation "
+                    f"{expected_observation!r}.",
+                    evidence_ids=(observation.id,),
+                )
+            )
+        if not gap.reason_code.strip():
+            findings.append(Finding("GAP_REASON_MISSING", gap.id, "RequirementGap needs a reason code."))
     return tuple(findings)
 
 
@@ -386,9 +537,9 @@ def correspondence_metrics(plan_ids: Iterable[str], draft_ids: Iterable[str]) ->
     }
 
 
-def validate_draft(plan: Iterable[MissingItem], draft: Draft) -> tuple[Finding, ...]:
+def validate_draft(plan: Iterable[RequirementGap], draft: Draft) -> tuple[Finding, ...]:
     plan_ids = {item.id for item in plan}
-    draft_ids = set(draft.missing_item_ids)
+    draft_ids = set(draft.gap_ids)
     findings = []
     additions = tuple(sorted(draft_ids - plan_ids))
     omissions = tuple(sorted(plan_ids - draft_ids))
@@ -414,6 +565,32 @@ def validate_draft(plan: Iterable[MissingItem], draft: Draft) -> tuple[Finding, 
 def draft_digest(draft: Draft) -> str:
     canonical = json.dumps(asdict(draft), sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def effective_context_digest(package: dict[str, Any]) -> str:
+    """Bind approvals to the effective source, requirement, and release context."""
+    context = {
+        "specification": {
+            "id": package.get("specification", {}).get("id"),
+            "revision": package.get("specification", {}).get("revision"),
+        },
+        "release": package.get("release", {}),
+        "sources": [
+            {"id": item.get("id"), "version": item.get("version")}
+            for item in package.get("sources", [])
+        ],
+        "requirements": [
+            {
+                "id": item.get("id"),
+                "revision": item.get("revision"),
+                "status": item.get("status"),
+                "release_applicability": item.get("release_applicability"),
+            }
+            for item in package.get("requirements", [])
+        ],
+    }
+    canonical = json.dumps(context, sort_keys=True, separators=(",", ":"))
+    return f"sha256:{hashlib.sha256(canonical.encode('utf-8')).hexdigest()}"
 
 
 def _parse_time(value: str) -> datetime:
@@ -457,8 +634,8 @@ def authorize_send(
             reasons.append("APPROVAL_SUBMISSION_MISMATCH")
         if receipt.submission_revision != context.submission_revision:
             reasons.append("SUBMISSION_CONTEXT_STALE")
-        if receipt.requirements_revision != context.requirements_revision:
-            reasons.append("REQUIREMENTS_CONTEXT_STALE")
+        if receipt.effective_context_digest != context.effective_context_digest:
+            reasons.append("EFFECTIVE_CONTEXT_STALE")
         try:
             issued_at = _parse_time(receipt.issued_at)
             expires_at = _parse_time(receipt.expires_at)
@@ -474,13 +651,7 @@ def authorize_send(
             if expires_at <= current_time:
                 reasons.append("APPROVAL_EXPIRED")
     if reasons:
-        escalate = {
-            "SEND_POLICY_DISABLED",
-            "BROKER_NOT_AUTHORIZED",
-            "DELIVERY_OUTCOME_UNKNOWN",
-            "APPROVAL_DENIED",
-        }
-        outcome = Outcome.ESCALATE if escalate.intersection(reasons) else Outcome.ABSTAIN
+        outcome = Outcome.ESCALATE if "DELIVERY_OUTCOME_UNKNOWN" in reasons else Outcome.BLOCK
         return Decision(outcome, tuple(dict.fromkeys(reasons)))
     return Decision(Outcome.PROCEED, ())
 
@@ -544,6 +715,7 @@ def semantic_requirement_diff(before: dict[str, Any], after: dict[str, Any]) -> 
         "postconditions",
         "source_ids",
         "status",
+        "release_applicability",
         "owner",
     )
     changes = [field for field in fields if before.get(field) != after.get(field)]
@@ -573,7 +745,10 @@ def spec_context_findings(
 
 
 def keyword_baseline(case: dict[str, Any]) -> bool:
-    return any(pattern.search(str(case.get("statement", ""))) for pattern in VAGUE_PATTERNS)
+    statement = str(case.get("statement", ""))
+    return any(pattern.search(statement) for pattern in VAGUE_PATTERNS) or bool(
+        UNIVERSAL_QUANTIFIER_PATTERN.search(statement)
+    )
 
 
 def baseline_ticket_findings(ticket: str) -> tuple[Finding, ...]:
@@ -589,6 +764,16 @@ def baseline_ticket_findings(ticket: str) -> tuple[Finding, ...]:
                     Severity.REVIEW,
                 )
             )
+    quantifier = UNIVERSAL_QUANTIFIER_PATTERN.search(ticket)
+    if quantifier:
+        findings.append(
+            Finding(
+                "UNIVERSAL_QUANTIFIER_REVIEW",
+                "AI-2176",
+                f"Ticket quantifier {quantifier.group(0)!r} needs an explicit governed population.",
+                Severity.REVIEW,
+            )
+        )
     if re.search(r"automatically send", ticket, re.IGNORECASE):
         findings.append(
             Finding(
@@ -652,17 +837,37 @@ def package_findings(package: dict[str, Any]) -> tuple[Finding, ...]:
 
 def demo_objects(
     package: dict[str, Any],
-) -> tuple[tuple[MissingItem, ...], Draft, ApprovalReceipt, SendContext]:
+) -> tuple[tuple[RequirementGap, ...], Draft, ApprovalReceipt, SendContext]:
     """Return a synthetic happy path for failure-injection exercises."""
-    items = (
-        MissingItem("MI-001", "REQ-FU-001", "Loss history", ("OBS-loss-history-empty",)),
-        MissingItem("MI-002", "REQ-FU-001", "Signed application", ("OBS-application-absent",)),
+    gaps = (
+        RequirementGap(
+            "GAP-001",
+            "REQ-FU-001",
+            "loss_history",
+            "Loss history",
+            GapStatus.INVALID,
+            "LOSS_HISTORY_EMPTY",
+            ("SRC-UW-REQ-12",),
+            ObservationEvidence("OBS-loss-history-empty", "7", "loss_history", "value_invalid"),
+        ),
+        RequirementGap(
+            "GAP-002",
+            "REQ-FU-001",
+            "signed_application",
+            "Signed application",
+            GapStatus.MISSING,
+            "SIGNED_APPLICATION_ABSENT",
+            ("SRC-UW-REQ-12",),
+            ObservationEvidence(
+                "OBS-application-absent", "7", "signed_application", "field_absent"
+            ),
+        ),
     )
     draft = Draft(
         "BROKER-7",
         "Information needed for submission SUB-10",
         "Please provide the loss history and signed application.",
-        tuple(item.id for item in items),
+        tuple(item.id for item in gaps),
     )
     receipt = ApprovalReceipt(
         reviewer_id="UW-22",
@@ -672,20 +877,20 @@ def demo_objects(
         broker_id="BROKER-7",
         submission_id="SUB-10",
         submission_revision="7",
-        requirements_revision="12.4-training",
+        effective_context_digest=effective_context_digest(package),
         issued_at="2026-09-20T16:00:00Z",
         expires_at="2026-09-20T19:00:00Z",
     )
     context = SendContext(
         submission_id="SUB-10",
         submission_revision="7",
-        requirements_revision="12.4-training",
+        effective_context_digest=effective_context_digest(package),
         broker_id="BROKER-7",
         broker_authorized=True,
         send_policy_enabled=True,
         logical_operation_id="OP-42",
     )
-    return items, draft, receipt, context
+    return gaps, draft, receipt, context
 
 
 def run_demo(path: Path = REFERENCE_PATH) -> dict[str, Any]:

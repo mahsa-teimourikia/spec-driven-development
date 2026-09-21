@@ -23,19 +23,42 @@ class Course05RequirementsTests(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.package = lab.load_package()
         cls.plan = (
-            lab.MissingItem("MI-001", "REQ-FU-001", "Loss history", ("EV-LOSS-EMPTY",)),
-            lab.MissingItem("MI-002", "REQ-FU-001", "Signed application", ("EV-SIGNED-ABSENT",)),
+            lab.RequirementGap(
+                "GAP-001",
+                "REQ-FU-001",
+                "loss_history",
+                "Loss history",
+                lab.GapStatus.INVALID,
+                "LOSS_HISTORY_EMPTY",
+                ("SRC-UW-REQ-12",),
+                lab.ObservationEvidence(
+                    "EV-LOSS-EMPTY", "sub-rev-7", "loss_history", "value_invalid"
+                ),
+            ),
+            lab.RequirementGap(
+                "GAP-002",
+                "REQ-FU-001",
+                "signed_application",
+                "Signed application",
+                lab.GapStatus.MISSING,
+                "SIGNED_APPLICATION_ABSENT",
+                ("SRC-UW-REQ-12",),
+                lab.ObservationEvidence(
+                    "EV-SIGNED-ABSENT", "sub-rev-7", "signed_application", "field_absent"
+                ),
+            ),
         )
         cls.draft = lab.Draft(
             "BROKER-204",
             "Information required for SUB-4815",
             "Please provide loss history and the signed application.",
-            ("MI-001", "MI-002"),
+            ("GAP-001", "GAP-002"),
         )
+        cls.context_digest = lab.effective_context_digest(cls.package)
         cls.context = lab.SendContext(
             "SUB-4815",
             "sub-rev-7",
-            cls.package["specification"]["revision"],
+            cls.context_digest,
             "BROKER-204",
             True,
             True,
@@ -44,12 +67,12 @@ class Course05RequirementsTests(unittest.TestCase):
         cls.receipt = lab.ApprovalReceipt(
             "UW-118",
             "approved",
-            "The draft corresponds to the validated missing-item plan.",
+            "The draft corresponds to the validated requirement-gap plan.",
             lab.draft_digest(cls.draft),
             "BROKER-204",
             "SUB-4815",
             "sub-rev-7",
-            cls.package["specification"]["revision"],
+            cls.context_digest,
             "2026-09-20T17:00:00Z",
             "2026-09-21T00:00:00Z",
         )
@@ -64,36 +87,91 @@ class Course05RequirementsTests(unittest.TestCase):
         self.assertTrue(statuses["draft_message"].ready)
         self.assertFalse(statuses["send_message"].ready)
         self.assertEqual(statuses["send_message"].blocking_question_ids, ("OQ-017",))
+        self.assertEqual(statuses["send_message"].release_status, "deferred")
+        self.assertEqual(statuses["send_message"].active_requirement_ids, ())
+        self.assertEqual(
+            statuses["send_message"].deferred_requirement_ids,
+            ("REL-FU-002", "SEC-FU-003"),
+        )
 
-    def test_missing_item_requires_current_rule_and_observed_evidence(self) -> None:
-        unsafe = lab.MissingItem("MI-X", "REQ-OLD", "Bank statements", ("EV-UNKNOWN",))
-        findings = lab.validate_missing_items(
+    def test_requirement_lifecycle_release_scope_and_readiness_are_independent(self) -> None:
+        send_requirements = [
+            item for item in self.package["requirements"] if item["capability"] == "send_message"
+        ]
+        self.assertTrue(all(item["status"] == "approved" for item in send_requirements))
+        self.assertTrue(
+            all(item["release_applicability"]["status"] == "deferred" for item in send_requirements)
+        )
+        task = next(item for item in self.package["tasks"] if item["id"] == "TASK-04")
+        self.assertEqual(task["release_status"], "deferred")
+        self.assertEqual(task["blocked_by"], ["OQ-017"])
+
+    def test_requirement_gap_requires_rule_and_current_observation_evidence(self) -> None:
+        unsafe = lab.RequirementGap(
+            "GAP-X",
+            "REQ-OLD",
+            "bank_statements",
+            "Bank statements",
+            lab.GapStatus.MISSING,
+            "BANK_STATEMENTS_ABSENT",
+            (),
+            lab.ObservationEvidence(
+                "EV-UNKNOWN", "sub-rev-6", "other_field", "value_invalid"
+            ),
+        )
+        findings = lab.validate_requirement_gaps(
             (unsafe,),
             current_requirement_ids={"REQ-FU-001"},
+            trusted_requirement_evidence_ids={"SRC-UW-REQ-12"},
+            current_submission_revision="sub-rev-7",
             observed_evidence_ids={"EV-LOSS-EMPTY"},
         )
         self.assertEqual(
             {item.code for item in findings},
-            {"UNSUPPORTED_MISSING_ITEM", "MISSING_ITEM_EVIDENCE_INVALID"},
+            {
+                "UNSUPPORTED_REQUIREMENT_GAP",
+                "REQUIREMENT_EVIDENCE_MISSING",
+                "OBSERVATION_EVIDENCE_UNKNOWN",
+                "OBSERVATION_CONTEXT_STALE",
+                "OBSERVATION_FIELD_MISMATCH",
+                "GAP_STATUS_EVIDENCE_MISMATCH",
+            },
         )
 
-    def test_missing_item_ids_are_unique(self) -> None:
-        duplicate = replace(self.plan[1], id="MI-001")
-        findings = lab.validate_missing_items(
+    def test_requirement_gap_ids_are_unique(self) -> None:
+        duplicate = replace(self.plan[1], id="GAP-001")
+        findings = lab.validate_requirement_gaps(
             (self.plan[0], duplicate),
             current_requirement_ids={"REQ-FU-001"},
+            trusted_requirement_evidence_ids={"SRC-UW-REQ-12"},
+            current_submission_revision="sub-rev-7",
             observed_evidence_ids={"EV-LOSS-EMPTY", "EV-SIGNED-ABSENT"},
         )
-        self.assertIn("DUPLICATE_MISSING_ITEM", {item.code for item in findings})
+        self.assertIn("DUPLICATE_REQUIREMENT_GAP", {item.code for item in findings})
+
+    def test_missing_and_invalid_are_distinct_typed_states(self) -> None:
+        self.assertEqual(self.plan[0].status, lab.GapStatus.INVALID)
+        self.assertEqual(self.plan[0].observation.observation, "value_invalid")
+        self.assertEqual(self.plan[1].status, lab.GapStatus.MISSING)
+        self.assertEqual(self.plan[1].observation.observation, "field_absent")
+        mismatched = replace(self.plan[1], status=lab.GapStatus.INVALID)
+        findings = lab.validate_requirement_gaps(
+            (mismatched,),
+            current_requirement_ids={"REQ-FU-001"},
+            trusted_requirement_evidence_ids={"SRC-UW-REQ-12"},
+            current_submission_revision="sub-rev-7",
+            observed_evidence_ids={"EV-SIGNED-ABSENT"},
+        )
+        self.assertEqual([item.code for item in findings], ["GAP_STATUS_EVIDENCE_MISMATCH"])
 
     def test_draft_rejects_unsupported_addition_and_omission(self) -> None:
-        changed = replace(self.draft, missing_item_ids=("MI-001", "MI-999"))
+        changed = replace(self.draft, gap_ids=("GAP-001", "GAP-999"))
         findings = lab.validate_draft(self.plan, changed)
         self.assertEqual(
             {item.code for item in findings},
             {"DRAFT_UNSUPPORTED_ADDITION", "DRAFT_OMISSION"},
         )
-        metrics = lab.correspondence_metrics(("MI-001", "MI-002"), changed.missing_item_ids)
+        metrics = lab.correspondence_metrics(("GAP-001", "GAP-002"), changed.gap_ids)
         self.assertEqual(metrics["precision"].value, 0.5)
         self.assertEqual(metrics["recall"].value, 0.5)
 
@@ -105,20 +183,20 @@ class Course05RequirementsTests(unittest.TestCase):
     def test_edit_after_approval_invalidates_receipt(self) -> None:
         changed = replace(self.draft, body=self.draft.body + " Provide bank statements.")
         decision = lab.authorize_send(changed, self.receipt, self.context, now=self.now)
-        self.assertEqual(decision.outcome, lab.Outcome.ABSTAIN)
+        self.assertEqual(decision.outcome, lab.Outcome.BLOCK)
         self.assertIn("DRAFT_CHANGED_AFTER_APPROVAL", decision.reason_codes)
 
     def test_stale_context_and_wrong_broker_fail_closed(self) -> None:
         stale = replace(
             self.context,
-            requirements_revision="new-revision",
+            effective_context_digest="sha256:" + "0" * 64,
             broker_id="BROKER-WRONG",
             broker_authorized=False,
         )
         decision = lab.authorize_send(self.draft, self.receipt, stale, now=self.now)
-        self.assertEqual(decision.outcome, lab.Outcome.ESCALATE)
+        self.assertEqual(decision.outcome, lab.Outcome.BLOCK)
         self.assertTrue(
-            {"BROKER_NOT_AUTHORIZED", "APPROVAL_BROKER_MISMATCH", "REQUIREMENTS_CONTEXT_STALE"}.issubset(
+            {"BROKER_NOT_AUTHORIZED", "APPROVAL_BROKER_MISMATCH", "EFFECTIVE_CONTEXT_STALE"}.issubset(
                 decision.reason_codes
             )
         )
@@ -127,6 +205,7 @@ class Course05RequirementsTests(unittest.TestCase):
         receipt = replace(self.receipt, consumed=True)
         delivered = replace(self.context, prior_delivery_state="delivered")
         decision = lab.authorize_send(self.draft, receipt, delivered, now=self.now)
+        self.assertEqual(decision.outcome, lab.Outcome.BLOCK)
         self.assertIn("APPROVAL_ALREADY_USED", decision.reason_codes)
         self.assertIn("DUPLICATE_OPERATION", decision.reason_codes)
         unknown = lab.authorize_send(
@@ -135,7 +214,14 @@ class Course05RequirementsTests(unittest.TestCase):
             replace(self.context, prior_delivery_state="unknown"),
             now=self.now,
         )
+        self.assertEqual(unknown.outcome, lab.Outcome.ESCALATE)
         self.assertIn("DELIVERY_OUTCOME_UNKNOWN", unknown.reason_codes)
+
+    def test_abstain_is_reserved_for_epistemic_or_model_quality_failure(self) -> None:
+        schema = lab.failure_decision(self.package, "schema", attempts=0)
+        quality = lab.failure_decision(self.package, "quality", attempts=0)
+        self.assertEqual(schema.outcome, lab.Outcome.BLOCK)
+        self.assertEqual(quality.outcome, lab.Outcome.ABSTAIN)
 
     def test_invalid_or_future_approval_time_fails_closed(self) -> None:
         malformed = replace(self.receipt, expires_at="not-a-time")
@@ -187,6 +273,13 @@ class Course05RequirementsTests(unittest.TestCase):
         self.assertGreaterEqual(
             result["evidence_aware"]["recall"], result["keyword_baseline"]["recall"]
         )
+
+    def test_universal_quantifiers_are_reviewed_not_declared_vague(self) -> None:
+        findings = lab.lexical_findings(
+            {"id": "REQ-X", "statement": "The system SHALL process every supported submission."}
+        )
+        self.assertEqual([item.code for item in findings], ["UNIVERSAL_QUANTIFIER_REVIEW"])
+        self.assertIn("population", findings[0].message)
 
 
 if __name__ == "__main__":
