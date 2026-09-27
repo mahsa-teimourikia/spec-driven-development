@@ -42,6 +42,7 @@
     "TRACE_LINK_SEMANTIC_MISMATCH",
     "VAGUE_REQUIREMENT"
   ],
-  "traceability":{"structural_link_coverage":{"numerator":10,"denominator":10},"semantic_link_validity":{"numerator":1,"denominator":10}},
-  "limitations":["Counts are finding inventory, not a quality score.","The encoded rules cover this labelled fixture and do not prove general review completeness."]
+  "finding_cluster_count":7,
+  "traceability":{"structural_link_coverage":{"numerator":10,"denominator":10},"semantic_link_validity":{"numerator":1,"denominator":10},"candidate_conformance_evidence_coverage":{"numerator":1,"denominator":10},"repaired_review_traceability":{"numerator":10,"denominator":10},"repaired_conformance_evidence_coverage":{"numerator":0,"denominator":10}},
+  "limitations":["Counts are finding inventory, not a quality score.","Seven remediation clusters aid human triage but do not replace individual findings.","The repaired reviewed_by links establish specification-review coverage, not implementation or conformance evidence.","The encoded rules cover this labelled fixture and do not prove general review completeness."]
 }

@@ -4,6 +4,7 @@
   "records": [
     {
       "id": "TEST-ALL",
+      "type": "test_evidence",
       "status": "PASS",
       "producer": null,
       "subject_revision": "impl-v16",

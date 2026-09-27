@@ -168,6 +168,18 @@ One additional example could improve readability.
 
 Informational must not become a bucket for unowned risk.
 
+Severity is contextual, not a permanent property of a finding code:
+
+```text
+Severity = defect × affected capability × consequence × current autonomy
+```
+
+Undefined retry behavior for a read-only metadata lookup may require review; the same defect for an automatic external payment is blocking. The deterministic lab demonstrates this calibration while deliberately keeping the rule small enough to inspect.
+
+### Findings for machines, remediation themes for people
+
+The unsafe candidate intentionally produces 40 individual findings. Stable finding IDs remain useful for automation, evidence, and disposition, but a human review should not present 40 unrelated checklist items. `cluster_findings` groups them into seven themes such as **automatic action is not safely governed** and **enterprise context and applicable policy are unresolved**. Clustering is a navigation aid: it must not delete, merge, downgrade, or silently dispose of the underlying findings.
+
 ## Specification theater
 
 Specification theater uses the vocabulary of disciplined engineering without establishing durable constraints:
@@ -351,6 +363,8 @@ semantic link validity   =  1 / 10
 
 A relationship is valid only if the target exists, is current, and its oracle actually supports the source obligation. Course 10 will deepen bidirectional traceability; Course 09 teaches reviewers not to trust a link count.
 
+The repaired artifact uses the explicit relationship `reviewed_by` with target type `specification_review`. Its result is 10/10 semantic **review traceability** and 0/10 implementation/conformance evidence coverage. This is review traceability, not implementation or conformance traceability: it proves that each requirement was included in the specification review, not that the requirement has an acceptance oracle, implementation, executed test, or production evidence.
+
 ### Evidence theater
 
 ```text
@@ -365,6 +379,20 @@ Without producer relationship, exact subject revision, environment, population, 
 ### Stale evidence
 
 Evidence for `impl-v16` cannot authorize a claim about `impl-v17` merely because both are green. Evidence invalidation and re-execution are part of the contract.
+
+### Expected policy sets come from resolution
+
+The lab’s `FIXTURE_EXPECTED_POLICY_IDS` belongs only to Northstar. The checked-in `resolved-policy-expectation.json` models output from the Course 03 change-context and applicability resolver. A generic reviewer does not globally know that `AI-007`, `AI-030`, and `PRIV-018` apply:
+
+```text
+change context → policy resolver → expected effective policy set → Course 09 review
+```
+
+The reviewer compares the package manifest with that resolved set; it must not invent applicability.
+
+### Heuristics are discovery aids, not authority
+
+`VAGUE_TERMS` is a transparent fixture heuristic. A term such as “secure” is not defective when it is bound to a versioned, authoritative, measurable quality contract such as `SSP-04`; the lab accepts `referenced_quality_contract` for that reason. Likewise, the six-concern/1,500-line giant-spec rule is a **synthetic fixture trigger, not an enterprise guideline**. The real decomposition signals are different owners, lifecycles, authority, representation, and difficulty of review or navigation—not whether a file contains 1,499 or 1,501 lines.
 
 ## Anti-pattern family 5 — missing paths and uncertainty
 
@@ -927,6 +955,8 @@ Inject an undiscovered repository bypass, schema migration without coexistence, 
 
 Run `agent_readiness_by_capability`. Resolve the automatic-mutation authorization question without changing extraction or proposal-generation status. Verify that only the affected capability transitions.
 
+The booleans in `capability-readiness.json` are **fixture assertions**, not authenticated readiness evidence. Each positive assertion links to a synthetic evidence ID and digest so learners can test relationship integrity and freshness. In production, replace these records with independently produced, authenticated approvals, context-resolution outputs, attestations, and verification evidence; a literal `true` must never authorize consequential work by itself.
+
 ## Evaluation
 
 The included evaluation has 35 labelled cases covering the original requirement-quality rules plus authority resolution, self-confirming loops, uncertainty scope, requirement shape, control mapping, approval/retry safety, NFR and gate laundering, lifecycle state, repository reconciliation, migration, rollout controls, fallback, observability, unit economics, and bounded readiness.
@@ -1054,6 +1084,9 @@ The choice itself should be explainable. “Small” is not a synonym for “low
 18. **Migration:** Write desired-state and transition requirements for proposal schema v1 → v2, including coexistence and rollback.
 19. **Operability:** Specify a governed feature flag, tested kill switch, and capacity-backed work-preserving manual fallback.
 20. **Brownfield reconciliation:** Classify a spec/repository disagreement as implementation drift, stale specification, missing decision, or incomplete discovery without letting the agent choose unilaterally.
+21. **Reviewer disagreement:** Reviewer A labels a technology reference `IMPLEMENTATION_LEAKAGE`; Reviewer B labels it `INHERITED_TECHNOLOGY_CONSTRAINT`. Inspect source, authority, technology basis, and applicability. Record `REVIEW_FINDING_DISPUTED` until an accountable adjudicator resolves the classification.
+22. **Correct finding, wrong repair:** A reviewer correctly finds an unauthorized 90% auto-apply threshold, then recommends 95%. Explain why the defect is missing authority, calibration, and population—not the numeric value—and write an owner-routed repair.
+23. **Normative review laundering:** A reviewer recommends replacing Redis with DynamoDB. Rewrite the finding so it identifies the missing approved architecture basis and routes evaluation to the architecture owner without making the reviewer’s preference normative.
 
 ## Review questions
 

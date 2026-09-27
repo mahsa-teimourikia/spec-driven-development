@@ -119,7 +119,7 @@
     {
       "id":"EV-20-side-effect-retry",
       "kind":"execution_safety",
-      "input":{"side_effect":{"kind":"send_email","outcome_states":["success","failed"]},"retry":{"attempt_budget":7}},
+      "input":{"capability_context":{"capability":"send_email","consequence":"high","current_autonomy":"external_side_effect"},"side_effect":{"kind":"send_email","outcome_states":["success","failed"]},"retry":{"attempt_budget":7}},
       "expected_codes":["SIDE_EFFECT_IDEMPOTENCY_UNDEFINED","UNKNOWN_OUTCOME_COLLAPSED","RETRY_BUDGET_UNDEFINED","RETRY_BUDGET_PROVENANCE_MISSING"]
     },
     {

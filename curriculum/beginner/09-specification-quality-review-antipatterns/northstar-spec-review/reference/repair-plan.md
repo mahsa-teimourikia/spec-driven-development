@@ -6,7 +6,7 @@
 4. Move GPT/LangChain/Redis from product requirements to design candidates unless an inherited contract or approved ADR requires them.
 5. Reject hearsay and the unauthorized temporary exception. Preserve `AI-030` until its owner approves a scoped, conditional, independently authorized, expiring exception.
 6. Replace wildcard write/deploy authority with `AGENT-AI-2290-BOUNDED`, protected paths, a file budget, required evidence, and stop conditions.
-7. Rebuild traceability around semantic evidence relationships. A structurally present link does not prove that the oracle checks the requirement.
+7. Record typed `reviewed_by` links for specification-review coverage and state explicitly that these are not implementation/conformance evidence. Add acceptance, implementation, and verification links only when those artifacts and evidence exist; a structurally present link does not prove that an oracle checks the requirement.
 8. Re-run review on the repaired exact revision. Specification readiness permits bounded implementation; it does not approve production release.
 9. Resolve normative conflicts by applicability and authority—not specificity, recency, or file proximity. Keep agent-derived requirements proposed until accountable semantic approval.
 10. Reconcile requirements, architecture, and repository reality; classify drift and unknowns before changing either side.

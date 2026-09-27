@@ -1409,6 +1409,7 @@ def check_course_09_specification_review() -> list[str]:
         "northstar-spec-review/reference/repair-plan.md",
         "northstar-spec-review/evaluation-cases.json",
         "northstar-spec-review/capability-readiness.json",
+        "northstar-spec-review/resolved-policy-expectation.json",
         "northstar-spec-review/workshop/starter/README.md",
         "northstar-spec-review/workshop/starter/review-findings.json",
         "northstar-spec-review/workshop/starter/readiness-decision.json",
@@ -1480,6 +1481,9 @@ def check_course_09_specification_review() -> list[str]:
         errors.append("Course 09 must preserve the misleading 10/10 structural trace baseline")
     if (semantic.get("numerator"), semantic.get("denominator")) != (1, 10):
         errors.append("Course 09 must expose semantic trace validity as 1/10")
+    clusters = candidate.get("finding_clusters", [])
+    if len(clusters) != 7 or sum(len(item.get("finding_ids", [])) for item in clusters) != 40:
+        errors.append("Course 09 must cluster 40 machine findings into seven human remediation themes")
 
     repaired = report.get("repaired_review", {})
     if repaired.get("findings") or repaired.get("finding_counts") != {"blocking": 0, "review": 0, "informational": 0}:
@@ -1489,6 +1493,12 @@ def check_course_09_specification_review() -> list[str]:
         errors.append("Course 09 repaired package may authorize only bounded implementation")
     if repaired_decision.get("score") is not None:
         errors.append("Course 09 repaired readiness must remain score-free")
+    repaired_trace = repaired.get("traceability", {})
+    if repaired_trace.get("relationship_type_counts") != {"reviewed_by": 10}:
+        errors.append("Course 09 repaired links must be typed explicitly as specification review traceability")
+    repaired_conformance = repaired_trace.get("conformance_evidence_coverage", {})
+    if (repaired_conformance.get("numerator"), repaired_conformance.get("denominator")) != (0, 10):
+        errors.append("Course 09 review traceability must not claim implementation or conformance evidence")
 
     evaluation = report.get("evaluation", {})
     exact_matches = evaluation.get("exact_case_matches", {})
@@ -1520,6 +1530,8 @@ def check_course_09_specification_review() -> list[str]:
     )
     if automatic.get("decision") != "blocked" or "authorization_contract_unresolved" not in automatic.get("blockers", []):
         errors.append("Course 09 automatic mutation must remain blocked on unresolved authorization")
+    if "not authenticated" not in capability.get("evidence_boundary", ""):
+        errors.append("Course 09 readiness evidence must disclose its synthetic, unauthenticated fixture boundary")
 
     quiz_source = (ROOT / "quiz" / "questions.js").read_text(encoding="utf-8")
     if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 123:

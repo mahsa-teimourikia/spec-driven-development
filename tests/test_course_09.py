@@ -32,6 +32,8 @@ class Course09SpecificationReviewTests(unittest.TestCase):
         report = lab.review_bundle(self.bundle)
         self.assertEqual(report["finding_counts"], {"blocking": 16, "review": 24, "informational": 0})
         self.assertEqual(len(report["findings"]), 40)
+        self.assertEqual(len(report["finding_clusters"]), 7)
+        self.assertEqual(sum(len(item["finding_ids"]) for item in report["finding_clusters"]), 40)
 
     def test_candidate_blocking_codes_cover_authority_autonomy_and_evidence(self) -> None:
         codes = {item["code"] for item in lab.review_bundle(self.bundle)["findings"] if item["severity"] == "blocking"}
@@ -65,6 +67,9 @@ class Course09SpecificationReviewTests(unittest.TestCase):
         metrics = lab.review_bundle(self.repaired)["traceability"]
         self.assertEqual(metrics["structural_link_coverage"]["value"], 1.0)
         self.assertEqual(metrics["semantic_link_validity"]["value"], 1.0)
+        self.assertEqual(metrics["conformance_evidence_coverage"]["value"], 0.0)
+        self.assertEqual(metrics["relationship_type_counts"], {"reviewed_by": 10})
+        self.assertIn("reviewed_by proves specification-review coverage only", metrics["boundary"])
 
     def test_vague_requirement_is_detected(self) -> None:
         statement = {"id":"S","text":"The system SHALL be robust.","owner":"Product","defined_terms":[],"measurement":None,"source_refs":[],"technology_names":[]}
@@ -72,6 +77,17 @@ class Course09SpecificationReviewTests(unittest.TestCase):
 
     def test_defined_measured_term_is_not_treated_as_vague(self) -> None:
         statement = {"id":"S","text":"The system SHALL be robust.","owner":"Product","defined_terms":["robust"],"measurement":{"method":"failure suite"},"source_refs":[],"technology_names":[]}
+        self.assertNotIn("VAGUE_REQUIREMENT", {item.code for item in lab.review_statement(statement)})
+
+    def test_authoritative_measurable_quality_contract_is_not_treated_as_vague(self) -> None:
+        statement = {
+            "id":"S", "text":"The service SHALL satisfy the Secure Service Profile SSP-04.",
+            "owner":"Security", "defined_terms":[], "measurement":None, "source_refs":[],
+            "technology_names":[], "referenced_quality_contract":{
+                "id":"SSP-04", "revision":"4.2", "locator":"policy/ssp-04#verification",
+                "measurement":"SSP-04 conformance suite",
+            },
+        }
         self.assertNotIn("VAGUE_REQUIREMENT", {item.code for item in lab.review_statement(statement)})
 
     def test_false_precision_requires_measurement_semantics(self) -> None:
@@ -134,6 +150,15 @@ class Course09SpecificationReviewTests(unittest.TestCase):
         codes = {item.code for item in lab.review_package_structure(self.bundle["package"])}
         self.assertIn("REQUIRED_POLICY_SOURCES_MISSING", codes)
         self.assertIn("POLICY_PROVENANCE_INCOMPLETE", codes)
+
+    def test_policy_expectation_can_be_supplied_by_resolver(self) -> None:
+        package = copy.deepcopy(self.bundle["package"])
+        package["policy_manifest"] = []
+        codes = {
+            item.code
+            for item in lab.review_package_structure(package, expected_policy_ids=set())
+        }
+        self.assertNotIn("REQUIRED_POLICY_SOURCES_MISSING", codes)
 
     def test_temporary_exception_needs_expiry_authority_and_scope(self) -> None:
         codes = {item.code for item in lab.review_package_structure(self.bundle["package"])}
@@ -227,8 +252,19 @@ class Course09SpecificationReviewTests(unittest.TestCase):
         self.assertEqual(codes, {"APPROVAL_NOT_CONTENT_BOUND", "APPROVAL_REUSE_PERMITTED"})
 
     def test_unknown_side_effect_outcome_requires_idempotent_bounded_retry(self) -> None:
-        codes = {item.code for item in lab.review_execution_safety(self.evaluation_case("EV-20-side-effect-retry"))}
+        findings = lab.review_execution_safety(self.evaluation_case("EV-20-side-effect-retry"))
+        codes = {item.code for item in findings}
         self.assertEqual(codes, {"SIDE_EFFECT_IDEMPOTENCY_UNDEFINED", "UNKNOWN_OUTCOME_COLLAPSED", "RETRY_BUDGET_UNDEFINED", "RETRY_BUDGET_PROVENANCE_MISSING"})
+        retry = next(item for item in findings if item.code == "RETRY_BUDGET_UNDEFINED")
+        self.assertEqual(retry.severity, lab.Severity.BLOCKING)
+
+    def test_retry_severity_accounts_for_capability_consequence_and_autonomy(self) -> None:
+        contract = {
+            "capability_context":{"capability":"metadata_lookup","consequence":"low","current_autonomy":"read_only"},
+            "retry":{"attempt_budget":None},
+        }
+        retry = next(item for item in lab.review_execution_safety(contract) if item.code == "RETRY_BUDGET_UNDEFINED")
+        self.assertEqual(retry.severity, lab.Severity.REVIEW)
 
     def test_nfrs_preserve_safety_workload_and_measurement_boundaries(self) -> None:
         codes = {item.code for item in lab.review_execution_safety(self.evaluation_case("EV-21-optimization-and-nfr"))}
@@ -277,6 +313,15 @@ class Course09SpecificationReviewTests(unittest.TestCase):
         self.assertEqual(automatic["decision"], "blocked")
         self.assertIn("authorization_contract_unresolved", automatic["blockers"])
         self.assertTrue(all(item["claim"] == "implementation_readiness_only_not_production_release" for item in result["capabilities"]))
+        self.assertIn("not authenticated", result["evidence_boundary"])
+
+    def test_readiness_fixture_assertions_require_current_evidence_links(self) -> None:
+        payload = lab.load_json(lab.CAPABILITY_READINESS_PATH)
+        payload["capabilities"][0]["assertion_evidence"]["requirements_approved"] = []
+        result = lab.agent_readiness_by_capability(payload)
+        extraction = next(item for item in result["capabilities"] if item["capability"] == "extraction")
+        self.assertEqual(extraction["decision"], "blocked")
+        self.assertIn("requirements_approved:evidence_missing", extraction["blockers"])
 
     def test_missing_trace_target_is_reported(self) -> None:
         trace = copy.deepcopy(self.repaired["traceability"])

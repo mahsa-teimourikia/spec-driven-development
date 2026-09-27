@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0-training",
+  "fixture_status": "synthetic_course03_policy_resolution_output",
+  "change_context_id": "AI-2290@candidate-v1",
+  "resolver_run_id": "CTX-RESOLUTION-2290",
+  "expected_policy_ids": ["AI-007", "AI-030", "PRIV-018"],
+  "boundary": "This fixture models the output of the Course 03 applicability resolver. A generic Course 09 reviewer does not globally know which policies apply."
+}

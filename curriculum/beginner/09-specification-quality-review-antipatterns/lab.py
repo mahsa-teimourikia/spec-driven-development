@@ -32,6 +32,7 @@ REPAIRED_CONTEXT_PATH = REFERENCE_ROOT / "context-manifest.json"
 REPAIRED_AUTONOMY_PATH = REFERENCE_ROOT / "autonomy-contract.json"
 EVALUATION_PATH = SCENARIO_ROOT / "evaluation-cases.json"
 CAPABILITY_READINESS_PATH = SCENARIO_ROOT / "capability-readiness.json"
+POLICY_EXPECTATION_PATH = SCENARIO_ROOT / "resolved-policy-expectation.json"
 
 
 class Severity(str, Enum):
@@ -90,7 +91,55 @@ SEVERITY_ORDER = {
 }
 
 REQUIRED_SCENARIO_CLASSES = {"primary", "negative", "boundary", "failure", "uncertainty"}
-REQUIRED_POLICY_IDS = {"AI-007", "AI-030", "PRIV-018"}
+FIXTURE_EXPECTED_POLICY_IDS = {"AI-007", "AI-030", "PRIV-018"}
+FIXTURE_GIANT_SPEC_CONCERN_TRIGGER = 6
+FIXTURE_GIANT_SPEC_LINE_TRIGGER = 1500
+
+FINDING_CLUSTER_RULES = {
+    "autonomous_action_governance": {
+        "AGENT_STOP_CONDITIONS_MISSING", "AGENT_TASK_UNDER_CONSTRAINED",
+        "DEPLOYMENT_AUTHORITY_DELEGATED", "DECISION_AUTHORITY_MISSING",
+        "UNDEFINED_CONFIDENCE_SEMANTICS",
+    },
+    "effective_context_and_policy": {
+        "CONTEXT_REQUIRED_SOURCE_MISSING", "GENERATED_ARTIFACT_MODIFIED",
+        "CONTEXT_OVERLOAD", "CONTEXT_PROVENANCE_MISSING",
+        "POLICY_APPLICABILITY_UNRESOLVED", "REQUIRED_POLICY_SOURCES_MISSING",
+        "POLICY_PROVENANCE_INCOMPLETE",
+    },
+    "exception_and_authority_integrity": {
+        "AUTHORITY_LAUNDERING", "EXCEPTION_LAUNDERING",
+        "EXCEPTION_APPROVER_UNAUTHORIZED", "EXCEPTION_EXPIRY_MISSING",
+        "EXCEPTION_SCOPE_INCOMPLETE",
+    },
+    "requirement_semantics_and_evaluation": {
+        "VAGUE_REQUIREMENT", "AGGREGATE_ACCURACY_UNDEFINED",
+        "CRITICAL_EVALUATION_SLICES_MISSING", "FALSE_PRECISION",
+        "POPULATION_UNBOUNDED",
+    },
+    "behavioral_coverage_and_ownership": {
+        "SCENARIO_COVERAGE_INCOMPLETE", "EVIDENCE_CONTRACT_UNDEFINED",
+        "POSSIBLE_REQUIREMENT_DUPLICATION", "REQUIREMENT_OWNERSHIP_INCOMPLETE",
+    },
+    "architecture_and_artifact_design": {
+        "IMPLEMENTATION_LEAKAGE", "ACCIDENTAL_ARCHITECTURE",
+        "GIANT_SPECIFICATION", "SPEC_FRESHNESS_OWNERSHIP_MISSING",
+    },
+    "source_of_truth_and_evidence_integrity": {
+        "EVIDENCE_STALE", "EVIDENCE_CONTEXT_INCOMPLETE", "CODE_AS_SPECIFICATION",
+        "TESTS_AS_SPECIFICATION", "TRACE_LINK_SEMANTIC_MISMATCH",
+    },
+}
+
+FINDING_CLUSTER_TITLES = {
+    "autonomous_action_governance": "Automatic action is not safely governed",
+    "effective_context_and_policy": "Enterprise context and applicable policy are unresolved",
+    "exception_and_authority_integrity": "Authority and exception claims are not valid",
+    "requirement_semantics_and_evaluation": "Requirement meaning and evaluation boundaries are incomplete",
+    "behavioral_coverage_and_ownership": "Behavioral coverage and ownership are incomplete",
+    "architecture_and_artifact_design": "Architecture and specification packaging are poorly separated",
+    "source_of_truth_and_evidence_integrity": "Source-of-truth and evidence claims are unreliable",
+}
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -98,6 +147,7 @@ def load_json(path: Path) -> dict[str, Any]:
 
 
 def load_review_bundle(*, repaired: bool = False) -> dict[str, Any]:
+    policy_expectation = load_json(POLICY_EXPECTATION_PATH)
     if repaired:
         return {
             "package": load_json(REPAIRED_PACKAGE_PATH),
@@ -105,6 +155,7 @@ def load_review_bundle(*, repaired: bool = False) -> dict[str, Any]:
             "evidence": load_json(REPAIRED_EVIDENCE_PATH),
             "context": load_json(REPAIRED_CONTEXT_PATH),
             "autonomy": load_json(REPAIRED_AUTONOMY_PATH),
+            "policy_expectation": policy_expectation,
         }
     return {
         "package": load_json(PACKAGE_PATH),
@@ -112,6 +163,7 @@ def load_review_bundle(*, repaired: bool = False) -> dict[str, Any]:
         "evidence": load_json(EVIDENCE_PATH),
         "context": load_json(CONTEXT_PATH),
         "autonomy": load_json(AUTONOMY_PATH),
+        "policy_expectation": policy_expectation,
     }
 
 
@@ -180,12 +232,20 @@ def review_statement(statement: dict[str, Any]) -> tuple[DraftFinding, ...]:
     source_refs = statement.get("source_refs", [])
     technology_names = statement.get("technology_names", [])
     technology_basis = statement.get("technology_basis")
+    quality_contract = statement.get("referenced_quality_contract", {})
+    quality_contract_is_bounded = bool(
+        isinstance(quality_contract, dict)
+        and quality_contract.get("id")
+        and quality_contract.get("revision")
+        and quality_contract.get("locator")
+        and quality_contract.get("measurement")
+    )
 
     vague = sorted(
         term for term in VAGUE_TERMS
         if re.search(rf"\b{re.escape(term)}\b", lowered) and term not in defined_terms
     )
-    if vague and not measurement:
+    if vague and not measurement and not quality_contract_is_bounded:
         findings.append(_draft(
             Severity.REVIEW, "clarity", "VAGUE_REQUIREMENT", identifier,
             f"Undefined quality language: {', '.join(vague)}.", text,
@@ -295,8 +355,19 @@ def review_statement(statement: dict[str, Any]) -> tuple[DraftFinding, ...]:
     return tuple(findings)
 
 
-def review_package_structure(package: dict[str, Any]) -> tuple[DraftFinding, ...]:
+def review_package_structure(
+    package: dict[str, Any],
+    *,
+    expected_policy_ids: set[str] | frozenset[str] | None = None,
+) -> tuple[DraftFinding, ...]:
+    """Review package structure against a resolver-produced expected policy set.
+
+    The default is the Northstar training fixture, not a universal policy list.
+    Production callers must provide the output of their applicability resolver.
+    """
     findings: list[DraftFinding] = []
+    if expected_policy_ids is None:
+        expected_policy_ids = FIXTURE_EXPECTED_POLICY_IDS
     source_claims = set(package.get("source_of_truth_claims", []))
     if "tests_define_all_behavior" in source_claims:
         findings.append(_draft(
@@ -330,7 +401,7 @@ def review_package_structure(package: dict[str, Any]) -> tuple[DraftFinding, ...
         ))
 
     policy_ids = {str(item.get("id")) for item in package.get("policy_manifest", [])}
-    missing_policies = sorted(REQUIRED_POLICY_IDS - policy_ids)
+    missing_policies = sorted(set(expected_policy_ids) - policy_ids)
     if missing_policies:
         findings.append(_draft(
             Severity.BLOCKING, "traceability", "REQUIRED_POLICY_SOURCES_MISSING", "policy-manifest",
@@ -385,7 +456,10 @@ def review_package_structure(package: dict[str, Any]) -> tuple[DraftFinding, ...
     artifacts = package.get("artifacts", [])
     for artifact in artifacts:
         concerns = artifact.get("concerns", [])
-        if len(concerns) >= 6 or int(artifact.get("lines", 0)) > 1500:
+        if (
+            len(concerns) >= FIXTURE_GIANT_SPEC_CONCERN_TRIGGER
+            or int(artifact.get("lines", 0)) > FIXTURE_GIANT_SPEC_LINE_TRIGGER
+        ):
             findings.append(_draft(
                 Severity.REVIEW, "maintainability", "GIANT_SPECIFICATION", str(artifact.get("path", "unknown")),
                 "One artifact mixes concerns with different owners or lifecycles.",
@@ -455,13 +529,22 @@ def traceability_metrics(
     requirement_ids = {str(item.get("id")) for item in package.get("statements", [])}
     evidence_index = {str(item.get("id")): item for item in evidence.get("records", [])}
     rows = traceability.get("links", [])
-    linked_requirements = {str(row.get("requirement_id")) for row in rows if row.get("evidence_id")}
+    linked_requirements = {
+        str(row.get("source_id", row.get("requirement_id")))
+        for row in rows
+        if row.get("target_id", row.get("evidence_id"))
+    }
     semantically_valid: set[str] = set()
+    conformance_valid: set[str] = set()
     semantic_mismatches: list[str] = []
+    relationship_counts: Counter[str] = Counter()
     findings: list[DraftFinding] = []
     for row in rows:
-        requirement_id = str(row.get("requirement_id", "unknown"))
-        evidence_id = str(row.get("evidence_id", "unknown"))
+        requirement_id = str(row.get("source_id", row.get("requirement_id", "unknown")))
+        evidence_id = str(row.get("target_id", row.get("evidence_id", "unknown")))
+        relationship = str(row.get("relationship", row.get("relationship_claim", "unspecified")))
+        target_type = row.get("target_type")
+        relationship_counts[relationship] += 1
         record = evidence_index.get(evidence_id)
         if requirement_id not in requirement_ids or record is None:
             findings.append(_draft(
@@ -470,10 +553,20 @@ def traceability_metrics(
                 "Evidence owner", "Repair the link to existing, versioned artifacts.",
             ))
             continue
-        if requirement_id not in set(record.get("supported_requirement_ids", [])):
+        supported_ids = (
+            record.get("reviewed_source_ids", [])
+            if relationship == "reviewed_by"
+            else record.get("supported_requirement_ids", [])
+        )
+        if (
+            requirement_id not in set(supported_ids)
+            or (target_type and target_type != record.get("type"))
+        ):
             semantic_mismatches.append(f"{requirement_id}->{evidence_id}")
         else:
             semantically_valid.add(requirement_id)
+            if relationship in {"verified_by", "validated_by", "conformance_evidenced_by"}:
+                conformance_valid.add(requirement_id)
 
     if semantic_mismatches:
         findings.append(_draft(
@@ -485,6 +578,7 @@ def traceability_metrics(
 
     structural_numerator = len(requirement_ids & linked_requirements)
     semantic_numerator = len(semantically_valid)
+    conformance_numerator = len(conformance_valid)
     denominator = len(requirement_ids)
     metrics = {
         "structural_link_coverage": {
@@ -497,7 +591,18 @@ def traceability_metrics(
             "denominator": denominator,
             "value": semantic_numerator / denominator if denominator else None,
         },
-        "claim": "link_presence_is_not_link_validity",
+        "conformance_evidence_coverage": {
+            "numerator": conformance_numerator,
+            "denominator": denominator,
+            "value": conformance_numerator / denominator if denominator else None,
+        },
+        "relationship_type_counts": dict(sorted(relationship_counts.items())),
+        "claim": "link_presence_is_not_link_validity_and_review_is_not_conformance",
+        "boundary": (
+            "relationship meaning is typed: reviewed_by proves specification-review coverage only; "
+            "verified_by requires a supporting oracle; neither link presence nor review alone proves "
+            "implementation or production conformance"
+        ),
     }
     return metrics, tuple(findings)
 
@@ -763,6 +868,19 @@ def review_requirement_model(model: dict[str, Any]) -> tuple[DraftFinding, ...]:
     return tuple(findings)
 
 
+def impact_adjusted_severity(default: Severity, capability: dict[str, Any]) -> Severity:
+    """Escalate a defect using consequence and current autonomy, never code alone."""
+    if default == Severity.BLOCKING:
+        return default
+    consequence = str(capability.get("consequence", "moderate"))
+    autonomy = str(capability.get("current_autonomy", "proposal"))
+    consequential = consequence in {"high", "critical"}
+    autonomous = autonomy in {"automatic", "external_side_effect"}
+    if consequential and autonomous:
+        return Severity.BLOCKING
+    return default
+
+
 def review_execution_safety(contract: dict[str, Any]) -> tuple[DraftFinding, ...]:
     """Review approval, side-effect, retry, NFR, and degradation semantics."""
     findings: list[DraftFinding] = []
@@ -805,8 +923,12 @@ def review_execution_safety(contract: dict[str, Any]) -> tuple[DraftFinding, ...
         required = {"attempt_budget", "deadline", "retryable_errors", "backoff", "exhaustion_behavior"}
         missing = sorted(field for field in required if retry.get(field) in (None, "", []))
         if missing:
+            severity = impact_adjusted_severity(
+                Severity.REVIEW,
+                contract.get("capability_context", {}),
+            )
             findings.append(_draft(
-                Severity.BLOCKING, "completeness", "RETRY_BUDGET_UNDEFINED", "retry-policy",
+                severity, "completeness", "RETRY_BUDGET_UNDEFINED", "retry-policy",
                 f"Retry behavior lacks: {', '.join(missing)}.", json.dumps(retry, sort_keys=True),
                 "Reliability owner", "Define bounded attempts, deadline, retry classes, backoff, and exhaustion behavior.",
             ))
@@ -1155,26 +1277,80 @@ REVIEW_PIPELINE = (
 
 
 def agent_readiness_by_capability(payload: dict[str, Any]) -> dict[str, Any]:
-    """Keep readiness scoped instead of allowing one question to block or clear everything."""
+    """Keep readiness scoped and require evidence links for fixture assertions."""
     required = (
         "scope_bounded", "requirements_approved", "context_current", "autonomy_bounded",
         "protected_decisions_known", "stop_conditions_defined", "verification_defined",
     )
+    evidence_index = {
+        str(item.get("id")): item
+        for item in payload.get("evidence_catalog", [])
+    }
     results: list[dict[str, Any]] = []
     for capability in payload.get("capabilities", []):
         missing = [field for field in required if capability.get(field) is not True]
-        blockers = sorted(set(missing + list(capability.get("blocking_questions", []))))
+        assertion_evidence = capability.get("assertion_evidence", {})
+        evidence_blockers: list[str] = []
+        used_evidence_ids: set[str] = set()
+        for field in required:
+            if capability.get(field) is not True:
+                continue
+            evidence_ids = assertion_evidence.get(field, [])
+            if not evidence_ids:
+                evidence_blockers.append(f"{field}:evidence_missing")
+                continue
+            used_evidence_ids.update(str(identifier) for identifier in evidence_ids)
+            for identifier in evidence_ids:
+                record = evidence_index.get(str(identifier))
+                if record is None:
+                    evidence_blockers.append(f"{field}:evidence_target_missing")
+                elif record.get("status") != "current":
+                    evidence_blockers.append(f"{field}:evidence_not_current")
+        blockers = sorted(set(
+            missing + evidence_blockers + list(capability.get("blocking_questions", []))
+        ))
         results.append({
             "capability": capability.get("id"),
             "decision": "blocked" if blockers else Readiness.READY_FOR_BOUNDED_IMPLEMENTATION.value,
             "blockers": blockers,
+            "fixture_evidence_ids": sorted(used_evidence_ids),
             "claim": "implementation_readiness_only_not_production_release",
         })
     return {
         "pipeline": list(REVIEW_PIPELINE),
         "capabilities": results,
         "counts": dict(sorted(Counter(item["decision"] for item in results).items())),
+        "evidence_boundary": (
+            "synthetic fixture assertions with linked evidence IDs; not authenticated approvals, "
+            "attestations, or production-readiness evidence"
+        ),
     }
+
+
+def cluster_findings(findings: Iterable[Finding]) -> list[dict[str, Any]]:
+    """Preserve machine findings while grouping symptoms into human remediation themes."""
+    buckets: dict[str, list[Finding]] = {identifier: [] for identifier in FINDING_CLUSTER_RULES}
+    for finding in findings:
+        cluster_id = next(
+            (identifier for identifier, codes in FINDING_CLUSTER_RULES.items() if finding.code in codes),
+            "unclassified_review_theme",
+        )
+        buckets.setdefault(cluster_id, []).append(finding)
+    clusters: list[dict[str, Any]] = []
+    for cluster_id, members in buckets.items():
+        if not members:
+            continue
+        highest = min(members, key=lambda item: SEVERITY_ORDER[item.severity]).severity
+        clusters.append({
+            "cluster_id": cluster_id,
+            "title": FINDING_CLUSTER_TITLES.get(cluster_id, "Review theme requiring triage"),
+            "highest_severity": highest.value,
+            "finding_ids": [item.finding_id for item in members],
+            "finding_codes": sorted({item.code for item in members}),
+            "affected_subjects": sorted({item.subject_id for item in members}),
+            "accountable_owners": sorted({item.owner for item in members}),
+        })
+    return clusters
 
 
 def review_bundle(bundle: dict[str, Any] | None = None) -> dict[str, Any]:
@@ -1183,7 +1359,12 @@ def review_bundle(bundle: dict[str, Any] | None = None) -> dict[str, Any]:
     drafts: list[DraftFinding] = []
     for statement in package.get("statements", []):
         drafts.extend(review_statement(statement))
-    drafts.extend(review_package_structure(package))
+    expected_policy_ids = set(
+        bundle.get("policy_expectation", {}).get(
+            "expected_policy_ids", FIXTURE_EXPECTED_POLICY_IDS,
+        )
+    )
+    drafts.extend(review_package_structure(package, expected_policy_ids=expected_policy_ids))
     drafts.extend(review_autonomy(bundle["autonomy"]))
     traceability, trace_findings = traceability_metrics(package, bundle["traceability"], bundle["evidence"])
     drafts.extend(trace_findings)
@@ -1197,6 +1378,7 @@ def review_bundle(bundle: dict[str, Any] | None = None) -> dict[str, Any]:
             "Human reviewers and accountable owners retain semantic and decision authority.",
         ],
         "findings": [asdict(item) for item in findings],
+        "finding_clusters": cluster_findings(findings),
         "finding_counts": {
             severity.value: sum(item.severity == severity for item in findings)
             for severity in Severity

@@ -1,6 +1,16 @@
 {
-  "schema_version": "1.0-training",
+  "schema_version": "1.1-training",
   "fixture_status": "fictional_capability_scoped_implementation_readiness",
+  "fixture_assertions_not_authenticated": true,
+  "evidence_catalog": [
+    {"id":"SCOPE-AI2290-V2","kind":"scope_record","status":"current","subject_revision":"reference-v2","digest":"sha256:fixture-scope"},
+    {"id":"APPROVAL-AI2290-017","kind":"requirement_approval","status":"current","subject_revision":"reference-v2","digest":"sha256:fixture-approval"},
+    {"id":"CONTEXT-RESOLUTION-2290","kind":"context_resolution","status":"current","subject_revision":"reference-v2","digest":"sha256:fixture-context"},
+    {"id":"AUTONOMY-AI2290-BOUNDED","kind":"autonomy_contract","status":"current","subject_revision":"reference-v2","digest":"sha256:fixture-autonomy"},
+    {"id":"PROTECTED-DECISIONS-AI2290","kind":"decision_inventory","status":"current","subject_revision":"reference-v2","digest":"sha256:fixture-decisions"},
+    {"id":"STOP-CONDITIONS-AI2290","kind":"stop_condition_contract","status":"current","subject_revision":"reference-v2","digest":"sha256:fixture-stop"},
+    {"id":"VERIFICATION-PLAN-AI2290","kind":"verification_plan","status":"current","subject_revision":"reference-v2","digest":"sha256:fixture-verification"}
+  ],
   "capabilities": [
     {
       "id": "extraction",
@@ -11,6 +21,15 @@
       "protected_decisions_known": true,
       "stop_conditions_defined": true,
       "verification_defined": true,
+      "assertion_evidence": {
+        "scope_bounded":["SCOPE-AI2290-V2"],
+        "requirements_approved":["APPROVAL-AI2290-017"],
+        "context_current":["CONTEXT-RESOLUTION-2290"],
+        "autonomy_bounded":["AUTONOMY-AI2290-BOUNDED"],
+        "protected_decisions_known":["PROTECTED-DECISIONS-AI2290"],
+        "stop_conditions_defined":["STOP-CONDITIONS-AI2290"],
+        "verification_defined":["VERIFICATION-PLAN-AI2290"]
+      },
       "blocking_questions": []
     },
     {
@@ -22,6 +41,15 @@
       "protected_decisions_known": true,
       "stop_conditions_defined": true,
       "verification_defined": true,
+      "assertion_evidence": {
+        "scope_bounded":["SCOPE-AI2290-V2"],
+        "requirements_approved":["APPROVAL-AI2290-017"],
+        "context_current":["CONTEXT-RESOLUTION-2290"],
+        "autonomy_bounded":["AUTONOMY-AI2290-BOUNDED"],
+        "protected_decisions_known":["PROTECTED-DECISIONS-AI2290"],
+        "stop_conditions_defined":["STOP-CONDITIONS-AI2290"],
+        "verification_defined":["VERIFICATION-PLAN-AI2290"]
+      },
       "blocking_questions": []
     },
     {
@@ -33,6 +61,15 @@
       "protected_decisions_known": true,
       "stop_conditions_defined": true,
       "verification_defined": true,
+      "assertion_evidence": {
+        "scope_bounded":["SCOPE-AI2290-V2"],
+        "requirements_approved":["APPROVAL-AI2290-017"],
+        "context_current":["CONTEXT-RESOLUTION-2290"],
+        "autonomy_bounded":["AUTONOMY-AI2290-BOUNDED"],
+        "protected_decisions_known":["PROTECTED-DECISIONS-AI2290"],
+        "stop_conditions_defined":["STOP-CONDITIONS-AI2290"],
+        "verification_defined":["VERIFICATION-PLAN-AI2290"]
+      },
       "blocking_questions": []
     },
     {
@@ -44,6 +81,15 @@
       "protected_decisions_known": true,
       "stop_conditions_defined": true,
       "verification_defined": true,
+      "assertion_evidence": {
+        "scope_bounded":["SCOPE-AI2290-V2"],
+        "requirements_approved":["APPROVAL-AI2290-017"],
+        "context_current":["CONTEXT-RESOLUTION-2290"],
+        "autonomy_bounded":["AUTONOMY-AI2290-BOUNDED"],
+        "protected_decisions_known":["PROTECTED-DECISIONS-AI2290"],
+        "stop_conditions_defined":["STOP-CONDITIONS-AI2290"],
+        "verification_defined":["VERIFICATION-PLAN-AI2290"]
+      },
       "blocking_questions": []
     },
     {
@@ -55,10 +101,17 @@
       "protected_decisions_known": true,
       "stop_conditions_defined": true,
       "verification_defined": false,
+      "assertion_evidence": {
+        "scope_bounded":["SCOPE-AI2290-V2"],
+        "context_current":["CONTEXT-RESOLUTION-2290"],
+        "protected_decisions_known":["PROTECTED-DECISIONS-AI2290"],
+        "stop_conditions_defined":["STOP-CONDITIONS-AI2290"]
+      },
       "blocking_questions": [
         "authorization_contract_unresolved",
         "evaluation_population_not_approved"
       ]
     }
-  ]
+  ],
+  "boundary": "Boolean fields are synthetic fixture assertions. Linked IDs demonstrate relationship structure but are not authenticated approvals, attestations, or production evidence."
 }
