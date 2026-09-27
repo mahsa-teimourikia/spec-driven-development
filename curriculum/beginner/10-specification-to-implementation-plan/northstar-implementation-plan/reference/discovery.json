@@ -1,0 +1,18 @@
+{
+  "schema_version":"1.0-training",
+  "id":"DISCOVERY-AI-2219-R1",
+  "repository_revision":"repo-abc123",
+  "mode":"requirements_guided",
+  "guided_by_requirement_ids":["REQ-BR-003","REQ-BR-005","REQ-BR-030","INV-BR-002","REQ-BR-037","SEC-BR-001"],
+  "search_methods":["exact_symbol","semantic_concept","dependency_traversal","architecture_cross_check"],
+  "observations":[
+    {"id":"OBS-01","classification":"CONFIRMED","claim":"ProposedUpdate is the versioned proposal contract.","evidence_paths":["src/underwriting/proposals.py"],"resolution":"Use ADR-047 contract ownership."},
+    {"id":"OBS-02","classification":"CONFIRMED","claim":"BrokerAgent has no authoritative mutation tool.","evidence_paths":["src/agents/broker_agent.py"],"resolution":"Preserve the boundary and protect SubmissionService."},
+    {"id":"OBS-03","classification":"CONFIRMED","claim":"ReviewService owns reviewed conflict resolution.","evidence_paths":["src/review/service.py"],"resolution":"Integrate through the existing service per ADR-042."},
+    {"id":"OBS-04","classification":"LIKELY","claim":"Provenance belongs in ProposedUpdate before a storage decision is required.","evidence_paths":["src/underwriting/proposals.py","tests/contracts/test_proposed_update.py"],"resolution":"Implement contract fields; stop if a new persistence store becomes necessary."},
+    {"id":"OBS-05","classification":"UNKNOWN","claim":"No approved new provenance persistence owner is known.","evidence_paths":["src/underwriting/proposals.py"],"resolution":"Do not create a store; trigger architecture_change_required if discovered."}
+  ],
+  "protected_components":["src/auth","infrastructure","policy","src/underwriting/submission.py"],
+  "unknowns":["Whether future analytics requires separate provenance persistence"],
+  "boundary":"Observations guide the plan but do not override requirements or approved architecture."
+}

@@ -4,7 +4,7 @@
 
 ## Start here
 
-Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through Course 08, then complete [Course 09: Specification quality, review, and anti-patterns](curriculum/beginner/09-specification-quality-review-antipatterns/README.md) with its guided [notebook](curriculum/beginner/09-specification-quality-review-antipatterns/specification_review.ipynb), deterministic [review lab](curriculum/beginner/09-specification-quality-review-antipatterns/lab.py), realistic [AI-2290 specification-review workshop](curriculum/beginner/09-specification-quality-review-antipatterns/northstar-spec-review/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
+Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through Course 09, then complete [Course 10: From specification to implementation plan & agent work units](curriculum/beginner/10-specification-to-implementation-plan/README.md) with its guided [notebook](curriculum/beginner/10-specification-to-implementation-plan/implementation_planning.ipynb), deterministic [planning lab](curriculum/beginner/10-specification-to-implementation-plan/lab.py), realistic [AI-2219 planning workshop](curriculum/beginner/10-specification-to-implementation-plan/northstar-implementation-plan/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
 
 This is not simply a tutorial for one specification framework. The central skill is turning organizational intent, architecture rules, product requirements, and engineering constraints into a hierarchy of durable specifications that agents can execute—and humans can govern.
 
@@ -142,9 +142,22 @@ Course 09 turns specification review into a governed readiness decision. You wil
 - evaluate deterministic review rules on labelled cases without claiming general reviewer accuracy; and
 - approve only capability-scoped bounded implementation after the relevant package clears every blocking condition.
 
+## Course 10 outcome
+
+Course 10 turns an approved specification into a bounded, evidence-backed execution graph. You will:
+
+- distinguish approved requirements from repository discovery, plans, tasks, work units, execution context, and evidence;
+- bind plans to exact specification, repository, architecture, instruction, and readiness-evidence revisions;
+- disposition every applicable requirement and trace intent through work units, tasks, semantic code areas, and evidence;
+- decompose cohesive work around stable contracts, exclusive write ownership, accountable teams, and decision authority;
+- schedule dependency-aware execution waves without treating maximum concurrency as useful parallelism;
+- route mid-flight contract changes through impact analysis and targeted replanning;
+- detect both path-level and semantic scope expansion; and
+- distinguish executor completion from independent verification and integration evidence.
+
 ## Run locally
 
-Everything in Courses 01–09 is credential-free and uses the Python standard library.
+Everything in Courses 01–10 is credential-free and uses the Python standard library.
 
 ```bash
 python3 curriculum/beginner/01-why-agentic-coding-changes-pdlc/lab.py
@@ -157,6 +170,7 @@ python3 curriculum/beginner/06-writing-executable-requirements/lab.py
 python3 curriculum/beginner/07-acceptance-criteria-invariants-evidence/lab.py
 python3 curriculum/beginner/08-non-functional-requirements-agentic-systems/lab.py
 python3 curriculum/beginner/09-specification-quality-review-antipatterns/lab.py
+python3 curriculum/beginner/10-specification-to-implementation-plan/lab.py
 python3 -m unittest discover -s tests -v
 python3 scripts/validate_course.py
 ```

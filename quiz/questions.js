@@ -859,5 +859,110 @@ const QUESTIONS = [
     options: ['The first capabilities are ready for bounded implementation while automatic mutation remains blocked', 'The whole project is READY', 'The whole project is BLOCKED', 'A single average readiness percentage'],
     answer: 0,
     explanation: 'Capability-scoped decisions preserve safe parallelism without broadening authority.'
+  },
+  {
+    category: 'Implementation planning',
+    question: 'What is the most important boundary between an approved specification and an implementation plan?',
+    options: ['The specification defines required truth; the plan proposes a repository-specific delivery path', 'The plan automatically grants agents permission to edit', 'The specification must list every file', 'There is no meaningful difference'],
+    answer: 0,
+    explanation: 'Approval of intent does not select repository changes, authorize execution, or approve release.'
+  },
+  {
+    category: 'Repository discovery',
+    question: 'How should a consequential repository observation with incomplete evidence be classified?',
+    options: ['LIKELY or UNKNOWN, with evidence and a planning consequence', 'CONFIRMED so planning can continue', 'Approved architecture', 'Implementation evidence'],
+    answer: 0,
+    explanation: 'Explicit confidence prevents an agent from turning uncertainty into hidden design authority.'
+  },
+  {
+    category: 'Plan provenance',
+    question: 'Why bind a plan to a specification content digest and repository revision?',
+    options: ['To detect changed inputs and make discovery and review reproducible', 'To make the plan longer', 'To replace source control', 'To prove production correctness'],
+    answer: 0,
+    explanation: 'Labels can remain unchanged while content changes; exact bindings make staleness and impact assessable.'
+  },
+  {
+    category: 'Plan drift',
+    question: 'A repository revision changed only an unrelated documentation path. What is the proportionate response?',
+    options: ['Record stale-unrelated provenance and continue with a revision note', 'Invalidate every work unit', 'Ignore the revision difference', 'Regenerate the specification'],
+    answer: 0,
+    explanation: 'Staleness should be resolved through affected-path and semantic impact, not a universal boolean.'
+  },
+  {
+    category: 'Requirement disposition',
+    question: 'A plan marks a requirement “already satisfied.” What is additionally required?',
+    options: ['Current evidence for the exact requirement and repository revision', 'No work-unit mapping or review', 'A confidence percentage', 'Only the planner’s assertion'],
+    answer: 0,
+    explanation: 'No-change claims need evidence because they otherwise hide unplanned obligations.'
+  },
+  {
+    category: 'Traceability',
+    question: 'Which traceability target is most durable during refactoring?',
+    options: ['Meaningful modules, contracts, controls, and evidence', 'Exact source line numbers only', 'Agent chat messages', 'Task titles without requirement IDs'],
+    answer: 0,
+    explanation: 'Semantic implementation units remain useful as code moves; line links are brittle.'
+  },
+  {
+    category: 'Agent work units',
+    question: 'What distinguishes an agent work unit from a simple task?',
+    options: ['It adds bounded scope, authority, dependencies, evidence, ownership, and stop conditions', 'It is always larger than a pull request', 'It names a model vendor', 'It eliminates human review'],
+    answer: 0,
+    explanation: 'A work unit is an execution boundary around cohesive tasks, not merely another task label.'
+  },
+  {
+    category: 'Accountability',
+    question: 'Who should remain accountable when a coding agent executes a work unit?',
+    options: ['A named human or team with required reviewers', 'The model itself', 'Nobody if tests pass', 'The prompt author automatically'],
+    answer: 0,
+    explanation: 'Execution assignment does not transfer organizational accountability or decision rights.'
+  },
+  {
+    category: 'Parallel agents',
+    question: 'Which condition best supports safe parallel execution?',
+    options: ['Stable contracts, exclusive write ownership, explicit dependencies, and independent evidence', 'Two agents editing the same files', 'No dependency graph', 'A shared instruction to resolve conflicts later'],
+    answer: 0,
+    explanation: 'Safe parallelism is designed around ownership and contracts, not inferred from agent availability.'
+  },
+  {
+    category: 'Readiness evidence',
+    question: 'Why is a field such as ready: true insufficient?',
+    options: ['Readiness must link current prerequisite evidence and dependency state', 'Booleans cannot be serialized', 'Only agents can declare readiness', 'Readiness never changes'],
+    answer: 0,
+    explanation: 'An assertion without inspectable relationships is boolean theater.'
+  },
+  {
+    category: 'Execution context',
+    question: 'What should a bounded execution-context package explicitly avoid claiming?',
+    options: ['That context itself grants production, policy, architecture, or exception authority', 'Its plan digest', 'Writable paths', 'Acceptance checks'],
+    answer: 0,
+    explanation: 'Context constrains a run; runtime permissions and accountable approvals are separate controls.'
+  },
+  {
+    category: 'Contract change',
+    question: 'A downstream agent needs to change an upstream shared contract. What is the correct action?',
+    options: ['Stop and submit a change request with requirement basis and downstream impact', 'Edit it silently within the same branch', 'Remove the dependency edge', 'Ask every agent to retry'],
+    answer: 0,
+    explanation: 'Contract ownership and impact analysis preserve controlled propagation through the work graph.'
+  },
+  {
+    category: 'Semantic scope',
+    question: 'How can an agent exceed scope without editing an unauthorized path?',
+    options: ['It can make a protected product, policy, architecture, or authorization decision inside an allowed file', 'It cannot; path checks are complete', 'By adding tests', 'By reporting a blocker'],
+    answer: 0,
+    explanation: 'Scope has both path and semantic dimensions.'
+  },
+  {
+    category: 'Work-unit lifecycle',
+    question: 'What separates COMPLETED from VERIFIED?',
+    options: ['COMPLETED is an executor claim; VERIFIED requires independent evidence', 'They are synonyms', 'VERIFIED means deployed', 'COMPLETED requires no report'],
+    answer: 0,
+    explanation: 'Self-reported completion does not establish independent conformance.'
+  },
+  {
+    category: 'Proportional process',
+    question: 'When is the full implementation-planning model usually disproportionate?',
+    options: ['A low-risk, local, reversible change with obvious scope, one owner, strong checks, and no shared contract impact', 'Any security change with a one-line diff', 'A new authorization rule', 'A schema migration'],
+    answer: 0,
+    explanation: 'Process depth should follow semantic risk and coordination needs, not diff size alone.'
   }
 ];

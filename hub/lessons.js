@@ -456,6 +456,52 @@ const course09 = {
   }
 };
 
+const course10 = {
+  id: 'c10', course: 10, level: 'beginner', part: 'II · Executable specifications', status: 'available',
+  title: 'From specification to implementation plan & agent work units',
+  summary: 'Bind approved intent to repository evidence, produce complete dispositions and traceability, decompose bounded work units, and schedule safe multi-agent execution without granting implicit authority.',
+  outcomes: [
+    'Separate approved specifications, discovery evidence, implementation plans, agent work units, completion reports, and verification.',
+    'Bind plans to exact specification, repository, architecture, instruction, and readiness-evidence revisions.',
+    'Build complete requirement dispositions and bidirectional requirement-to-evidence traceability.',
+    'Decompose cohesive units with exclusive write ownership, stable contracts, accountable teams, and stop conditions.',
+    'Schedule an acyclic dependency graph, propagate contract changes, and gate verified and integrated lifecycle states.'
+  ],
+  readme: `${REPO}/blob/main/curriculum/beginner/10-specification-to-implementation-plan/README.md`,
+  notebook: `${REPO}/blob/main/curriculum/beginner/10-specification-to-implementation-plan/implementation_planning.ipynb`,
+  lab: `${REPO}/blob/main/curriculum/beginner/10-specification-to-implementation-plan/lab.py`,
+  labs: [
+    {
+      title: 'Lab A — Validate a bounded implementation plan',
+      description: 'Compare an unsafe ticket-shaped candidate with a provenance-bound plan, requirement dispositions, dependency waves, execution context, completion gates, and 23 labelled cases.',
+      command: 'python3 curriculum/beginner/10-specification-to-implementation-plan/lab.py',
+      links: [['View the lab', `${REPO}/blob/main/curriculum/beginner/10-specification-to-implementation-plan/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/beginner/10-specification-to-implementation-plan/implementation_planning.ipynb`]]
+    },
+    {
+      title: 'Lab B — Plan AI-2219',
+      description: 'Perform requirement-guided discovery, disposition every requirement, design contract-first work units, model a mid-flight change, and separate completion from independent verification.',
+      command: 'Open the ticket and starter workspace; run Lab A before consulting the reference.',
+      links: [['Open the workshop', `${REPO}/tree/main/curriculum/beginner/10-specification-to-implementation-plan/northstar-implementation-plan`], ['Complete the starter plan', `${REPO}/tree/main/curriculum/beginner/10-specification-to-implementation-plan/northstar-implementation-plan/workshop/starter`], ['Inspect the reference package', `${REPO}/tree/main/curriculum/beginner/10-specification-to-implementation-plan/northstar-implementation-plan/reference`]]
+    }
+  ],
+  references: [
+    ['GitHub Spec Kit', 'https://github.github.com/spec-kit/'],
+    ['Spec Kit plan command', 'https://github.github.com/spec-kit/reference/commands/plan.html'],
+    ['OpenSpec customization', 'https://github.com/Fission-AI/OpenSpec/blob/main/docs/customization.md'],
+    ['Kiro specifications', 'https://kiro.dev/docs/specs/']
+  ],
+  checkpoint: {
+    question: 'An extraction agent discovers that a shared proposal contract needs a new field. Downstream review and integration units depend on that contract. What should happen?',
+    options: [
+      'Pause affected work, submit a contract-change request, calculate downstream impact, obtain the owner decision, revise the plan, and re-establish readiness.',
+      'Let the extraction agent edit the shared contract and ask other agents to resolve conflicts later.',
+      'Mark every work unit complete because discovery is implementation progress.'
+    ],
+    answer: 0,
+    explanation: 'A downstream discovery is a proposal, not contract authority. Impact-aware replanning preserves ownership, traceability, evidence, and safe parallelism.'
+  }
+};
+
 function planned(course, level, part, title, summary) {
   return {
     id: `c${String(course).padStart(2, '0')}`, course, level, part,
@@ -476,7 +522,7 @@ const LESSONS = [
   course07,
   course08,
   course09,
-  planned(10, 'beginner', 'II · Executable specifications', 'Requirement traceability', 'Link intent through design, tasks, code, tests, approvals, and operational evidence.'),
+  course10,
   planned(11, 'intermediate', 'III · SDD frameworks', 'GitHub Spec Kit', 'Use constitution, clarification, planning, checks, analysis, implementation, and convergence.'),
   planned(12, 'intermediate', 'III · SDD frameworks', 'OpenSpec', 'Manage current specifications and explicit change deltas for brownfield work.'),
   planned(13, 'intermediate', 'III · SDD frameworks', 'Kiro Specs', 'Apply feature, bug-fix, and quick-spec workflows with appropriate approval depth.'),

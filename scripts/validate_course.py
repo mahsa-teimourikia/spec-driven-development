@@ -1534,10 +1534,8 @@ def check_course_09_specification_review() -> list[str]:
         errors.append("Course 09 readiness evidence must disclose its synthetic, unauthenticated fixture boundary")
 
     quiz_source = (ROOT / "quiz" / "questions.js").read_text(encoding="utf-8")
-    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 123:
-        errors.append("Course 09 cumulative quiz must contain 123 questions")
-    if "Courses 01–09" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
-        errors.append("Course 09 cumulative quiz must identify Courses 01–09")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) < 123:
+        errors.append("Course 09 cumulative quiz coverage must retain at least 123 questions")
     hub_source = (ROOT / "hub" / "lessons.js").read_text(encoding="utf-8")
     expected_hub_fragments = [
         "const course09 = {",
@@ -1547,6 +1545,148 @@ def check_course_09_specification_review() -> list[str]:
     ]
     if any(fragment not in hub_source for fragment in expected_hub_fragments):
         errors.append("Course 09 Learning Hub entry is incomplete or points outside the workshop package")
+    return errors
+
+
+def check_course_10_implementation_planning() -> list[str]:
+    lesson = (
+        ROOT
+        / "curriculum"
+        / "beginner"
+        / "10-specification-to-implementation-plan"
+    )
+    scenario = lesson / "northstar-implementation-plan"
+    required = [
+        "README.md",
+        "approved-specification.json",
+        "repository-snapshot.json",
+        "architecture-context.json",
+        "ticket/AI-2219-plan.md",
+        "candidate/plan.json",
+        "reference/discovery.json",
+        "reference/plan.json",
+        "reference/work-units.json",
+        "reference/contract-change-request.json",
+        "reference/completion-report.json",
+        "workshop/starter/README.md",
+        "workshop/starter/discovery.json",
+        "workshop/starter/plan.json",
+        "workshop/starter/work-units.json",
+        "evaluation-cases.json",
+    ]
+    errors = [
+        f"missing Course 10 planning artifact: {item}"
+        for item in required
+        if not (scenario / item).exists()
+    ]
+    if errors:
+        return errors
+
+    for path in (scenario / "reference").glob("*.json"):
+        if "TODO" in path.read_text(encoding="utf-8"):
+            errors.append(f"unresolved TODO in Course 10 reference: {path.relative_to(ROOT)}")
+    starter_files = list((scenario / "workshop" / "starter").glob("*.json"))
+    if not starter_files or not all("TODO" in path.read_text(encoding="utf-8") for path in starter_files):
+        errors.append("Course 10 starter workspace must retain editable TODO prompts")
+
+    result = subprocess.run(
+        [sys.executable, str(lesson / "lab.py")],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    try:
+        report = json.loads(result.stdout) if result.returncode == 0 else {}
+    except json.JSONDecodeError:
+        report = {}
+    if not report:
+        errors.append("Course 10 lab did not produce its JSON planning report")
+        return errors
+
+    if "not_agent_authorization" not in report.get("candidate", {}).get("review", {}).get("claim", ""):
+        errors.append("Course 10 report must preserve the planning-versus-authorization boundary")
+
+    candidate = report.get("candidate", {})
+    candidate_review = candidate.get("review", {})
+    if candidate_review.get("counts") != {"blocking": 28, "review": 5}:
+        errors.append("Course 10 unsafe candidate must retain 28 blocking and five review findings")
+    candidate_decision = candidate.get("decision", {})
+    if candidate_decision.get("state") != "PLAN_REQUIRES_ARCHITECTURE" or candidate_decision.get("ready_for_dispatch") is not False:
+        errors.append("Course 10 unsafe candidate must stop for architecture review")
+    required_candidate_codes = {
+        "UNAPPROVED_ARCHITECTURE_INVENTED",
+        "BLOCKED_CAPABILITY_SCHEDULED",
+        "PROTECTED_PATH_WRITE_ATTEMPT",
+        "WORK_UNIT_WRITE_SCOPE_UNBOUNDED",
+        "WORK_UNIT_READINESS_EVIDENCE_MISSING",
+        "WORK_GRAPH_CYCLE",
+        "ORPHAN_TASK",
+    }
+    candidate_codes = {item.get("code") for item in candidate_review.get("findings", [])}
+    if not required_candidate_codes <= candidate_codes:
+        errors.append("Course 10 candidate no longer exposes the intended planning failures")
+
+    reference = report.get("reference", {})
+    reference_review = reference.get("review", {})
+    if reference_review.get("findings") or reference_review.get("counts") != {}:
+        errors.append("Course 10 reference plan must validate without findings")
+    reference_decision = reference.get("decision", {})
+    if reference_decision.get("state") != "PLAN_READY" or reference_decision.get("ready_for_dispatch") is not True:
+        errors.append("Course 10 reference plan must be dispatch-ready within the fixture boundary")
+    schedule = reference_review.get("schedule", {})
+    expected_waves = [
+        ["AWU-BR-CONTRACT"],
+        ["AWU-BR-EXTRACTION", "AWU-BR-VALIDATION"],
+        ["AWU-BR-CONFLICT"],
+        ["AWU-BR-REVIEW"],
+        ["AWU-BR-INTEGRATION"],
+    ]
+    if schedule.get("acyclic") is not True or schedule.get("waves") != expected_waves:
+        errors.append("Course 10 reference must retain the five-wave dependency schedule")
+    disposition = reference_review.get("disposition_metrics", {}).get("requirements_with_disposition", {})
+    if (disposition.get("numerator"), disposition.get("denominator")) != (6, 6):
+        errors.append("Course 10 reference must retain six of six requirement dispositions")
+    trace = reference_review.get("traceability", {}).get("complete_requirement_chains", {})
+    if (trace.get("numerator"), trace.get("denominator")) != (6, 6):
+        errors.append("Course 10 reference must retain six complete requirement-to-evidence chains")
+    context = reference.get("example_execution_context", {})
+    if not context.get("plan_digest", "").startswith("sha256:") or "not grant" not in context.get("authority_boundary", ""):
+        errors.append("Course 10 execution context must carry provenance and reject implicit authority")
+    completion = json.loads((scenario / "reference" / "completion-report.json").read_text(encoding="utf-8"))
+    if completion.get("input_context_digest") != context.get("plan_digest") or "pending_independent_verification" not in completion.get("claim", ""):
+        errors.append("Course 10 completion report must bind its context and remain distinct from verification")
+    change_request = json.loads((scenario / "reference" / "contract-change-request.json").read_text(encoding="utf-8"))
+    if set(change_request.get("affected_work_unit_ids", [])) != {"AWU-BR-CONFLICT", "AWU-BR-REVIEW", "AWU-BR-INTEGRATION"}:
+        errors.append("Course 10 contract-change request must preserve transitive downstream impact")
+
+    evaluation = report.get("evaluation", {})
+    exact = evaluation.get("exact_matches", {})
+    if (
+        evaluation.get("population"),
+        evaluation.get("true_positive"),
+        evaluation.get("false_positive"),
+        evaluation.get("false_negative"),
+        exact.get("numerator"),
+        exact.get("denominator"),
+    ) != (23, 21, 0, 0, 23, 23):
+        errors.append("Course 10 labelled fixture evaluation must retain 23 exact cases and 21 expected findings")
+    if "not_general" not in evaluation.get("claim", ""):
+        errors.append("Course 10 evaluation claim must disclose its labelled-fixture boundary")
+
+    quiz_source = (ROOT / "quiz" / "questions.js").read_text(encoding="utf-8")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 138:
+        errors.append("Course 10 cumulative quiz must contain 138 questions")
+    if "Courses 01–10" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
+        errors.append("Course 10 cumulative quiz must identify Courses 01–10")
+    hub_source = (ROOT / "hub" / "lessons.js").read_text(encoding="utf-8")
+    expected_hub_fragments = [
+        "const course10 = {",
+        "10-specification-to-implementation-plan/northstar-implementation-plan/workshop/starter",
+        "10-specification-to-implementation-plan/northstar-implementation-plan/reference",
+    ]
+    if any(fragment not in hub_source for fragment in expected_hub_fragments):
+        errors.append("Course 10 Learning Hub entry is incomplete or points outside the workshop package")
     return errors
 
 
@@ -1565,6 +1705,7 @@ def main() -> None:
         "Course 07 acceptance evidence": check_course_07_acceptance_evidence,
         "Course 08 non-functional requirements": check_course_08_non_functional_requirements,
         "Course 09 specification review": check_course_09_specification_review,
+        "Course 10 implementation planning": check_course_10_implementation_planning,
         "diagrams": render_and_validate_diagrams,
         "labs": run_labs,
         "repository labs": run_repository_labs,

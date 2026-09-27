@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0-training",
+  "id": "CCR-2219-01",
+  "state": "PROPOSED_FOR_OWNER_REVIEW",
+  "discovered_by": "AWU-BR-EXTRACTION",
+  "contract": "ProposedUpdate@2",
+  "proposed_change": "Add an optional confidence_reason field without changing proposal, authorization, or mutation semantics.",
+  "reason_requirement_ids": [
+    "REQ-BR-030"
+  ],
+  "affected_work_unit_ids": [
+    "AWU-BR-CONFLICT",
+    "AWU-BR-INTEGRATION",
+    "AWU-BR-REVIEW"
+  ],
+  "impact": {
+    "compatibility": "Contract owner must confirm that absent confidence_reason remains valid.",
+    "tasks": [
+      "TASK-BR-001",
+      "TASK-BR-002",
+      "TASK-BR-003",
+      "TASK-BR-004",
+      "TASK-BR-005",
+      "TASK-BR-006"
+    ],
+    "evidence": "Re-run contract, extraction, conflict, review, and integration evidence after approval.",
+    "execution": "Pause affected in-progress units; unrelated units may continue only if their contracts and semantics are unchanged."
+  },
+  "accountable_owner": "underwriting_platform",
+  "boundary": "This is a planning proposal. It does not approve the contract change or authorize an agent to implement it."
+}
+

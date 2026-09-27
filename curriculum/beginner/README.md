@@ -11,6 +11,6 @@ The beginner path establishes the operating model and then builds the requiremen
 7. [Acceptance criteria, invariants, and evidence](07-acceptance-criteria-invariants-evidence/README.md) — **available**
 8. [Non-functional requirements for agentic systems](08-non-functional-requirements-agentic-systems/README.md) — **available**
 9. [Specification quality, review, and anti-patterns](09-specification-quality-review-antipatterns/README.md) — **available**
-10. Requirement traceability — planned
+10. [From specification to implementation plan & agent work units](10-specification-to-implementation-plan/README.md) — **available**
 
 By the end of this path, learners can turn organizational and product intent into reviewable, testable, traceable specifications rather than isolated prompts.

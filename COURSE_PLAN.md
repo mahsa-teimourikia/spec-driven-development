@@ -89,7 +89,7 @@ Each future course follows this learning arc, adapted where the subject demands 
 | 07 | beginner/07 | Acceptance criteria, invariants, and evidence | **Available** | C06 | AI-2219 acceptance contract, bounded properties, mutation evidence, evaluation slices, provenance-bearing evidence bundle, owned gates, and runtime denominators |
 | 08 | beginner/08 | Non-functional requirements for agentic systems | **Available** | C06–C07 | AI-2219 workload profiles, NFR contract, owner-approved and unresolved targets, semantic SLIs, degradation policy, agent budgets, unit economics, and blocked production assessment |
 | 09 | beginner/09 | Specification quality, review, and anti-patterns | **Available** | C03–C08 | AI-2290 lexical-baseline failure, ten-dimension findings, semantic trace review, 35-case anti-pattern portfolio, brownfield/transition review, capability-scoped readiness, repaired specification package |
-| 10 | beginner/10 | Requirement traceability | Planned | C05–C09 | Bidirectional intent → design → task → code → evidence graph |
+| 10 | beginner/10 | From specification to implementation plan & agent work units | **Available** | C05–C09 | AI-2219 repository discovery, exact plan provenance, six requirement dispositions, contract-first work-unit DAG, execution-context digest, replanning, lifecycle, and 23-case rule evaluation |
 
 ## Part III — SDD frameworks
 
@@ -314,6 +314,21 @@ Course 09 reverses Courses 01–08: learners receive a plausible enterprise spec
 - **Evaluation:** 35 labelled deterministic cases exercise positive, negative, and boundary rules with 78 expected finding labels, explicit false-positive/false-negative reporting, and clean controls. Results are fixture coverage, not general reviewer accuracy.
 - **Readiness boundary:** the candidate stops with 16 blocking and 24 review findings. The repaired fixture becomes ready only for bounded implementation; capability review permits four work areas while automatic mutation remains blocked. None of these decisions authorize exceptions, deployment, or production release.
 - **Production upgrade:** authenticated sources/owners, exact revision binding, protected reviewer state, independently labelled cross-domain evaluation, three-way repository reconciliation, migration/rollback rehearsal, tested rollout controls, fallback capacity, privacy-safe observability, severity calibration, expiring waivers, drift detection, and policy-backed CI remain required.
+
+## Course 10 design record
+
+Course 10 starts where Course 09 ends: an approved specification is eligible for bounded implementation, but still must be translated into a repository-specific plan without laundering execution, architecture, product, policy, or release authority.
+
+- **Scenario:** the Northstar team plans AI-2219’s proposal-only broker-response flow while preserving provenance, verified-value safety, review ownership, and the model-facing mutation boundary.
+- **Core artifacts:** an exact specification/repository/ADR binding, requirement-guided discovery, six dispositions, task justification, a six-node work-unit DAG, readiness-evidence catalog, and bounded execution-context snapshot.
+- **Lab A:** diagnose a ticket-shaped candidate, validate provenance and dispositions, detect unsafe scopes and invented architecture, schedule topological waves, evaluate drift, route contract changes, validate completion reports, and enforce lifecycle evidence gates.
+- **Lab B:** complete starter discovery, plan, and work-unit artifacts before comparing with the governed reference package.
+- **Ownership model:** accountable teams and required reviewers remain distinct from execution-agent assignment; work units encode may-decide, may-propose, may-not-decide, protected decisions, and mandatory stop conditions.
+- **Parallelism:** the contract unit precedes extraction and validation, which can run concurrently with exclusive write ownership; conflict, review, and dedicated integration work follow in three additional waves.
+- **Traceability:** six of six in-scope requirements have dispositions and complete requirement → work unit → task → semantic implementation unit → evidence chains. Coverage is structural and never presented as plan correctness.
+- **Evaluation:** 23 transparent deterministic cases yield 21 expected findings with zero fixture false positives or false negatives. The result is labelled rule coverage, not planner accuracy on real repositories.
+- **Evidence boundary:** all approvals, revisions, permission profiles, estimates, and outputs are synthetic. The package does not authenticate owners, provision permissions, execute agents, prove implementation, approve merge, or authorize release.
+- **Production upgrade:** signed provenance, repository APIs, protected ownership, runtime permission brokerage, durable scheduler state, concurrency leases, immutable evidence, change-impact services, independent verification, audit retention, and CI/policy enforcement remain required.
 
 ## Risk boundaries
 

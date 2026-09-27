@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0-training",
+  "fixture_status": "learner_workspace",
+  "readiness_evidence_catalog": [
+    {
+      "id": "TODO-EVIDENCE",
+      "kind": "TODO: specification, repository, architecture, instructions, permissions, or verification",
+      "status": "TODO: current | stale | missing"
+    }
+  ],
+  "work_units": [
+    {
+      "id": "AWU-STARTER-001",
+      "accountability_team": "TODO: human/team accountable for the result",
+      "execution_owner": "unassigned_until_scheduler",
+      "required_reviewers": [
+        "TODO"
+      ],
+      "protected_decisions": [
+        "TODO: decision the execution agent may not redefine"
+      ],
+      "readiness_evidence_ids": [
+        "TODO-EVIDENCE"
+      ],
+      "capability": "TODO",
+      "goal": "TODO: one cohesive responsibility",
+      "deliverable": "TODO: one meaningful reviewable increment",
+      "requirement_ids": [
+        "TODO"
+      ],
+      "contracts": {
+        "input": [],
+        "output": []
+      },
+      "contract_paths": [],
+      "depends_on": [],
+      "writable_paths": [
+        "TODO: exact bounded paths; never use wildcards"
+      ],
+      "read_only_paths": [],
+      "verification": {
+        "acceptance_ids": [
+          "TODO"
+        ],
+        "required_checks": [
+          "TODO"
+        ],
+        "evidence_outputs": [
+          "TODO"
+        ]
+      },
+      "stop_conditions": [
+        "contract_change_required",
+        "protected_path_change_required",
+        "requirement_conflict",
+        "architecture_change_required",
+        "new_external_dependency_required",
+        "authorization_behavior_change_required"
+      ],
+      "agent_authority": {
+        "may_decide": [
+          "TODO"
+        ],
+        "may_propose": [
+          "TODO"
+        ],
+        "may_not_decide": [
+          "TODO"
+        ]
+      },
+      "estimated_work_units": 1
+    }
+  ],
+  "boundary": "TODO: explain why a READY work unit is still not a production permission grant."
+}

@@ -1130,4 +1130,4 @@ Correct answer: **C**. Specificity, recency, proximity, and code prevalence do n
 
 ## Continue
 
-Course 10 will turn valid relationships into bidirectional requirement traceability across intent, design, tasks, code, evidence, approvals, and runtime observations. Later courses will apply this review discipline to SDD frameworks, brownfield work, PR design, policy gates, drift, and continuous specification.
+[Course 10](../10-specification-to-implementation-plan/README.md) turns an approved specification and valid relationships into a provenance-bound implementation plan, bidirectional traceability, bounded agent work units, dependency-aware waves, and verification gates. Later courses apply this discipline to SDD frameworks, brownfield work, PR design, policy gates, drift, and continuous specification.

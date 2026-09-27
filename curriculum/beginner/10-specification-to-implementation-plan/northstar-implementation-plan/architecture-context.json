@@ -1,0 +1,13 @@
+{
+  "schema_version":"1.0-training",
+  "revision":"architecture-2026-09-20",
+  "decisions":[
+    {"id":"ADR-031","status":"accepted","decision":"Model-facing components may create proposals but may not mutate authoritative submission state."},
+    {"id":"ADR-042","status":"accepted","decision":"ReviewService owns approval receipts and reviewed conflict resolution."},
+    {"id":"ADR-047","status":"accepted","decision":"ProposedUpdate is the versioned integration contract for broker-derived field changes."}
+  ],
+  "open_decisions":[
+    {"id":"ADQ-019","question":"Whether provenance needs a new persistence store remains unresolved.","owner":"architecture_council"}
+  ],
+  "boundary":"The planner may cite accepted decisions or propose an ADR; it may not turn an open question into architecture."
+}
