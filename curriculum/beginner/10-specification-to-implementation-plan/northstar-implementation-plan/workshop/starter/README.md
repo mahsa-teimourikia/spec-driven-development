@@ -9,9 +9,12 @@ Your package should:
 - give every in-scope requirement a supported disposition;
 - separate accountable team ownership from the eventual execution agent;
 - assign exclusive writable paths and read-only shared contracts;
-- declare dependencies, acceptance checks, evidence outputs, authority, and stop conditions;
+- compare explicit dependencies with a contract producer/consumer registry;
+- declare acceptance checks, implementation and verification prerequisites, and evidence outputs;
+- route each stop condition through `ASK`, `PROPOSE`, or `STOP` with an artifact and owner;
+- request exact, temporary, work-unit-bound permissions without self-provisioning;
+- distinguish implementation, merge, rollout, and enablement readiness;
 - preserve automatic mutation as blocked;
 - avoid inventing architecture or external dependencies.
 
 Search for `TODO` to find the learner prompts. The reference directory contains a complete worked example.
-

@@ -60,7 +60,7 @@
       "id":"EV-10-unbounded-write-scope",
       "kind":"work_unit_mutation",
       "input":{"unit_id":"AWU-BR-EXTRACTION","changes":{"writable_paths":["*"]}},
-      "expected_codes":["WORK_UNIT_WRITE_SCOPE_UNBOUNDED"]
+      "expected_codes":["WORK_UNIT_WRITE_SCOPE_UNBOUNDED","EXCESSIVE_EXECUTION_PERMISSION"]
     },
     {
       "id":"EV-11-missing-stop-conditions",
@@ -78,7 +78,7 @@
       "id":"EV-13-parallel-write-collision",
       "kind":"work_unit_mutation",
       "input":{"unit_id":"AWU-BR-VALIDATION","changes":{"writable_paths":["src/broker/extraction.py"]}},
-      "expected_codes":["PARALLEL_WRITE_COLLISION"]
+      "expected_codes":["PARALLEL_WRITE_COLLISION","EXCESSIVE_EXECUTION_PERMISSION"]
     },
     {
       "id":"EV-14-readiness-boolean-theater",
@@ -139,6 +139,48 @@
       "kind":"work_unit_mutation",
       "input":{"unit_id":"AWU-BR-EXTRACTION","changes":{}},
       "expected_codes":[]
+    },
+    {
+      "id":"EV-24-undefined-stop-routing",
+      "kind":"work_unit_mutation",
+      "input":{"unit_id":"AWU-BR-EXTRACTION","changes":{"stop_conditions":["requirement_conflict_detected","architecture_change_required","shared_contract_change_required","protected_path_change_required","new_external_dependency_required","authorization_semantics_change_required","policy_exception_required","evidence_requirement_cannot_be_satisfied","unexpected_problem"]}},
+      "expected_codes":["WORK_UNIT_STOP_ACTION_UNDEFINED"]
+    },
+    {
+      "id":"EV-25-planner-self-provisions",
+      "kind":"permission_profile_mutation",
+      "input":{"permission_id":"PERM-AWU-BR-EXTRACTION","changes":{"grant_state":"active","self_provisioning_allowed":true}},
+      "expected_codes":["EXECUTION_PERMISSION_PROFILE_INVALID"]
+    },
+    {
+      "id":"EV-26-hidden-contract-dependency",
+      "kind":"contract_dependency_mutation",
+      "input":{"unit_id":"AWU-BR-VALIDATION","depends_on":[]},
+      "expected_codes":["UNDECLARED_CONTRACT_DEPENDENCY"]
+    },
+    {
+      "id":"EV-27-conflated-readiness",
+      "kind":"plan_assurance_mutation",
+      "input":{"changes":{"readiness_layers":{"implementation":"ready"}}},
+      "expected_codes":["READINESS_LAYERS_CONFLATED"]
+    },
+    {
+      "id":"EV-28-deferred-work-scheduled",
+      "kind":"plan_assurance_mutation",
+      "input":{"changes":{"future_work":[{"capability":"automatic_mutation","status":"ready","not_scheduled":false}]}},
+      "expected_codes":["DEFERRED_WORK_SCHEDULED"]
+    },
+    {
+      "id":"EV-29-ceremonial-risk",
+      "kind":"plan_assurance_mutation",
+      "input":{"changes":{"risk_register":[{"id":"RISK-X","issue":"something may happen","affects":[],"mitigation":""}]}},
+      "expected_codes":["PLAN_RISK_NOT_ACTIONABLE"]
+    },
+    {
+      "id":"EV-30-verification-infrastructure-not-ready",
+      "kind":"readiness_evidence_mutation",
+      "input":{"evidence_id":"VERIFICATION-INFRA-2219","status":"missing"},
+      "expected_codes":["VERIFICATION_PREREQUISITE_NOT_READY"]
     }
   ]
 }

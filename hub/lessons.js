@@ -464,8 +464,9 @@ const course10 = {
     'Separate approved specifications, discovery evidence, implementation plans, agent work units, completion reports, and verification.',
     'Bind plans to exact specification, repository, architecture, instruction, and readiness-evidence revisions.',
     'Build complete requirement dispositions and bidirectional requirement-to-evidence traceability.',
-    'Decompose cohesive units with exclusive write ownership, stable contracts, accountable teams, and stop conditions.',
-    'Schedule an acyclic dependency graph, propagate contract changes, and gate verified and integrated lifecycle states.'
+    'Decompose cohesive units with exclusive write ownership, stable contracts, accountable teams, typed stop routing, and temporary permission requests.',
+    'Compare contract-derived and explicit dependencies, identify the critical path, and scope unknowns to affected units.',
+    'Separate implementation, verification, merge, rollout, and enablement readiness while gating verified and integrated lifecycle states.'
   ],
   readme: `${REPO}/blob/main/curriculum/beginner/10-specification-to-implementation-plan/README.md`,
   notebook: `${REPO}/blob/main/curriculum/beginner/10-specification-to-implementation-plan/implementation_planning.ipynb`,
@@ -473,13 +474,13 @@ const course10 = {
   labs: [
     {
       title: 'Lab A — Validate a bounded implementation plan',
-      description: 'Compare an unsafe ticket-shaped candidate with a provenance-bound plan, requirement dispositions, dependency waves, execution context, completion gates, and 23 labelled cases.',
+      description: 'Compare an unsafe ticket-shaped candidate with a provenance-bound plan, contract assurance, typed stops, temporary permissions, dependency waves, rollout boundaries, completion gates, and 30 labelled cases.',
       command: 'python3 curriculum/beginner/10-specification-to-implementation-plan/lab.py',
       links: [['View the lab', `${REPO}/blob/main/curriculum/beginner/10-specification-to-implementation-plan/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/beginner/10-specification-to-implementation-plan/implementation_planning.ipynb`]]
     },
     {
       title: 'Lab B — Plan AI-2219',
-      description: 'Perform requirement-guided discovery, disposition every requirement, design contract-first work units, model a mid-flight change, and separate completion from independent verification.',
+      description: 'Perform requirement-guided discovery, disposition every requirement, design contract-first work units, route consequential discoveries, model a mid-flight change, and separate implementation from verification and activation.',
       command: 'Open the ticket and starter workspace; run Lab A before consulting the reference.',
       links: [['Open the workshop', `${REPO}/tree/main/curriculum/beginner/10-specification-to-implementation-plan/northstar-implementation-plan`], ['Complete the starter plan', `${REPO}/tree/main/curriculum/beginner/10-specification-to-implementation-plan/northstar-implementation-plan/workshop/starter`], ['Inspect the reference package', `${REPO}/tree/main/curriculum/beginner/10-specification-to-implementation-plan/northstar-implementation-plan/reference`]]
     }

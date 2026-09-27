@@ -7,7 +7,32 @@
     {"id":"ARCH-CONTEXT-20260920","kind":"architecture_context","status":"current","subject_revision":"architecture-2026-09-20"},
     {"id":"INSTRUCTIONS-UW-V4","kind":"agent_instruction_snapshot","status":"current","digest":"sha256:fixture-underwriting-agents-v4"},
     {"id":"PERMISSION-PROFILES-2219","kind":"planned_permission_profiles","status":"current","digest":"sha256:fixture-permissions-2219"},
-    {"id":"EVIDENCE-PLANS-2219","kind":"verification_plan","status":"current","digest":"sha256:fixture-evidence-plans-2219"}
+    {"id":"EVIDENCE-PLANS-2219","kind":"verification_plan","status":"current","digest":"sha256:fixture-evidence-plans-2219"},
+    {"id":"VERIFICATION-INFRA-2219","kind":"evaluation_dataset_and_test_environment","status":"current","digest":"sha256:fixture-verification-infra-2219"}
+  ],
+  "stop_condition_catalog":[
+    {"condition":"requirement_conflict_detected","outcome":"STOP","next_action":"preserve the conflict and request an authoritative resolution","required_artifact":"clarification_request","owner":"requirement_owner"},
+    {"condition":"architecture_change_required","outcome":"PROPOSE","next_action":"describe alternatives and consequences without implementing the decision","required_artifact":"architecture_proposal","owner":"architecture_owner"},
+    {"condition":"shared_contract_change_required","outcome":"PROPOSE","next_action":"calculate downstream impact and pause affected consumers","required_artifact":"contract_change_request","owner":"contract_owner"},
+    {"condition":"protected_path_change_required","outcome":"STOP","next_action":"request a bounded scope expansion","required_artifact":"scope_expansion_request","owner":"repository_owner"},
+    {"condition":"new_external_dependency_required","outcome":"PROPOSE","next_action":"compare existing and new dependency options","required_artifact":"dependency_proposal","owner":"architecture_and_supply_chain_owner"},
+    {"condition":"authorization_semantics_change_required","outcome":"STOP","next_action":"route the changed authority model for decision","required_artifact":"authorization_change_request","owner":"security_and_product_owner"},
+    {"condition":"policy_exception_required","outcome":"STOP","next_action":"preserve the governing rule and request an exception separately","required_artifact":"governance_escalation","owner":"policy_owner"},
+    {"condition":"evidence_requirement_cannot_be_satisfied","outcome":"ASK","next_action":"identify the missing factual prerequisite and blocked verification","required_artifact":"evidence_gap_request","owner":"quality_owner"}
+  ],
+  "contract_registry":[
+    {"id":"ProposedUpdate@2","revision":"v2","producer_work_unit_id":"AWU-BR-CONTRACT","consumer_work_unit_ids":["AWU-BR-EXTRACTION","AWU-BR-VALIDATION","AWU-BR-CONFLICT","AWU-BR-REVIEW","AWU-BR-INTEGRATION"]},
+    {"id":"ValidationResult","revision":"v1","producer_work_unit_id":"AWU-BR-VALIDATION","consumer_work_unit_ids":["AWU-BR-CONFLICT","AWU-BR-INTEGRATION"]},
+    {"id":"ConflictResult","revision":"v1","producer_work_unit_id":"AWU-BR-CONFLICT","consumer_work_unit_ids":["AWU-BR-REVIEW","AWU-BR-INTEGRATION"]},
+    {"id":"ReviewRequest","revision":"v1","producer_work_unit_id":"AWU-BR-REVIEW","consumer_work_unit_ids":["AWU-BR-INTEGRATION"]}
+  ],
+  "permission_profiles":[
+    {"id":"PERM-AWU-BR-CONTRACT","work_unit_id":"AWU-BR-CONTRACT","requested_by":"planning_owner","grant_state":"planned_not_provisioned","repositories":{"underwriter-assistant":"write"},"writable_paths":["src/underwriting/proposals.py","tests/contracts/test_proposed_update.py"],"lifecycle":"work_unit_bound_temporary","revocation_trigger":"verified_or_cancelled","self_provisioning_allowed":false},
+    {"id":"PERM-AWU-BR-EXTRACTION","work_unit_id":"AWU-BR-EXTRACTION","requested_by":"planning_owner","grant_state":"planned_not_provisioned","repositories":{"underwriter-assistant":"write"},"writable_paths":["src/broker/extraction.py","tests/broker/test_extraction.py"],"lifecycle":"work_unit_bound_temporary","revocation_trigger":"verified_or_cancelled","self_provisioning_allowed":false},
+    {"id":"PERM-AWU-BR-VALIDATION","work_unit_id":"AWU-BR-VALIDATION","requested_by":"planning_owner","grant_state":"planned_not_provisioned","repositories":{"underwriter-assistant":"write"},"writable_paths":["src/underwriting/validation.py","tests/underwriting/test_validation.py"],"lifecycle":"work_unit_bound_temporary","revocation_trigger":"verified_or_cancelled","self_provisioning_allowed":false},
+    {"id":"PERM-AWU-BR-CONFLICT","work_unit_id":"AWU-BR-CONFLICT","requested_by":"planning_owner","grant_state":"planned_not_provisioned","repositories":{"underwriter-assistant":"write"},"writable_paths":["src/underwriting/conflicts.py","tests/underwriting/test_conflicts.py"],"lifecycle":"work_unit_bound_temporary","revocation_trigger":"verified_or_cancelled","self_provisioning_allowed":false},
+    {"id":"PERM-AWU-BR-REVIEW","work_unit_id":"AWU-BR-REVIEW","requested_by":"planning_owner","grant_state":"planned_not_provisioned","repositories":{"underwriter-assistant":"write"},"writable_paths":["src/review/service.py","tests/review/test_service.py"],"lifecycle":"work_unit_bound_temporary","revocation_trigger":"verified_or_cancelled","self_provisioning_allowed":false},
+    {"id":"PERM-AWU-BR-INTEGRATION","work_unit_id":"AWU-BR-INTEGRATION","requested_by":"planning_owner","grant_state":"planned_not_provisioned","repositories":{"underwriter-assistant":"write"},"writable_paths":["tests/integration/test_broker_response_flow.py"],"lifecycle":"work_unit_bound_temporary","revocation_trigger":"verified_or_cancelled","self_provisioning_allowed":false}
   ],
   "work_units":[
     {
@@ -17,6 +42,8 @@
       "required_reviewers":["underwriting_platform"],
       "protected_decisions":["proposal_semantics","authoritative_state_boundary"],
       "readiness_evidence_ids":["SPEC-APPROVAL-2219","REPO-SNAPSHOT-ABC123","ARCH-CONTEXT-20260920","INSTRUCTIONS-UW-V4","PERMISSION-PROFILES-2219","EVIDENCE-PLANS-2219"],
+      "verification_prerequisite_ids":["VERIFICATION-INFRA-2219"],
+      "permission_profile_id":"PERM-AWU-BR-CONTRACT",
       "capability":"contract_definition",
       "goal":"Extend the ProposedUpdate contract with versioned source-provenance fields without creating mutation authority.",
       "deliverable":"A backward-compatible ProposedUpdate contract and contract tests.",
@@ -28,7 +55,7 @@
       "read_only_paths":["src/underwriting/submission.py"],
       "verification":{"acceptance_ids":["AC-BR-030-A","AC-SEC-BR-001"],"required_checks":["contract","compatibility","static_tool_boundary"],"evidence_outputs":["EVID-CONTRACT-2219"]},
       "completion_requires":["code","tests","evidence","traceability_update"],
-      "stop_conditions":["contract_change_required","protected_path_change_required","requirement_conflict","architecture_change_required","new_external_dependency_required","authorization_behavior_change_required"],
+      "stop_conditions":["requirement_conflict_detected","architecture_change_required","shared_contract_change_required","protected_path_change_required","new_external_dependency_required","authorization_semantics_change_required","policy_exception_required","evidence_requirement_cannot_be_satisfied"],
       "agent_authority":{"may_decide":["field_serialization","local_test_structure"],"may_propose":["contract_revision","migration_need"],"may_not_decide":["persistence_architecture","mutation_authority","policy_exception"]},
       "estimated_work_units":3
     },
@@ -39,6 +66,8 @@
       "required_reviewers":["broker_integrations","underwriting_platform"],
       "protected_decisions":["broker_authorization","proposal_contract","mutation_eligibility"],
       "readiness_evidence_ids":["SPEC-APPROVAL-2219","REPO-SNAPSHOT-ABC123","ARCH-CONTEXT-20260920","INSTRUCTIONS-UW-V4","PERMISSION-PROFILES-2219","EVIDENCE-PLANS-2219"],
+      "verification_prerequisite_ids":["VERIFICATION-INFRA-2219"],
+      "permission_profile_id":"PERM-AWU-BR-EXTRACTION",
       "capability":"extraction",
       "goal":"Produce ProposedUpdate records with complete provenance from authenticated broker responses.",
       "deliverable":"A bounded extraction adapter and provenance-focused tests.",
@@ -50,7 +79,7 @@
       "read_only_paths":["src/broker/ingestion.py","src/underwriting/proposals.py"],
       "verification":{"acceptance_ids":["AC-BR-003-A","AC-BR-030-A"],"required_checks":["unit","contract","provenance_fixture"],"evidence_outputs":["EVID-EXTRACTION-2219"]},
       "completion_requires":["code","tests","evidence","traceability_update"],
-      "stop_conditions":["contract_change_required","protected_path_change_required","requirement_conflict","architecture_change_required","new_external_dependency_required","authorization_behavior_change_required"],
+      "stop_conditions":["requirement_conflict_detected","architecture_change_required","shared_contract_change_required","protected_path_change_required","new_external_dependency_required","authorization_semantics_change_required","policy_exception_required","evidence_requirement_cannot_be_satisfied"],
       "agent_authority":{"may_decide":["helper_functions","local_error_types","test_organization"],"may_propose":["contract_change","new_dependency","architecture_change"],"may_not_decide":["broker_authorization","mutation_eligibility","policy_exception"]},
       "estimated_work_units":4
     },
@@ -61,6 +90,8 @@
       "required_reviewers":["underwriting_domain"],
       "protected_decisions":["domain_policy","proposal_contract","mutation_eligibility"],
       "readiness_evidence_ids":["SPEC-APPROVAL-2219","REPO-SNAPSHOT-ABC123","ARCH-CONTEXT-20260920","INSTRUCTIONS-UW-V4","PERMISSION-PROFILES-2219","EVIDENCE-PLANS-2219"],
+      "verification_prerequisite_ids":["VERIFICATION-INFRA-2219"],
+      "permission_profile_id":"PERM-AWU-BR-VALIDATION",
       "capability":"validation",
       "goal":"Validate ProposedUpdate values against current deterministic domain rules.",
       "deliverable":"A validator adapter with boundary and unavailable-rule tests.",
@@ -72,7 +103,7 @@
       "read_only_paths":["src/underwriting/proposals.py"],
       "verification":{"acceptance_ids":["AC-BR-003-A","AC-BR-030-A"],"required_checks":["unit","boundary","failure"],"evidence_outputs":["EVID-VALIDATION-2219"]},
       "completion_requires":["code","tests","evidence","traceability_update"],
-      "stop_conditions":["contract_change_required","protected_path_change_required","requirement_conflict","architecture_change_required","new_external_dependency_required","authorization_behavior_change_required"],
+      "stop_conditions":["requirement_conflict_detected","architecture_change_required","shared_contract_change_required","protected_path_change_required","new_external_dependency_required","authorization_semantics_change_required","policy_exception_required","evidence_requirement_cannot_be_satisfied"],
       "agent_authority":{"may_decide":["local_validation_helpers","error_mapping","test_organization"],"may_propose":["field_rule_contract_change","new_dependency"],"may_not_decide":["domain_policy","authorization_semantics","policy_exception"]},
       "estimated_work_units":3
     },
@@ -83,6 +114,8 @@
       "required_reviewers":["underwriting_risk","product_security"],
       "protected_decisions":["verified_value_replacement","conflict_semantics","mutation_authority"],
       "readiness_evidence_ids":["SPEC-APPROVAL-2219","REPO-SNAPSHOT-ABC123","ARCH-CONTEXT-20260920","INSTRUCTIONS-UW-V4","PERMISSION-PROFILES-2219","EVIDENCE-PLANS-2219"],
+      "verification_prerequisite_ids":["VERIFICATION-INFRA-2219"],
+      "permission_profile_id":"PERM-AWU-BR-CONFLICT",
       "capability":"conflict_detection",
       "goal":"Classify verified-value conflicts without changing authoritative submission state.",
       "deliverable":"A deterministic conflict classifier with safety-invariant evidence.",
@@ -94,7 +127,7 @@
       "read_only_paths":["src/underwriting/proposals.py","src/underwriting/submission.py"],
       "verification":{"acceptance_ids":["AC-BR-005-A","AC-SEC-BR-001"],"required_checks":["unit","property","state_unchanged"],"evidence_outputs":["EVID-CONFLICT-2219"]},
       "completion_requires":["code","tests","evidence","traceability_update"],
-      "stop_conditions":["contract_change_required","protected_path_change_required","requirement_conflict","architecture_change_required","new_external_dependency_required","authorization_behavior_change_required"],
+      "stop_conditions":["requirement_conflict_detected","architecture_change_required","shared_contract_change_required","protected_path_change_required","new_external_dependency_required","authorization_semantics_change_required","policy_exception_required","evidence_requirement_cannot_be_satisfied"],
       "agent_authority":{"may_decide":["classifier_helpers","reason_code_structure","test_organization"],"may_propose":["contract_change","architecture_change"],"may_not_decide":["verified_value_replacement","mutation_authority","policy_exception"]},
       "estimated_work_units":4
     },
@@ -105,6 +138,8 @@
       "required_reviewers":["underwriting_risk","underwriting_platform"],
       "protected_decisions":["approver_authority","approval_scope","receipt_consumption"],
       "readiness_evidence_ids":["SPEC-APPROVAL-2219","REPO-SNAPSHOT-ABC123","ARCH-CONTEXT-20260920","INSTRUCTIONS-UW-V4","PERMISSION-PROFILES-2219","EVIDENCE-PLANS-2219"],
+      "verification_prerequisite_ids":["VERIFICATION-INFRA-2219"],
+      "permission_profile_id":"PERM-AWU-BR-REVIEW",
       "capability":"human_review_workflow",
       "goal":"Integrate conflicting proposals with the existing ReviewService and exact approval-receipt contract.",
       "deliverable":"Review workflow integration that cannot self-approve or mutate submission state.",
@@ -116,7 +151,7 @@
       "read_only_paths":["src/underwriting/conflicts.py","src/underwriting/submission.py"],
       "verification":{"acceptance_ids":["AC-BR-037-A","AC-BR-005-A","AC-SEC-BR-001"],"required_checks":["unit","receipt_binding","replay_rejection"],"evidence_outputs":["EVID-REVIEW-2219"]},
       "completion_requires":["code","tests","evidence","traceability_update"],
-      "stop_conditions":["contract_change_required","protected_path_change_required","requirement_conflict","architecture_change_required","new_external_dependency_required","authorization_behavior_change_required"],
+      "stop_conditions":["requirement_conflict_detected","architecture_change_required","shared_contract_change_required","protected_path_change_required","new_external_dependency_required","authorization_semantics_change_required","policy_exception_required","evidence_requirement_cannot_be_satisfied"],
       "agent_authority":{"may_decide":["local_adapter_structure","error_handling","test_organization"],"may_propose":["review_contract_change","architecture_change"],"may_not_decide":["approver_authority","receipt_scope","automatic_mutation_eligibility"]},
       "estimated_work_units":4
     },
@@ -127,6 +162,8 @@
       "required_reviewers":["underwriting_platform","underwriting_quality"],
       "protected_decisions":["component_ownership","production_readiness","automatic_mutation_eligibility"],
       "readiness_evidence_ids":["SPEC-APPROVAL-2219","REPO-SNAPSHOT-ABC123","ARCH-CONTEXT-20260920","INSTRUCTIONS-UW-V4","PERMISSION-PROFILES-2219","EVIDENCE-PLANS-2219"],
+      "verification_prerequisite_ids":["VERIFICATION-INFRA-2219"],
+      "permission_profile_id":"PERM-AWU-BR-INTEGRATION",
       "capability":"human_review_workflow",
       "goal":"Verify the bounded broker-response proposal flow across established component contracts.",
       "deliverable":"An end-to-end integration test and traceability update without production mutation claims.",
@@ -138,7 +175,7 @@
       "read_only_paths":["src/broker/extraction.py","src/underwriting/validation.py","src/underwriting/conflicts.py","src/review/service.py","src/underwriting/submission.py"],
       "verification":{"acceptance_ids":["AC-BR-003-A","AC-BR-005-A","AC-BR-030-A","AC-BR-037-A","AC-SEC-BR-001"],"required_checks":["integration","traceability","forbidden_mutation"],"evidence_outputs":["EVID-INTEGRATION-2219"]},
       "completion_requires":["tests","evidence","traceability_update"],
-      "stop_conditions":["contract_change_required","protected_path_change_required","requirement_conflict","architecture_change_required","new_external_dependency_required","authorization_behavior_change_required"],
+      "stop_conditions":["requirement_conflict_detected","architecture_change_required","shared_contract_change_required","protected_path_change_required","new_external_dependency_required","authorization_semantics_change_required","policy_exception_required","evidence_requirement_cannot_be_satisfied"],
       "agent_authority":{"may_decide":["fixture_structure","assertion_helpers"],"may_propose":["integration_contract_change","missing_observability"],"may_not_decide":["production_readiness","release_approval","automatic_mutation_eligibility"]},
       "estimated_work_units":3
     }

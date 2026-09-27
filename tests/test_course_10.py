@@ -142,6 +142,18 @@ class Course10PlanningTests(unittest.TestCase):
         plan["work_units"][0]["stop_conditions"] = []
         self.assertIn("WORK_UNIT_STOP_CONDITIONS_INCOMPLETE", self.finding_codes(lab.validate_work_units(plan, self.reference["specification"], self.reference["repository"])))
 
+    def test_stop_catalog_routes_all_eight_conditions(self):
+        catalog = self.reference["plan"]["stop_condition_catalog"]
+        self.assertEqual(8, len(catalog))
+        self.assertEqual({"ASK", "PROPOSE", "STOP"}, {item["outcome"] for item in catalog})
+        self.assertTrue(all(item["required_artifact"] and item["next_action"] and item["owner"] for item in catalog))
+
+    def test_undefined_stop_action_is_detected(self):
+        plan = copy.deepcopy(self.reference["plan"])
+        plan["work_units"][0]["stop_conditions"].append("unexpected_problem")
+        findings = lab.validate_work_units(plan, self.reference["specification"], self.reference["repository"])
+        self.assertIn("WORK_UNIT_STOP_ACTION_UNDEFINED", self.finding_codes(findings))
+
     def test_readiness_requires_linked_current_evidence(self):
         plan = copy.deepcopy(self.reference["plan"])
         plan["work_units"][0]["readiness_evidence_ids"] = []
@@ -151,6 +163,25 @@ class Course10PlanningTests(unittest.TestCase):
         plan = copy.deepcopy(self.reference["plan"])
         plan["readiness_evidence_catalog"][0]["status"] = "stale"
         self.assertIn("WORK_UNIT_READINESS_EVIDENCE_INVALID", self.finding_codes(lab.validate_work_units(plan, self.reference["specification"], self.reference["repository"])))
+
+    def test_missing_verification_infrastructure_does_not_hide_dispatch_state(self):
+        plan = copy.deepcopy(self.reference["plan"])
+        next(item for item in plan["readiness_evidence_catalog"] if item["id"] == "VERIFICATION-INFRA-2219")["status"] = "missing"
+        readiness = lab.ready_work_units(plan)
+        self.assertEqual(["AWU-BR-CONTRACT"], readiness["ready"])
+        self.assertIn("AWU-BR-CONTRACT", readiness["verification_prerequisites_blocked"])
+
+    def test_permission_profiles_are_temporary_requests_not_grants(self):
+        for profile in self.reference["plan"]["permission_profiles"]:
+            self.assertEqual("planned_not_provisioned", profile["grant_state"])
+            self.assertEqual("work_unit_bound_temporary", profile["lifecycle"])
+            self.assertFalse(profile["self_provisioning_allowed"])
+
+    def test_self_provisioned_permission_is_detected(self):
+        plan = copy.deepcopy(self.reference["plan"])
+        plan["permission_profiles"][0]["self_provisioning_allowed"] = True
+        findings = lab.validate_work_units(plan, self.reference["specification"], self.reference["repository"])
+        self.assertIn("EXECUTION_PERMISSION_PROFILE_INVALID", self.finding_codes(findings))
 
     def test_reference_graph_has_five_waves(self):
         schedule = lab.topological_waves(self.reference["plan"])
@@ -164,6 +195,19 @@ class Course10PlanningTests(unittest.TestCase):
     def test_cycle_is_detected(self):
         plan = {"work_units": [{"id": "A", "depends_on": ["B"]}, {"id": "B", "depends_on": ["A"]}]}
         self.assertIn("WORK_GRAPH_CYCLE", self.finding_codes(lab.validate_dependency_graph(plan)))
+
+    def test_reference_contract_registry_matches_graph(self):
+        self.assertEqual([], lab.validate_contract_dependencies(self.reference["plan"]))
+
+    def test_hidden_contract_dependency_is_detected(self):
+        plan = copy.deepcopy(self.reference["plan"])
+        next(item for item in plan["work_units"] if item["id"] == "AWU-BR-VALIDATION")["depends_on"] = []
+        self.assertIn("UNDECLARED_CONTRACT_DEPENDENCY", self.finding_codes(lab.validate_contract_dependencies(plan)))
+
+    def test_critical_path_uses_coarse_indicators(self):
+        result = lab.critical_path(self.reference["plan"])
+        self.assertEqual(["AWU-BR-CONTRACT", "AWU-BR-EXTRACTION", "AWU-BR-CONFLICT", "AWU-BR-REVIEW", "AWU-BR-INTEGRATION"], result["path"])
+        self.assertIn("not_elapsed_time", result["unit"])
 
     def test_total_work_and_elapsed_are_separate(self):
         metrics = lab.coordination_metrics(self.reference["plan"])
@@ -186,6 +230,12 @@ class Course10PlanningTests(unittest.TestCase):
     def test_execution_context_preserves_protected_decisions(self):
         context = lab.generate_execution_context(self.reference, "AWU-BR-EXTRACTION")
         self.assertIn("mutation_eligibility", context["protected_decisions"])
+
+    def test_execution_context_contains_routed_stops_and_permission_request(self):
+        context = lab.generate_execution_context(self.reference, "AWU-BR-EXTRACTION")
+        self.assertEqual(8, len(context["stop_conditions"]))
+        self.assertEqual("planned_not_provisioned", context["permission_request"]["grant_state"])
+        self.assertEqual("VERIFICATION-INFRA-2219", context["verification_prerequisites"][0]["id"])
 
     def test_candidate_cannot_generate_execution_context(self):
         with self.assertRaises(ValueError):
@@ -213,6 +263,23 @@ class Course10PlanningTests(unittest.TestCase):
         context = lab.generate_execution_context(self.reference, report["work_unit_id"])
         self.assertEqual(context["plan_digest"], report["input_context_digest"])
         self.assertEqual([], lab.validate_completion_report(unit, report, actual_changed_paths=report["actual_changed_paths"]))
+
+    def test_reference_plan_separates_readiness_and_deferred_work(self):
+        self.assertEqual({"implementation", "merge", "enablement"}, set(self.reference["plan"]["readiness_layers"]))
+        self.assertTrue(self.reference["plan"]["future_work"][0]["not_scheduled"])
+        self.assertEqual([], lab.validate_plan_assurance(self.reference["plan"]))
+
+    def test_rollout_boundary_forbids_implicit_enablement(self):
+        rollout = json.loads((LESSON / "northstar-implementation-plan" / "reference" / "rollout-boundary.json").read_text(encoding="utf-8"))
+        self.assertEqual("NOT_AUTHORIZED_FOR_ENABLEMENT", rollout["status"])
+        self.assertEqual(2, len(rollout["shadow_requirements"]))
+        self.assertIn("do not authorize", rollout["boundary"])
+
+    def test_escalation_artifacts_preserve_proposal_boundary(self):
+        artifacts = json.loads((LESSON / "northstar-implementation-plan" / "reference" / "escalation-artifacts.json").read_text(encoding="utf-8"))
+        self.assertEqual("ASK", artifacts["clarification_request"]["outcome"])
+        self.assertEqual("PROPOSED_NOT_APPROVED", artifacts["architecture_proposal"]["state"])
+        self.assertEqual("PROPOSED_NOT_APPROVED", artifacts["dependency_proposal"]["state"])
 
     def test_completion_detects_path_scope_violation(self):
         unit = self.reference["plan"]["work_units"][0]
@@ -249,8 +316,8 @@ class Course10PlanningTests(unittest.TestCase):
 
     def test_labelled_evaluation_is_exact(self):
         result = lab.evaluate_planning_rules()
-        self.assertEqual((23, 21, 0, 0), (result["population"], result["true_positive"], result["false_positive"], result["false_negative"]))
-        self.assertEqual({"numerator": 23, "denominator": 23}, result["exact_matches"])
+        self.assertEqual((30, 30, 0, 0), (result["population"], result["true_positive"], result["false_positive"], result["false_negative"]))
+        self.assertEqual({"numerator": 30, "denominator": 30}, result["exact_matches"])
 
     def test_evaluation_claim_is_bounded(self):
         self.assertIn("not_general", lab.evaluate_planning_rules()["claim"])

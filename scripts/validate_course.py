@@ -1568,6 +1568,8 @@ def check_course_10_implementation_planning() -> list[str]:
         "reference/work-units.json",
         "reference/contract-change-request.json",
         "reference/completion-report.json",
+        "reference/rollout-boundary.json",
+        "reference/escalation-artifacts.json",
         "workshop/starter/README.md",
         "workshop/starter/discovery.json",
         "workshop/starter/plan.json",
@@ -1609,8 +1611,8 @@ def check_course_10_implementation_planning() -> list[str]:
 
     candidate = report.get("candidate", {})
     candidate_review = candidate.get("review", {})
-    if candidate_review.get("counts") != {"blocking": 28, "review": 5}:
-        errors.append("Course 10 unsafe candidate must retain 28 blocking and five review findings")
+    if candidate_review.get("counts") != {"blocking": 31, "review": 9}:
+        errors.append("Course 10 unsafe candidate must retain 31 blocking and nine review findings")
     candidate_decision = candidate.get("decision", {})
     if candidate_decision.get("state") != "PLAN_REQUIRES_ARCHITECTURE" or candidate_decision.get("ready_for_dispatch") is not False:
         errors.append("Course 10 unsafe candidate must stop for architecture review")
@@ -1644,6 +1646,9 @@ def check_course_10_implementation_planning() -> list[str]:
     ]
     if schedule.get("acyclic") is not True or schedule.get("waves") != expected_waves:
         errors.append("Course 10 reference must retain the five-wave dependency schedule")
+    critical = reference_review.get("critical_path", {})
+    if critical.get("path") != ["AWU-BR-CONTRACT", "AWU-BR-EXTRACTION", "AWU-BR-CONFLICT", "AWU-BR-REVIEW", "AWU-BR-INTEGRATION"] or "not_elapsed_time" not in critical.get("unit", ""):
+        errors.append("Course 10 must retain a dependency critical path without presenting estimates as elapsed time")
     disposition = reference_review.get("disposition_metrics", {}).get("requirements_with_disposition", {})
     if (disposition.get("numerator"), disposition.get("denominator")) != (6, 6):
         errors.append("Course 10 reference must retain six of six requirement dispositions")
@@ -1659,6 +1664,22 @@ def check_course_10_implementation_planning() -> list[str]:
     change_request = json.loads((scenario / "reference" / "contract-change-request.json").read_text(encoding="utf-8"))
     if set(change_request.get("affected_work_unit_ids", [])) != {"AWU-BR-CONFLICT", "AWU-BR-REVIEW", "AWU-BR-INTEGRATION"}:
         errors.append("Course 10 contract-change request must preserve transitive downstream impact")
+    work_units = json.loads((scenario / "reference" / "work-units.json").read_text(encoding="utf-8"))
+    if len(work_units.get("stop_condition_catalog", [])) != 8 or {item.get("outcome") for item in work_units.get("stop_condition_catalog", [])} != {"ASK", "PROPOSE", "STOP"}:
+        errors.append("Course 10 reference must route eight stop conditions through ASK, PROPOSE, and STOP")
+    permissions = work_units.get("permission_profiles", [])
+    if len(permissions) != 6 or any(item.get("grant_state") != "planned_not_provisioned" or item.get("self_provisioning_allowed") is not False for item in permissions):
+        errors.append("Course 10 permission profiles must remain temporary external requests, never self-grants")
+    rollout = json.loads((scenario / "reference" / "rollout-boundary.json").read_text(encoding="utf-8"))
+    if rollout.get("status") != "NOT_AUTHORIZED_FOR_ENABLEMENT" or len(rollout.get("shadow_requirements", [])) != 2:
+        errors.append("Course 10 rollout boundary must preserve shadow safety and blocked enablement")
+    escalation = json.loads((scenario / "reference" / "escalation-artifacts.json").read_text(encoding="utf-8"))
+    if {
+        escalation.get("clarification_request", {}).get("outcome"),
+        escalation.get("architecture_proposal", {}).get("outcome"),
+        escalation.get("dependency_proposal", {}).get("outcome"),
+    } != {"ASK", "PROPOSE"} or "neither" not in escalation.get("boundary", ""):
+        errors.append("Course 10 escalation examples must distinguish useful requests/proposals from authority")
 
     evaluation = report.get("evaluation", {})
     exact = evaluation.get("exact_matches", {})
@@ -1669,14 +1690,14 @@ def check_course_10_implementation_planning() -> list[str]:
         evaluation.get("false_negative"),
         exact.get("numerator"),
         exact.get("denominator"),
-    ) != (23, 21, 0, 0, 23, 23):
-        errors.append("Course 10 labelled fixture evaluation must retain 23 exact cases and 21 expected findings")
+    ) != (30, 30, 0, 0, 30, 30):
+        errors.append("Course 10 labelled fixture evaluation must retain 30 exact cases and 30 expected findings")
     if "not_general" not in evaluation.get("claim", ""):
         errors.append("Course 10 evaluation claim must disclose its labelled-fixture boundary")
 
     quiz_source = (ROOT / "quiz" / "questions.js").read_text(encoding="utf-8")
-    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 138:
-        errors.append("Course 10 cumulative quiz must contain 138 questions")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 146:
+        errors.append("Course 10 cumulative quiz must contain 146 questions")
     if "Courses 01–10" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
         errors.append("Course 10 cumulative quiz must identify Courses 01–10")
     hub_source = (ROOT / "hub" / "lessons.js").read_text(encoding="utf-8")

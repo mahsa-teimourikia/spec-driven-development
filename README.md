@@ -151,9 +151,13 @@ Course 10 turns an approved specification into a bounded, evidence-backed execut
 - disposition every applicable requirement and trace intent through work units, tasks, semantic code areas, and evidence;
 - decompose cohesive work around stable contracts, exclusive write ownership, accountable teams, and decision authority;
 - schedule dependency-aware execution waves without treating maximum concurrency as useful parallelism;
+- compare contract-inferred and explicit dependencies, identify a coarse-indicator critical path, and scope unknowns to affected units;
+- route consequential discovery through typed clarification, architecture, contract, dependency, scope, policy, or evidence artifacts;
+- keep permission requests least-privilege, temporary, work-unit-bound, and externally provisioned;
 - route mid-flight contract changes through impact analysis and targeted replanning;
 - detect both path-level and semantic scope expansion; and
-- distinguish executor completion from independent verification and integration evidence.
+- distinguish executor completion from independent verification and integration evidence; and
+- separate implementation, merge, release, rollout, shadow, and enablement readiness.
 
 ## Run locally
 

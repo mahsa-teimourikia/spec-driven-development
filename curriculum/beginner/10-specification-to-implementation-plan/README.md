@@ -263,6 +263,18 @@ The theoretical number of simultaneously ready nodes is not the useful concurren
 
 Track total effort separately from dependency-aware elapsed waves. Parallel work does not make review, integration, or coordination free.
 
+### Contract ownership and hidden dependencies
+
+An explicit graph can still be wrong. If `AWU-BR-CONTRACT` owns `ProposedUpdate@2` and validation consumes that contract, validation needs a dependency path from the contract unit even when no engineer typed the edge. Keep a contract registry with one authoritative producer, revision, and known consumers. Infer candidate edges from producer/consumer relationships, compare them with explicit semantic dependencies, and report `UNDECLARED_CONTRACT_DEPENDENCY` rather than silently rewriting the graph.
+
+Some dependencies are semantic rather than artifact-shaped. Conflict handling may rely on validation semantics even when it does not exchange a new file. Use explicit dependencies plus inferred contract dependencies, then review disagreements. Before dispatch, validate that every dependency exists, the graph is acyclic, blocked capabilities are absent, contract producers precede consumers, parallel write sets do not overlap, and integration depends on its producers.
+
+### Critical path without fake duration precision
+
+The longest dependency path identifies which sequence constrains progress. In the reference it is contract → extraction → conflict → review → integration; validation runs beside extraction. The lab computes this from coarse work indicators, not “2.3-hour” promises. Preserve uncertainty, dependency risk, reviewer availability, and unknown count instead of presenting agent-generated duration estimates as fact.
+
+Use a risk register only when it changes execution: each risk names affected units and a discovery, sequencing, evidence, or stop mitigation. An unknown ReviewService capability may block review and integration without blocking independent contract, extraction, and validation work. Scoped uncertainty preserves useful parallelism.
+
 ## 10. Build a bounded execution context
 
 At dispatch, assemble only the context required by the work unit:
@@ -280,18 +292,32 @@ At dispatch, assemble only the context required by the work unit:
 
 An execution-context digest makes later reports comparable. It is not a security token and must not contain secrets. Runtime credentials and sandbox policy belong to the execution platform.
 
+The permission profile is a request, not a grant. It must match the exact repositories and writable paths, remain work-unit-bound and temporary, and name its revocation trigger. A planning or execution agent must never approve or provision its own access. Cross-repository work should normally be decomposed into contract, producer, and consumer units with narrower permission surfaces and an explicit publication/version-compatibility edge.
+
 ## 11. Make stop conditions concrete
 
 Every work unit in the lab must stop when it discovers:
 
-- a required contract change;
-- a required protected-path change;
 - a requirement conflict;
 - a required architecture change;
+- a required shared-contract change;
+- a required protected-path change;
 - a new external dependency;
-- a change to authorization behavior.
+- a change to authorization semantics;
+- a required policy exception;
+- an evidence requirement it cannot satisfy.
 
 The agent should return a typed outcome such as `BLOCKED`, `PAUSED`, `SCOPE_EXPANSION_REQUIRED`, `REVALIDATION_REQUIRED`, or `VERIFICATION_FAILED`. “Best effort complete” hides precisely the information the planner needs.
+
+Do not stop with an unhelpful word. Route each condition with a next action, required artifact, and accountable owner:
+
+| Outcome | Meaning | Example artifact |
+|---|---|---|
+| `ASK` | A factual input is missing | Clarification or evidence-gap request |
+| `PROPOSE` | The agent can recommend but cannot decide | Architecture, contract, or dependency proposal |
+| `STOP` | Continuing would cross an authority or safety boundary | Scope-expansion request or governance escalation |
+
+A clarification request records what is unknown, why a requirement needs it, which task it blocks, which work can continue, and who owns the answer. An architecture proposal records drivers, alternatives, and trade-offs but is not an approved ADR. A dependency proposal compares existing capabilities with the new package and exposes supply-chain, maintenance, and operational impact. Stopping should produce useful planning evidence without manufacturing authority.
 
 ## 12. Replan through a change-impact path
 
@@ -339,6 +365,31 @@ stateDiagram-v2
 
 A completion report should include the input context digest, actual changed paths, semantic actions, tests run, evidence IDs, deviations, unresolved items, and typed status. Compare plan versus actual at work-unit and aggregate levels; investigate divergence instead of rewarding conformance to a stale plan.
 
+### Evidence-aware scheduling
+
+Implementation readiness and verification readiness can differ. A unit may have enough information and permission planning to write bounded code while its representative evaluation dataset or integration environment is unavailable. Report this as “implementation may proceed; verification blocked,” never as fully ready. Conversely, missing requirements, architecture, authority, or safe scope block dispatch itself.
+
+### Keep implementation, rollout, and release separate
+
+```mermaid
+flowchart TD
+    S[Change specification] --> P[Implementation plan]
+    P --> W[Work units and tasks]
+    W --> I[Integration plan]
+    I --> R[Release and rollout plan]
+    R --> E[Enablement decision]
+```
+
+Implementation asks how to build. Integration asks whether independently reviewed increments work together. Release covers deployment, migration, monitoring, and rollback. Rollout governs exposure through shadow, limited-cohort, and expanded-cohort phases. Code completion, merge readiness, and enablement readiness are different states.
+
+A dark launch also needs requirements. Shadow execution must not mutate authoritative state or communicate externally, and shadow results need safe correlation for offline evaluation without changing production decisions. The reference `rollout-boundary.json` records these rules while keeping shadow execution blocked pending separate approval.
+
+Feature flags do not collapse these decisions. Implementation may be plan-ready while merge remains unassessed and enablement remains blocked. High-risk speculative behavior should not be implemented merely because a flag could disable it; implementation itself needs approved scope.
+
+### PRs, repositories, and compatibility
+
+One cohesive work unit per reviewable PR is a useful default, not a law. Multi-repository work may require a schema publication, producer upgrade, then consumer upgrade. Represent publication as a dependency and state whether compatibility uses consumer-first sequencing, dual-read, dual-write, or another approved strategy. Avoid one agent with permanent write access to many repositories when narrower contract/producer/consumer units can achieve the same result.
+
 ## 14. Feasibility feedback is not scope authority
 
 Planning can reveal that a requirement is infeasible, disproportionately expensive, inconsistent with the repository, or dependent on an unresolved architecture decision. That is valuable feedback.
@@ -383,6 +434,18 @@ Naming an execution agent as accountable owner removes the organizational decisi
 
 “Add Redis” or “create a service” is an architecture proposal unless already decided.
 
+### Undefined stop conditions
+
+“Stop if needed” lets the agent decide both the boundary and the remedy. Use complete typed stop routing with an artifact and owner.
+
+### Self-provisioned or excessive permissions
+
+A planner that grants itself infrastructure, authentication, or deployment access has crossed the control-plane boundary. Permission requests must be least-privilege, temporary, externally approved, and revocable.
+
+### Conflated readiness
+
+“Ready” can hide that code is writable while verification data is absent, merge has not been assessed, or enablement remains unauthorized. Preserve the separate states.
+
 ### Happy-path completion
 
 Treating generated code or a green unit test as completion ignores evidence population, independent verification, integration, security, and release gates.
@@ -422,7 +485,9 @@ The reference should produce:
 - six of six requirements with a disposition;
 - six of six complete requirement-to-evidence chains;
 - an acyclic five-wave plan with extraction and validation in parallel;
-- 23/23 exact labelled-fixture evaluation cases.
+- a coarse-indicator critical path of contract → extraction → conflict → review → integration;
+- typed stop routing, contract ownership, temporary permission requests, and separate rollout boundaries;
+- 30/30 exact labelled-fixture evaluation cases.
 
 The unsafe candidate should stop. It schedules a blocked capability, invents architecture, uses stale provenance, has missing dispositions, grants wildcard/protected writes, lacks evidence-backed readiness, creates collisions and a cycle, and contains an orphan external-dependency task.
 
@@ -439,7 +504,8 @@ Open `implementation_planning.ipynb` and run all cells. You will:
 5. test a contract-change impact request;
 6. distinguish path scope from semantic scope;
 7. exercise verified and integrated lifecycle gates;
-8. evaluate 23 disclosed labelled cases.
+8. inspect contract-derived dependencies, stop routing, critical path, and separate verification readiness;
+9. evaluate 30 disclosed labelled cases.
 
 ## 19. Workshop exercises
 
@@ -455,7 +521,7 @@ Give every applicable requirement a disposition. For `already_satisfied`, name c
 
 ### Exercise C — Contract-first work units
 
-Create a DAG with exclusive writable paths, read-only downstream contracts, accountable teams, verification outputs, and all six stop conditions.
+Create a DAG with exclusive writable paths, read-only downstream contracts, accountable teams, verification outputs, and all eight stop conditions. Route each condition through `ASK`, `PROPOSE`, or `STOP` with an artifact and owner.
 
 ### Exercise D — Mid-flight change
 
@@ -468,6 +534,14 @@ Write an executor completion report with one deviation. Then write the independe
 ### Exercise F — Lightweight alternative
 
 For a one-line documentation correction, write the smallest safe process. Explain which full-course artifacts you intentionally omit and why.
+
+### Exercise G — Hidden dependency and permission review
+
+Remove the contract edge from validation, then compare the explicit graph with the contract registry. Repair the edge and design a temporary, work-unit-bound permission request that cannot self-provision.
+
+### Exercise H — Rollout boundary
+
+Define shadow-mode requirements and a version-compatibility sequence for a hypothetical separate contract repository. Keep implementation, merge, release, and enablement decisions distinct.
 
 ## 20. When not to use the full model
 
@@ -503,6 +577,12 @@ A lightweight path still needs:
 16. When is a dedicated integration work unit useful?
 17. Why should feasibility feedback not silently rewrite a requirement?
 18. When is the full process disproportionate?
+19. How do explicit semantic dependencies differ from contract-inferred dependencies?
+20. Why is a critical-path work indicator not an elapsed-time prediction?
+21. What must a useful stop condition say beyond `STOP`?
+22. Why must a planning agent not provision its own requested permissions?
+23. When may implementation proceed while verification remains blocked?
+24. What separates implementation, integration, release, rollout, and enablement plans?
 
 ## Authoritative references
 

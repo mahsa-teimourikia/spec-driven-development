@@ -964,5 +964,61 @@ const QUESTIONS = [
     options: ['A low-risk, local, reversible change with obvious scope, one owner, strong checks, and no shared contract impact', 'Any security change with a one-line diff', 'A new authorization rule', 'A schema migration'],
     answer: 0,
     explanation: 'Process depth should follow semantic risk and coordination needs, not diff size alone.'
+  },
+  {
+    category: 'Stop conditions',
+    question: 'What makes a work-unit stop condition operationally useful?',
+    options: ['It names the condition, ASK/PROPOSE/STOP outcome, next action, required artifact, and accountable owner', 'It contains only the word STOP', 'It lets the agent decide any remedy', 'It automatically approves scope expansion'],
+    answer: 0,
+    explanation: 'A routed stop preserves scoped uncertainty and creates useful work without granting decision authority.'
+  },
+  {
+    category: 'Decision routing',
+    question: 'When should an agent PROPOSE rather than ASK or decide?',
+    options: ['When it has enough context to recommend a consequential decision but lacks authority to make it', 'Whenever a factual input is missing', 'Only after deploying code', 'When it wants permanent permissions'],
+    answer: 0,
+    explanation: 'A proposal can contain alternatives and trade-offs while leaving approval with the accountable owner.'
+  },
+  {
+    category: 'Contract dependencies',
+    question: 'Validation consumes ProposedUpdate v2 but declares no dependency path from the work unit that owns that contract. What should plan assurance report?',
+    options: ['UNDECLARED_CONTRACT_DEPENDENCY', 'The graph is valid because the files differ', 'Automatic contract approval', 'Only a style warning'],
+    answer: 0,
+    explanation: 'Contract producer/consumer relationships reveal hidden dependencies that a hand-written DAG may omit.'
+  },
+  {
+    category: 'Critical path',
+    question: 'Why should Course 10 critical-path output use coarse work indicators rather than exact hours?',
+    options: ['Agentic duration predictions are uncertain and should not be presented as fake precision', 'Critical paths never include dependencies', 'Exact estimates authorize execution', 'Hours cannot be recorded in plans'],
+    answer: 0,
+    explanation: 'The path supports sequencing decisions; it is not a reliable elapsed-time promise.'
+  },
+  {
+    category: 'Permission planning',
+    question: 'A planning agent determines that a migration needs elevated access. What should it do?',
+    options: ['Create a scoped, temporary, work-unit-bound request for an authorized control plane', 'Grant itself permanent access', 'Add write access to AGENTS.md', 'Reuse another agent’s credential'],
+    answer: 0,
+    explanation: 'A permission request is not approval or provisioning; self-granting would violate the authority boundary.'
+  },
+  {
+    category: 'Evidence scheduling',
+    question: 'A bounded unit can be implemented, but its representative evaluation dataset is unavailable. Which state is accurate?',
+    options: ['Implementation may proceed while independent verification remains blocked', 'The unit is fully verified', 'Enablement is automatically ready', 'Delete the evidence requirement'],
+    answer: 0,
+    explanation: 'Implementation and verification readiness are separate axes and should not be collapsed into one boolean.'
+  },
+  {
+    category: 'Rollout boundaries',
+    question: 'What does code completion behind a feature flag establish?',
+    options: ['Only implementation progress; merge, release, rollout, and enablement still need their own evidence and authority', 'Production activation approval', 'A safe shadow launch', 'Permission to implement blocked capabilities'],
+    answer: 0,
+    explanation: 'A flag does not replace release governance or approve speculative high-risk behavior.'
+  },
+  {
+    category: 'Multi-repository planning',
+    question: 'A schema producer and consumer live in separate repositories. What should the work graph preserve?',
+    options: ['Artifact publication, version compatibility, release ordering, and narrow per-repository permissions', 'One agent with permanent write access everywhere', 'Only Git commit dependencies', 'No contract revision'],
+    answer: 0,
+    explanation: 'Cross-repository work needs explicit publication and compatibility semantics beyond local Git dependencies.'
   }
 ];

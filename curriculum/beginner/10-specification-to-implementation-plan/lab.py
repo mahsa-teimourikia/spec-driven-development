@@ -72,13 +72,16 @@ ALLOWED_DISPOSITIONS = {
     "implement", "already_satisfied", "blocked", "deferred", "not_applicable"
 }
 REQUIRED_STOP_CONDITIONS = {
-    "contract_change_required",
+    "shared_contract_change_required",
     "protected_path_change_required",
-    "requirement_conflict",
+    "requirement_conflict_detected",
     "architecture_change_required",
     "new_external_dependency_required",
-    "authorization_behavior_change_required",
+    "authorization_semantics_change_required",
+    "policy_exception_required",
+    "evidence_requirement_cannot_be_satisfied",
 }
+ALLOWED_STOP_OUTCOMES = {"ASK", "PROPOSE", "STOP"}
 PLANNING_ONLY_CLAIM = (
     "planning_fixture_only_not_agent_authorization_implementation_evidence_or_release_approval"
 )
@@ -101,6 +104,9 @@ def load_bundle(*, candidate: bool = False) -> dict[str, Any]:
         work_unit_package = load_json(REFERENCE_WORK_UNITS_PATH)
         plan["work_units"] = work_unit_package["work_units"]
         plan["readiness_evidence_catalog"] = work_unit_package["readiness_evidence_catalog"]
+        plan["stop_condition_catalog"] = work_unit_package["stop_condition_catalog"]
+        plan["contract_registry"] = work_unit_package["contract_registry"]
+        plan["permission_profiles"] = work_unit_package["permission_profiles"]
     return {
         "specification": load_json(SPECIFICATION_PATH),
         "repository": load_json(REPOSITORY_PATH),
@@ -304,6 +310,12 @@ def validate_work_units(
     readiness_evidence = {
         item.get("id"): item for item in plan.get("readiness_evidence_catalog", [])
     }
+    stop_catalog = {
+        item.get("condition"): item for item in plan.get("stop_condition_catalog", [])
+    }
+    permission_profiles = {
+        item.get("id"): item for item in plan.get("permission_profiles", [])
+    }
     blocked_capabilities = {
         item["id"] for item in specification.get("capabilities", [])
         if item.get("implementation_readiness") == "BLOCKED"
@@ -342,6 +354,25 @@ def validate_work_units(
                     f"Readiness evidence is missing or not current: {', '.join(bad_evidence)}.",
                     "Planning owner", "Resolve the evidence relationships before scheduling the unit.",
                 ))
+        verification_prerequisites = unit.get("verification_prerequisite_ids", [])
+        if not verification_prerequisites:
+            findings.append(_finding(
+                "VERIFICATION_PREREQUISITES_MISSING", Severity.REVIEW, unit_id,
+                "The work unit does not identify evidence needed for independent verification.",
+                "Quality owner", "Link datasets, environments, or evidence infrastructure separately from dispatch readiness.",
+            ))
+        else:
+            unavailable_verification = [
+                str(identifier) for identifier in verification_prerequisites
+                if identifier not in readiness_evidence
+                or readiness_evidence[identifier].get("status") != "current"
+            ]
+            if unavailable_verification:
+                findings.append(_finding(
+                    "VERIFICATION_PREREQUISITE_NOT_READY", Severity.REVIEW, unit_id,
+                    f"Implementation may proceed, but verification prerequisites are unavailable: {', '.join(unavailable_verification)}.",
+                    "Quality owner", "Keep verification blocked until the required evidence infrastructure is current.",
+                ))
         if not unit.get("goal") or not unit.get("deliverable"):
             findings.append(_finding(
                 "WORK_UNIT_NOT_COHESIVE", Severity.REVIEW, unit_id,
@@ -377,8 +408,51 @@ def validate_work_units(
             findings.append(_finding(
                 "WORK_UNIT_STOP_CONDITIONS_INCOMPLETE", Severity.BLOCKING, unit_id,
                 "The agent can continue through consequential discovery without required stop conditions.",
-                "Implementation owner", "Add contract, protected-path, requirement, architecture, dependency, and authorization stops.",
+                "Implementation owner", "Add contract, protected-path, requirement, architecture, dependency, authorization, policy, and evidence stops.",
             ))
+        undefined_stops = sorted(
+            condition for condition in unit.get("stop_conditions", [])
+            if condition not in stop_catalog
+            or stop_catalog[condition].get("outcome") not in ALLOWED_STOP_OUTCOMES
+            or not stop_catalog[condition].get("next_action")
+            or not stop_catalog[condition].get("required_artifact")
+            or not stop_catalog[condition].get("owner")
+        )
+        if undefined_stops:
+            findings.append(_finding(
+                "WORK_UNIT_STOP_ACTION_UNDEFINED", Severity.BLOCKING, unit_id,
+                f"Stop conditions lack a typed outcome, next action, artifact, or owner: {', '.join(undefined_stops)}.",
+                "Planning owner", "Route each condition as ASK, PROPOSE, or STOP and name the required artifact and owner.",
+            ))
+        permission_id = unit.get("permission_profile_id")
+        permission = permission_profiles.get(permission_id)
+        if not permission:
+            findings.append(_finding(
+                "EXECUTION_PERMISSION_PROFILE_MISSING", Severity.BLOCKING, unit_id,
+                "The work unit has no linked least-privilege permission request.",
+                "Execution control-plane owner", "Create a work-unit-bound request; the planner must not provision its own access.",
+            ))
+        else:
+            invalid_permission = (
+                permission.get("work_unit_id") != unit_id
+                or permission.get("grant_state") != "planned_not_provisioned"
+                or permission.get("self_provisioning_allowed") is not False
+                or permission.get("lifecycle") != "work_unit_bound_temporary"
+                or not permission.get("revocation_trigger")
+            )
+            if invalid_permission:
+                findings.append(_finding(
+                    "EXECUTION_PERMISSION_PROFILE_INVALID", Severity.BLOCKING, unit_id,
+                    "The permission request is self-provisioned, permanent, unbound, or already presented as a grant.",
+                    "Execution control-plane owner", "Use a scoped, temporary request approved and provisioned outside the planning agent.",
+                ))
+            requested_paths = set(permission.get("writable_paths", []))
+            if requested_paths != set(unit.get("writable_paths", [])):
+                findings.append(_finding(
+                    "EXCESSIVE_EXECUTION_PERMISSION", Severity.BLOCKING, unit_id,
+                    "Requested write permission does not exactly match the work unit's declared write scope.",
+                    "Execution control-plane owner", "Reduce the permission request to the exact repositories and paths required by this unit.",
+                ))
         authority = unit.get("agent_authority", {})
         if not authority.get("may_decide") or not authority.get("may_propose") or not authority.get("may_not_decide"):
             findings.append(_finding(
@@ -484,6 +558,142 @@ def validate_dependency_graph(plan: dict[str, Any]) -> list[Finding]:
     )]
 
 
+def validate_contract_dependencies(plan: dict[str, Any]) -> list[Finding]:
+    """Compare authoritative contract ownership with explicit graph reachability."""
+    findings: list[Finding] = []
+    graph = dependency_graph(plan)
+    work_units = {item.get("id"): item for item in plan.get("work_units", [])}
+
+    def ancestors(node: str) -> set[str]:
+        found: set[str] = set()
+        queue = deque(graph.get(node, set()))
+        while queue:
+            dependency = queue.popleft()
+            if dependency not in found:
+                found.add(dependency)
+                queue.extend(graph.get(dependency, set()))
+        return found
+
+    for contract in plan.get("contract_registry", []):
+        contract_id = str(contract.get("id", "contract"))
+        producer = contract.get("producer_work_unit_id")
+        consumers = contract.get("consumer_work_unit_ids", [])
+        if not producer or producer not in work_units or not contract.get("revision"):
+            findings.append(_finding(
+                "CONTRACT_OWNERSHIP_INVALID", Severity.BLOCKING, contract_id,
+                "The contract lacks a valid producer work unit or explicit revision.",
+                "Contract owner", "Name one authoritative producer and the version consumed by the work graph.",
+            ))
+            continue
+        if contract_id not in work_units[producer].get("contracts", {}).get("output", []):
+            findings.append(_finding(
+                "CONTRACT_PRODUCER_MISMATCH", Severity.BLOCKING, contract_id,
+                "The registry producer does not declare the contract as an output.",
+                "Contract owner", "Align the registry with the producing work unit before scheduling consumers.",
+            ))
+        for consumer in consumers:
+            if consumer not in work_units:
+                findings.append(_finding(
+                    "CONTRACT_CONSUMER_UNKNOWN", Severity.BLOCKING, contract_id,
+                    f"The registry names an unknown consumer: {consumer}.",
+                    "Planning owner", "Repair the registry or add the missing bounded work unit.",
+                ))
+            elif consumer != producer and producer not in ancestors(str(consumer)):
+                findings.append(_finding(
+                    "UNDECLARED_CONTRACT_DEPENDENCY", Severity.BLOCKING, str(consumer),
+                    f"The work unit consumes {contract_id} without a dependency path from {producer}.",
+                    "Planning owner", "Add an explicit dependency edge or correct the contract registry.",
+                ))
+    return findings
+
+
+def validate_plan_assurance(plan: dict[str, Any]) -> list[Finding]:
+    """Validate planning-stage concerns without reopening approved ADR decisions."""
+    findings: list[Finding] = []
+    work_unit_ids = {item.get("id") for item in plan.get("work_units", [])}
+    for risk in plan.get("risk_register", []):
+        risk_id = str(risk.get("id", "risk"))
+        if not risk.get("issue") or not risk.get("mitigation") or not risk.get("affects"):
+            findings.append(_finding(
+                "PLAN_RISK_NOT_ACTIONABLE", Severity.REVIEW, risk_id,
+                "A plan risk lacks an issue, affected work units, or execution-relevant mitigation.",
+                "Planning owner", "Keep only risks that change discovery, sequencing, evidence, or stop behavior.",
+            ))
+        if set(risk.get("affects", [])) - work_unit_ids:
+            findings.append(_finding(
+                "PLAN_RISK_TARGET_UNKNOWN", Severity.REVIEW, risk_id,
+                "A plan risk refers to an unknown work unit.",
+                "Planning owner", "Bind the risk to current work-unit IDs.",
+            ))
+    if not plan.get("risk_register"):
+        findings.append(_finding(
+            "PLAN_RISK_REGISTER_MISSING", Severity.REVIEW, str(plan.get("id", "plan")),
+            "The plan has no execution-relevant risk register.",
+            "Planning owner", "Record only uncertainties that affect discovery, scheduling, evidence, or stop behavior.",
+        ))
+
+    layers = plan.get("readiness_layers", {})
+    if not {"implementation", "merge", "enablement"} <= set(layers):
+        findings.append(_finding(
+            "READINESS_LAYERS_CONFLATED", Severity.BLOCKING, str(plan.get("id", "plan")),
+            "Implementation, merge, and enablement readiness are not represented separately.",
+            "Planning owner", "Keep implementation, integration/merge, release, rollout, and activation decisions distinct.",
+        ))
+    if not plan.get("rollout_plan_id") or not plan.get("artifact_relationships"):
+        findings.append(_finding(
+            "ROLLOUT_RELATIONSHIP_MISSING", Severity.REVIEW, str(plan.get("id", "plan")),
+            "The implementation plan does not retain an explicit relationship to rollout/release planning.",
+            "Release owner", "Link the separate rollout artifact without moving release authority into implementation tasks.",
+        ))
+
+    scheduled_capabilities = {item.get("capability") for item in plan.get("work_units", [])}
+    for future in plan.get("future_work", []):
+        if future.get("status") != "deferred" or future.get("not_scheduled") is not True:
+            findings.append(_finding(
+                "DEFERRED_WORK_SCHEDULED", Severity.BLOCKING, str(future.get("capability", "future-work")),
+                "Future or blocked capability is not explicitly deferred and excluded from current execution.",
+                "Capability owner", "Preserve blockers and review triggers while keeping the capability out of this work graph.",
+            ))
+        if future.get("capability") in scheduled_capabilities:
+            findings.append(_finding(
+                "DEFERRED_CAPABILITY_PRESENT_IN_WORK_GRAPH", Severity.BLOCKING, str(future.get("capability")),
+                "A deferred capability also appears in the current execution graph.",
+                "Planning owner", "Remove it from current work units or obtain a new approved specification decision.",
+            ))
+    return findings
+
+
+def critical_path(plan: dict[str, Any]) -> dict[str, Any]:
+    """Return the longest dependency path using coarse work indicators, not duration promises."""
+    schedule = topological_waves(plan)
+    if not schedule["acyclic"]:
+        return {"available": False, "path": [], "indicator_total": None, "reason": "dependency_cycle"}
+    graph = dependency_graph(plan)
+    estimates = {
+        item["id"]: int(item.get("estimated_work_units", 1))
+        for item in plan.get("work_units", [])
+    }
+    best_total: dict[str, int] = {}
+    best_path: dict[str, list[str]] = {}
+    for wave in schedule["waves"]:
+        for node in wave:
+            dependencies = graph.get(node, set())
+            if dependencies:
+                predecessor = max(sorted(dependencies), key=lambda item: best_total[item])
+                best_total[node] = best_total[predecessor] + estimates[node]
+                best_path[node] = best_path[predecessor] + [node]
+            else:
+                best_total[node] = estimates[node]
+                best_path[node] = [node]
+    terminal = max(sorted(best_total), key=lambda item: best_total[item])
+    return {
+        "available": True,
+        "path": best_path[terminal],
+        "indicator_total": best_total[terminal],
+        "unit": "coarse_work_indicator_not_elapsed_time",
+    }
+
+
 def coordination_metrics(plan: dict[str, Any]) -> dict[str, Any]:
     """Compare total effort with dependency-aware elapsed waves without conflating them."""
     schedule = topological_waves(plan)
@@ -567,6 +777,8 @@ def ready_work_units(
     }
     ready: list[str] = []
     blocked: dict[str, list[str]] = {}
+    verification_prerequisites_ready: list[str] = []
+    verification_prerequisites_blocked: dict[str, list[str]] = {}
     for unit in plan.get("work_units", []):
         unit_id = str(unit.get("id"))
         if unit_id in completed:
@@ -585,10 +797,20 @@ def ready_work_units(
             blocked[unit_id] = reasons
         else:
             ready.append(unit_id)
+        verification_gaps = [
+            str(identifier) for identifier in unit.get("verification_prerequisite_ids", [])
+            if identifier not in evidence_index or evidence_index[identifier].get("status") != "current"
+        ]
+        if verification_gaps:
+            verification_prerequisites_blocked[unit_id] = verification_gaps
+        else:
+            verification_prerequisites_ready.append(unit_id)
     return {
         "ready": sorted(ready),
         "blocked": blocked,
-        "claim": "dependency_and_evidence_readiness_not_runtime_permission_provisioning",
+        "verification_prerequisites_ready": sorted(verification_prerequisites_ready),
+        "verification_prerequisites_blocked": verification_prerequisites_blocked,
+        "claim": "dispatch_and_verification_prerequisite_readiness_are_separate_and_neither_provisions_runtime_permissions",
     }
 
 
@@ -722,6 +944,8 @@ def review_plan(bundle: dict[str, Any]) -> dict[str, Any]:
     findings.extend(validate_work_units(plan, specification, repository))
     findings.extend(validate_tasks(plan))
     findings.extend(validate_dependency_graph(plan))
+    findings.extend(validate_contract_dependencies(plan))
+    findings.extend(validate_plan_assurance(plan))
     ordered = sorted(findings, key=lambda item: (item.severity.value, item.subject_id, item.code))
     return {
         "claim": PLANNING_ONLY_CLAIM,
@@ -729,6 +953,7 @@ def review_plan(bundle: dict[str, Any]) -> dict[str, Any]:
         "counts": dict(sorted(Counter(item.severity.value for item in ordered).items())),
         "staleness": assess_plan_staleness(plan, repository),
         "schedule": topological_waves(plan),
+        "critical_path": critical_path(plan),
         "metrics": coordination_metrics(plan),
         "disposition_metrics": disposition_metrics(plan, specification),
         "traceability": implementation_traceability(plan, specification),
@@ -783,6 +1008,12 @@ def generate_execution_context(bundle: dict[str, Any], work_unit_id: str) -> dic
     evidence_index = {
         item.get("id"): item for item in plan.get("readiness_evidence_catalog", [])
     }
+    stop_index = {
+        item.get("condition"): item for item in plan.get("stop_condition_catalog", [])
+    }
+    permission_index = {
+        item.get("id"): item for item in plan.get("permission_profiles", [])
+    }
     return {
         "schema_version": "1.0-training",
         "work_unit_id": work_unit_id,
@@ -802,7 +1033,15 @@ def generate_execution_context(bundle: dict[str, Any], work_unit_id: str) -> dic
         "read_only_paths": work_unit["read_only_paths"],
         "prohibited_paths": bundle["repository"]["protected_paths"],
         "verification": work_unit["verification"],
-        "stop_conditions": work_unit["stop_conditions"],
+        "verification_prerequisites": [
+            evidence_index[identifier]
+            for identifier in work_unit["verification_prerequisite_ids"]
+        ],
+        "stop_conditions": [
+            stop_index[condition]
+            for condition in work_unit["stop_conditions"]
+        ],
+        "permission_request": permission_index[work_unit["permission_profile_id"]],
         "agent_authority": work_unit["agent_authority"],
         "accountability_team": work_unit["accountability_team"],
         "execution_owner": work_unit["execution_owner"],
@@ -850,6 +1089,20 @@ def _evaluation_findings(case: dict[str, Any]) -> list[Finding]:
         record = next(item for item in plan["readiness_evidence_catalog"] if item["id"] == payload["evidence_id"])
         record["status"] = payload["status"]
         return validate_work_units(plan, bundle["specification"], bundle["repository"])
+    if kind == "contract_dependency_mutation":
+        plan = copy.deepcopy(bundle["plan"])
+        target = next(item for item in plan["work_units"] if item["id"] == payload["unit_id"])
+        target["depends_on"] = payload.get("depends_on", [])
+        return validate_contract_dependencies(plan)
+    if kind == "permission_profile_mutation":
+        plan = copy.deepcopy(bundle["plan"])
+        profile = next(item for item in plan["permission_profiles"] if item["id"] == payload["permission_id"])
+        profile.update(payload.get("changes", {}))
+        return validate_work_units(plan, bundle["specification"], bundle["repository"])
+    if kind == "plan_assurance_mutation":
+        plan = copy.deepcopy(bundle["plan"])
+        plan.update(payload.get("changes", {}))
+        return validate_plan_assurance(plan)
     if kind == "tasks":
         return validate_tasks({"tasks": payload})
     if kind == "graph":

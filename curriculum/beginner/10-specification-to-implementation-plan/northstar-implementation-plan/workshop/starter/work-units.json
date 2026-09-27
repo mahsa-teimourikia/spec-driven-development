@@ -8,6 +8,36 @@
       "status": "TODO: current | stale | missing"
     }
   ],
+  "stop_condition_catalog": [
+    {
+      "condition": "TODO: consequential discovery condition",
+      "outcome": "TODO: ASK | PROPOSE | STOP",
+      "next_action": "TODO: useful action after stopping",
+      "required_artifact": "TODO: clarification, architecture, contract, dependency, scope, policy, or evidence request",
+      "owner": "TODO"
+    }
+  ],
+  "contract_registry": [
+    {
+      "id": "TODO: Contract@revision",
+      "revision": "TODO",
+      "producer_work_unit_id": "TODO",
+      "consumer_work_unit_ids": []
+    }
+  ],
+  "permission_profiles": [
+    {
+      "id": "PERM-AWU-STARTER-001",
+      "work_unit_id": "AWU-STARTER-001",
+      "requested_by": "planning_owner",
+      "grant_state": "planned_not_provisioned",
+      "repositories": {"TODO": "read | write"},
+      "writable_paths": ["TODO: exact paths matching the work unit"],
+      "lifecycle": "work_unit_bound_temporary",
+      "revocation_trigger": "TODO: verified or cancelled",
+      "self_provisioning_allowed": false
+    }
+  ],
   "work_units": [
     {
       "id": "AWU-STARTER-001",
@@ -22,6 +52,10 @@
       "readiness_evidence_ids": [
         "TODO-EVIDENCE"
       ],
+      "verification_prerequisite_ids": [
+        "TODO: dataset, environment, or evidence infrastructure ID"
+      ],
+      "permission_profile_id": "PERM-AWU-STARTER-001",
       "capability": "TODO",
       "goal": "TODO: one cohesive responsibility",
       "deliverable": "TODO: one meaningful reviewable increment",
@@ -50,12 +84,14 @@
         ]
       },
       "stop_conditions": [
-        "contract_change_required",
-        "protected_path_change_required",
-        "requirement_conflict",
+        "requirement_conflict_detected",
         "architecture_change_required",
+        "shared_contract_change_required",
+        "protected_path_change_required",
         "new_external_dependency_required",
-        "authorization_behavior_change_required"
+        "authorization_semantics_change_required",
+        "policy_exception_required",
+        "evidence_requirement_cannot_be_satisfied"
       ],
       "agent_authority": {
         "may_decide": [

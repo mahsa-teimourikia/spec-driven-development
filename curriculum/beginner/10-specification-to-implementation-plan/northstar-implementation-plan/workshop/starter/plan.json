@@ -49,6 +49,31 @@
       "blocking": true
     }
   ],
+  "risk_register": [
+    {
+      "id": "RISK-STARTER-01",
+      "issue": "TODO: execution-relevant uncertainty",
+      "affects": ["TODO: work-unit ID"],
+      "mitigation": "TODO: discovery, sequencing, evidence, or stop response"
+    }
+  ],
+  "future_work": [
+    {
+      "capability": "TODO: blocked or later capability",
+      "status": "deferred",
+      "blockers": ["TODO"],
+      "not_scheduled": true,
+      "review_trigger": "TODO"
+    }
+  ],
+  "readiness_layers": {
+    "implementation": "TODO",
+    "merge": "TODO",
+    "enablement": "TODO"
+  },
+  "rollout_plan_id": "TODO: linked but separately owned rollout artifact",
+  "artifact_relationships": [
+    {"from": "AI-2219", "to": "PLAN-AI-2219-STARTER", "relationship": "implemented_by"}
+  ],
   "boundary": "Planning readiness is not runtime authorization, implementation proof, merge approval, or release approval."
 }
-

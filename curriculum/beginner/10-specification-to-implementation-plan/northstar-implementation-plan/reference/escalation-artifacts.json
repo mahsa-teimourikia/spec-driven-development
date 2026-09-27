@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0-training",
+  "fixture_status": "examples_not_approved_decisions",
+  "clarification_request": {
+    "id": "CLR-AI2219-004",
+    "outcome": "ASK",
+    "work_unit_id": "AWU-BR-VALIDATION",
+    "question": "Which existing service owns the current authoritative field-validation rules?",
+    "why_needed": "REQ-BR-030 requires deterministic validation against current domain rules.",
+    "blocks": ["TASK-BR-003"],
+    "does_not_block": ["TASK-BR-001", "TASK-BR-002"],
+    "owner": "underwriting_domain",
+    "state": "EXAMPLE_ONLY"
+  },
+  "architecture_proposal": {
+    "id": "AP-AI2219-003",
+    "outcome": "PROPOSE",
+    "problem": "No approved component owns new provenance persistence if analytics requires it.",
+    "requirement_drivers": ["REQ-BR-030", "SEC-BR-001"],
+    "proposal": "Evaluate a trusted provenance store outside the model-facing execution boundary.",
+    "alternatives": ["retain provenance in ProposedUpdate only", "extend an existing approved audit component"],
+    "tradeoffs": ["new operational owner", "retention and privacy scope", "migration and compatibility"],
+    "owner": "architecture_owner",
+    "state": "PROPOSED_NOT_APPROVED"
+  },
+  "dependency_proposal": {
+    "id": "DEP-AI2219-002",
+    "outcome": "PROPOSE",
+    "package": "example-schema-library",
+    "need": "Structured schema validation not demonstrably met by current repository capabilities.",
+    "alternatives": ["existing Pydantic dependency", "Python standard library", "no new dependency"],
+    "operational_impact": ["supply_chain_review", "maintenance", "image_size", "license_review"],
+    "owner": "architecture_and_supply_chain_owner",
+    "state": "PROPOSED_NOT_APPROVED"
+  },
+  "boundary": "ASK and PROPOSE preserve useful analysis; neither artifact grants authority, changes architecture, installs a package, or expands scope."
+}

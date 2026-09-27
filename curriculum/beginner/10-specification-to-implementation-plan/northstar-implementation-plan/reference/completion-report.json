@@ -3,7 +3,7 @@
   "id": "COMPLETION-AWU-BR-CONTRACT-01",
   "work_unit_id": "AWU-BR-CONTRACT",
   "status": "COMPLETED",
-  "input_context_digest": "sha256:1c82a340ef3065bd3b7e951e1e6fd9c7534a5ae3ba5e81cc49b89424a3fc2441",
+  "input_context_digest": "sha256:f3e02cb20deac09b24007f34fc4428ed4afbd20839482a7efd8b5faa2ef5c53e",
   "actual_changed_paths": [
     "src/underwriting/proposals.py",
     "tests/contracts/test_proposed_update.py"
