@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0-training",
+  "claim": "100_percent_requirements_have_structural_conformance_links",
+  "links": [
+    {"source_id":"REQ-2290-001","target_id":"TEST-ALL","relationship":"verified_by","target_type":"test_evidence"},
+    {"source_id":"REQ-2290-002","target_id":"TEST-ALL","relationship":"verified_by","target_type":"test_evidence"},
+    {"source_id":"REQ-2290-003","target_id":"TEST-ALL","relationship":"verified_by","target_type":"test_evidence"},
+    {"source_id":"REQ-2290-004","target_id":"TEST-ALL","relationship":"verified_by","target_type":"test_evidence"},
+    {"source_id":"REQ-2290-005","target_id":"TEST-ALL","relationship":"verified_by","target_type":"test_evidence"},
+    {"source_id":"REQ-2290-006","target_id":"TEST-ALL","relationship":"verified_by","target_type":"test_evidence"},
+    {"source_id":"REQ-2290-007","target_id":"TEST-ALL","relationship":"verified_by","target_type":"test_evidence"},
+    {"source_id":"REQ-2290-008","target_id":"TEST-ALL","relationship":"verified_by","target_type":"test_evidence"},
+    {"source_id":"REQ-2290-009","target_id":"TEST-ALL","relationship":"verified_by","target_type":"test_evidence"},
+    {"source_id":"REQ-2290-010","target_id":"TEST-ALL","relationship":"verified_by","target_type":"test_evidence"}
+  ]
+}

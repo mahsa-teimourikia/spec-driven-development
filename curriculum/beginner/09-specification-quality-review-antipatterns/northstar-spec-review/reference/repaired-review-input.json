@@ -1,0 +1,137 @@
+{
+  "schema_version": "1.0-training",
+  "fixture_status": "fictional_review_ready_specification",
+  "specification_id": "AI-2290-SPEC",
+  "revision": "reference-v2",
+  "authoritative_side_effects": true,
+  "change_owner": "Commercial Underwriting Product",
+  "freshness_review_triggers": ["governing policy revision", "mutation contract revision", "eligible population change", "evidence invalidation"],
+  "source_of_truth_claims": ["requirements_define_intent", "tests_provide_bounded_evidence", "code_records_observed_behavior"],
+  "scenario_classes": ["primary", "negative", "boundary", "failure", "uncertainty"],
+  "policy_manifest": [
+    {"id":"AI-007","revision":"4.0-training","locator":"enterprise-policy/ai/AI-007.json","applicability_evidence":"DEPLOYMENT-ARCH-002"},
+    {"id":"AI-030","revision":"3.0-training","locator":"enterprise-policy/ai/AI-030.json","applicability_evidence":"FEATURE-SCOPE-2290"},
+    {"id":"PRIV-018","revision":"4.2-training","locator":"enterprise-policy/privacy/PRIV-018.json","applicability_evidence":"DATA-FLOW-2290"}
+  ],
+  "exceptions": [],
+  "artifacts": [
+    {"path":"spec.md","lines":280,"concerns":["product_behavior","failure_behavior"]},
+    {"path":"design.md","lines":210,"concerns":["architecture","design_candidates"]},
+    {"path":"evidence-plan.md","lines":160,"concerns":["acceptance","evaluation"]},
+    {"path":"AGENTS.md","lines":75,"concerns":["agent_execution_boundary"]}
+  ],
+  "average_requirements_per_artifact": 3,
+  "statements": [
+    {
+      "id":"REQ-2290-001",
+      "text":"Authenticated eligible broker responses SHALL produce a ProposedUpdate that conforms to CONTRACT-BR-001 before any authoritative mutation is considered.",
+      "owner":"Commercial Underwriting Product",
+      "defined_terms":["eligible broker response","ProposedUpdate"],
+      "measurement":{"method":"contract validation plus scenario evidence","population":"W1 eligible responses"},
+      "source_refs":[{"id":"CONTRACT-BR-001","revision":"2.0-training"}],
+      "technology_names":[],
+      "semantic_concept":"proposal_contract"
+    },
+    {
+      "id":"REQ-2290-002",
+      "text":"Eligible W1 requests SHALL satisfy PERF-BR-001 and REL-BR-001 using their owner-approved measurement contracts.",
+      "owner":"Commercial Underwriting Product",
+      "defined_terms":["eligible W1 requests"],
+      "measurement":{"method":"inherited NFR gates","population":"W1 eligible responses"},
+      "source_refs":[{"id":"PERF-BR-001","revision":"1.0-training"},{"id":"REL-BR-001","revision":"1.0-training"}],
+      "technology_names":[],
+      "semantic_concept":"inherited_service_objectives"
+    },
+    {
+      "id":"REQ-2290-003",
+      "text":"Model output SHALL remain a proposal; trusted application code SHALL authorize, validate, and execute any mutation under REQ-BR-037 and AGENT-NFR-001.",
+      "owner":"Underwriting Risk",
+      "defined_terms":["proposal","trusted application code"],
+      "measurement":{"method":"negative scenario and mutation invariant","population":"all proposed mutations"},
+      "source_refs":[{"id":"REQ-BR-037","revision":"2.0-training"},{"id":"AGENT-NFR-001","revision":"1.0-training"}],
+      "technology_names":[],
+      "controls_authoritative_action":true,
+      "semantic_concept":"trusted_mutation"
+    },
+    {
+      "id":"REQ-2290-004",
+      "text":"Production inference SHALL use the Enterprise AI Gateway identified by AI-007.",
+      "owner":"AI Platform",
+      "defined_terms":["Enterprise AI Gateway"],
+      "measurement":{"method":"deployment policy attestation","population":"production inference paths"},
+      "source_refs":[{"id":"AI-007","revision":"4.0-training"}],
+      "technology_names":["Enterprise AI Gateway"],
+      "technology_basis":"inherited_constraint",
+      "alternatives_considered":true,
+      "semantic_concept":"model_gateway"
+    },
+    {
+      "id":"REQ-2290-005",
+      "text":"English plain-text responses without attachments are eligible; every other response SHALL be preserved and routed to manual review with an explicit reason code.",
+      "owner":"Commercial Underwriting Product",
+      "defined_terms":["eligible","manual review"],
+      "measurement":{"method":"population eligibility scenarios","population":"all received broker responses"},
+      "source_refs":[{"id":"POP-BR-W1","revision":"1.0-training"}],
+      "scope_quantifier":"bounded",
+      "eligible_population":"POP-BR-W1",
+      "semantic_concept":"population_routing"
+    },
+    {
+      "id":"REQ-2290-006",
+      "text":"Model-facing identities SHALL possess no authoritative submission-mutation credential and SHALL have only approved egress.",
+      "owner":"Product Security",
+      "defined_terms":["model-facing identity","authoritative credential","approved egress"],
+      "measurement":{"method":"identity inventory and egress policy test","population":"all deployments"},
+      "source_refs":[{"id":"SEC-NFR-001","revision":"1.0-training"}],
+      "technology_names":[],
+      "semantic_concept":"least_privilege"
+    },
+    {
+      "id":"REQ-2290-007",
+      "text":"A verified conflicting value SHALL require an unused approval receipt bound to the exact proposal, submission revision, requirement context, resolution, and expiry before replacement.",
+      "owner":"Underwriting Risk",
+      "defined_terms":["verified conflicting value","approval receipt"],
+      "measurement":{"method":"approval boundary scenarios","population":"verified conflicts"},
+      "source_refs":[{"id":"AI-030","revision":"3.0-training"},{"id":"REQ-BR-037","revision":"2.0-training"}],
+      "technology_names":[],
+      "semantic_concept":"human_review_receipt"
+    },
+    {
+      "id":"REQ-2290-008",
+      "text":"The implementation SHALL conform to the version-pinned applicable policy manifest and SHALL stop when applicability or precedence is unresolved.",
+      "owner":"Project Architecture",
+      "defined_terms":["applicable policy manifest"],
+      "measurement":{"method":"manifest validation and conflict test","population":"AI-2290 change context"},
+      "source_refs":[{"id":"AI-007","revision":"4.0-training"},{"id":"AI-030","revision":"3.0-training"},{"id":"PRIV-018","revision":"4.2-training"}],
+      "technology_names":[],
+      "semantic_concept":"policy_resolution"
+    },
+    {
+      "id":"REQ-2290-009",
+      "text":"Acceptance evidence SHALL cover primary, negative, boundary, failure, uncertainty, stale-context, and authorization behavior and SHALL retain population and denominator metadata.",
+      "owner":"AI Quality",
+      "defined_terms":["acceptance evidence"],
+      "measurement":{"method":"evidence-plan validation","population":"declared acceptance portfolio"},
+      "source_refs":[{"id":"EVIDENCE-BR-001","revision":"2.0-training"}],
+      "evidence_contract":true,
+      "technology_names":[],
+      "semantic_concept":"evidence_portfolio"
+    },
+    {
+      "id":"REQ-2290-010",
+      "text":"The workflow SHALL report field mapping, extraction, source support, conflict detection, abstention, and authorized-action results overall and for declared high-risk slices.",
+      "owner":"AI Quality and Underwriting Risk",
+      "defined_terms":["high-risk slice"],
+      "measurement":{"method":"versioned evaluation contract","population":"representative labelled population"},
+      "source_refs":[{"id":"AIQ-BR-001","revision":"1.0-training"}],
+      "metric_name":"governed_decision_quality",
+      "component_metrics":["field_mapping","value_extraction","source_support","conflict_detection","abstention","authorized_action"],
+      "critical_slices":["verified_conflict","unsupported_field","stale_context","unauthorized"],
+      "technology_names":[],
+      "semantic_concept":"quality_evaluation"
+    }
+  ],
+  "design_candidates": [
+    {"id":"DESIGN-CACHE-001","status":"evaluate_in_adr_if_needed","question":"Does evidence justify a cache, and what freshness/privacy rules would govern it?"}
+  ]
+}

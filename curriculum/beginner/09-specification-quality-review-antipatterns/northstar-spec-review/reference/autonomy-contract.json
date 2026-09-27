@@ -1,0 +1,9 @@
+{
+  "id":"AGENT-AI-2290-BOUNDED",
+  "writable_paths":["src/broker_response/","tests/broker_response/","specs/AI-2290/"],
+  "protected_paths":["enterprise-policy/","production/","exceptions/"],
+  "change_budget":12,
+  "permissions":["modify","test"],
+  "required_evidence":["focused tests","full regression suite","policy validation","traceability update"],
+  "stop_conditions":["policy conflict","scope expansion","missing decision authority","protected-path change","unknown mutation outcome"]
+}

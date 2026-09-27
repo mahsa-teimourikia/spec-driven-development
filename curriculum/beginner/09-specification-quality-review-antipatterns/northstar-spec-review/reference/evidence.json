@@ -1,0 +1,20 @@
+{
+  "schema_version":"1.0-training",
+  "dashboard_claim":"Specification review fixture complete; implementation evidence remains planned",
+  "records":[
+    {
+      "id":"SPEC-REVIEW-2290",
+      "type":"specification_review",
+      "status":"PASS",
+      "producer":"independent_course09_reference_reviewer",
+      "subject_revision":"reference-v2",
+      "current_subject_revision":"reference-v2",
+      "environment":"deterministic_training_fixture",
+      "population":"ten AI-2290 requirement statements",
+      "numerator":10,
+      "denominator":10,
+      "limitations":["Review completeness is bounded by the encoded rules and labelled fixture.","This record is not implementation, model-quality, release, or production evidence."],
+      "reviewed_source_ids":["REQ-2290-001","REQ-2290-002","REQ-2290-003","REQ-2290-004","REQ-2290-005","REQ-2290-006","REQ-2290-007","REQ-2290-008","REQ-2290-009","REQ-2290-010"]
+    }
+  ]
+}

@@ -406,6 +406,56 @@ const course08 = {
   }
 };
 
+const course09 = {
+  id: 'c09', course: 9, level: 'beginner', part: 'II · Executable specifications', status: 'available',
+  title: 'Specification quality, review, and anti-patterns',
+  summary: 'Review a plausible but unsafe enterprise specification, expose authority and evidence theater, reconcile repository reality and transition risk, and issue capability-scoped readiness before an agent implements it.',
+  outcomes: [
+    'Review specifications across ten quality dimensions without hiding risk inside a composite score.',
+    'Detect false precision, confidence theater, implementation leakage, authority laundering, stale evidence, and unsafe exceptions.',
+    'Distinguish structural trace coverage from semantic relationship validity.',
+    'Detect self-confirming agent loops and resolve conflicts without treating specificity, recency, proximity, or local instructions as authority.',
+    'Reconcile requirements, architecture, repository reality, migration, rollout controls, fallback, and privacy-safe observability.',
+    'Bound agent permissions, budgets, stop conditions, escalation, and deployment authority.',
+    'Re-review a repaired package and authorize only bounded implementation—not deployment or production release.'
+  ],
+  readme: `${REPO}/blob/main/curriculum/beginner/09-specification-quality-review-antipatterns/README.md`,
+  notebook: `${REPO}/blob/main/curriculum/beginner/09-specification-quality-review-antipatterns/specification_review.ipynb`,
+  lab: `${REPO}/blob/main/curriculum/beginner/09-specification-quality-review-antipatterns/lab.py`,
+  repoFixture: `${REPO}/tree/main/curriculum/beginner/09-specification-quality-review-antipatterns/northstar-spec-review`,
+  run: 'python3 curriculum/beginner/09-specification-quality-review-antipatterns/lab.py',
+  labs: [
+    {
+      title: 'Lab A — Review specification quality',
+      description: 'Contrast a lexical presence baseline with field-aware findings, inspect semantic trace validity, exercise false-precision and autonomy failures, and evaluate labelled review cases.',
+      command: 'python3 curriculum/beginner/09-specification-quality-review-antipatterns/lab.py',
+      links: [['View the lab', `${REPO}/blob/main/curriculum/beginner/09-specification-quality-review-antipatterns/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/beginner/09-specification-quality-review-antipatterns/specification_review.ipynb`]]
+    },
+    {
+      title: 'Lab B — Review AI-2290',
+      description: 'Inspect the unsafe candidate package, write reviewer-owned findings and a readiness decision, route repairs to their authoritative sources, and compare with the repaired reference.',
+      command: 'Open the ticket and candidate package; complete the starter review before consulting the reference.',
+      links: [['Open the workshop', `${REPO}/tree/main/curriculum/beginner/09-specification-quality-review-antipatterns/northstar-spec-review`], ['Complete the starter review', `${REPO}/tree/main/curriculum/beginner/09-specification-quality-review-antipatterns/northstar-spec-review/workshop/starter`], ['Inspect the repaired package', `${REPO}/tree/main/curriculum/beginner/09-specification-quality-review-antipatterns/northstar-spec-review/reference`]]
+    }
+  ],
+  references: [
+    ['GitHub Spec Kit — specification quality checklist', 'https://github.com/github/spec-kit/blob/main/templates/checklist-template.md'],
+    ['ISO/IEC/IEEE 29148 requirements engineering', 'https://www.iso.org/standard/72089.html'],
+    ['NIST AI Risk Management Framework', 'https://www.nist.gov/itl/ai-risk-management-framework'],
+    ['OWASP GenAI Security Project', 'https://genai.owasp.org/']
+  ],
+  checkpoint: {
+    question: 'Enterprise policy requires review, but a newer feature file and nearby AGENTS.md allow bypass, and repository discovery finds a direct model-facing mutation tool. Extraction remains independently bounded. What is the correct decision?',
+    options: [
+      'Preserve the authority conflict and trust-boundary finding, block automatic mutation, and allow only independently ready bounded capabilities.',
+      'Let the newer and closer files override enterprise policy.',
+      'Block every capability until the whole repository is perfect.'
+    ],
+    answer: 0,
+    explanation: 'Specificity, recency, proximity, and repository prevalence do not transfer authority. Readiness is scoped to the affected capability, so unsafe mutation stops without destroying safe parallelism.'
+  }
+};
+
 function planned(course, level, part, title, summary) {
   return {
     id: `c${String(course).padStart(2, '0')}`, course, level, part,
@@ -425,7 +475,7 @@ const LESSONS = [
   course06,
   course07,
   course08,
-  planned(9, 'beginner', 'II · Executable specifications', 'Architecture Decision Records', 'Capture consequential decisions, alternatives, rationale, and consequences.'),
+  course09,
   planned(10, 'beginner', 'II · Executable specifications', 'Requirement traceability', 'Link intent through design, tasks, code, tests, approvals, and operational evidence.'),
   planned(11, 'intermediate', 'III · SDD frameworks', 'GitHub Spec Kit', 'Use constitution, clarification, planning, checks, analysis, implementation, and convergence.'),
   planned(12, 'intermediate', 'III · SDD frameworks', 'OpenSpec', 'Manage current specifications and explicit change deltas for brownfield work.'),

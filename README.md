@@ -4,7 +4,7 @@
 
 ## Start here
 
-Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through Course 07, then complete [Course 08: Non-functional requirements for agentic systems](curriculum/beginner/08-non-functional-requirements-agentic-systems/README.md) with its guided [notebook](curriculum/beginner/08-non-functional-requirements-agentic-systems/nfr_engineering.ipynb), deterministic [NFR lab](curriculum/beginner/08-non-functional-requirements-agentic-systems/lab.py), realistic [AI-2219 production-readiness workshop](curriculum/beginner/08-non-functional-requirements-agentic-systems/northstar-broker-nfrs/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
+Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through Course 08, then complete [Course 09: Specification quality, review, and anti-patterns](curriculum/beginner/09-specification-quality-review-antipatterns/README.md) with its guided [notebook](curriculum/beginner/09-specification-quality-review-antipatterns/specification_review.ipynb), deterministic [review lab](curriculum/beginner/09-specification-quality-review-antipatterns/lab.py), realistic [AI-2290 specification-review workshop](curriculum/beginner/09-specification-quality-review-antipatterns/northstar-spec-review/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
 
 This is not simply a tutorial for one specification framework. The central skill is turning organizational intent, architecture rules, product requirements, and engineering constraints into a hierarchy of durable specifications that agents can execute—and humans can govern.
 
@@ -13,7 +13,7 @@ This is not simply a tutorial for one specification framework. The central skill
 | Part | Courses | Focus |
 | --- | ---: | --- |
 | I · SDD foundations | 01–04 | Why the PDLC changes and how specifications form a hierarchy |
-| II · Executable specifications | 05–10 | Requirements, scenarios, invariants, NFRs, ADRs, and traceability |
+| II · Executable specifications | 05–10 | Requirements, scenarios, invariants, NFRs, specification review, and traceability |
 | III · SDD frameworks | 11–16 | Spec Kit, OpenSpec, Kiro, agent instructions, selection, and extensions |
 | IV · Agentic PDLC | 17–23 | Delivery flows, brownfield work, parallel agents, reviews, and approvals |
 | V · Enterprise controls | 24–31 | Security, AI governance, architecture, quality, compliance, and CI/CD |
@@ -126,9 +126,25 @@ Course 08 turns production qualities into governed measurement contracts. You wi
 - specify least privilege, privacy-safe telemetry, trace completeness, and AI-quality slices; and
 - keep production blocked when targets are unauthorized, capacity is unmeasured, or evidence is synthetic.
 
+## Course 09 outcome
+
+Course 09 turns specification review into a governed readiness decision. You will:
+
+- detect specification theater even when responsible-sounding concepts are present;
+- review correctness, completeness, clarity, consistency, verifiability, traceability, authority, maintainability, autonomy, and decision ownership;
+- distinguish blocking findings from review concerns and informational observations without averaging risk into a score;
+- expose false precision, confidence theater, implementation leakage, authority laundering, and unsafe exception handling;
+- validate semantic trace relationships instead of counting links alone;
+- detect stale evidence, modified generated context, missing provenance, and unsafe agent permissions;
+- resolve contradictory requirements without mistaking specificity, recency, proximity, or agent instructions for authority;
+- detect self-confirming requirement/code/test loops and preserve scoped uncertainty;
+- reconcile requirements, architecture, repository reality, migration, rollout, fallback, and observability;
+- evaluate deterministic review rules on labelled cases without claiming general reviewer accuracy; and
+- approve only capability-scoped bounded implementation after the relevant package clears every blocking condition.
+
 ## Run locally
 
-Everything in Courses 01–08 is credential-free and uses the Python standard library.
+Everything in Courses 01–09 is credential-free and uses the Python standard library.
 
 ```bash
 python3 curriculum/beginner/01-why-agentic-coding-changes-pdlc/lab.py
@@ -140,6 +156,7 @@ python3 curriculum/beginner/05-requirements-engineering-for-agents/lab.py
 python3 curriculum/beginner/06-writing-executable-requirements/lab.py
 python3 curriculum/beginner/07-acceptance-criteria-invariants-evidence/lab.py
 python3 curriculum/beginner/08-non-functional-requirements-agentic-systems/lab.py
+python3 curriculum/beginner/09-specification-quality-review-antipatterns/lab.py
 python3 -m unittest discover -s tests -v
 python3 scripts/validate_course.py
 ```

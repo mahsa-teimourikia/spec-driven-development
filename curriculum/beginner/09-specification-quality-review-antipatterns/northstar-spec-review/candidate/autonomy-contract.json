@@ -1,0 +1,9 @@
+{
+  "id": "AGENT-AI-2290-UNSAFE",
+  "writable_paths": ["*"],
+  "protected_paths": [],
+  "change_budget": "unbounded",
+  "permissions": ["modify", "deploy_production"],
+  "required_evidence": [],
+  "stop_conditions": []
+}

@@ -1385,6 +1385,171 @@ def check_course_08_non_functional_requirements() -> list[str]:
     return errors
 
 
+def check_course_09_specification_review() -> list[str]:
+    lesson = ROOT / "curriculum" / "beginner" / "09-specification-quality-review-antipatterns"
+    scenario = lesson / "northstar-spec-review"
+    required = [
+        "README.md",
+        "specification_review.ipynb",
+        "lab.py",
+        "northstar-spec-review/README.md",
+        "northstar-spec-review/ticket/AI-2290.md",
+        "northstar-spec-review/candidate/review-input.json",
+        "northstar-spec-review/candidate/autonomy-contract.json",
+        "northstar-spec-review/candidate/traceability.json",
+        "northstar-spec-review/candidate/evidence.json",
+        "northstar-spec-review/candidate/context-manifest.json",
+        "northstar-spec-review/reference/repaired-review-input.json",
+        "northstar-spec-review/reference/autonomy-contract.json",
+        "northstar-spec-review/reference/traceability.json",
+        "northstar-spec-review/reference/evidence.json",
+        "northstar-spec-review/reference/context-manifest.json",
+        "northstar-spec-review/reference/review-report.json",
+        "northstar-spec-review/reference/readiness-decision.json",
+        "northstar-spec-review/reference/repair-plan.md",
+        "northstar-spec-review/evaluation-cases.json",
+        "northstar-spec-review/capability-readiness.json",
+        "northstar-spec-review/resolved-policy-expectation.json",
+        "northstar-spec-review/workshop/starter/README.md",
+        "northstar-spec-review/workshop/starter/review-findings.json",
+        "northstar-spec-review/workshop/starter/readiness-decision.json",
+    ]
+    errors = [f"missing Course 09 artifact: {item}" for item in required if not (lesson / item).exists()]
+    if errors:
+        return errors
+
+    json_paths = sorted(scenario.rglob("*.json"))
+    payloads: dict[Path, dict] = {}
+    for path in json_paths:
+        try:
+            payloads[path] = json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError) as exc:
+            errors.append(f"invalid Course 09 JSON {path.relative_to(ROOT)}: {exc}")
+    if errors:
+        return errors
+
+    reference = scenario / "reference"
+    reference_text = "\n".join(
+        path.read_text(encoding="utf-8") for path in reference.rglob("*") if path.is_file()
+    )
+    if "TODO" in reference_text:
+        errors.append("Course 09 reference artifacts contain unresolved TODOs")
+    starter = scenario / "workshop" / "starter"
+    starter_text = "\n".join(
+        path.read_text(encoding="utf-8") for path in starter.rglob("*") if path.is_file()
+    )
+    if "TODO" not in starter_text:
+        errors.append("Course 09 starter workspace has no editable TODO prompts")
+
+    evaluation_cases = payloads[scenario / "evaluation-cases.json"].get("cases", [])
+    if len(evaluation_cases) != 35 or any("expected_codes" not in case for case in evaluation_cases):
+        errors.append("Course 09 evaluation must retain 35 explicitly labelled cases")
+
+    result = subprocess.run(
+        [sys.executable, str(lesson / "lab.py")],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    try:
+        report = json.loads(result.stdout) if result.returncode == 0 else {}
+    except json.JSONDecodeError:
+        report = {}
+    if not report:
+        errors.append("Course 09 lab did not produce its JSON review report")
+        return errors
+
+    baseline = report.get("baseline", {})
+    if (baseline.get("numerator"), baseline.get("denominator"), baseline.get("looks_complete")) != (7, 7, True):
+        errors.append("Course 09 lexical baseline must visibly mistake 7/7 concept presence for completeness")
+
+    candidate = report.get("candidate_review", {})
+    counts = candidate.get("finding_counts", {})
+    if counts != {"blocking": 16, "review": 24, "informational": 0}:
+        errors.append("Course 09 candidate must retain 16 blocking and 24 review findings")
+    candidate_decision = report.get("candidate_readiness", {})
+    if candidate_decision.get("decision") != "stop" or candidate_decision.get("ready") is not False:
+        errors.append("Course 09 unsafe candidate must stop before implementation")
+    if candidate_decision.get("score") is not None:
+        errors.append("Course 09 readiness must not collapse findings into a composite score")
+
+    trace = candidate.get("traceability", {})
+    structural = trace.get("structural_link_coverage", {})
+    semantic = trace.get("semantic_link_validity", {})
+    if (structural.get("numerator"), structural.get("denominator")) != (10, 10):
+        errors.append("Course 09 must preserve the misleading 10/10 structural trace baseline")
+    if (semantic.get("numerator"), semantic.get("denominator")) != (1, 10):
+        errors.append("Course 09 must expose semantic trace validity as 1/10")
+    clusters = candidate.get("finding_clusters", [])
+    if len(clusters) != 7 or sum(len(item.get("finding_ids", [])) for item in clusters) != 40:
+        errors.append("Course 09 must cluster 40 machine findings into seven human remediation themes")
+
+    repaired = report.get("repaired_review", {})
+    if repaired.get("findings") or repaired.get("finding_counts") != {"blocking": 0, "review": 0, "informational": 0}:
+        errors.append("Course 09 repaired reference package must validate without findings")
+    repaired_decision = report.get("repaired_readiness", {})
+    if repaired_decision.get("decision") != "ready_for_bounded_implementation" or repaired_decision.get("ready") is not True:
+        errors.append("Course 09 repaired package may authorize only bounded implementation")
+    if repaired_decision.get("score") is not None:
+        errors.append("Course 09 repaired readiness must remain score-free")
+    repaired_trace = repaired.get("traceability", {})
+    if repaired_trace.get("relationship_type_counts") != {"reviewed_by": 10}:
+        errors.append("Course 09 repaired links must be typed explicitly as specification review traceability")
+    repaired_conformance = repaired_trace.get("conformance_evidence_coverage", {})
+    if (repaired_conformance.get("numerator"), repaired_conformance.get("denominator")) != (0, 10):
+        errors.append("Course 09 review traceability must not claim implementation or conformance evidence")
+
+    evaluation = report.get("evaluation", {})
+    exact_matches = evaluation.get("exact_case_matches", {})
+    if (
+        evaluation.get("population"),
+        evaluation.get("true_positive"),
+        evaluation.get("false_positive"),
+        evaluation.get("false_negative"),
+        exact_matches.get("numerator"),
+        exact_matches.get("denominator"),
+    ) != (35, 78, 0, 0, 35, 35):
+        errors.append("Course 09 labelled fixture evaluation must retain 35 cases and 78 expected findings")
+    if "fixture" not in evaluation.get("claim", ""):
+        errors.append("Course 09 evaluation claim must disclose its labelled-fixture boundary")
+
+    expected_review = payloads[reference / "review-report.json"]
+    if expected_review.get("finding_counts") != counts:
+        errors.append("Course 09 checked-in review report must match executable finding counts")
+    expected_readiness = payloads[reference / "readiness-decision.json"]
+    if expected_readiness.get("candidate", {}).get("score", "missing") is not None:
+        errors.append("Course 09 reference readiness must explicitly reject a composite score")
+
+    capability = report.get("capability_readiness", {})
+    if capability.get("counts") != {"blocked": 1, "ready_for_bounded_implementation": 4}:
+        errors.append("Course 09 must keep readiness scoped to four ready capabilities and one blocked capability")
+    automatic = next(
+        (item for item in capability.get("capabilities", []) if item.get("capability") == "automatic_mutation"),
+        {},
+    )
+    if automatic.get("decision") != "blocked" or "authorization_contract_unresolved" not in automatic.get("blockers", []):
+        errors.append("Course 09 automatic mutation must remain blocked on unresolved authorization")
+    if "not authenticated" not in capability.get("evidence_boundary", ""):
+        errors.append("Course 09 readiness evidence must disclose its synthetic, unauthenticated fixture boundary")
+
+    quiz_source = (ROOT / "quiz" / "questions.js").read_text(encoding="utf-8")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 123:
+        errors.append("Course 09 cumulative quiz must contain 123 questions")
+    if "Courses 01–09" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
+        errors.append("Course 09 cumulative quiz must identify Courses 01–09")
+    hub_source = (ROOT / "hub" / "lessons.js").read_text(encoding="utf-8")
+    expected_hub_fragments = [
+        "const course09 = {",
+        "status: 'available'",
+        "09-specification-quality-review-antipatterns/northstar-spec-review/workshop/starter",
+        "09-specification-quality-review-antipatterns/northstar-spec-review/reference",
+    ]
+    if any(fragment not in hub_source for fragment in expected_hub_fragments):
+        errors.append("Course 09 Learning Hub entry is incomplete or points outside the workshop package")
+    return errors
+
+
 def main() -> None:
     checks = {
         "local links": check_local_links,
@@ -1399,6 +1564,7 @@ def main() -> None:
         "Course 06 executable requirements": check_course_06_executable_requirements,
         "Course 07 acceptance evidence": check_course_07_acceptance_evidence,
         "Course 08 non-functional requirements": check_course_08_non_functional_requirements,
+        "Course 09 specification review": check_course_09_specification_review,
         "diagrams": render_and_validate_diagrams,
         "labs": run_labs,
         "repository labs": run_repository_labs,

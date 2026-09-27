@@ -1,0 +1,8 @@
+{
+  "subject_id":"AI-2290-SPEC@candidate-v1",
+  "decision":"TODO: stop | review | ready_for_bounded_implementation",
+  "blocking_finding_ids":["TODO"],
+  "affected_capabilities":["TODO"],
+  "score":null,
+  "next_owner":"TODO"
+}
