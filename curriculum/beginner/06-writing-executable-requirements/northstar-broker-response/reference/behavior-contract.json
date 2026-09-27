@@ -1,0 +1,155 @@
+{
+  "specification": {
+    "id": "AI-2219",
+    "revision": "1.1-training",
+    "status": "approved_for_proposal_processing",
+    "owner": "underwriting_product",
+    "updated_at": "2026-09-20T20:00:00Z",
+    "traceability_scope": "complete_reference"
+  },
+  "scope": {
+    "in": ["authenticated portal responses", "supported fields", "proposal creation", "deterministic disposition"],
+    "out": ["attachment extraction", "creation of unknown fields", "automatic replacement of verified conflicting values"],
+    "non_goals": ["select a model", "select a framework", "let model output authorize mutation"]
+  },
+  "sources": [
+    {"id": "SRC-BR-TICKET", "version": "1", "locator": "ticket/AI-2219.md", "owner": "underwriting_product"},
+    {"id": "SRC-BR-DECISIONS", "version": "1", "locator": "sources/stakeholder-decisions.md", "owner": "named_stakeholders"},
+    {"id": "SRC-BR-FIELDS", "version": "4.2-training", "locator": "sources/field-rules.json", "owner": "underwriting_domain"},
+    {"id": "SRC-BR-AUTH", "version": "3.1-training", "locator": "sources/authorization-policy.json", "owner": "broker_identity"}
+  ],
+  "artifact_authority": {
+    "normative_requirement": "defines the obligation",
+    "normative_elaboration": "adds binding detail only when explicitly referenced",
+    "normative_example": "illustrates an obligation but does not override it",
+    "informative": "explains without adding an obligation",
+    "evidence": "tests conformance without redefining the specification",
+    "conflict_outcome": "SPEC_CONTRADICTION_STOP"
+  },
+  "controlled_vocabulary": {
+    "proposal_status": ["extracted", "validated", "conflicting", "mapping_ambiguous", "source_conflict", "attachment_review_required", "unmapped", "awaiting_review", "approved", "rejected", "applied", "stale"],
+    "disposition": ["auto_apply_eligible", "propose", "no_change", "conflict", "reject", "clarify", "block"]
+  },
+  "capabilities": [
+    {"id": "extract_response", "status": "ready", "requirement_ids": ["REQ-BR-003", "REQ-BR-030", "REQ-BR-031"]},
+    {"id": "classify_proposal", "status": "ready", "requirement_ids": ["REQ-BR-005", "REQ-BR-008", "REQ-BR-020", "REQ-BR-021", "REQ-BR-032", "REQ-BR-033", "REQ-BR-034"]},
+    {"id": "create_proposal", "status": "ready", "requirement_ids": ["REQ-BR-002", "REQ-BR-007", "CONTRACT-BR-001"]},
+    {"id": "apply_unverified_value", "status": "review_required", "requirement_ids": ["REQ-BR-006", "STATE-BR-001", "REQ-BR-035", "REQ-BR-036"]},
+    {"id": "apply_reviewed_conflict", "status": "review_required", "requirement_ids": ["REQ-BR-005", "REQ-BR-037", "STATE-BR-002", "STATE-BR-003"]},
+    {"id": "automatically_overwrite_verified_value", "status": "prohibited", "requirement_ids": ["REQ-BR-001", "REQ-BR-004", "INV-BR-002"]}
+  ],
+  "requirements": [
+    {
+      "id": "REQ-BR-001", "revision": "2", "status": "approved", "role": "normative_requirement", "ears_pattern": "ubiquitous", "capability": "automatically_overwrite_verified_value", "owner": "underwriting_domain", "source_ids": ["SRC-BR-DECISIONS"],
+      "statement": "An existing verified submission value SHALL NOT be automatically replaced by conflicting broker-provided information.",
+      "actor": "trusted update service", "trigger": "automatic application requested", "inputs": ["ProposedUpdate", "current submission"], "preconditions": ["existing value verified", "proposed value differs"], "behavior": "preserve the verified value at the automatic mutation boundary", "prohibited": ["automatic conflicting overwrite"], "postconditions": ["verified value unchanged"], "frame_conditions": ["all submission fields unchanged"], "failure_behavior": "block automatic replacement and route the proposal to conflict handling", "evidence_ids": ["PROP-BR-002", "STATE-TEST-BR-002"]
+    },
+    {
+      "id": "REQ-BR-002", "revision": "1", "status": "approved", "role": "normative_requirement", "ears_pattern": "ubiquitous", "capability": "create_proposal", "owner": "data_governance", "source_ids": ["SRC-BR-DECISIONS"],
+      "statement": "The system SHALL retain the source response ID for every ProposedUpdate.",
+      "actor": "proposal service", "trigger": "proposal creation", "inputs": ["response identity"], "preconditions": ["authenticated response"], "behavior": "retain source response identity", "prohibited": ["unattributed proposal"], "postconditions": ["source_response_id present"], "frame_conditions": ["source response unchanged"], "failure_behavior": "reject incomplete proposal", "evidence_ids": ["CONTRACT-TEST-BR-001"], "elaboration_ids": ["CONTRACT-BR-001"], "population": "ProposedUpdate records created by AI-2219"
+    },
+    {
+      "id": "REQ-BR-003", "revision": "1", "status": "approved", "role": "normative_requirement", "ears_pattern": "event_driven", "capability": "extract_response", "owner": "underwriting_product", "source_ids": ["SRC-BR-TICKET", "SRC-BR-DECISIONS"],
+      "statement": "WHEN an authenticated broker response is received for a submission with outstanding information requests, THE SYSTEM SHALL evaluate the response against those requests.",
+      "actor": "response processor", "trigger": "authenticated response received", "inputs": ["response", "outstanding requests"], "preconditions": ["broker authorized"], "behavior": "evaluate against current outstanding requests", "prohibited": ["evaluation before authorization"], "postconditions": ["zero or more proposals or explicit terminal finding"], "frame_conditions": ["submission values unchanged"], "failure_behavior": "block unauthorized or unknown identity", "evidence_ids": ["INT-BR-003"]
+    },
+    {
+      "id": "REQ-BR-004", "revision": "1", "status": "approved", "role": "normative_requirement", "ears_pattern": "state_driven", "capability": "automatically_overwrite_verified_value", "owner": "underwriting_domain", "source_ids": ["SRC-BR-DECISIONS"],
+      "statement": "WHILE an extracted broker value is awaiting underwriter verification, THE SYSTEM SHALL preserve the existing verified submission value.",
+      "actor": "trusted update service", "trigger": "proposal pending review", "inputs": ["proposal state", "existing value"], "preconditions": ["existing value verified"], "behavior": "preserve current value", "prohibited": ["pending proposal mutation"], "postconditions": ["existing value unchanged"], "frame_conditions": ["all unrelated fields unchanged"], "failure_behavior": "block transition", "evidence_ids": ["STATE-TEST-BR-004"], "population": "proposals awaiting underwriter verification"
+    },
+    {
+      "id": "REQ-BR-005", "revision": "3", "status": "approved", "role": "normative_requirement", "ears_pattern": "unwanted_behavior", "capability": "classify_proposal", "owner": "underwriting_domain", "source_ids": ["SRC-BR-DECISIONS"],
+      "statement": "IF a proposed broker value differs from an existing verified value, THEN THE SYSTEM SHALL classify the ProposedUpdate as CONFLICTING.",
+      "actor": "decision layer", "trigger": "verified-value conflict", "inputs": ["existing value", "proposed value"], "preconditions": ["verification state known", "values comparable"], "behavior": "classify the proposal as conflicting", "prohibited": ["classifying the conflict as automatically applicable"], "postconditions": ["status conflicting"], "frame_conditions": ["submission unchanged during classification"], "failure_behavior": "stop classification on unknown verification state", "evidence_ids": ["AC-BR-005-A", "TEST-BR-005-A"], "elaboration_ids": ["DT-BR-001"], "semantic_contract": {"verified_conflict_outcome": "conflict"}
+    },
+    {
+      "id": "REQ-BR-006", "revision": "1", "status": "approved", "role": "normative_requirement", "ears_pattern": "optional_feature", "capability": "apply_unverified_value", "owner": "underwriting_operations", "source_ids": ["SRC-BR-DECISIONS", "SRC-BR-AUTH"],
+      "statement": "WHERE automatic acceptance is enabled for an approved field class, THE SYSTEM SHALL apply the current field-acceptance policy before updating submission state.",
+      "actor": "policy gate", "trigger": "automatic application considered", "inputs": ["field class", "policy version"], "preconditions": ["policy explicitly enables field"], "behavior": "evaluate policy", "prohibited": ["model-selected authorization"], "postconditions": ["decision reason recorded"], "frame_conditions": ["state unchanged before pass"], "failure_behavior": "block on absent or unknown policy", "evidence_ids": ["POLICY-TEST-BR-006"]
+    },
+    {
+      "id": "REQ-BR-007", "revision": "1", "status": "approved", "role": "normative_requirement", "ears_pattern": "complex", "capability": "create_proposal", "owner": "underwriting_product", "source_ids": ["SRC-BR-DECISIONS"],
+      "statement": "WHILE a submission awaits broker information, WHEN an authenticated response provides a non-conflicting value for an outstanding request, THE SYSTEM SHALL create a ProposedUpdate linked to the source response.",
+      "actor": "proposal service", "trigger": "qualifying response", "inputs": ["response", "request", "field rule"], "preconditions": ["authorized", "current", "non-conflicting"], "behavior": "create proposal", "prohibited": ["direct model mutation"], "postconditions": ["proposal linked to response"], "frame_conditions": ["submission unchanged"], "failure_behavior": "classify or clarify", "evidence_ids": ["INT-BR-007"]
+    },
+    {
+      "id": "REQ-BR-008", "revision": "1", "status": "approved", "role": "normative_requirement", "ears_pattern": "ubiquitous", "capability": "classify_proposal", "owner": "underwriting_domain", "source_ids": ["SRC-BR-DECISIONS"],
+      "statement": "The system SHALL determine the disposition of a validated broker-provided value according to DT-BR-001.",
+      "actor": "decision layer", "trigger": "validated proposal", "inputs": ["decision facts"], "preconditions": ["DT-BR-001 current"], "behavior": "apply decision table", "prohibited": ["undeclared fallback"], "postconditions": ["one disposition"], "frame_conditions": ["submission unchanged"], "failure_behavior": "stop on zero or multiple matches", "evidence_ids": ["DT-COVERAGE-BR-001"], "elaboration_ids": ["DT-BR-001"]
+    },
+    {
+      "id": "REQ-BR-020", "revision": "1", "status": "approved", "role": "normative_requirement", "ears_pattern": "ubiquitous", "capability": "classify_proposal", "owner": "underwriting_domain", "source_ids": ["SRC-BR-FIELDS"],
+      "statement": "A ProposedUpdate SHALL satisfy the current domain validation rule for its target field before it may be applied to authoritative submission state.",
+      "actor": "domain validator", "trigger": "application eligibility evaluated", "inputs": ["field", "value", "field rule revision"], "preconditions": ["supported field"], "behavior": "validate the value before mutation eligibility", "prohibited": ["schema-only acceptance", "application of an invalid value"], "postconditions": ["domain validation result recorded"], "frame_conditions": ["proposal evidence unchanged", "submission unchanged"], "failure_behavior": "block authoritative application", "evidence_ids": ["DOMAIN-TEST-BR-020"]
+    },
+    {
+      "id": "REQ-BR-021", "revision": "1", "status": "approved", "role": "normative_requirement", "ears_pattern": "unwanted_behavior", "capability": "classify_proposal", "owner": "underwriting_domain", "source_ids": ["SRC-BR-FIELDS", "SRC-BR-DECISIONS"],
+      "statement": "IF a proposed value fails domain validation, THEN THE SYSTEM SHALL classify it as REJECTED and MAY surface the proposal for review or clarification without applying it.",
+      "actor": "domain validator", "trigger": "domain validation fails", "inputs": ["ProposedUpdate", "validation reasons"], "preconditions": ["target field supported"], "behavior": "retain the invalid proposal and reasons for an optional human workflow", "prohibited": ["authoritative application", "silent coercion"], "postconditions": ["status rejected", "validation reasons available"], "frame_conditions": ["submission unchanged"], "failure_behavior": "preserve evidence and block application", "evidence_ids": ["CASE-05", "STATE-TEST-BR-021"]
+    },
+    {
+      "id": "REQ-BR-030", "revision": "4", "status": "approved", "role": "normative_requirement", "ears_pattern": "ubiquitous", "capability": "extract_response", "owner": "data_governance", "source_ids": ["SRC-BR-DECISIONS"],
+      "statement": "Every extracted value SHALL retain its source response ID, source span, applicable requirement ID, and extraction model version.",
+      "actor": "extraction adapter", "trigger": "value extraction", "inputs": ["source evidence"], "preconditions": ["source response identified"], "behavior": "retain provenance", "prohibited": ["detached extraction"], "postconditions": ["provenance fields present"], "frame_conditions": ["source text unchanged"], "failure_behavior": "reject incomplete proposal", "evidence_ids": ["CONTRACT-TEST-BR-030"], "elaboration_ids": ["CONTRACT-BR-001"], "population": "values extracted by AI-2219"
+    },
+    {
+      "id": "REQ-BR-031", "revision": "1", "status": "approved", "role": "normative_requirement", "ears_pattern": "ubiquitous", "capability": "extract_response", "owner": "ai_platform", "source_ids": ["SRC-BR-DECISIONS"],
+      "statement": "Model-generated status labels SHALL be treated as proposals and SHALL NOT authorize submission mutation.",
+      "actor": "trusted application", "trigger": "model output received", "inputs": ["model proposal"], "preconditions": ["schema parsed"], "behavior": "recompute status", "prohibited": ["trust model status"], "postconditions": ["application-owned status"], "frame_conditions": ["submission unchanged"], "failure_behavior": "reject or classify", "evidence_ids": ["TRUST-BOUNDARY-TEST-BR-031"]
+    },
+    {
+      "id": "REQ-BR-032", "revision": "1", "status": "approved", "role": "normative_requirement", "ears_pattern": "event_driven", "capability": "classify_proposal", "owner": "underwriting_domain", "source_ids": ["SRC-BR-FIELDS"],
+      "statement": "WHEN extracted information has no applicable supported field, THE SYSTEM SHALL classify it as UNMAPPED and SHALL NOT create a new submission field.",
+      "actor": "mapping validator", "trigger": "no supported mapping", "inputs": ["candidate field"], "preconditions": ["field catalog current"], "behavior": "classify unmapped", "prohibited": ["schema expansion"], "postconditions": ["clarification finding"], "frame_conditions": ["submission schema unchanged"], "failure_behavior": "clarify", "evidence_ids": ["CASE-06"]
+    },
+    {
+      "id": "REQ-BR-033", "revision": "1", "status": "approved", "role": "normative_requirement", "ears_pattern": "event_driven", "capability": "classify_proposal", "owner": "underwriting_domain", "source_ids": ["SRC-BR-FIELDS"],
+      "statement": "WHEN one extracted value maps to multiple supported fields without a unique valid mapping, THE SYSTEM SHALL classify it as MAPPING_AMBIGUOUS and SHALL NOT apply the value.",
+      "actor": "mapping validator", "trigger": "multiple candidate mappings", "inputs": ["candidate fields"], "preconditions": ["field catalog current"], "behavior": "classify mapping ambiguous", "prohibited": ["arbitrary field selection"], "postconditions": ["clarification finding"], "frame_conditions": ["submission unchanged"], "failure_behavior": "clarify", "evidence_ids": ["CASE-07"]
+    },
+    {
+      "id": "REQ-BR-034", "revision": "1", "status": "approved", "role": "normative_requirement", "ears_pattern": "event_driven", "capability": "classify_proposal", "owner": "underwriting_domain", "source_ids": ["SRC-BR-DECISIONS"],
+      "statement": "WHEN one response contains incompatible candidate values for one field without authoritative resolution, THE SYSTEM SHALL classify it as SOURCE_CONFLICT and require review.",
+      "actor": "conflict validator", "trigger": "incompatible source candidates", "inputs": ["candidate values", "source spans"], "preconditions": ["same target field"], "behavior": "classify source conflict", "prohibited": ["silent last-value wins"], "postconditions": ["review required"], "frame_conditions": ["submission unchanged"], "failure_behavior": "conflict", "evidence_ids": ["CASE-10"]
+    },
+    {
+      "id": "REQ-BR-035", "revision": "1", "status": "approved", "role": "normative_requirement", "ears_pattern": "ubiquitous", "capability": "apply_unverified_value", "owner": "messaging_platform", "source_ids": ["SRC-BR-DECISIONS"],
+      "statement": "The system SHALL NOT apply an older response event over a newer authoritative update without explicit conflict resolution.",
+      "actor": "trusted update service", "trigger": "application attempt", "inputs": ["event sequence", "current state"], "preconditions": ["stable response identity"], "behavior": "compare event ordering", "prohibited": ["older-over-newer mutation"], "postconditions": ["older event blocked"], "frame_conditions": ["submission unchanged"], "failure_behavior": "mark stale or conflict", "evidence_ids": ["ORDER-TEST-BR-035"]
+    },
+    {
+      "id": "REQ-BR-036", "revision": "3", "status": "approved", "role": "normative_requirement", "ears_pattern": "ubiquitous", "capability": "apply_unverified_value", "owner": "underwriting_platform", "source_ids": ["SRC-BR-DECISIONS"],
+      "statement": "A ProposedUpdate whose source submission revision or requirement-context digest is not current SHALL transition to STALE before application.",
+      "actor": "trusted update service", "trigger": "application attempt", "inputs": ["proposal context", "current context"], "preconditions": ["identities known"], "behavior": "compare context", "prohibited": ["stale application"], "postconditions": ["status stale"], "frame_conditions": ["submission unchanged"], "failure_behavior": "re-evaluate", "evidence_ids": ["STALE-TEST-BR-036"]
+    },
+    {
+      "id": "REQ-BR-037", "revision": "1", "status": "approved", "role": "normative_requirement", "ears_pattern": "event_driven", "capability": "apply_reviewed_conflict", "owner": "underwriting_governance", "source_ids": ["SRC-BR-DECISIONS", "SRC-BR-AUTH"],
+      "statement": "WHEN a reviewed conflict is selected for replacement, THE SYSTEM SHALL require an unused, unexpired approval receipt that binds the exact ProposedUpdate digest, current submission revision, current requirement-context digest, and replace-verified-value resolution before application.",
+      "actor": "trusted update service", "trigger": "reviewed conflict replacement requested", "inputs": ["approved ProposedUpdate", "ApprovalReceipt", "current context"], "preconditions": ["proposal originated from conflict", "reviewer authenticated and authorized"], "behavior": "validate exact conflict-resolution authority", "prohibited": ["generic approval reuse", "implicit conflict overwrite"], "postconditions": ["replacement either explicitly authorized or blocked"], "frame_conditions": ["submission unchanged until every guard passes"], "failure_behavior": "block and record exact reason codes", "evidence_ids": ["APPROVAL-TEST-BR-037", "STATE-TEST-BR-003"]
+    }
+  ],
+  "contracts": [
+    {"id": "CONTRACT-BR-001", "revision": "2", "status": "approved", "role": "normative_elaboration", "governs": ["REQ-BR-002", "REQ-BR-030"], "locator": "reference/contracts/proposed-update.schema.json"}
+  ],
+  "invariants": [
+    {"id": "INV-BR-001", "statement": "An unauthorized broker response SHALL never modify submission state.", "requirement_ids": ["REQ-BR-003"]},
+    {"id": "INV-BR-002", "statement": "For every verified value V and different broker-proposed value P, automated application SHALL be prohibited.", "requirement_ids": ["REQ-BR-001"], "population": "supported fields with comparable verified and proposed values"},
+    {"id": "INV-BR-003", "statement": "Every applied broker-provided value SHALL retain provenance to the source response.", "requirement_ids": ["REQ-BR-002", "REQ-BR-030"], "population": "applied values created from broker responses"},
+    {"id": "INV-BR-004", "statement": "One authenticated broker response SHALL NOT be applied more than once for authoritative mutation.", "requirement_ids": ["REQ-BR-035"], "population": "authenticated responses identified by stable response ID"}
+  ],
+  "state_requirements": [
+    {"id": "STATE-BR-001", "statement": "A ProposedUpdate SHALL transition to APPLIED only from APPROVED or from VALIDATED when current policy permits automatic acceptance.", "capability": "apply_unverified_value", "elaboration_ids": ["SM-BR-001"]},
+    {"id": "STATE-BR-002", "statement": "A CONFLICTING ProposedUpdate SHALL NOT transition directly to APPLIED.", "capability": "apply_reviewed_conflict", "elaboration_ids": ["SM-BR-001"]},
+    {"id": "STATE-BR-003", "statement": "A CONFLICTING ProposedUpdate SHALL enter AWAITING_REVIEW before it may become APPROVED or REJECTED, and replacement approval SHALL name the replace-verified-value resolution.", "capability": "apply_reviewed_conflict", "elaboration_ids": ["SM-BR-001"]}
+  ],
+  "questions": [
+    {"id": "OQ-BR-001", "status": "open", "owner": "underwriting_governance", "text": "Which additional field classes may use automatic acceptance after Release 1?", "blocks_capabilities": ["apply_unverified_value"]}
+  ],
+  "agent_authority": {
+    "allowed": ["draft requirements", "propose scenarios", "implement ready capabilities", "run deterministic validation", "report potential contradictions"],
+    "forbidden": ["adjudicate normative contradictions", "approve requirements", "widen supported fields", "authorize brokers", "apply production updates", "implement prohibited capability"],
+    "stop_conditions": ["normative contradiction", "unknown authority", "stale context", "unsupported field", "ambiguous mapping", "source conflict"]
+  }
+}

@@ -4,7 +4,7 @@
 
 ## Start here
 
-Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through Courses 02–04, then complete [Course 05: Requirements engineering for coding agents](curriculum/beginner/05-requirements-engineering-for-agents/README.md) with its guided [notebook](curriculum/beginner/05-requirements-engineering-for-agents/requirements_engineering.ipynb), deterministic [requirements lab](curriculum/beginner/05-requirements-engineering-for-agents/lab.py), realistic [AI-2176 workshop](curriculum/beginner/05-requirements-engineering-for-agents/northstar-broker-follow-up/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
+Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through Course 09, then complete [Course 10: From specification to implementation plan & agent work units](curriculum/beginner/10-specification-to-implementation-plan/README.md) with its guided [notebook](curriculum/beginner/10-specification-to-implementation-plan/implementation_planning.ipynb), deterministic [planning lab](curriculum/beginner/10-specification-to-implementation-plan/lab.py), realistic [AI-2219 planning workshop](curriculum/beginner/10-specification-to-implementation-plan/northstar-implementation-plan/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
 
 This is not simply a tutorial for one specification framework. The central skill is turning organizational intent, architecture rules, product requirements, and engineering constraints into a hierarchy of durable specifications that agents can execute—and humans can govern.
 
@@ -13,7 +13,7 @@ This is not simply a tutorial for one specification framework. The central skill
 | Part | Courses | Focus |
 | --- | ---: | --- |
 | I · SDD foundations | 01–04 | Why the PDLC changes and how specifications form a hierarchy |
-| II · Executable specifications | 05–10 | Requirements, scenarios, invariants, NFRs, ADRs, and traceability |
+| II · Executable specifications | 05–10 | Requirements, scenarios, invariants, NFRs, specification review, and traceability |
 | III · SDD frameworks | 11–16 | Spec Kit, OpenSpec, Kiro, agent instructions, selection, and extensions |
 | IV · Agentic PDLC | 17–23 | Delivery flows, brownfield work, parallel agents, reviews, and approvals |
 | V · Enterprise controls | 24–31 | Security, AI governance, architecture, quality, compliance, and CI/CD |
@@ -87,9 +87,81 @@ Course 05 turns a sparse AI feature request into bounded, executable requirement
 - detect stale agent context, semantic requirement changes, orphan tasks, and unimplemented requirements; and
 - compare lexical and evidence-aware review rules on labelled cases without presenting the fixture as a benchmark.
 
+## Course 06 outcome
+
+Course 06 connects complementary requirement representations into one governed behavior. You will:
+
+- keep user stories as intent while expressing obligations with explicit SHALL and EARS conventions;
+- combine requirements, decision tables, scenarios, contracts, state machines, and invariants without creating competing sources of truth;
+- distinguish schema validity from semantic validity, authorization, policy, approval, and execution;
+- treat model-generated field, value, evidence, and status as proposals at a trust boundary;
+- block stale, duplicate, out-of-order, ambiguous, and unsupported updates, and require an explicit reviewed resolution before replacing a verified conflicting value;
+- prove frame conditions and prohibited transitions at a narrow mutation boundary;
+- evaluate model extraction separately from trusted application decisions; and
+- classify semantic requirement changes and trace direct and transitive impact.
+
+## Course 07 outcome
+
+Course 07 converts requirements into defensible, bounded evidence. You will:
+
+- distinguish requirements, acceptance criteria, tests, evidence, and release decisions;
+- design positive, negative, boundary, failure, stale-context, security, and compatibility criteria;
+- pair reviewable examples with broad invariants, frame conditions, decision-table coverage, and state checks;
+- use property-based reasoning and mutation testing without overclaiming proof;
+- define AI evaluation populations, slices, label provenance, split controls, and explicit denominators;
+- track evidence provenance, freshness, invalidation, independence, and limitations;
+- separate measured quality from threshold ownership and release authority; and
+- connect preventive controls with runtime signals that expose the applicable population.
+
+## Course 08 outcome
+
+Course 08 turns production qualities into governed measurement contracts. You will:
+
+- replace vague adjectives with population-bound, measurable NFRs without inventing targets;
+- define workload profiles, latency boundaries, percentiles, semantic good events, and capacity evidence;
+- distinguish SLIs, internal SLOs, external SLAs, invariants, and error-budget response policies;
+- design dependency-specific degradation that preserves work and reduces autonomy;
+- bound provider attempts, tool calls, model turns, tokens, deadlines, and authoritative side effects;
+- measure cost per successful compliant workflow rather than optimizing isolated API calls;
+- specify least privilege, privacy-safe telemetry, trace completeness, and AI-quality slices; and
+- keep production blocked when targets are unauthorized, capacity is unmeasured, or evidence is synthetic.
+
+## Course 09 outcome
+
+Course 09 turns specification review into a governed readiness decision. You will:
+
+- detect specification theater even when responsible-sounding concepts are present;
+- review correctness, completeness, clarity, consistency, verifiability, traceability, authority, maintainability, autonomy, and decision ownership;
+- distinguish blocking findings from review concerns and informational observations without averaging risk into a score;
+- expose false precision, confidence theater, implementation leakage, authority laundering, and unsafe exception handling;
+- validate semantic trace relationships instead of counting links alone;
+- detect stale evidence, modified generated context, missing provenance, and unsafe agent permissions;
+- resolve contradictory requirements without mistaking specificity, recency, proximity, or agent instructions for authority;
+- detect self-confirming requirement/code/test loops and preserve scoped uncertainty;
+- reconcile requirements, architecture, repository reality, migration, rollout, fallback, and observability;
+- evaluate deterministic review rules on labelled cases without claiming general reviewer accuracy; and
+- approve only capability-scoped bounded implementation after the relevant package clears every blocking condition.
+
+## Course 10 outcome
+
+Course 10 turns an approved specification into a bounded, evidence-backed execution graph. You will:
+
+- distinguish approved requirements from repository discovery, plans, tasks, work units, execution context, and evidence;
+- bind plans to exact specification, repository, architecture, instruction, and readiness-evidence revisions;
+- disposition every applicable requirement and trace intent through work units, tasks, semantic code areas, and evidence;
+- decompose cohesive work around stable contracts, exclusive write ownership, accountable teams, and decision authority;
+- schedule dependency-aware execution waves without treating maximum concurrency as useful parallelism;
+- compare contract-inferred and explicit dependencies, identify a coarse-indicator critical path, and scope unknowns to affected units;
+- route consequential discovery through typed clarification, architecture, contract, dependency, scope, policy, or evidence artifacts;
+- keep permission requests least-privilege, temporary, work-unit-bound, and externally provisioned;
+- route mid-flight contract changes through impact analysis and targeted replanning;
+- detect both path-level and semantic scope expansion; and
+- distinguish executor completion from independent verification and integration evidence; and
+- separate implementation, merge, release, rollout, shadow, and enablement readiness.
+
 ## Run locally
 
-Everything in Courses 01–05 is credential-free and uses the Python standard library.
+Everything in Courses 01–10 is credential-free and uses the Python standard library.
 
 ```bash
 python3 curriculum/beginner/01-why-agentic-coding-changes-pdlc/lab.py
@@ -98,6 +170,11 @@ python3 curriculum/beginner/02-from-prompt-to-executable-specification/lab.py
 python3 curriculum/beginner/03-the-specification-hierarchy/lab.py
 python3 curriculum/beginner/04-company-project-feature-requirements/lab.py
 python3 curriculum/beginner/05-requirements-engineering-for-agents/lab.py
+python3 curriculum/beginner/06-writing-executable-requirements/lab.py
+python3 curriculum/beginner/07-acceptance-criteria-invariants-evidence/lab.py
+python3 curriculum/beginner/08-non-functional-requirements-agentic-systems/lab.py
+python3 curriculum/beginner/09-specification-quality-review-antipatterns/lab.py
+python3 curriculum/beginner/10-specification-to-implementation-plan/lab.py
 python3 -m unittest discover -s tests -v
 python3 scripts/validate_course.py
 ```

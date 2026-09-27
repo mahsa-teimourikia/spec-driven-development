@@ -1,0 +1,7 @@
+{
+  "subject_id":"AI-2290-SPEC@candidate-v1",
+  "findings":[
+    {"finding_id":"TODO","severity":"TODO","dimension":"TODO","code":"TODO","subject_id":"TODO","evidence":"TODO","owner":"TODO","repair":"TODO"}
+  ],
+  "limitations":["TODO: explain what this review cannot prove"]
+}

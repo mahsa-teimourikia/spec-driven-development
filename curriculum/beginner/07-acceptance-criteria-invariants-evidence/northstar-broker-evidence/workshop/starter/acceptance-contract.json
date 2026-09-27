@@ -1,0 +1,26 @@
+{
+  "contract": {"id": "TODO", "revision": "TODO", "owner": "TODO"},
+  "scope": {
+    "name": "TODO",
+    "requirement_ids": ["TODO"],
+    "selection_basis": "TODO",
+    "excluded_requirement_ids": ["TODO"],
+    "exclusion_note": "TODO"
+  },
+  "invariants": [
+    {"id": "TODO", "class": "TODO", "statement": "TODO", "population": "TODO"}
+  ],
+  "acceptance_criteria": [
+    {
+      "id": "TODO",
+      "kind": "TODO",
+      "requirement_ids": ["TODO"],
+      "invariant_ids": ["TODO"],
+      "risk": "TODO",
+      "given": ["TODO"],
+      "when": ["TODO"],
+      "then": ["TODO"],
+      "verification_methods": ["TODO"]
+    }
+  ]
+}

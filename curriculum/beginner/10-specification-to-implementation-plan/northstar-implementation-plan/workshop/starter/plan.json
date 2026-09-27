@@ -1,0 +1,79 @@
+{
+  "schema_version": "1.0-training",
+  "id": "PLAN-AI-2219-STARTER",
+  "revision": 1,
+  "status": "draft",
+  "specification": {
+    "id": "AI-2219",
+    "revision": "1.1-training-approved",
+    "digest": "TODO: calculate the stable digest rather than copying a mutable label"
+  },
+  "repository_revision": "repo-abc123",
+  "architecture_decisions": [
+    "TODO: cite only decisions present in architecture-context.json"
+  ],
+  "goal": "TODO: describe the approved outcome and boundaries",
+  "non_goals": [
+    "automatic mutation",
+    "production deployment",
+    "TODO: add other excluded decisions"
+  ],
+  "requirement_dispositions": [
+    {
+      "requirement_id": "TODO",
+      "disposition": "TODO: implement | already_satisfied | blocked | deferred | not_applicable",
+      "work_unit_ids": [],
+      "evidence_ids": [],
+      "owner": "TODO"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "TASK-STARTER-001",
+      "work_unit_id": "TODO",
+      "action": "TODO: name one verifiable action",
+      "basis": {
+        "requirement_ids": [],
+        "adr_ids": [],
+        "contract_ids": [],
+        "dependency_ids": []
+      },
+      "code_paths": [],
+      "evidence_ids": []
+    }
+  ],
+  "open_questions": [
+    {
+      "question": "TODO: name a consequential unknown",
+      "owner": "TODO",
+      "blocking": true
+    }
+  ],
+  "risk_register": [
+    {
+      "id": "RISK-STARTER-01",
+      "issue": "TODO: execution-relevant uncertainty",
+      "affects": ["TODO: work-unit ID"],
+      "mitigation": "TODO: discovery, sequencing, evidence, or stop response"
+    }
+  ],
+  "future_work": [
+    {
+      "capability": "TODO: blocked or later capability",
+      "status": "deferred",
+      "blockers": ["TODO"],
+      "not_scheduled": true,
+      "review_trigger": "TODO"
+    }
+  ],
+  "readiness_layers": {
+    "implementation": "TODO",
+    "merge": "TODO",
+    "enablement": "TODO"
+  },
+  "rollout_plan_id": "TODO: linked but separately owned rollout artifact",
+  "artifact_relationships": [
+    {"from": "AI-2219", "to": "PLAN-AI-2219-STARTER", "relationship": "implemented_by"}
+  ],
+  "boundary": "Planning readiness is not runtime authorization, implementation proof, merge approval, or release approval."
+}

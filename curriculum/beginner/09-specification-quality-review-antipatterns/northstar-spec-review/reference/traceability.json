@@ -1,0 +1,16 @@
+{
+  "schema_version":"1.0-training",
+  "claim":"review_traceability_only_not_implementation_or_conformance_traceability",
+  "links":[
+    {"source_id":"REQ-2290-001","target_id":"SPEC-REVIEW-2290","relationship":"reviewed_by","target_type":"specification_review"},
+    {"source_id":"REQ-2290-002","target_id":"SPEC-REVIEW-2290","relationship":"reviewed_by","target_type":"specification_review"},
+    {"source_id":"REQ-2290-003","target_id":"SPEC-REVIEW-2290","relationship":"reviewed_by","target_type":"specification_review"},
+    {"source_id":"REQ-2290-004","target_id":"SPEC-REVIEW-2290","relationship":"reviewed_by","target_type":"specification_review"},
+    {"source_id":"REQ-2290-005","target_id":"SPEC-REVIEW-2290","relationship":"reviewed_by","target_type":"specification_review"},
+    {"source_id":"REQ-2290-006","target_id":"SPEC-REVIEW-2290","relationship":"reviewed_by","target_type":"specification_review"},
+    {"source_id":"REQ-2290-007","target_id":"SPEC-REVIEW-2290","relationship":"reviewed_by","target_type":"specification_review"},
+    {"source_id":"REQ-2290-008","target_id":"SPEC-REVIEW-2290","relationship":"reviewed_by","target_type":"specification_review"},
+    {"source_id":"REQ-2290-009","target_id":"SPEC-REVIEW-2290","relationship":"reviewed_by","target_type":"specification_review"},
+    {"source_id":"REQ-2290-010","target_id":"SPEC-REVIEW-2290","relationship":"reviewed_by","target_type":"specification_review"}
+  ]
+}

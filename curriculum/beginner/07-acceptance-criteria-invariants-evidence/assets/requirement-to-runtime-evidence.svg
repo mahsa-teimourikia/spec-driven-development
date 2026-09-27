@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc" viewBox="0 0 1640 900">
+<title id="title">From requirement to runtime evidence</title>
+<desc id="desc">A four-stage verification chain. A requirement is interpreted through acceptance criteria and invariants. Verification methods produce provenance-bearing evidence and measurements. An owner-approved gate turns measurements into a release decision. Runtime evidence feeds drift and violations back to the requirement owner.</desc>
+<defs>
+        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="7" flood-color="#16324F" flood-opacity="0.09"/></filter>
+        <marker id="arrow-spec" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#2F6BFF"/></marker>
+        <marker id="arrow-verification" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#7667E8"/></marker>
+        <marker id="arrow-evidence" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#16A3A5"/></marker>
+        <marker id="arrow-authority" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#D97706"/></marker>
+        <marker id="arrow-operations" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#238636"/></marker>
+        <style>text{font-family:Inter,Arial,sans-serif;fill:#16324F}.title{font-size:30px;font-weight:750}.subtitle{font-size:16px;fill:#52606D}.group{font-size:14px;font-weight:750;letter-spacing:1.4px;fill:#52606D}.label{font-size:17px;font-weight:700}.note{font-size:13px;fill:#52606D}.edge{font-size:13px;font-weight:650;fill:#52606D;paint-order:stroke;stroke:#F7F9FC;stroke-width:8px}</style>
+        </defs>
+<rect width="100%" height="100%" fill="#F7F9FC"/>
+<text x="60" y="58" class="title">From requirement to runtime evidence</text>
+<text x="60" y="92" class="subtitle">Evidence measures a claim; an accountable gate interprets it; runtime feedback can reopen the specification.</text>
+<g filter="url(#shadow)"><rect x="60" y="150" width="330" height="650" rx="18" fill="#FFFFFF" stroke="#2F6BFF"/></g><text x="84" y="188" class="group">NORMATIVE INTENT</text>
+<g filter="url(#shadow)"><rect x="430" y="150" width="360" height="650" rx="18" fill="#FFFFFF" stroke="#7667E8"/></g><text x="454" y="188" class="group">VERIFICATION &amp; EVIDENCE</text>
+<g filter="url(#shadow)"><rect x="830" y="150" width="350" height="650" rx="18" fill="#FFFFFF" stroke="#D97706"/></g><text x="854" y="188" class="group">MEASUREMENT &amp; AUTHORITY</text>
+<g filter="url(#shadow)"><rect x="1220" y="150" width="360" height="650" rx="18" fill="#FFFFFF" stroke="#238636"/></g><text x="1244" y="188" class="group">RELEASE &amp; OPERATION</text>
+<polyline points="225,350 225,500" fill="none" stroke="#2F6BFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-spec)"/>
+<text x="245" y="435" text-anchor="middle" class="edge">interpret</text>
+<polyline points="350,555 410,555 410,295 480,295" fill="none" stroke="#7667E8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-verification)"/>
+<text x="410" y="425" text-anchor="middle" class="edge">select method</text>
+<polyline points="610,350 610,500" fill="none" stroke="#7667E8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-verification)"/>
+<text x="630" y="435" text-anchor="middle" class="edge">execute</text>
+<polyline points="740,555 810,555 810,295 875,295" fill="none" stroke="#16A3A5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-evidence)"/>
+<text x="810" y="425" text-anchor="middle" class="edge">measure</text>
+<polyline points="1005,350 1005,500" fill="none" stroke="#D97706" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-authority)"/>
+<text x="1025" y="435" text-anchor="middle" class="edge">interpret</text>
+<polyline points="1135,555 1200,555 1200,295 1270,295" fill="none" stroke="#D97706" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-authority)"/>
+<text x="1200" y="425" text-anchor="middle" class="edge">authorize</text>
+<polyline points="1400,350 1400,500" fill="none" stroke="#238636" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-operations)"/>
+<text x="1450" y="435" text-anchor="middle" class="edge">observe</text>
+<polyline points="1400,610 1400,720 80,720 80,295 100,295" fill="none" stroke="#238636" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-operations)"/>
+<text x="820" y="735" text-anchor="middle" class="edge">drift · violations · learning</text>
+<g><rect x="100" y="240" width="250" height="110" rx="14" fill="#EAF1FF" stroke="#2F6BFF" stroke-width="2"/><text x="120" y="282" class="label">Requirement</text><text x="120" y="313" class="note">owned obligation · revision</text></g>
+<g><rect x="100" y="500" width="250" height="110" rx="14" fill="#EAF1FF" stroke="#2F6BFF" stroke-width="2"/><text x="120" y="542" class="label">Acceptance &amp; invariant</text><text x="120" y="573" class="note">observable example · population</text></g>
+<g><rect x="480" y="240" width="260" height="110" rx="14" fill="#F0EEFF" stroke="#7667E8" stroke-width="2"/><text x="500" y="282" class="label">Verification method</text><text x="500" y="313" class="note">example · property · static · eval</text></g>
+<g><rect x="480" y="500" width="260" height="110" rx="14" fill="#E5F7F6" stroke="#16A3A5" stroke-width="2"/><text x="500" y="542" class="label">Evidence record</text><text x="500" y="573" class="note">versions · producer · limitations</text></g>
+<g><rect x="875" y="240" width="260" height="110" rx="14" fill="#E5F7F6" stroke="#16A3A5" stroke-width="2"/><text x="895" y="282" class="label">Measurement</text><text x="895" y="313" class="note">numerator · denominator · slices</text></g>
+<g><rect x="875" y="500" width="260" height="110" rx="14" fill="#FFF1DF" stroke="#D97706" stroke-width="2"/><text x="895" y="542" class="label">Owned gate policy</text><text x="895" y="573" class="note">scope · threshold · rationale</text></g>
+<g><rect x="1270" y="240" width="260" height="110" rx="14" fill="#FFF1DF" stroke="#D97706" stroke-width="2"/><text x="1290" y="282" class="label">Release decision</text><text x="1290" y="313" class="note">pass · fail · blocked · review</text></g>
+<g><rect x="1270" y="500" width="260" height="110" rx="14" fill="#E9F8ED" stroke="#238636" stroke-width="2"/><text x="1290" y="542" class="label">Runtime evidence</text><text x="1290" y="573" class="note">prevent · detect · denominator</text></g>
+</svg>

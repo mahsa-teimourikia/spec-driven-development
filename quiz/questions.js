@@ -369,5 +369,656 @@ const QUESTIONS = [
     options: ['As an invalid RequirementGap with rule evidence and revision-bound value_invalid observation evidence', 'As missing because both states need follow-up', 'As absent without citing the submission revision', 'As approved if the schema parses'],
     answer: 0,
     explanation: 'Missing, invalid, unverified, and conflicting are different operational states. The rule explains why the document is required; the observation explains what was found in the named revision.'
+  },
+  {
+    category: 'Executable requirements',
+    question: 'What does an EARS pattern establish by itself?',
+    options: ['A reviewable sentence shape for triggers, states, options, or unwanted behavior—not truth or authority', 'That the requirement is approved', 'That every edge case is covered', 'That implementation may start without an owner'],
+    answer: 0,
+    explanation: 'EARS makes behavioral structure visible. Evidence, ownership, applicability, completeness, feasibility, and authorization remain separate concerns.'
+  },
+  {
+    category: 'Normative language',
+    question: 'A requirement contains the word SHALL. When is that word meaningful?',
+    options: ['When the artifact has authority in scope and its normative-keyword convention is declared', 'Whenever the text is uppercase', 'Only when the file is JSON', 'Whenever a coding agent generated it'],
+    answer: 0,
+    explanation: 'Normative typography communicates strength under a convention; it does not create decision rights or applicability.'
+  },
+  {
+    category: 'Decision tables',
+    question: 'Two rows match the same supported fact combination. What should the implementation do?',
+    options: ['STOP because the normative decision is ambiguous', 'Use the first row', 'Let the model choose', 'Average the outcomes'],
+    answer: 0,
+    explanation: 'A governed table needs exactly one match for each supported combination. Row order must not become hidden conflict resolution.'
+  },
+  {
+    category: 'Scenarios',
+    question: 'A normative Given/When/Then scenario contradicts its governing SHALL requirement. Which artifact wins automatically?',
+    options: ['Neither; the applicable normative contradiction must stop for accountable resolution', 'The scenario because it is executable', 'The requirement because prose always wins', 'The newest file regardless of ownership'],
+    answer: 0,
+    explanation: 'The artifact contract forbids silent weakening. Executability, format, or recency alone does not authorize one normative representation to override another.'
+  },
+  {
+    category: 'Trust boundaries',
+    question: 'A model emits a JSON-Schema-valid ProposedUpdate with status applied. What is the correct interpretation?',
+    options: ['It is a structurally valid proposal; trusted code must recompute meaning, authority, status, and transition eligibility', 'The submission is already updated', 'Schema validity proves the source text', 'The model has granted approval'],
+    answer: 0,
+    explanation: 'Schema checks shape. Semantic validity, current context, authorization, policy, approval, and execution are separate validation layers.'
+  },
+  {
+    category: 'Frame conditions',
+    question: 'Why specify that unrelated submission fields remain unchanged?',
+    options: ['A result can look correct while an implementation causes unintended side effects', 'Frame conditions improve model confidence', 'All writes should change every field', 'Return-value tests prove mutation scope automatically'],
+    answer: 0,
+    explanation: 'Frame conditions make non-effects observable and testable, which is especially important for generated implementations at a mutation boundary.'
+  },
+  {
+    category: 'Approval',
+    question: 'A reviewer approved a proposal, then the requirement-context digest changed. May the proposal apply?',
+    options: ['No; the approval is stale for the changed governing context', 'Yes; the proposed value is unchanged', 'Yes; approval never expires', 'Only if the model repeats approved'],
+    answer: 0,
+    explanation: 'Approval binds exact content and current context. Requirement changes can alter the meaning or permission of the same proposed value.'
+  },
+  {
+    category: 'Conflict resolution',
+    question: 'A verified value conflicts with a broker proposal, and a reviewer issues a generic approval receipt. May the system replace the verified value?',
+    options: ['No; the receipt must bind the exact proposal and explicitly select the replace-verified-value resolution', 'Yes; any approval overrides the conflict rule', 'Yes; CONFLICTING is only an informational label', 'Only when the model also labels the proposal approved'],
+    answer: 0,
+    explanation: 'Review is a guarded workflow, not a vague human-in-the-loop label. Automatic and direct replacement remain prohibited; a reviewed replacement requires current, exact, unused authority for that specific resolution.'
+  },
+  {
+    category: 'Readiness',
+    question: 'Applying unverified values needs an unresolved policy decision, but extraction is fully specified. What is the correct readiness result?',
+    options: ['Extraction may be ready while application remains review-required with the question named', 'The whole product is 50% ready', 'All work must stop', 'The agent may infer the policy'],
+    answer: 0,
+    explanation: 'Readiness is capability-scoped and blocker-specific. A fabricated aggregate percentage hides both safe progress and consequential uncertainty.'
+  },
+  {
+    category: 'Evaluation',
+    question: 'Why evaluate extraction separately from governed decision logic?',
+    options: ['To distinguish observation errors from deterministic validation, policy, and transition errors', 'To guarantee production accuracy', 'To avoid defining an oracle', 'To let model confidence authorize updates'],
+    answer: 0,
+    explanation: 'Layered evaluation localizes failure and preserves honest claims. A fixed-proposal decision fixture does not measure live model extraction.'
+  },
+  {
+    category: 'Change impact',
+    question: 'A requirement change transitively reaches a test and task. What does impacted mean?',
+    options: ['Their prior assurance must be assessed; modification is not yet proven necessary', 'Both files must always be edited', 'The current implementation is automatically non-compliant', 'Only direct links matter'],
+    answer: 0,
+    explanation: 'Impact traversal identifies review scope. Owners then record whether to modify, revalidate unchanged, defer, or establish non-applicability.'
+  },
+  {
+    category: 'Acceptance criteria',
+    question: 'What is the strongest distinction between an acceptance criterion and a test?',
+    options: ['A criterion states an observable condition of acceptance; a test is one implementation of a check', 'A criterion must be automated', 'A test owns the product requirement', 'They are interchangeable names'],
+    answer: 0,
+    explanation: 'Criteria express the acceptance contract independently of a particular harness. Tests produce evidence against that contract but can be incomplete, incorrect, or stale.'
+  },
+  {
+    category: 'Negative criteria',
+    question: 'Why specify that an unauthorized broker response leaves authoritative state unchanged?',
+    options: ['It makes prohibited behavior and the required non-effect observable', 'Positive examples imply every failure mode', 'It lets the model decide authorization', 'It replaces identity controls'],
+    answer: 0,
+    explanation: 'Negative criteria expose fail-closed behavior and frame conditions. A happy path does not establish what happens at an authorization boundary.'
+  },
+  {
+    category: 'Invariants',
+    question: 'A single verified-conflict scenario passes. What additional claim does a property check support?',
+    options: ['The invariant held across the declared generated or enumerated population', 'The invariant is mathematically proven for production', 'Every integration path is correct', 'The requirement owner approved release'],
+    answer: 0,
+    explanation: 'Properties broaden exploration beyond one example, but the generator, oracle, environment, and population still bound the claim.'
+  },
+  {
+    category: 'Coverage',
+    question: 'All eight decision-table rows are exercised. What has been established?',
+    options: ['Structural row coverage, not the correctness of the table semantics', 'The business policy is correct', 'All production states are reachable', 'No mutation test is needed'],
+    answer: 0,
+    explanation: 'Coverage shows which declared structure ran. A wrong table can have perfect row coverage, so semantic examples, properties, review, and mutation remain necessary.'
+  },
+  {
+    category: 'Mutation evidence',
+    question: 'Three seeded mutants are killed. What is the honest interpretation?',
+    options: ['The evidence is sensitive to those three seeded faults', 'The implementation has no defects', 'The requirements are complete', 'Production release is authorized'],
+    answer: 0,
+    explanation: 'Mutation testing probes evidence strength against chosen faults. It neither enumerates all faults nor grants release authority.'
+  },
+  {
+    category: 'Evidence freshness',
+    question: 'The implementation revision changes after evidence was produced. What should happen?',
+    options: ['Invalidate or reassess evidence whose validity tuple names the old revision', 'Keep the green status forever', 'Update only the timestamp', 'Let the generating agent declare equivalence'],
+    answer: 0,
+    explanation: 'Evidence is meaningful only for named specification, implementation, environment, dataset, and tool revisions. Change triggers governed invalidation and rerun decisions.'
+  },
+  {
+    category: 'AI evaluation',
+    question: 'Why report evaluation slices with numerators and denominators?',
+    options: ['An aggregate can hide rare, high-risk failures and tiny populations', 'Slices guarantee statistical significance', 'A percentage already proves representativeness', 'Denominators are optional when accuracy is 100%'],
+    answer: 0,
+    explanation: 'Named slices expose risk concentration and sample size. Population definition, label provenance, leakage controls, and limitations are still required.'
+  },
+  {
+    category: 'Release gates',
+    question: 'An evaluation result exists, but no accountable owner approved a threshold. What is the correct gate result?',
+    options: ['Blocked because the threshold is not authorized', 'Pass if the score looks high', 'Ask the coding agent to choose a threshold', 'Ignore the evaluation'],
+    answer: 0,
+    explanation: 'Measurement and decision authority are separate. Teams can preserve the result while stopping the release decision until an owner defines the risk-bearing threshold.'
+  },
+  {
+    category: 'Runtime evidence',
+    question: 'A dashboard reports zero invariant violations and zero applicable events. What may it claim?',
+    options: ['The invariant was not measured on an applicable population', 'The violation rate is 0%', 'The preventive control is proven effective', 'The system is safe'],
+    answer: 0,
+    explanation: 'A zero numerator needs a trustworthy non-zero denominator. Empty or missing exposure is not evidence of conformance.'
+  },
+  {
+    category: 'Evidence classes',
+    question: 'Why combine preventive controls with detective runtime evidence?',
+    options: ['They address different failure opportunities and reveal control drift or bypass', 'Runtime monitoring replaces tests', 'CI proves deployed effectiveness', 'Two green signals prove universal correctness'],
+    answer: 0,
+    explanation: 'Preventive controls try to stop unsafe changes; detective controls observe what actually happened. Their producers, populations, limitations, and failure responses remain explicit.'
+  },
+  {
+    category: 'Traceability precision',
+    question: 'Which invariant should a stale submission-revision criterion support?',
+    options: ['A freshness invariant that stale context never mutates current state', 'An idempotency invariant about duplicate response identity', 'A latency target', 'A human-review agreement metric'],
+    answer: 0,
+    explanation: 'Freshness and replay are distinct claims. A stale-context example should not be used as evidence for duplicate-event idempotency.'
+  },
+  {
+    category: 'Evidence lifecycle',
+    question: 'A human rubric is linked in traceability but has never been run. How should it be represented?',
+    options: ['Planned evidence with not_run status and no execution timestamp', 'Passed evidence because the rubric exists', 'Failed evidence because no score exists', 'Independent evidence because a reviewer role is named'],
+    answer: 0,
+    explanation: 'Planned, executed, passed, and approved are distinct states. A link to an artifact does not manufacture an observation.'
+  },
+  {
+    category: 'Evaluation population',
+    question: 'The fixed evaluation fixture covers English plain text, but production receives a French attachment. What is the safe default?',
+    options: ['Route to manual review because the input is outside the evaluated population', 'Generalize the 12/12 fixture score', 'Use model confidence to widen eligibility', 'Silently translate and auto-apply'],
+    answer: 0,
+    explanation: 'Evaluation population constrains deployment eligibility. Unevaluated languages and modalities need explicit evidence before entering an automated path.'
+  },
+  {
+    category: 'Bounded claims',
+    question: 'Fourteen of fourteen declared criteria pass, but eight normative requirements are excluded and human and production evidence are absent. What may be claimed?',
+    options: ['The bounded declared slice passed; production readiness and whole-product conformance remain unproven', 'The whole feature is production-ready', 'The excluded requirements are implicitly satisfied', 'A perfect fixture score authorizes release'],
+    answer: 0,
+    explanation: 'Conformance is scoped to the declared criteria and evidence. Exclusions and missing assurance remain release-relevant blockers.'
+  },
+  {
+    category: 'NFR target authority',
+    question: 'A product ticket says broker-response processing should be quick. What should the specification do?',
+    options: ['Define the latency boundary and measurement while keeping the target unresolved until an accountable owner decides', 'Choose p95 under two seconds because it sounds interactive', 'Copy the current prototype average as the permanent SLO', 'Ask the coding agent to select a common target'],
+    answer: 0,
+    explanation: 'Quality intent does not authorize a number. Measurement can be designed while target value, rationale, evidence, and owner decision remain explicit blockers.'
+  },
+  {
+    category: 'Latency measurement',
+    question: 'What is missing from “p95 latency under five seconds”?',
+    options: ['A start/end boundary, workload and eligible population, unit, window, owner, and evidence method', 'Only a model name', 'Only an average', 'Nothing; p95 makes it complete'],
+    answer: 0,
+    explanation: 'A percentile has meaning only for a defined population and measurement procedure. Operational ownership and response also belong in the contract.'
+  },
+  {
+    category: 'Semantic availability',
+    question: 'An API returns HTTP 200 with an error body saying the model is unavailable. Should that automatically count as a good event?',
+    options: ['No; good service needs semantic outcome rules such as a valid result or approved work-preserving degradation', 'Yes; transport success proves availability', 'Yes, if latency is low', 'Only when the model chose the status code'],
+    answer: 0,
+    explanation: 'Transport status is not the user outcome. The good-event classifier must distinguish valid service from disguised failures.'
+  },
+  {
+    category: 'Capacity',
+    question: 'Twelve static runtime events meet the latency target. What capacity claim follows?',
+    options: ['None; representative concurrent load, peak/soak behavior, quotas, correctness, and safety still need evidence', 'W1 is proven because every event completed', 'W2 is proven if the application can add pods', 'Provider capacity is irrelevant'],
+    answer: 0,
+    explanation: 'Static observations exercise metric plumbing but do not generate workload or test dependency quotas and backpressure.'
+  },
+  {
+    category: 'Safe degradation',
+    question: 'The policy service is unavailable. Which response preserves the authority boundary?',
+    options: ['Disable automatic mutation, preserve the work item, and route to manual processing', 'Skip policy to preserve availability', 'Let model confidence decide', 'Retry without a bound until policy returns'],
+    answer: 0,
+    explanation: 'Critical dependency failure reduces autonomy. Availability does not authorize removal of a safety control.'
+  },
+  {
+    category: 'Retry resilience',
+    question: 'Why must provider retries be bounded by logical operation?',
+    options: ['Unbounded retries amplify outages, consume quota and cost, increase latency, and can duplicate effects', 'Retries always improve reliability for free', 'A circuit breaker only affects UI latency', 'Provider throttling disappears when more workers are added'],
+    answer: 0,
+    explanation: 'Retry storms worsen overload. Stable operation identity, typed retryability, budgets, circuits, preservation, and reconciliation control amplification.'
+  },
+  {
+    category: 'Agent budgets',
+    question: 'Who should enforce tool-call, model-turn, token, deadline, and side-effect budgets?',
+    options: ['Trusted application code at action boundaries', 'The model through a reminder in its prompt', 'The retrieved document', 'The tool response itself'],
+    answer: 0,
+    explanation: 'Model text is not a reliable control plane. The trusted runtime owns counters, stop states, authorization, and mutation.'
+  },
+  {
+    category: 'Unit economics',
+    question: 'Which denominator best exposes the cost of retries, failures, and unsafe outcomes?',
+    options: ['Cost per successful compliant workflow', 'Cost per API call only', 'Input tokens per prompt only', 'Monthly cloud bill with no workload attribution'],
+    answer: 0,
+    explanation: 'Outcome-level economics includes wasted work in total cost while counting only useful compliant outcomes in the denominator.'
+  },
+  {
+    category: 'Observability privacy',
+    question: 'Which telemetry design best supports diagnosis without unnecessary broker-data exposure?',
+    options: ['Correlated IDs, versions, reason codes, digests, budgets, timing, tokens, cost, and terminal state without raw message bodies', 'Store every prompt and tool result forever', 'Record hidden model reasoning', 'Remove all correlation IDs'],
+    answer: 0,
+    explanation: 'Operational evidence should be useful and data-minimized. Raw content, secrets, and hidden reasoning are not prerequisites for traceability.'
+  },
+  {
+    category: 'AI quality NFRs',
+    question: 'A fixed fixture scores 7/8 overall but only 1/2 on unsupported fields. What is the honest interpretation?',
+    options: ['The pipeline mechanics ran and the high-risk slice shows a gap; no live-model or production-quality claim follows', 'The model is 87.5% production-ready', 'The slice can be ignored because the aggregate is higher', 'The fixture author may approve the threshold'],
+    answer: 0,
+    explanation: 'Fixed predictions teach metric and slice behavior. Population, labels, thresholds, representativeness, and actual system execution remain separate.'
+  },
+  {
+    category: 'NFR trade-offs',
+    question: 'A cheaper route violates the least-privilege invariant. How should it appear on a cost-quality frontier?',
+    options: ['As infeasible, not as a slightly lower-scoring option', 'As preferred if savings are large', 'As acceptable when latency improves', 'As automatically approved during provider outages'],
+    answer: 0,
+    explanation: 'Security, privacy, and authority invariants are hard constraints. Optimization occurs only among feasible designs.'
+  },
+  {
+    category: 'NFR metric semantics',
+    question: 'A workflow returns a valid proposal but logs a secret. How should the NFR metrics represent it?',
+    options: ['Count semantic service success, exclude it from compliant workflow success, fail the privacy invariant, and block release', 'Count it as fully successful because the proposal is valid', 'Remove it from every denominator', 'Change the response to an HTTP error after the fact'],
+    answer: 0,
+    explanation: 'Service semantics and control compliance answer different questions. Reporting both prevents a valid response from hiding a serious control violation.'
+  },
+  {
+    category: 'Agent budget authority',
+    question: 'The runtime records tool calls, but no accountable owner has approved a tool-call ceiling. What should the reference policy do?',
+    options: ['Keep the limit unresolved, continue measurement, and block bounded production autonomy', 'Invent a limit from the fixture maximum', 'Stop every tool call', 'Let the model choose a ceiling per request'],
+    answer: 0,
+    explanation: 'Measurement does not create authority. A production enforcement value needs an owner decision, rationale, and evidence.'
+  },
+  {
+    category: 'Compound capacity',
+    question: 'A representative test sustains 120 requests per minute, but its latency NFR fails. Does CAP-BR-001 pass?',
+    options: ['No; capacity requires the throughput target and every declared performance, reliability, and safety constraint to pass', 'Yes; throughput alone defines capacity', 'Yes, if more workers were available', 'Only the model provider can decide'],
+    answer: 0,
+    explanation: 'Capacity is sustainable useful service under the applicable constraints. Fast errors or unsafe outcomes are not conforming capacity.'
+  },
+  {
+    category: 'Production readiness',
+    question: 'Eight synthetic NFR gates pass, two targets and six agent budgets are unresolved, and capacity is unmeasured. What should the release assessment say?',
+    options: ['Blocked for production while preserving each measured, blocked, unresolved, and unmeasured state', 'Pass because a majority is green', 'Average the eleven gates into one score', 'Treat missing evidence as not applicable'],
+    answer: 0,
+    explanation: 'Required characteristics retain separate authority and evidence states. Synthetic passes cannot cancel unresolved decisions or absent capacity evidence.'
+  },
+  {
+    category: 'Specification theater',
+    question: 'A specification mentions security, scalability, human review, policy, testing, performance, and AI. What has that established?',
+    options: ['Only lexical presence; the obligations, authority, evidence, and failure behavior still require review', 'That the specification is complete', 'That every requirement is enforceable', 'That implementation may begin'],
+    answer: 0,
+    explanation: 'Responsible-sounding vocabulary can create specification theater. Presence is not semantic quality or implementation readiness.'
+  },
+  {
+    category: 'False precision',
+    question: 'A ticket requires “95% accuracy” but defines no population, label source, metric, or slices. How should a reviewer classify the number?',
+    options: ['False precision that must be repaired before it becomes an enforceable target', 'A valid acceptance threshold', 'A harmless implementation hint', 'Production evidence'],
+    answer: 0,
+    explanation: 'A precise-looking number is not measurable until its construct, population, oracle, denominator, and ownership are defined.'
+  },
+  {
+    category: 'Technology provenance',
+    question: 'The feature ticket says “use Redis” without citing an inherited constraint or decision record. What is the safest interpretation?',
+    options: ['An implementation hypothesis that may represent accidental architecture', 'A company policy', 'An approved exception', 'A production observation'],
+    answer: 0,
+    explanation: 'Technology language gains authority from provenance and decision rights, not from appearing in a ticket.'
+  },
+  {
+    category: 'Confidence theater',
+    question: 'A requirement says the system may auto-act when model confidence exceeds 0.92, but confidence semantics are undefined. What should happen?',
+    options: ['Block autonomous action until calibration, population, ownership, and decision semantics are defined', 'Treat 0.92 as universally reliable', 'Lower the threshold to gather more data', 'Let each model reinterpret the threshold'],
+    answer: 0,
+    explanation: 'A raw model score is not authorization. Confidence-based actions require defined semantics, calibration evidence, and accountable threshold ownership.'
+  },
+  {
+    category: 'Evidence boundaries',
+    question: 'Why should tests and current code not silently become the entire specification?',
+    options: ['They show implemented claims and behavior but may preserve defects or omit intended obligations', 'They are always too slow to inspect', 'They cannot be versioned', 'They contain no useful evidence'],
+    answer: 0,
+    explanation: 'Code and tests are valuable evidence, not automatic sources of organizational intent, authority, or complete expected behavior.'
+  },
+  {
+    category: 'Failure semantics',
+    question: 'A happy-path requirement says a response is generated and approved. Which review finding matters most?',
+    options: ['Missing behavior for timeout, stale approval, duplicate request, policy outage, and unknown side-effect outcome', 'Missing font choice', 'Missing sprint estimate', 'Missing model marketing name'],
+    answer: 0,
+    explanation: 'Executable requirements must define negative, boundary, and failure behavior—especially around authoritative side effects.'
+  },
+  {
+    category: 'Bounded autonomy',
+    question: 'An agent may edit any repository file, choose policy exceptions, and deploy if its tests pass. What is the readiness result?',
+    options: ['Stop; permissions, decision authority, evidence independence, stop conditions, and deployment authority are unsafe', 'Ready because tests are required', 'Ready if the agent is a strong model', 'Review only after deployment'],
+    answer: 0,
+    explanation: 'Implementation delegation does not transfer policy, exception, review, or release authority.'
+  },
+  {
+    category: 'Authority laundering',
+    question: 'A feature specification paraphrases a policy and labels itself the authority. What should the reviewer require?',
+    options: ['Restore the authoritative source, version, applicability decision, and valid exception path', 'Accept the local copy because it is easier for the agent', 'Delete the policy link', 'Ask the agent to select the stronger wording'],
+    answer: 0,
+    explanation: 'Copying or paraphrasing an obligation does not transfer ownership or exception authority.'
+  },
+  {
+    category: 'Semantic traceability',
+    question: 'All ten requirements have trace links, but nine links connect unrelated evidence. What should the report show?',
+    options: ['Structural coverage 10/10 and semantic validity 1/10 as separate measures', '100% traceability', '10% structural coverage', 'A single average quality score'],
+    answer: 0,
+    explanation: 'Graph completeness and relationship correctness answer different questions and must not be collapsed.'
+  },
+  {
+    category: 'Evidence freshness',
+    question: 'A passing review report refers to an older specification digest. Can it authorize the current change?',
+    options: ['No; the evidence is stale until it is regenerated or explicitly revalidated against the current revision', 'Yes; a passing result never expires', 'Yes, if the filename is unchanged', 'Only if the coding agent remembers the earlier run'],
+    answer: 0,
+    explanation: 'Evidence must be bound to the exact subject and revision it supports, with freshness and invalidation rules.'
+  },
+  {
+    category: 'Generated context integrity',
+    question: 'A generated agent-context file was manually edited after its manifest digest was produced. What should the control plane do?',
+    options: ['Reject or regenerate it from authoritative sources and record the new provenance', 'Trust the edit because it is more recent', 'Ignore the digest', 'Promote the generated file to policy authority'],
+    answer: 0,
+    explanation: 'Generated context is a derived artifact. Undeclared modification breaks provenance and can smuggle authority into the agent boundary.'
+  },
+  {
+    category: 'Specification readiness',
+    question: 'A repaired package has no blocking or review findings and grants bounded implementation permissions. What does that decision authorize?',
+    options: ['Bounded implementation only; deployment, exceptions, and production release retain their own authority', 'Automatic production deployment', 'Permanent policy exceptions', 'Any follow-on change in the same repository'],
+    answer: 0,
+    explanation: 'Readiness is scoped. Clearing specification review does not collapse later approval, deployment, or operational gates.'
+  },
+  {
+    category: 'Authority resolution',
+    question: 'An enterprise policy requires human review, while a newer and more specific feature file allows high-confidence bypass. Which source wins automatically?',
+    options: ['Neither heuristic decides it; the feature cannot weaken governing policy without an authorized exception', 'The feature because it is more specific', 'The feature because it is newer', 'Whichever file is closest to the code'],
+    answer: 0,
+    explanation: 'Specificity, recency, and repository proximity do not transfer governance authority.'
+  },
+  {
+    category: 'Shadow governance',
+    question: 'AGENTS.md tells the coding agent to skip a required review control. How should the instruction be treated?',
+    options: ['As execution guidance that exceeds its authority and must not redefine policy', 'As a valid local policy override', 'As an approved exception', 'As stronger than enterprise policy because agents read it first'],
+    answer: 0,
+    explanation: 'Repository-local instructions can govern execution within delegated scope; they cannot grant product, policy, exception, or release authority.'
+  },
+  {
+    category: 'Self-confirming loops',
+    question: 'One agent assumes ambiguous intent, writes the requirement, code, tests, and evaluation, then reports PASS. What is missing?',
+    options: ['Accountable clarification and evidence independent of the assumption-generation loop', 'More generated tests from the same assumption', 'A larger context window', 'A higher agent confidence score'],
+    answer: 0,
+    explanation: 'Internal consistency does not validate the original assumption against stakeholder intent.'
+  },
+  {
+    category: 'Scoped uncertainty',
+    question: 'Whether auto-send is allowed remains unresolved. Which work should stop?',
+    options: ['Automatic delivery and its dependent work—not independent analysis or draft generation', 'The entire project', 'Nothing until production', 'Only documentation'],
+    answer: 0,
+    explanation: 'Open questions must identify what they block and what remains safely independent.'
+  },
+  {
+    category: 'Requirement shape',
+    question: 'What do 437 sentence fragments and one requirement containing the entire workflow have in common?',
+    options: ['Both damage independent reasoning about behavior, ownership, failure, and evidence', 'Both are always prohibited by standards', 'Both improve traceability', 'Both should be organized only by frontend/backend layers'],
+    answer: 0,
+    explanation: 'Useful granularity follows meaningful behavioral obligations, not a universal item count.'
+  },
+  {
+    category: 'Control enforcement',
+    question: 'The prompt says not to change verified fields, but the model-facing identity can call an unrestricted mutation tool. Is the requirement enforced?',
+    options: ['No; prompt guidance needs least privilege, authorization, and runtime validation', 'Yes; the prompt is normative', 'Yes, if the model is accurate', 'Only during tests'],
+    answer: 0,
+    explanation: 'Prompts cannot enforce authorization or side-effect boundaries.'
+  },
+  {
+    category: 'Human review',
+    question: 'Which makes “human review” an executable control?',
+    options: ['Defined reviewer authority, review view, evidence, exact decision scope, artifact binding, and edit invalidation', 'A boolean called approved', 'A reviewer name in a prompt', 'A manual step with no recorded outcome'],
+    answer: 0,
+    explanation: 'Human-in-the-loop language is incomplete until its decision and evidence contract are defined.'
+  },
+  {
+    category: 'Approval integrity',
+    question: 'Proposal P1 is approved and then changed to P2. What happens to the approval?',
+    options: ['It becomes invalid; consequential approval must bind exact content and be single-use', 'It remains valid for the submission', 'The agent may reuse it once', 'It remains valid if tests pass'],
+    answer: 0,
+    explanation: 'Approval of one digest does not authorize mutated content or replay.'
+  },
+  {
+    category: 'Unknown outcomes',
+    question: 'An external email-send request times out. What does the timeout establish?',
+    options: ['The outcome is unknown and must be reconciled before an idempotent retry', 'The email was not sent', 'The email was sent successfully', 'Retrying cannot create duplicates'],
+    answer: 0,
+    explanation: 'Transport timeout does not prove failure; blind retry can duplicate an irreversible effect.'
+  },
+  {
+    category: 'Degraded autonomy',
+    question: 'The policy service is unavailable. Which degradation is safe?',
+    options: ['Preserve work and reduce to proposal/manual handling until current policy is restored', 'Skip policy and auto-apply', 'Increase confidence threshold and continue', 'Count every manual route as automatic success'],
+    answer: 0,
+    explanation: 'Dependency uncertainty should preserve or reduce autonomy, never weaken independent controls.'
+  },
+  {
+    category: 'Evaluation eligibility',
+    question: 'Evaluation covers English plain text, but deployment enables French attachments. What should happen?',
+    options: ['Route unsupported populations manually, disable them, or obtain representative evidence', 'Treat the English result as universal', 'Average languages together without cases', 'Mark attachments not applicable'],
+    answer: 0,
+    explanation: 'Evaluation population bounds the deployment claim and automatic eligibility.'
+  },
+  {
+    category: 'Evidence states',
+    question: 'A required security test is NOT RUN and an AI-quality target is unresolved. Can a dashboard report READY because nothing failed?',
+    options: ['No; NOT RUN, UNRESOLVED, NOT MEASURED, STALE, PASS, and FAIL are distinct', 'Yes; absence of failure is pass', 'Yes, if latency passes', 'Only if a composite score exceeds 80'],
+    answer: 0,
+    explanation: 'Missing evidence and missing decision authority cannot be collapsed into green.'
+  },
+  {
+    category: 'Brownfield reconciliation',
+    question: 'A requirement and approved architecture prohibit model-facing mutation, but the repository exposes update_submission() to the agent. What is the useful finding?',
+    options: ['IMPLEMENTATION_VIOLATES_TRUST_BOUNDARY', 'The specification must be wrong because code exists', 'Follow repository precedent', 'Documentation typo'],
+    answer: 0,
+    explanation: 'Three-way reconciliation localizes whether requirements, architecture, or implementation drifted without treating code as authority.'
+  },
+  {
+    category: 'Migration safety',
+    question: 'A specification defines schema v2 but says nothing about stored v1 data, mixed versions, or rollback. What is missing?',
+    options: ['A transition contract alongside the desired-state contract', 'A larger feature flag', 'Another model prompt', 'Only a database migration filename'],
+    answer: 0,
+    explanation: 'Enterprise changes need coexistence, completion, compatibility, and recovery semantics.'
+  },
+  {
+    category: 'Rollout controls',
+    question: 'Why is “behind a feature flag with a kill switch” insufficient by itself?',
+    options: ['Flags need authority/population/evidence/disable semantics, and kill switches need tested in-flight behavior', 'Feature flags automatically enforce policy', 'Kill switches guarantee rollback of external effects', 'Flags replace authorization'],
+    answer: 0,
+    explanation: 'Rollout controls do not substitute for policy, migration, data, side-effect, or authorization controls.'
+  },
+  {
+    category: 'Fallback capacity',
+    question: 'Daily degraded load is 50,000 items while manual capacity is 1,000. What should the specification review require?',
+    options: ['Queue growth, sustainable outage, routing, prioritization, capacity ownership, and preserved work evidence', 'Call manual fallback fully resilient', 'Discard excess work', 'Invent a larger capacity number'],
+    answer: 0,
+    explanation: 'Fallback is viable only when work is recoverable and operational capacity supports the declared degradation.'
+  },
+  {
+    category: 'Observability semantics',
+    question: 'Which identifier should remain stable across an uncertain retry of the same external side effect?',
+    options: ['Logical operation ID', 'Per-attempt ID', 'Unrelated workflow run ID', 'Raw prompt text'],
+    answer: 0,
+    explanation: 'Request, run, attempt, proposal, and logical-operation identities have different cardinality and lifecycle.'
+  },
+  {
+    category: 'Capability readiness',
+    question: 'Extraction and proposal generation are safe, but automatic mutation lacks authorization and representative evidence. What should readiness report?',
+    options: ['The first capabilities are ready for bounded implementation while automatic mutation remains blocked', 'The whole project is READY', 'The whole project is BLOCKED', 'A single average readiness percentage'],
+    answer: 0,
+    explanation: 'Capability-scoped decisions preserve safe parallelism without broadening authority.'
+  },
+  {
+    category: 'Implementation planning',
+    question: 'What is the most important boundary between an approved specification and an implementation plan?',
+    options: ['The specification defines required truth; the plan proposes a repository-specific delivery path', 'The plan automatically grants agents permission to edit', 'The specification must list every file', 'There is no meaningful difference'],
+    answer: 0,
+    explanation: 'Approval of intent does not select repository changes, authorize execution, or approve release.'
+  },
+  {
+    category: 'Repository discovery',
+    question: 'How should a consequential repository observation with incomplete evidence be classified?',
+    options: ['LIKELY or UNKNOWN, with evidence and a planning consequence', 'CONFIRMED so planning can continue', 'Approved architecture', 'Implementation evidence'],
+    answer: 0,
+    explanation: 'Explicit confidence prevents an agent from turning uncertainty into hidden design authority.'
+  },
+  {
+    category: 'Plan provenance',
+    question: 'Why bind a plan to a specification content digest and repository revision?',
+    options: ['To detect changed inputs and make discovery and review reproducible', 'To make the plan longer', 'To replace source control', 'To prove production correctness'],
+    answer: 0,
+    explanation: 'Labels can remain unchanged while content changes; exact bindings make staleness and impact assessable.'
+  },
+  {
+    category: 'Plan drift',
+    question: 'A repository revision changed only an unrelated documentation path. What is the proportionate response?',
+    options: ['Record stale-unrelated provenance and continue with a revision note', 'Invalidate every work unit', 'Ignore the revision difference', 'Regenerate the specification'],
+    answer: 0,
+    explanation: 'Staleness should be resolved through affected-path and semantic impact, not a universal boolean.'
+  },
+  {
+    category: 'Requirement disposition',
+    question: 'A plan marks a requirement “already satisfied.” What is additionally required?',
+    options: ['Current evidence for the exact requirement and repository revision', 'No work-unit mapping or review', 'A confidence percentage', 'Only the planner’s assertion'],
+    answer: 0,
+    explanation: 'No-change claims need evidence because they otherwise hide unplanned obligations.'
+  },
+  {
+    category: 'Traceability',
+    question: 'Which traceability target is most durable during refactoring?',
+    options: ['Meaningful modules, contracts, controls, and evidence', 'Exact source line numbers only', 'Agent chat messages', 'Task titles without requirement IDs'],
+    answer: 0,
+    explanation: 'Semantic implementation units remain useful as code moves; line links are brittle.'
+  },
+  {
+    category: 'Agent work units',
+    question: 'What distinguishes an agent work unit from a simple task?',
+    options: ['It adds bounded scope, authority, dependencies, evidence, ownership, and stop conditions', 'It is always larger than a pull request', 'It names a model vendor', 'It eliminates human review'],
+    answer: 0,
+    explanation: 'A work unit is an execution boundary around cohesive tasks, not merely another task label.'
+  },
+  {
+    category: 'Accountability',
+    question: 'Who should remain accountable when a coding agent executes a work unit?',
+    options: ['A named human or team with required reviewers', 'The model itself', 'Nobody if tests pass', 'The prompt author automatically'],
+    answer: 0,
+    explanation: 'Execution assignment does not transfer organizational accountability or decision rights.'
+  },
+  {
+    category: 'Parallel agents',
+    question: 'Which condition best supports safe parallel execution?',
+    options: ['Stable contracts, exclusive write ownership, explicit dependencies, and independent evidence', 'Two agents editing the same files', 'No dependency graph', 'A shared instruction to resolve conflicts later'],
+    answer: 0,
+    explanation: 'Safe parallelism is designed around ownership and contracts, not inferred from agent availability.'
+  },
+  {
+    category: 'Readiness evidence',
+    question: 'Why is a field such as ready: true insufficient?',
+    options: ['Readiness must link current prerequisite evidence and dependency state', 'Booleans cannot be serialized', 'Only agents can declare readiness', 'Readiness never changes'],
+    answer: 0,
+    explanation: 'An assertion without inspectable relationships is boolean theater.'
+  },
+  {
+    category: 'Execution context',
+    question: 'What should a bounded execution-context package explicitly avoid claiming?',
+    options: ['That context itself grants production, policy, architecture, or exception authority', 'Its plan digest', 'Writable paths', 'Acceptance checks'],
+    answer: 0,
+    explanation: 'Context constrains a run; runtime permissions and accountable approvals are separate controls.'
+  },
+  {
+    category: 'Contract change',
+    question: 'A downstream agent needs to change an upstream shared contract. What is the correct action?',
+    options: ['Stop and submit a change request with requirement basis and downstream impact', 'Edit it silently within the same branch', 'Remove the dependency edge', 'Ask every agent to retry'],
+    answer: 0,
+    explanation: 'Contract ownership and impact analysis preserve controlled propagation through the work graph.'
+  },
+  {
+    category: 'Semantic scope',
+    question: 'How can an agent exceed scope without editing an unauthorized path?',
+    options: ['It can make a protected product, policy, architecture, or authorization decision inside an allowed file', 'It cannot; path checks are complete', 'By adding tests', 'By reporting a blocker'],
+    answer: 0,
+    explanation: 'Scope has both path and semantic dimensions.'
+  },
+  {
+    category: 'Work-unit lifecycle',
+    question: 'What separates COMPLETED from VERIFIED?',
+    options: ['COMPLETED is an executor claim; VERIFIED requires independent evidence', 'They are synonyms', 'VERIFIED means deployed', 'COMPLETED requires no report'],
+    answer: 0,
+    explanation: 'Self-reported completion does not establish independent conformance.'
+  },
+  {
+    category: 'Proportional process',
+    question: 'When is the full implementation-planning model usually disproportionate?',
+    options: ['A low-risk, local, reversible change with obvious scope, one owner, strong checks, and no shared contract impact', 'Any security change with a one-line diff', 'A new authorization rule', 'A schema migration'],
+    answer: 0,
+    explanation: 'Process depth should follow semantic risk and coordination needs, not diff size alone.'
+  },
+  {
+    category: 'Stop conditions',
+    question: 'What makes a work-unit stop condition operationally useful?',
+    options: ['It names the condition, ASK/PROPOSE/STOP outcome, next action, required artifact, and accountable owner', 'It contains only the word STOP', 'It lets the agent decide any remedy', 'It automatically approves scope expansion'],
+    answer: 0,
+    explanation: 'A routed stop preserves scoped uncertainty and creates useful work without granting decision authority.'
+  },
+  {
+    category: 'Decision routing',
+    question: 'When should an agent PROPOSE rather than ASK or decide?',
+    options: ['When it has enough context to recommend a consequential decision but lacks authority to make it', 'Whenever a factual input is missing', 'Only after deploying code', 'When it wants permanent permissions'],
+    answer: 0,
+    explanation: 'A proposal can contain alternatives and trade-offs while leaving approval with the accountable owner.'
+  },
+  {
+    category: 'Contract dependencies',
+    question: 'Validation consumes ProposedUpdate v2 but declares no dependency path from the work unit that owns that contract. What should plan assurance report?',
+    options: ['UNDECLARED_CONTRACT_DEPENDENCY', 'The graph is valid because the files differ', 'Automatic contract approval', 'Only a style warning'],
+    answer: 0,
+    explanation: 'Contract producer/consumer relationships reveal hidden dependencies that a hand-written DAG may omit.'
+  },
+  {
+    category: 'Critical path',
+    question: 'Why should Course 10 critical-path output use coarse work indicators rather than exact hours?',
+    options: ['Agentic duration predictions are uncertain and should not be presented as fake precision', 'Critical paths never include dependencies', 'Exact estimates authorize execution', 'Hours cannot be recorded in plans'],
+    answer: 0,
+    explanation: 'The path supports sequencing decisions; it is not a reliable elapsed-time promise.'
+  },
+  {
+    category: 'Permission planning',
+    question: 'A planning agent determines that a migration needs elevated access. What should it do?',
+    options: ['Create a scoped, temporary, work-unit-bound request for an authorized control plane', 'Grant itself permanent access', 'Add write access to AGENTS.md', 'Reuse another agent’s credential'],
+    answer: 0,
+    explanation: 'A permission request is not approval or provisioning; self-granting would violate the authority boundary.'
+  },
+  {
+    category: 'Evidence scheduling',
+    question: 'A bounded unit can be implemented, but its representative evaluation dataset is unavailable. Which state is accurate?',
+    options: ['Implementation may proceed while independent verification remains blocked', 'The unit is fully verified', 'Enablement is automatically ready', 'Delete the evidence requirement'],
+    answer: 0,
+    explanation: 'Implementation and verification readiness are separate axes and should not be collapsed into one boolean.'
+  },
+  {
+    category: 'Rollout boundaries',
+    question: 'What does code completion behind a feature flag establish?',
+    options: ['Only implementation progress; merge, release, rollout, and enablement still need their own evidence and authority', 'Production activation approval', 'A safe shadow launch', 'Permission to implement blocked capabilities'],
+    answer: 0,
+    explanation: 'A flag does not replace release governance or approve speculative high-risk behavior.'
+  },
+  {
+    category: 'Multi-repository planning',
+    question: 'A schema producer and consumer live in separate repositories. What should the work graph preserve?',
+    options: ['Artifact publication, version compatibility, release ordering, and narrow per-repository permissions', 'One agent with permanent write access everywhere', 'Only Git commit dependencies', 'No contract revision'],
+    answer: 0,
+    explanation: 'Cross-repository work needs explicit publication and compatibility semantics beyond local Git dependencies.'
   }
 ];

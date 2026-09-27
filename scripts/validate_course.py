@@ -812,6 +812,912 @@ def check_course_05_discovery() -> list[str]:
     return errors
 
 
+def check_course_06_executable_requirements() -> list[str]:
+    lesson = ROOT / "curriculum" / "beginner" / "06-writing-executable-requirements"
+    scenario = lesson / "northstar-broker-response"
+    required = [
+        "README.md",
+        "evaluation-cases.json",
+        "ticket/AI-2219.md",
+        "sources/stakeholder-decisions.md",
+        "sources/field-rules.json",
+        "sources/authorization-policy.json",
+        "workshop/starter/README.md",
+        "workshop/starter/glossary.md",
+        "workshop/starter/requirements.md",
+        "workshop/starter/scenarios.md",
+        "workshop/starter/decision-table.csv",
+        "workshop/starter/state-machine.json",
+        "workshop/starter/contracts/proposed-update.schema.json",
+        "reference/behavior-contract.json",
+        "reference/requirements.md",
+        "reference/scenarios.json",
+        "reference/scenarios.md",
+        "reference/decision-table.json",
+        "reference/decision-table.csv",
+        "reference/state-machine.json",
+        "reference/traceability.csv",
+        "reference/contracts/proposed-update.schema.json",
+    ]
+    errors = [
+        f"missing Course 06 artifact: {item}"
+        for item in required
+        if not (scenario / item).exists()
+    ]
+    if errors:
+        return errors
+
+    json_paths = [
+        scenario / "evaluation-cases.json",
+        scenario / "sources" / "field-rules.json",
+        scenario / "sources" / "authorization-policy.json",
+        scenario / "workshop" / "starter" / "state-machine.json",
+        scenario / "workshop" / "starter" / "contracts" / "proposed-update.schema.json",
+        scenario / "reference" / "behavior-contract.json",
+        scenario / "reference" / "scenarios.json",
+        scenario / "reference" / "decision-table.json",
+        scenario / "reference" / "state-machine.json",
+        scenario / "reference" / "contracts" / "proposed-update.schema.json",
+    ]
+    payloads: dict[Path, dict] = {}
+    for path in json_paths:
+        try:
+            payloads[path] = json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError) as exc:
+            errors.append(f"invalid Course 06 JSON {path.relative_to(ROOT)}: {exc}")
+    if errors:
+        return errors
+
+    reference = scenario / "reference"
+    contract_path = reference / "behavior-contract.json"
+    contract = payloads[contract_path]
+    required_sections = {
+        "specification", "scope", "sources", "artifact_authority", "controlled_vocabulary",
+        "capabilities", "requirements", "contracts", "invariants", "state_requirements",
+        "questions", "agent_authority",
+    }
+    missing_sections = required_sections - contract.keys()
+    if missing_sections:
+        errors.append(f"Course 06 behavior contract is missing sections: {sorted(missing_sections)}")
+
+    authority = contract.get("artifact_authority", {})
+    expected_roles = {
+        "normative_requirement", "normative_elaboration", "normative_example", "informative", "evidence",
+    }
+    if not expected_roles.issubset(authority):
+        errors.append("Course 06 must declare authority for every representation role")
+    if authority.get("conflict_outcome") != "SPEC_CONTRADICTION_STOP":
+        errors.append("Course 06 normative contradictions must stop for owner resolution")
+
+    capability_status = {
+        item.get("id"): item.get("status") for item in contract.get("capabilities", [])
+    }
+    expected_capabilities = {
+        "extract_response": "ready",
+        "classify_proposal": "ready",
+        "create_proposal": "ready",
+        "apply_unverified_value": "review_required",
+        "apply_reviewed_conflict": "review_required",
+        "automatically_overwrite_verified_value": "prohibited",
+    }
+    if capability_status != expected_capabilities:
+        errors.append("Course 06 capability readiness boundary changed unexpectedly")
+
+    questions = contract.get("questions", [])
+    open_application_questions = {
+        item.get("id")
+        for item in questions
+        if item.get("status") == "open"
+        and "apply_unverified_value" in item.get("blocks_capabilities", [])
+    }
+    if open_application_questions != {"OQ-BR-001"}:
+        errors.append("Course 06 unverified application must remain blocked by OQ-BR-001")
+
+    requirements = {item.get("id"): item for item in contract.get("requirements", [])}
+    expected_patterns = {
+        "REQ-BR-001": "ubiquitous",
+        "REQ-BR-003": "event_driven",
+        "REQ-BR-004": "state_driven",
+        "REQ-BR-005": "unwanted_behavior",
+        "REQ-BR-006": "optional_feature",
+        "REQ-BR-007": "complex",
+        "REQ-BR-021": "unwanted_behavior",
+        "REQ-BR-037": "event_driven",
+    }
+    for identifier, pattern in expected_patterns.items():
+        if requirements.get(identifier, {}).get("ears_pattern") != pattern:
+            errors.append(f"Course 06 {identifier} must demonstrate {pattern} EARS")
+    readiness_fields = {
+        "id", "revision", "status", "role", "ears_pattern", "capability", "owner",
+        "source_ids", "statement", "actor", "trigger", "inputs", "preconditions", "behavior",
+        "prohibited", "postconditions", "frame_conditions", "failure_behavior", "evidence_ids",
+    }
+    for identifier, requirement in requirements.items():
+        missing = sorted(field for field in readiness_fields if not requirement.get(field))
+        if missing:
+            errors.append(f"Course 06 requirement {identifier} lacks fields: {', '.join(missing)}")
+
+    table = payloads[reference / "decision-table.json"]
+    conflict_row = next((row for row in table.get("rows", []) if row.get("id") == "DT-07"), {})
+    if conflict_row.get("outcome") != "conflict" or conflict_row.get("existing_verified") is not True:
+        errors.append("Course 06 verified-conflict table row must remain conflict")
+    if len(table.get("rows", [])) != 8:
+        errors.append("Course 06 decision table must retain eight non-overlapping teaching rows")
+    if "existing_verification_known_when_value_present" not in table.get("preconditions", []):
+        errors.append("Course 06 decision table must require known existing verification state")
+
+    state_machine = payloads[reference / "state-machine.json"]
+    forbidden = {
+        ("extracted", "apply", "applied"),
+        ("conflicting", "apply", "applied"),
+        ("rejected", "apply", "applied"),
+        ("stale", "apply", "applied"),
+    }
+    declared_valid = {
+        (item.get("current"), item.get("event"), item.get("next"))
+        for item in state_machine.get("transitions", [])
+    }
+    declared_invalid = {
+        (item.get("current"), item.get("event"), item.get("next"))
+        for item in state_machine.get("critical_invalid_transitions", [])
+    }
+    if forbidden & declared_valid or not forbidden.issubset(declared_invalid):
+        errors.append("Course 06 state model must declare and prohibit all critical apply transitions")
+    expected_conflict_path = {
+        ("conflicting", "request_review", "awaiting_review"),
+        ("awaiting_review", "approve_replacement", "approved"),
+        ("approved", "apply", "applied"),
+    }
+    if not expected_conflict_path.issubset(declared_valid):
+        errors.append("Course 06 state model must preserve the explicit reviewed-conflict path")
+    guards = state_machine.get("guards", {})
+    required_guard_conditions = {
+        "approval proposal digest equals the current ProposedUpdate digest",
+        "submission revision is current",
+        "requirement-context digest is current",
+        "approval is unexpired",
+        "approval is unused",
+    }
+    receipt_conditions = set(guards.get("valid_receipt_and_current", {}).get("conditions", []))
+    if not required_guard_conditions.issubset(receipt_conditions):
+        errors.append("Course 06 approval guard must define exact proposal and current-context semantics")
+    conflict_conditions = set(guards.get("valid_conflict_replacement_receipt", {}).get("conditions", []))
+    if "approval resolution is replace_verified_value" not in conflict_conditions:
+        errors.append("Course 06 conflict replacement guard must bind the selected resolution")
+    if {"source": "conflicting", "target": "applied", "via": "approved"} not in state_machine.get("required_waypoints", []):
+        errors.append("Course 06 conflict application must pass through the approved waypoint")
+
+    schema = payloads[reference / "contracts" / "proposed-update.schema.json"]
+    required_proposal_fields = {
+        "proposal_id", "submission_id", "submission_revision", "requirement_context_digest",
+        "field", "proposed_value", "source_response_id", "source_span", "requirement_id",
+        "model_version", "evidence_ids", "origin_disposition", "status",
+    }
+    if set(schema.get("required", [])) != required_proposal_fields:
+        errors.append("Course 06 ProposedUpdate schema lost a required trust-boundary field")
+    if schema.get("additionalProperties") is not False:
+        errors.append("Course 06 ProposedUpdate schema must reject undeclared fields")
+
+    agent_forbidden = set(contract.get("agent_authority", {}).get("forbidden", []))
+    if not {"apply production updates", "adjudicate normative contradictions", "widen supported fields"}.issubset(agent_forbidden):
+        errors.append("Course 06 agent boundary grants consequential authority")
+
+    evaluation = payloads[scenario / "evaluation-cases.json"]
+    if len(evaluation.get("cases", [])) != 11 or not evaluation.get("limitations"):
+        errors.append("Course 06 evaluation must contain eleven labelled cases and limitations")
+
+    with (reference / "traceability.csv").open(newline="", encoding="utf-8") as handle:
+        trace_rows = list(csv.DictReader(handle))
+    relations = {row.get("relationship") for row in trace_rows}
+    if not {"elaborated_by", "illustrated_by", "evidenced_by", "implemented_by"}.issubset(relations):
+        errors.append("Course 06 traceability must connect specification, examples, tests, and work")
+    declared_trace_sources = {
+        item.get("id")
+        for section in ("requirements", "invariants", "state_requirements")
+        for item in contract.get(section, [])
+    }
+    traced_sources = {row.get("source_id") for row in trace_rows}
+    if contract.get("specification", {}).get("traceability_scope") != "complete_reference":
+        errors.append("Course 06 reference must declare its traceability scope")
+    untraced = sorted(declared_trace_sources - traced_sources)
+    if untraced:
+        errors.append(f"Course 06 reference has untraced normative records: {untraced}")
+
+    reference_text = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in reference.rglob("*")
+        if path.is_file()
+    )
+    if "TODO" in reference_text:
+        errors.append("Course 06 reference artifacts contain unresolved TODOs")
+    starter = scenario / "workshop" / "starter"
+    starter_text = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in starter.rglob("*")
+        if path.is_file()
+    )
+    if "TODO" not in starter_text:
+        errors.append("Course 06 starter workspace has no editable TODO prompts")
+
+    result = subprocess.run(
+        [sys.executable, str(lesson / "lab.py")],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    try:
+        report = json.loads(result.stdout) if result.returncode == 0 else {}
+    except json.JSONDecodeError:
+        report = {}
+    if report.get("requirement_findings") or report.get("consistency_findings"):
+        errors.append("Course 06 reference contract must pass requirement and consistency checks")
+    if report.get("table_shape", {}).get("declared_fact_combinations") != 20 or report.get("table_shape", {}).get("findings"):
+        errors.append("Course 06 decision table must match exactly once across its declared fact space")
+    if report.get("state_graph", {}).get("findings"):
+        errors.append("Course 06 state graph must preserve reachability, terminality, and required waypoints")
+    governed = report.get("evaluation", {}).get("governed", {})
+    if governed.get("correct") != 11 or governed.get("unsafe_auto_apply") != 0:
+        errors.append("Course 06 governed evaluation must classify all eleven cases without unsafe apply")
+    property_check = report.get("property_check", {})
+    if property_check.get("checked_pairs", 0) < 2 or property_check.get("violations") != 0:
+        errors.append("Course 06 verified-conflict property must explore multiple pairs without violation")
+    return errors
+
+
+def check_course_07_acceptance_evidence() -> list[str]:
+    lesson = ROOT / "curriculum" / "beginner" / "07-acceptance-criteria-invariants-evidence"
+    scenario = lesson / "northstar-broker-evidence"
+    required = [
+        "README.md",
+        "acceptance_evidence.ipynb",
+        "lab.py",
+        "assets/diagram-spec.json",
+        "assets/render_diagram.py",
+        "assets/requirement-to-runtime-evidence.svg",
+        "northstar-broker-evidence/README.md",
+        "northstar-broker-evidence/evaluation-cases.json",
+        "northstar-broker-evidence/ticket/AI-2219-verification.md",
+        "northstar-broker-evidence/reference/acceptance-contract.json",
+        "northstar-broker-evidence/reference/decision-table-cases.json",
+        "northstar-broker-evidence/reference/evaluation-contract.json",
+        "northstar-broker-evidence/reference/gate-policy.json",
+        "northstar-broker-evidence/reference/human-rubric.json",
+        "northstar-broker-evidence/reference/invalidation-matrix.json",
+        "northstar-broker-evidence/reference/runtime-events.json",
+        "northstar-broker-evidence/reference/tool-manifest.json",
+        "northstar-broker-evidence/reference/traceability.csv",
+        "northstar-broker-evidence/reference/evidence/manifest.json",
+        "northstar-broker-evidence/reference/evidence/deterministic.json",
+        "northstar-broker-evidence/reference/evidence/properties.json",
+        "northstar-broker-evidence/reference/evidence/mutation.json",
+        "northstar-broker-evidence/reference/evidence/statistical.json",
+        "northstar-broker-evidence/reference/evidence/human.json",
+        "northstar-broker-evidence/reference/evidence/runtime.json",
+        "northstar-broker-evidence/workshop/starter/README.md",
+        "northstar-broker-evidence/workshop/starter/acceptance-contract.json",
+        "northstar-broker-evidence/workshop/starter/evaluation-contract.json",
+        "northstar-broker-evidence/workshop/starter/gate-policy.json",
+        "northstar-broker-evidence/workshop/starter/human-rubric.json",
+        "northstar-broker-evidence/workshop/starter/traceability.csv",
+        "northstar-broker-evidence/workshop/starter/evidence/manifest.json",
+    ]
+    errors = [f"missing Course 07 artifact: {item}" for item in required if not (lesson / item).exists()]
+    if errors:
+        return errors
+
+    json_paths = [
+        scenario / "evaluation-cases.json",
+        scenario / "reference" / "acceptance-contract.json",
+        scenario / "reference" / "decision-table-cases.json",
+        scenario / "reference" / "evaluation-contract.json",
+        scenario / "reference" / "gate-policy.json",
+        scenario / "reference" / "human-rubric.json",
+        scenario / "reference" / "invalidation-matrix.json",
+        scenario / "reference" / "runtime-events.json",
+        scenario / "reference" / "tool-manifest.json",
+        scenario / "reference" / "evidence" / "manifest.json",
+        lesson / "assets" / "diagram-spec.json",
+    ]
+    evidence_files = sorted((scenario / "reference" / "evidence").glob("*.json"))
+    json_paths.extend(path for path in evidence_files if path.name != "manifest.json")
+    payloads: dict[Path, dict] = {}
+    for path in json_paths:
+        try:
+            payloads[path] = json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError) as exc:
+            errors.append(f"invalid Course 07 JSON {path.relative_to(ROOT)}: {exc}")
+    if errors:
+        return errors
+
+    reference = scenario / "reference"
+    contract = payloads[reference / "acceptance-contract.json"]
+    criteria = contract.get("acceptance_criteria", [])
+    kinds = {item.get("kind") for item in criteria}
+    required_kinds = {"positive", "negative", "boundary", "failure", "staleness", "security", "contract"}
+    if len(contract.get("scope", {}).get("requirement_ids", [])) != 10:
+        errors.append("Course 07 high-risk scope must retain ten Course 06 requirements")
+    if len(criteria) != 14 or not required_kinds.issubset(kinds):
+        errors.append("Course 07 must retain fourteen diverse observable acceptance criteria")
+    if len(contract.get("invariants", [])) != 6:
+        errors.append("Course 07 must retain five invariants and one frame condition")
+    stale_criterion = next((item for item in criteria if item.get("id") == "AC-BR-036-A"), {})
+    if stale_criterion.get("requirement_ids") != ["REQ-BR-036"] or stale_criterion.get("invariant_ids") != ["INV-BR-005"]:
+        errors.append("Course 07 stale-context criterion must not reuse replay/idempotency traceability")
+    rubric = payloads[reference / "human-rubric.json"]
+    protocol = rubric.get("review_protocol", {})
+    if rubric.get("status") != "template_only_not_run" or rubric.get("release_threshold") is not None:
+        errors.append("Course 07 human rubric must remain unexecuted and must not invent a release threshold")
+    if protocol.get("reviewers_per_case", 0) < 2 or not protocol.get("independent_before_adjudication"):
+        errors.append("Course 07 human rubric must require independent ratings before adjudication")
+
+    records = [
+        record
+        for path in evidence_files
+        if path.name != "manifest.json"
+        for record in payloads[path].get("records", [])
+    ]
+    expected_classes = {"deterministic_conformance", "statistical_quality", "human_judgment", "runtime_operational"}
+    if len(records) != 14 or {item.get("evidence_class") for item in records} != expected_classes:
+        errors.append("Course 07 evidence bundle must retain fourteen records across all four evidence classes")
+    if any(not item.get("limitations") for item in records):
+        errors.append("Course 07 evidence records must declare limitations")
+    record_map = {item.get("evidence_id"): item for item in records}
+    if record_map.get("EVID-PROP-PROVENANCE", {}).get("invariant_ids") != ["INV-BR-003"]:
+        errors.append("Course 07 provenance invariant needs direct behavioral property evidence")
+    if record_map.get("EVID-HUMAN-RUBRIC", {}).get("lifecycle_state") != "planned":
+        errors.append("Course 07 unexecuted human rubric must remain planned evidence")
+    if any(item.get("lifecycle_state") != "executed" for item in records if item.get("evidence_id") != "EVID-HUMAN-RUBRIC"):
+        errors.append("Course 07 executed evidence records must declare their lifecycle state")
+
+    reference_text = "\n".join(path.read_text(encoding="utf-8") for path in reference.rglob("*") if path.is_file())
+    if "TODO" in reference_text:
+        errors.append("Course 07 reference artifacts contain unresolved TODOs")
+    starter = scenario / "workshop" / "starter"
+    starter_text = "\n".join(path.read_text(encoding="utf-8") for path in starter.rglob("*") if path.is_file())
+    if "TODO" not in starter_text:
+        errors.append("Course 07 starter workspace has no editable TODO prompts")
+
+    result = subprocess.run(
+        [sys.executable, str(lesson / "lab.py")],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    try:
+        report = json.loads(result.stdout) if result.returncode == 0 else {}
+    except json.JSONDecodeError:
+        report = {}
+    if report.get("contract_findings") or report.get("evidence_findings") or report.get("traceability_findings"):
+        errors.append("Course 07 reference contracts, evidence, and traceability must validate cleanly")
+    if report.get("acceptance", {}).get("passed") != 14 or report.get("acceptance", {}).get("total") != 14:
+        errors.append("Course 07 acceptance suite must pass all fourteen declared criteria")
+    properties = report.get("properties", [])
+    if len(properties) != 5 or any(item.get("violations") != 0 or item.get("checked", 0) == 0 for item in properties):
+        errors.append("Course 07 must exercise five non-empty bounded properties without reference violations")
+    coverage = report.get("decision_table_coverage", {})
+    if (coverage.get("covered"), coverage.get("total")) != (8, 8) or coverage.get("failed_case_ids"):
+        errors.append("Course 07 must retain complete decision-table row coverage with no reference failures")
+    mutation = report.get("mutation_evidence", {})
+    if (mutation.get("killed"), mutation.get("total")) != (3, 3):
+        errors.append("Course 07 evidence must detect all three seeded mutants")
+    governed = report.get("evaluation", {}).get("governed", {}).get("overall", {})
+    baseline = report.get("evaluation", {}).get("baseline", {}).get("overall", {})
+    if (governed.get("numerator"), governed.get("denominator")) != (12, 12) or baseline.get("value", 1) >= governed.get("value", 0):
+        errors.append("Course 07 evaluation fixtures must preserve twelve labelled cases and a weaker baseline")
+    gates = {item.get("gate_id"): item for item in report.get("gates", [])}
+    if gates.get("GATE-BR-CONFLICT-EVAL", {}).get("decision") != "blocked" or gates.get("GATE-BR-CONFLICT-EVAL", {}).get("reason_codes") != ["THRESHOLD_NOT_AUTHORIZED"]:
+        errors.append("Course 07 statistical gate must remain blocked until an owner authorizes its threshold")
+    runtime = report.get("runtime", {})
+    if (runtime.get("violations"), runtime.get("applicable_events")) != (0, 5):
+        errors.append("Course 07 runtime fixture must retain an explicit non-zero applicable population")
+    if runtime.get("production_evidence") is not False or runtime.get("evidence_status") != "simulated_not_production":
+        errors.append("Course 07 runtime output must be visibly labelled simulated and non-production")
+    release = report.get("release_assessment", {})
+    scope = release.get("scope", {})
+    if release.get("production_ready") is not False or release.get("claim") != "bounded_high_risk_slice_conformance_only":
+        errors.append("Course 07 green bounded evidence must not claim production readiness")
+    if (scope.get("course06_requirement_count"), scope.get("assurance_requirement_count"), scope.get("excluded_normative_requirement_count")) != (10, 3, 8):
+        errors.append("Course 07 release assessment must expose included and excluded scope")
+    populations = report.get("population_eligibility", {})
+    if populations.get("french", {}).get("disposition") != "manual_review" or populations.get("attachment", {}).get("disposition") != "manual_review":
+        errors.append("Course 07 out-of-population inputs must route to manual review")
+    field_coverage = report.get("evaluation_field_coverage", {})
+    if field_coverage.get("missing_supported_fields") != ["sprinkler_system"] or field_coverage.get("prior_evidence_wholly_invalid") is not False:
+        errors.append("Course 07 must report new-field evaluation gaps as partial invalidation")
+    freshness = report.get("freshness", [])
+    if len(freshness) != 14 or any(not item.get("current") for item in freshness):
+        errors.append("Course 07 reference evidence must be current for the declared fixture revisions")
+    return errors
+
+
+def check_course_08_non_functional_requirements() -> list[str]:
+    lesson = ROOT / "curriculum" / "beginner" / "08-non-functional-requirements-agentic-systems"
+    scenario = lesson / "northstar-broker-nfrs"
+    required = [
+        "README.md",
+        "nfr_engineering.ipynb",
+        "lab.py",
+        "northstar-broker-nfrs/README.md",
+        "northstar-broker-nfrs/workload-profiles.json",
+        "northstar-broker-nfrs/synthetic-runtime-events.json",
+        "northstar-broker-nfrs/synthetic-quality-cases.json",
+        "northstar-broker-nfrs/ticket/AI-2219-rollout.md",
+        "northstar-broker-nfrs/reference/nfr-contract.json",
+        "northstar-broker-nfrs/reference/target-decisions.json",
+        "northstar-broker-nfrs/reference/measurement-plan.json",
+        "northstar-broker-nfrs/reference/degradation-policy.json",
+        "northstar-broker-nfrs/reference/agent-budget.json",
+        "northstar-broker-nfrs/reference/traceability.csv",
+        "northstar-broker-nfrs/workshop/starter/README.md",
+        "northstar-broker-nfrs/workshop/starter/nfr-contract.json",
+        "northstar-broker-nfrs/workshop/starter/target-decisions.json",
+        "northstar-broker-nfrs/workshop/starter/measurement-plan.json",
+        "northstar-broker-nfrs/workshop/starter/degradation-policy.json",
+        "northstar-broker-nfrs/workshop/starter/agent-budget.json",
+        "northstar-broker-nfrs/workshop/starter/traceability.csv",
+    ]
+    errors = [f"missing Course 08 artifact: {item}" for item in required if not (lesson / item).exists()]
+    if errors:
+        return errors
+
+    json_paths = [
+        scenario / "workload-profiles.json",
+        scenario / "synthetic-runtime-events.json",
+        scenario / "synthetic-quality-cases.json",
+        scenario / "reference" / "nfr-contract.json",
+        scenario / "reference" / "target-decisions.json",
+        scenario / "reference" / "measurement-plan.json",
+        scenario / "reference" / "degradation-policy.json",
+        scenario / "reference" / "agent-budget.json",
+    ]
+    payloads: dict[Path, dict] = {}
+    for path in json_paths:
+        try:
+            payloads[path] = json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError) as exc:
+            errors.append(f"invalid Course 08 JSON {path.relative_to(ROOT)}: {exc}")
+    if errors:
+        return errors
+
+    reference = scenario / "reference"
+    reference_text = "\n".join(path.read_text(encoding="utf-8") for path in reference.rglob("*") if path.is_file())
+    if "TODO" in reference_text:
+        errors.append("Course 08 reference artifacts contain unresolved TODOs")
+    starter = scenario / "workshop" / "starter"
+    starter_text = "\n".join(path.read_text(encoding="utf-8") for path in starter.rglob("*") if path.is_file())
+    if "TODO" not in starter_text:
+        errors.append("Course 08 starter workspace has no editable TODO prompts")
+
+    contract = payloads[reference / "nfr-contract.json"]
+    requirements = contract.get("requirements", [])
+    expected_ids = {
+        "PERF-BR-001", "REL-BR-001", "RES-BR-001", "AGENT-NFR-001", "COST-BR-001",
+        "OBS-BR-001", "AIQ-BR-001", "SEC-NFR-001", "PRIV-NFR-001", "CAP-BR-001",
+        "SEC-NFR-002",
+    }
+    if {item.get("id") for item in requirements} != expected_ids:
+        errors.append("Course 08 must retain eleven atomic production-quality requirements")
+    unresolved = {item.get("id") for item in requirements if item.get("target", {}).get("status") == "target_unresolved"}
+    if unresolved != {"COST-BR-001", "AIQ-BR-001"}:
+        errors.append("Course 08 cost and AI-quality targets must remain explicitly unresolved")
+    if any(
+        item.get("target", {}).get("value") is not None or item.get("target", {}).get("decision_id") is not None
+        for item in requirements
+        if item.get("id") in unresolved
+    ):
+        errors.append("Course 08 unresolved targets must not contain invented values or decisions")
+
+    profiles = payloads[scenario / "workload-profiles.json"].get("profiles", [])
+    profile_status = {item.get("id"): item.get("status") for item in profiles}
+    if profile_status != {"W1": "owner_approved_training_fixture", "W2": "target_unresolved", "W3": "target_unresolved"}:
+        errors.append("Course 08 workload profiles must distinguish approved W1 from unresolved W2/W3 hypotheses")
+    events = payloads[scenario / "synthetic-runtime-events.json"]
+    quality = payloads[scenario / "synthetic-quality-cases.json"]
+    if events.get("fixture_status") != "synthetic_training_fixture_not_production_evidence" or len(events.get("events", [])) != 12:
+        errors.append("Course 08 runtime fixture must retain twelve explicitly synthetic events")
+    if quality.get("fixture_status") != "fixed_prediction_pipeline_exercise_not_model_quality_evidence" or len(quality.get("cases", [])) != 8:
+        errors.append("Course 08 quality fixture must retain eight fixed-prediction cases without model-quality claims")
+
+    with (reference / "traceability.csv").open(encoding="utf-8", newline="") as handle:
+        trace_rows = list(csv.DictReader(handle))
+    if {row.get("nfr_id") for row in trace_rows} != expected_ids or any(row.get("status") != "planned" for row in trace_rows):
+        errors.append("Course 08 traceability must cover every NFR without fabricating executed production evidence")
+
+    result = subprocess.run(
+        [sys.executable, str(lesson / "lab.py")],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    try:
+        report = json.loads(result.stdout) if result.returncode == 0 else {}
+    except json.JSONDecodeError:
+        report = {}
+    if report.get("contract_findings") or report.get("workload_findings") or report.get("measurement_plan_findings"):
+        errors.append("Course 08 reference contract, workloads, and measurement plan must validate cleanly")
+    runtime_report = report.get("runtime_measurements", {})
+    latency = runtime_report.get("end_to_end_latency_ms", {})
+    reliability = runtime_report.get("semantic_service_success_ratio", {})
+    compliant = runtime_report.get("compliant_workflow_success_ratio", {})
+    if (latency.get("p50"), latency.get("p95"), latency.get("p99"), latency.get("denominator")) != (1850.0, 4800.0, 4800.0, 12):
+        errors.append("Course 08 must preserve boundary-labelled p50/p95/p99 latency with denominator")
+    if (reliability.get("numerator"), reliability.get("denominator")) != (11, 12):
+        errors.append("Course 08 semantic service-success ratio must retain its numerator and denominator")
+    if (compliant.get("numerator"), compliant.get("denominator")) != (11, 12):
+        errors.append("Course 08 compliant workflow success must remain a separately labelled metric")
+    if latency.get("sample_size") != 12 or "not_statistically_representative" not in latency.get("representativeness", ""):
+        errors.append("Course 08 small-sample percentiles must disclose sample size and representativeness")
+    if runtime_report.get("evidence_status") != "synthetic_training_fixture_not_production_evidence":
+        errors.append("Course 08 runtime output must be visibly synthetic and non-production")
+    quality_report = report.get("quality_measurements", {})
+    if quality_report.get("claim") != "pipeline_mechanics_only_not_model_quality" or quality_report.get("slices", {}).get("unsupported_field", {}).get("value") != 0.5:
+        errors.append("Course 08 quality results must expose the unsupported-field slice without a model-quality claim")
+    resilience = report.get("resilience_experiment", {})
+    if resilience.get("unsafe", {}).get("provider_attempts") != 600 or resilience.get("governed", {}).get("provider_attempts") != 8:
+        errors.append("Course 08 must contrast retry amplification with bounded circuit-breaker behavior")
+    if resilience.get("governed", {}).get("work_items_preserved") != 100:
+        errors.append("Course 08 governed degradation must preserve every work item")
+    degradation = report.get("degradation", {})
+    if any(degradation.get(name, {}).get("automatic_mutation") is not False for name in ("authorization", "model_provider", "policy_service")):
+        errors.append("Course 08 critical dependency degradation must reduce automation")
+    if any(not degradation.get(name, {}).get("recovery_condition") for name in ("authorization", "model_provider", "policy_service", "analytics_export")):
+        errors.append("Course 08 degradation modes must include explicit recovery and exit criteria")
+    budget_findings = report.get("budget_policy_findings", [])
+    if sum(item.get("code") == "AGENT_BUDGET_TARGET_UNRESOLVED" for item in budget_findings) != 6:
+        errors.append("Course 08 must surface six unresolved agent-budget decisions instead of inventing limits")
+    gates = {item.get("requirement_id"): item for item in report.get("target_gates", [])}
+    if sum(item.get("decision") == "pass" for item in gates.values()) != 8:
+        errors.append("Course 08 reference fixture must retain eight bounded target passes")
+    if gates.get("COST-BR-001", {}).get("decision") != "blocked" or gates.get("AIQ-BR-001", {}).get("decision") != "blocked":
+        errors.append("Course 08 measured but unauthorized cost and quality targets must remain blocked")
+    if gates.get("CAP-BR-001", {}).get("decision") != "not_measured":
+        errors.append("Course 08 static events must not be presented as capacity evidence")
+    if gates.get("PRIV-NFR-001", {}).get("numerator") != 0 or gates.get("PRIV-NFR-001", {}).get("denominator") != 12:
+        errors.append("Course 08 privacy gate must retain numerator and denominator")
+    release = report.get("release_assessment", {})
+    if release.get("production_ready") is not False or release.get("claim") != "nfr_contract_and_measurement_pipeline_exercised_only":
+        errors.append("Course 08 synthetic NFR exercise must not claim production readiness")
+    if "AGENT_BUDGET_TARGETS_UNRESOLVED" not in release.get("blockers", []):
+        errors.append("Course 08 unresolved agent budgets must block bounded production autonomy")
+    return errors
+
+
+def check_course_09_specification_review() -> list[str]:
+    lesson = ROOT / "curriculum" / "beginner" / "09-specification-quality-review-antipatterns"
+    scenario = lesson / "northstar-spec-review"
+    required = [
+        "README.md",
+        "specification_review.ipynb",
+        "lab.py",
+        "northstar-spec-review/README.md",
+        "northstar-spec-review/ticket/AI-2290.md",
+        "northstar-spec-review/candidate/review-input.json",
+        "northstar-spec-review/candidate/autonomy-contract.json",
+        "northstar-spec-review/candidate/traceability.json",
+        "northstar-spec-review/candidate/evidence.json",
+        "northstar-spec-review/candidate/context-manifest.json",
+        "northstar-spec-review/reference/repaired-review-input.json",
+        "northstar-spec-review/reference/autonomy-contract.json",
+        "northstar-spec-review/reference/traceability.json",
+        "northstar-spec-review/reference/evidence.json",
+        "northstar-spec-review/reference/context-manifest.json",
+        "northstar-spec-review/reference/review-report.json",
+        "northstar-spec-review/reference/readiness-decision.json",
+        "northstar-spec-review/reference/repair-plan.md",
+        "northstar-spec-review/evaluation-cases.json",
+        "northstar-spec-review/capability-readiness.json",
+        "northstar-spec-review/resolved-policy-expectation.json",
+        "northstar-spec-review/workshop/starter/README.md",
+        "northstar-spec-review/workshop/starter/review-findings.json",
+        "northstar-spec-review/workshop/starter/readiness-decision.json",
+    ]
+    errors = [f"missing Course 09 artifact: {item}" for item in required if not (lesson / item).exists()]
+    if errors:
+        return errors
+
+    json_paths = sorted(scenario.rglob("*.json"))
+    payloads: dict[Path, dict] = {}
+    for path in json_paths:
+        try:
+            payloads[path] = json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError) as exc:
+            errors.append(f"invalid Course 09 JSON {path.relative_to(ROOT)}: {exc}")
+    if errors:
+        return errors
+
+    reference = scenario / "reference"
+    reference_text = "\n".join(
+        path.read_text(encoding="utf-8") for path in reference.rglob("*") if path.is_file()
+    )
+    if "TODO" in reference_text:
+        errors.append("Course 09 reference artifacts contain unresolved TODOs")
+    starter = scenario / "workshop" / "starter"
+    starter_text = "\n".join(
+        path.read_text(encoding="utf-8") for path in starter.rglob("*") if path.is_file()
+    )
+    if "TODO" not in starter_text:
+        errors.append("Course 09 starter workspace has no editable TODO prompts")
+
+    evaluation_cases = payloads[scenario / "evaluation-cases.json"].get("cases", [])
+    if len(evaluation_cases) != 35 or any("expected_codes" not in case for case in evaluation_cases):
+        errors.append("Course 09 evaluation must retain 35 explicitly labelled cases")
+
+    result = subprocess.run(
+        [sys.executable, str(lesson / "lab.py")],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    try:
+        report = json.loads(result.stdout) if result.returncode == 0 else {}
+    except json.JSONDecodeError:
+        report = {}
+    if not report:
+        errors.append("Course 09 lab did not produce its JSON review report")
+        return errors
+
+    baseline = report.get("baseline", {})
+    if (baseline.get("numerator"), baseline.get("denominator"), baseline.get("looks_complete")) != (7, 7, True):
+        errors.append("Course 09 lexical baseline must visibly mistake 7/7 concept presence for completeness")
+
+    candidate = report.get("candidate_review", {})
+    counts = candidate.get("finding_counts", {})
+    if counts != {"blocking": 16, "review": 24, "informational": 0}:
+        errors.append("Course 09 candidate must retain 16 blocking and 24 review findings")
+    candidate_decision = report.get("candidate_readiness", {})
+    if candidate_decision.get("decision") != "stop" or candidate_decision.get("ready") is not False:
+        errors.append("Course 09 unsafe candidate must stop before implementation")
+    if candidate_decision.get("score") is not None:
+        errors.append("Course 09 readiness must not collapse findings into a composite score")
+
+    trace = candidate.get("traceability", {})
+    structural = trace.get("structural_link_coverage", {})
+    semantic = trace.get("semantic_link_validity", {})
+    if (structural.get("numerator"), structural.get("denominator")) != (10, 10):
+        errors.append("Course 09 must preserve the misleading 10/10 structural trace baseline")
+    if (semantic.get("numerator"), semantic.get("denominator")) != (1, 10):
+        errors.append("Course 09 must expose semantic trace validity as 1/10")
+    clusters = candidate.get("finding_clusters", [])
+    if len(clusters) != 7 or sum(len(item.get("finding_ids", [])) for item in clusters) != 40:
+        errors.append("Course 09 must cluster 40 machine findings into seven human remediation themes")
+
+    repaired = report.get("repaired_review", {})
+    if repaired.get("findings") or repaired.get("finding_counts") != {"blocking": 0, "review": 0, "informational": 0}:
+        errors.append("Course 09 repaired reference package must validate without findings")
+    repaired_decision = report.get("repaired_readiness", {})
+    if repaired_decision.get("decision") != "ready_for_bounded_implementation" or repaired_decision.get("ready") is not True:
+        errors.append("Course 09 repaired package may authorize only bounded implementation")
+    if repaired_decision.get("score") is not None:
+        errors.append("Course 09 repaired readiness must remain score-free")
+    repaired_trace = repaired.get("traceability", {})
+    if repaired_trace.get("relationship_type_counts") != {"reviewed_by": 10}:
+        errors.append("Course 09 repaired links must be typed explicitly as specification review traceability")
+    repaired_conformance = repaired_trace.get("conformance_evidence_coverage", {})
+    if (repaired_conformance.get("numerator"), repaired_conformance.get("denominator")) != (0, 10):
+        errors.append("Course 09 review traceability must not claim implementation or conformance evidence")
+
+    evaluation = report.get("evaluation", {})
+    exact_matches = evaluation.get("exact_case_matches", {})
+    if (
+        evaluation.get("population"),
+        evaluation.get("true_positive"),
+        evaluation.get("false_positive"),
+        evaluation.get("false_negative"),
+        exact_matches.get("numerator"),
+        exact_matches.get("denominator"),
+    ) != (35, 78, 0, 0, 35, 35):
+        errors.append("Course 09 labelled fixture evaluation must retain 35 cases and 78 expected findings")
+    if "fixture" not in evaluation.get("claim", ""):
+        errors.append("Course 09 evaluation claim must disclose its labelled-fixture boundary")
+
+    expected_review = payloads[reference / "review-report.json"]
+    if expected_review.get("finding_counts") != counts:
+        errors.append("Course 09 checked-in review report must match executable finding counts")
+    expected_readiness = payloads[reference / "readiness-decision.json"]
+    if expected_readiness.get("candidate", {}).get("score", "missing") is not None:
+        errors.append("Course 09 reference readiness must explicitly reject a composite score")
+
+    capability = report.get("capability_readiness", {})
+    if capability.get("counts") != {"blocked": 1, "ready_for_bounded_implementation": 4}:
+        errors.append("Course 09 must keep readiness scoped to four ready capabilities and one blocked capability")
+    automatic = next(
+        (item for item in capability.get("capabilities", []) if item.get("capability") == "automatic_mutation"),
+        {},
+    )
+    if automatic.get("decision") != "blocked" or "authorization_contract_unresolved" not in automatic.get("blockers", []):
+        errors.append("Course 09 automatic mutation must remain blocked on unresolved authorization")
+    if "not authenticated" not in capability.get("evidence_boundary", ""):
+        errors.append("Course 09 readiness evidence must disclose its synthetic, unauthenticated fixture boundary")
+
+    quiz_source = (ROOT / "quiz" / "questions.js").read_text(encoding="utf-8")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) < 123:
+        errors.append("Course 09 cumulative quiz coverage must retain at least 123 questions")
+    hub_source = (ROOT / "hub" / "lessons.js").read_text(encoding="utf-8")
+    expected_hub_fragments = [
+        "const course09 = {",
+        "status: 'available'",
+        "09-specification-quality-review-antipatterns/northstar-spec-review/workshop/starter",
+        "09-specification-quality-review-antipatterns/northstar-spec-review/reference",
+    ]
+    if any(fragment not in hub_source for fragment in expected_hub_fragments):
+        errors.append("Course 09 Learning Hub entry is incomplete or points outside the workshop package")
+    return errors
+
+
+def check_course_10_implementation_planning() -> list[str]:
+    lesson = (
+        ROOT
+        / "curriculum"
+        / "beginner"
+        / "10-specification-to-implementation-plan"
+    )
+    scenario = lesson / "northstar-implementation-plan"
+    required = [
+        "README.md",
+        "approved-specification.json",
+        "repository-snapshot.json",
+        "architecture-context.json",
+        "ticket/AI-2219-plan.md",
+        "candidate/plan.json",
+        "reference/discovery.json",
+        "reference/plan.json",
+        "reference/work-units.json",
+        "reference/contract-change-request.json",
+        "reference/completion-report.json",
+        "reference/rollout-boundary.json",
+        "reference/escalation-artifacts.json",
+        "workshop/starter/README.md",
+        "workshop/starter/discovery.json",
+        "workshop/starter/plan.json",
+        "workshop/starter/work-units.json",
+        "evaluation-cases.json",
+    ]
+    errors = [
+        f"missing Course 10 planning artifact: {item}"
+        for item in required
+        if not (scenario / item).exists()
+    ]
+    if errors:
+        return errors
+
+    for path in (scenario / "reference").glob("*.json"):
+        if "TODO" in path.read_text(encoding="utf-8"):
+            errors.append(f"unresolved TODO in Course 10 reference: {path.relative_to(ROOT)}")
+    starter_files = list((scenario / "workshop" / "starter").glob("*.json"))
+    if not starter_files or not all("TODO" in path.read_text(encoding="utf-8") for path in starter_files):
+        errors.append("Course 10 starter workspace must retain editable TODO prompts")
+
+    result = subprocess.run(
+        [sys.executable, str(lesson / "lab.py")],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    try:
+        report = json.loads(result.stdout) if result.returncode == 0 else {}
+    except json.JSONDecodeError:
+        report = {}
+    if not report:
+        errors.append("Course 10 lab did not produce its JSON planning report")
+        return errors
+
+    if "not_agent_authorization" not in report.get("candidate", {}).get("review", {}).get("claim", ""):
+        errors.append("Course 10 report must preserve the planning-versus-authorization boundary")
+
+    candidate = report.get("candidate", {})
+    candidate_review = candidate.get("review", {})
+    if candidate_review.get("counts") != {"blocking": 32, "review": 8}:
+        errors.append("Course 10 unsafe candidate must retain 32 blocking and eight review findings")
+    candidate_decision = candidate.get("decision", {})
+    if candidate_decision.get("state") != "PLAN_REQUIRES_ARCHITECTURE" or candidate_decision.get("ready_for_dispatch") is not False:
+        errors.append("Course 10 unsafe candidate must stop for architecture review")
+    required_candidate_codes = {
+        "UNAPPROVED_ARCHITECTURE_INVENTED",
+        "BLOCKED_CAPABILITY_SCHEDULED",
+        "PROTECTED_PATH_WRITE_ATTEMPT",
+        "WORK_UNIT_WRITE_SCOPE_UNBOUNDED",
+        "WORK_UNIT_READINESS_EVIDENCE_MISSING",
+        "WORK_GRAPH_CYCLE",
+        "ORPHAN_TASK",
+    }
+    candidate_codes = {item.get("code") for item in candidate_review.get("findings", [])}
+    if not required_candidate_codes <= candidate_codes:
+        errors.append("Course 10 candidate no longer exposes the intended planning failures")
+
+    reference = report.get("reference", {})
+    reference_review = reference.get("review", {})
+    if reference_review.get("findings") or reference_review.get("counts") != {}:
+        errors.append("Course 10 reference plan must validate without findings")
+    reference_decision = reference.get("decision", {})
+    if reference_decision.get("state") != "PLAN_READY" or reference_decision.get("ready_for_dispatch") is not True:
+        errors.append("Course 10 reference plan must be dispatch-ready within the fixture boundary")
+    schedule = reference_review.get("schedule", {})
+    expected_waves = [
+        ["AWU-BR-CONTRACT"],
+        ["AWU-BR-EXTRACTION", "AWU-BR-VALIDATION"],
+        ["AWU-BR-CONFLICT"],
+        ["AWU-BR-REVIEW"],
+        ["AWU-BR-INTEGRATION"],
+    ]
+    if schedule.get("acyclic") is not True or schedule.get("waves") != expected_waves:
+        errors.append("Course 10 reference must retain the five-wave dependency schedule")
+    critical = reference_review.get("critical_path", {})
+    if critical.get("path") != ["AWU-BR-CONTRACT", "AWU-BR-EXTRACTION", "AWU-BR-CONFLICT", "AWU-BR-REVIEW", "AWU-BR-INTEGRATION"] or "not_elapsed_time" not in critical.get("unit", ""):
+        errors.append("Course 10 must retain a dependency critical path without presenting estimates as elapsed time")
+    disposition = reference_review.get("disposition_metrics", {}).get("requirements_with_disposition", {})
+    if (disposition.get("numerator"), disposition.get("denominator")) != (7, 7):
+        errors.append("Course 10 reference must retain seven of seven requirement dispositions")
+    trace = reference_review.get("traceability", {}).get("complete_requirement_chains", {})
+    if (trace.get("numerator"), trace.get("denominator")) != (7, 7):
+        errors.append("Course 10 reference must retain seven complete requirement-to-evidence chains")
+    context = reference.get("example_execution_context", {})
+    if not context.get("plan_digest", "").startswith("sha256:") or "not grant" not in context.get("authority_boundary", ""):
+        errors.append("Course 10 execution context must carry provenance and reject implicit authority")
+    completion = json.loads((scenario / "reference" / "completion-report.json").read_text(encoding="utf-8"))
+    if completion.get("input_context_digest") != context.get("plan_digest") or "pending_independent_verification" not in completion.get("claim", ""):
+        errors.append("Course 10 completion report must bind its context and remain distinct from verification")
+    change_request = json.loads((scenario / "reference" / "contract-change-request.json").read_text(encoding="utf-8"))
+    if set(change_request.get("affected_work_unit_ids", [])) != {"AWU-BR-CONFLICT", "AWU-BR-REVIEW", "AWU-BR-INTEGRATION"}:
+        errors.append("Course 10 contract-change request must preserve transitive downstream impact")
+    if "source_message_revision" not in change_request.get("proposed_change", "") or change_request.get("reason_requirement_ids") != ["REQ-BR-030"]:
+        errors.append("Course 10 contract-change example must propose provenance grounded directly in REQ-BR-030")
+    work_units = json.loads((scenario / "reference" / "work-units.json").read_text(encoding="utf-8"))
+    if len(work_units.get("stop_condition_catalog", [])) != 8 or {item.get("outcome") for item in work_units.get("stop_condition_catalog", [])} != {"ASK", "PROPOSE", "STOP"}:
+        errors.append("Course 10 reference must route eight stop conditions through ASK, PROPOSE, and STOP")
+    permissions = work_units.get("permission_profiles", [])
+    if len(permissions) != 6 or any(item.get("grant_state") != "planned_not_provisioned" or item.get("self_provisioning_allowed") is not False for item in permissions):
+        errors.append("Course 10 permission profiles must remain temporary external requests, never self-grants")
+    validation_unit = next((item for item in work_units.get("work_units", []) if item.get("id") == "AWU-BR-VALIDATION"), {})
+    if validation_unit.get("requirement_ids") != ["REQ-BR-020"] or set(validation_unit.get("verification", {}).get("acceptance_ids", [])) != {"AC-BR-020-A", "AC-BR-020-B"}:
+        errors.append("Course 10 validation work unit must trace directly to REQ-BR-020 and its acceptance criteria")
+    if any("relative_complexity" not in item or "estimated_work_units" in item for item in work_units.get("work_units", [])):
+        errors.append("Course 10 work units must use ordinal relative_complexity rather than duration-like work-unit estimates")
+    rollout = json.loads((scenario / "reference" / "rollout-boundary.json").read_text(encoding="utf-8"))
+    if rollout.get("status") != "NOT_AUTHORIZED_FOR_ENABLEMENT" or len(rollout.get("shadow_requirements", [])) != 2:
+        errors.append("Course 10 rollout boundary must preserve shadow safety and blocked enablement")
+    escalation = json.loads((scenario / "reference" / "escalation-artifacts.json").read_text(encoding="utf-8"))
+    if {
+        escalation.get("clarification_request", {}).get("outcome"),
+        escalation.get("architecture_proposal", {}).get("outcome"),
+        escalation.get("dependency_proposal", {}).get("outcome"),
+    } != {"ASK", "PROPOSE"} or "neither" not in escalation.get("boundary", ""):
+        errors.append("Course 10 escalation examples must distinguish useful requests/proposals from authority")
+
+    evaluation = report.get("evaluation", {})
+    exact = evaluation.get("exact_matches", {})
+    if (
+        evaluation.get("population"),
+        evaluation.get("true_positive"),
+        evaluation.get("false_positive"),
+        evaluation.get("false_negative"),
+        exact.get("numerator"),
+        exact.get("denominator"),
+    ) != (30, 30, 0, 0, 30, 30):
+        errors.append("Course 10 labelled fixture evaluation must retain 30 exact cases and 30 expected findings")
+    if "not_general" not in evaluation.get("claim", ""):
+        errors.append("Course 10 evaluation claim must disclose its labelled-fixture boundary")
+
+    quiz_source = (ROOT / "quiz" / "questions.js").read_text(encoding="utf-8")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 146:
+        errors.append("Course 10 cumulative quiz must contain 146 questions")
+    if "Courses 01–10" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
+        errors.append("Course 10 cumulative quiz must identify Courses 01–10")
+    hub_source = (ROOT / "hub" / "lessons.js").read_text(encoding="utf-8")
+    expected_hub_fragments = [
+        "const course10 = {",
+        "10-specification-to-implementation-plan/northstar-implementation-plan/workshop/starter",
+        "10-specification-to-implementation-plan/northstar-implementation-plan/reference",
+    ]
+    if any(fragment not in hub_source for fragment in expected_hub_fragments):
+        errors.append("Course 10 Learning Hub entry is incomplete or points outside the workshop package")
+    return errors
+
+
 def main() -> None:
     checks = {
         "local links": check_local_links,
@@ -823,6 +1729,11 @@ def main() -> None:
         "Course 03 hierarchy": check_course_03_hierarchy,
         "Course 04 ownership": check_course_04_ownership,
         "Course 05 requirements engineering": check_course_05_discovery,
+        "Course 06 executable requirements": check_course_06_executable_requirements,
+        "Course 07 acceptance evidence": check_course_07_acceptance_evidence,
+        "Course 08 non-functional requirements": check_course_08_non_functional_requirements,
+        "Course 09 specification review": check_course_09_specification_review,
+        "Course 10 implementation planning": check_course_10_implementation_planning,
         "diagrams": render_and_validate_diagrams,
         "labs": run_labs,
         "repository labs": run_repository_labs,

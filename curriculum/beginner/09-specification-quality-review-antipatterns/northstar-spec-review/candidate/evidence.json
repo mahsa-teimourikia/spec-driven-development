@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0-training",
+  "dashboard_claim": "Tests PASS; Security PASS; AI PASS; Governance PASS",
+  "records": [
+    {
+      "id": "TEST-ALL",
+      "type": "test_evidence",
+      "status": "PASS",
+      "producer": null,
+      "subject_revision": "impl-v16",
+      "current_subject_revision": "impl-v17",
+      "environment": null,
+      "population": null,
+      "numerator": null,
+      "denominator": null,
+      "limitations": [],
+      "supported_requirement_ids": ["REQ-2290-009"]
+    }
+  ]
+}

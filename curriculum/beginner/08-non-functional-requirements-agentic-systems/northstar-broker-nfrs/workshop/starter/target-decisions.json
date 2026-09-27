@@ -1,0 +1,6 @@
+{
+  "schema_version": "1.0-training",
+  "decisions": [
+    {"id":"TODO","requirement_id":"PERF-BR-001","status":"unresolved","value":null,"unit":"TODO","owner":"TODO","approved_at":null,"rationale":"TODO","evidence_ids":[]}
+  ]
+}

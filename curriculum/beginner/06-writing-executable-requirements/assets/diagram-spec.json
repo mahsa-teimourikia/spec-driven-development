@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "id": "broker-response-trust-boundary",
+  "title": "Executable requirements across the broker-response trust boundary",
+  "purpose": "Show model proposal generation separated from deterministic validation, policy, approval, and authoritative mutation.",
+  "output": {
+    "svg": "broker-response-trust-boundary.svg",
+    "medium": "documentation and notebook",
+    "alt_text": "A four-stage workflow. An authenticated broker response enters an extraction model that produces a non-authoritative proposal. Trusted validators check schema, domain rules, authorization, freshness, and conflicts. A decision table and approval gate determine disposition. Only a narrow update service may change the submission and must retain provenance."
+  },
+  "canvas": {"width": 1640, "height": 900, "background": "#F7F9FC", "margin": 60, "grid": 10},
+  "layout": {"primary_flow": "left-to-right", "min_node_gap": 70, "min_layer_gap": 80, "node_padding": {"x": 22, "y": 16}},
+  "style": {
+    "font_family": "Inter, Arial, sans-serif",
+    "semantic_colors": {
+      "input": {"fill": "#FFFFFF", "stroke": "#52606D"},
+      "model": {"fill": "#F0EEFF", "stroke": "#7667E8"},
+      "data": {"fill": "#E5F7F6", "stroke": "#16A3A5"},
+      "control": {"fill": "#FFF1DF", "stroke": "#D97706"},
+      "service": {"fill": "#EAF1FF", "stroke": "#2F6BFF"},
+      "state": {"fill": "#E9F8ED", "stroke": "#238636"}
+    }
+  },
+  "groups": [
+    {"id": "proposal", "label": "UNTRUSTED PROPOSAL", "bounds": {"x": 60, "y": 150, "width": 330, "height": 650}, "fill": "#FFFFFF", "stroke": "#D7DEE8"},
+    {"id": "validation", "label": "TRUSTED VALIDATION", "bounds": {"x": 430, "y": 150, "width": 360, "height": 650}, "fill": "#FFFFFF", "stroke": "#16A3A5"},
+    {"id": "governance", "label": "DISPOSITION & AUTHORITY", "bounds": {"x": 830, "y": 150, "width": 350, "height": 650}, "fill": "#FFFFFF", "stroke": "#D97706"},
+    {"id": "mutation", "label": "AUTHORITATIVE STATE", "bounds": {"x": 1220, "y": 150, "width": 360, "height": 650}, "fill": "#FFFFFF", "stroke": "#2F6BFF"}
+  ],
+  "nodes": [
+    {"id": "response", "group": "proposal", "label": ["Broker response"], "subtitle": "authenticated identity · source span", "type": "input", "bounds": {"x": 100, "y": 240, "width": 250, "height": 110}, "ports": {"down": {"side": "bottom", "offset": 0.5}}},
+    {"id": "extractor", "group": "proposal", "label": ["Extraction model"], "subtitle": "field · value · evidence proposal", "type": "model", "bounds": {"x": 100, "y": 500, "width": 250, "height": 110}, "ports": {"in": {"side": "top", "offset": 0.5}, "out": {"side": "right", "offset": 0.5}}},
+    {"id": "proposed_update", "group": "validation", "label": ["ProposedUpdate"], "subtitle": "typed ≠ trusted or authorized", "type": "data", "bounds": {"x": 480, "y": 240, "width": 260, "height": 110}, "ports": {"in": {"side": "left", "offset": 0.5}, "down": {"side": "bottom", "offset": 0.5}}},
+    {"id": "validators", "group": "validation", "label": ["Deterministic validators"], "subtitle": "domain · auth · freshness · conflict", "type": "data", "bounds": {"x": 480, "y": 500, "width": 260, "height": 110}, "ports": {"in": {"side": "top", "offset": 0.5}, "out": {"side": "right", "offset": 0.5}}},
+    {"id": "decision", "group": "governance", "label": ["Decision table"], "subtitle": "one governed disposition", "type": "control", "bounds": {"x": 875, "y": 240, "width": 260, "height": 110}, "ports": {"in": {"side": "left", "offset": 0.5}, "down": {"side": "bottom", "offset": 0.5}}},
+    {"id": "approval", "group": "governance", "label": ["Policy & approval gate"], "subtitle": "current · exact · accountable", "type": "control", "bounds": {"x": 875, "y": 500, "width": 260, "height": 110}, "ports": {"in": {"side": "top", "offset": 0.5}, "out": {"side": "right", "offset": 0.5}}},
+    {"id": "update_service", "group": "mutation", "label": ["Trusted update service"], "subtitle": "guarded transition · idempotency", "type": "service", "bounds": {"x": 1270, "y": 240, "width": 260, "height": 110}, "ports": {"in": {"side": "left", "offset": 0.5}, "down": {"side": "bottom", "offset": 0.5}}},
+    {"id": "submission", "group": "mutation", "label": ["Submission state"], "subtitle": "value · prior value · provenance", "type": "state", "bounds": {"x": 1270, "y": 500, "width": 260, "height": 110}, "ports": {"in": {"side": "top", "offset": 0.5}}}
+  ],
+  "edges": [
+    {"id": "response_extract", "from": {"node": "response", "port": "down"}, "to": {"node": "extractor", "port": "in"}, "kind": "model", "label": "observe", "label_position": [245, 435], "route": [[225, 350], [225, 500]]},
+    {"id": "extract_propose", "from": {"node": "extractor", "port": "out"}, "to": {"node": "proposed_update", "port": "in"}, "kind": "model", "label": "propose", "label_position": [410, 425], "route": [[350, 555], [410, 555], [410, 295], [480, 295]]},
+    {"id": "proposal_validate", "from": {"node": "proposed_update", "port": "down"}, "to": {"node": "validators", "port": "in"}, "kind": "data", "label": "validate", "label_position": [630, 435], "route": [[610, 350], [610, 500]]},
+    {"id": "validate_decide", "from": {"node": "validators", "port": "out"}, "to": {"node": "decision", "port": "in"}, "kind": "data", "label": "trusted facts", "label_position": [810, 425], "route": [[740, 555], [810, 555], [810, 295], [875, 295]]},
+    {"id": "decision_gate", "from": {"node": "decision", "port": "down"}, "to": {"node": "approval", "port": "in"}, "kind": "control", "label": "gate", "label_position": [1025, 435], "route": [[1005, 350], [1005, 500]]},
+    {"id": "gate_update", "from": {"node": "approval", "port": "out"}, "to": {"node": "update_service", "port": "in"}, "kind": "control", "label": "authorize", "label_position": [1200, 425], "route": [[1135, 555], [1200, 555], [1200, 295], [1270, 295]]},
+    {"id": "update_state", "from": {"node": "update_service", "port": "down"}, "to": {"node": "submission", "port": "in"}, "kind": "service", "label": "apply + verify", "label_position": [1450, 435], "route": [[1400, 350], [1400, 500]]}
+  ],
+  "validation": {"no_overlaps": true, "route_around_nodes": true, "orthogonal_routes": true, "min_text_padding": 18, "min_connector_clearance": 12, "verify_port_attachment": true, "verify_contrast": true}
+}

@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0-training",
+  "id": "AI-2219",
+  "revision": "1.1-training-approved",
+  "status": "approved_for_capability_scoped_planning",
+  "source_courses": ["06", "07", "08", "09"],
+  "requirements": [
+    {"id":"REQ-BR-003","in_scope":true,"statement":"Authenticated broker responses SHALL be evaluated against outstanding requests.","owner":"underwriting_product","source_refs":["AI-2219@1.1-training-approved"]},
+    {"id":"REQ-BR-005","in_scope":true,"statement":"Conflicting verified values SHALL be classified CONFLICTING.","owner":"underwriting_domain","source_refs":["AI-030@abc123","UW-041@def991","AI-2219@1.1-training-approved"]},
+    {"id":"REQ-BR-020","in_scope":true,"statement":"A ProposedUpdate SHALL satisfy the current deterministic domain validation rule for its target field before it may be accepted or applied.","owner":"underwriting_domain","source_refs":["AI-2219@1.1-training-approved"]},
+    {"id":"REQ-BR-030","in_scope":true,"statement":"Every ProposedUpdate SHALL retain source provenance.","owner":"underwriting_platform","source_refs":["UW-041@def991","AI-2219@1.1-training-approved"]},
+    {"id":"INV-BR-002","in_scope":true,"statement":"Conflicting values SHALL NOT automatically replace verified values.","owner":"underwriting_risk","source_refs":["AI-030@abc123","AI-2219@1.1-training-approved"]},
+    {"id":"REQ-BR-037","in_scope":true,"statement":"Reviewed conflict replacement SHALL require an exact, current, single-use approval receipt.","owner":"underwriting_risk","source_refs":["AI-030@abc123","AI-2219@1.1-training-approved"]},
+    {"id":"SEC-BR-001","in_scope":true,"statement":"Model-facing execution SHALL NOT possess authoritative mutation capability.","owner":"product_security","source_refs":["SEC-014@77bca1","ADR-031@architecture-2026-09-20"]},
+    {"id":"AUTO-BR-001","in_scope":false,"statement":"Automatic mutation remains outside this planning scope.","owner":"underwriting_risk"}
+  ],
+  "acceptance_criteria": [
+    {"id":"AC-BR-003-A","requirement_ids":["REQ-BR-003"],"kind":"positive"},
+    {"id":"AC-BR-005-A","requirement_ids":["REQ-BR-005","INV-BR-002"],"kind":"negative"},
+    {"id":"AC-BR-020-A","requirement_ids":["REQ-BR-020"],"kind":"boundary"},
+    {"id":"AC-BR-020-B","requirement_ids":["REQ-BR-020"],"kind":"negative"},
+    {"id":"AC-BR-030-A","requirement_ids":["REQ-BR-030"],"kind":"contract"},
+    {"id":"AC-BR-037-A","requirement_ids":["REQ-BR-037"],"kind":"security"},
+    {"id":"AC-SEC-BR-001","requirement_ids":["SEC-BR-001"],"kind":"trust_boundary"}
+  ],
+  "capabilities": [
+    {"id":"contract_definition","implementation_readiness":"READY"},
+    {"id":"extraction","implementation_readiness":"READY"},
+    {"id":"validation","implementation_readiness":"READY"},
+    {"id":"conflict_detection","implementation_readiness":"READY"},
+    {"id":"human_review_workflow","implementation_readiness":"READY"},
+    {"id":"integration_verification","implementation_readiness":"READY"},
+    {"id":"automatic_mutation","implementation_readiness":"BLOCKED"}
+  ],
+  "boundary": "Approval for planning is not implementation authorization, release approval, or production evidence."
+}

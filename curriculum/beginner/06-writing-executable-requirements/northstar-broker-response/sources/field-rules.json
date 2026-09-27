@@ -1,0 +1,15 @@
+{
+  "id": "FIELD-RULES-BR",
+  "revision": "4.2-training",
+  "owner": "underwriting_domain",
+  "fields": {
+    "construction_year": {"type": "integer", "minimum": 1800, "maximum": 2100},
+    "occupancy": {"type": "string", "enum": ["office", "retail", "warehouse", "residential"]},
+    "building_value": {"type": "integer", "minimum": 1, "maximum": 1000000000}
+  },
+  "aliases": {
+    "year built": ["construction_year"],
+    "building use": ["occupancy"],
+    "building value": ["building_value", "replacement_cost", "market_value"]
+  }
+}

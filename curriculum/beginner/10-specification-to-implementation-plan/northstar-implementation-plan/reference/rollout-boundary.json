@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0-training",
+  "id": "ROLLOUT-AI-2219-BOUNDARY",
+  "status": "NOT_AUTHORIZED_FOR_ENABLEMENT",
+  "implementation_plan_id": "PLAN-AI-2219",
+  "purpose": "Keep progressive exposure, release evidence, and activation authority outside implementation work units while retaining traceability.",
+  "phases": [
+    {"name": "build", "state": "planned", "authority": "implementation_owner"},
+    {"name": "verify", "state": "planned", "authority": "quality_owner"},
+    {"name": "shadow", "state": "blocked_pending_separate_approval", "authority": "release_and_risk_owners"},
+    {"name": "limited_cohort", "state": "not_planned", "authority": "release_and_product_owners"},
+    {"name": "expanded_cohort", "state": "not_planned", "authority": "release_owner"}
+  ],
+  "shadow_requirements": [
+    {
+      "id": "SHADOW-BR-001",
+      "statement": "Shadow execution SHALL NOT perform authoritative submission mutation or external broker communication."
+    },
+    {
+      "id": "SHADOW-BR-002",
+      "statement": "Shadow results SHALL retain correlation to the production case for offline evaluation without altering production decisions."
+    }
+  ],
+  "release_plan": "not_created",
+  "enablement_gate": "blocked_pending_representative_evidence_and_authorized_release_decision",
+  "boundary": "Code completion and merge readiness do not authorize deployment, shadow execution, cohort exposure, or capability enablement."
+}

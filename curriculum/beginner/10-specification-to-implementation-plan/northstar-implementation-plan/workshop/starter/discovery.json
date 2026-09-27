@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0-training",
+  "id": "DISCOVERY-AI-2219-STARTER",
+  "repository_revision": "repo-abc123",
+  "mode": "requirements_guided",
+  "guided_by_requirement_ids": [
+    "TODO: list every approved in-scope requirement that guides discovery"
+  ],
+  "search_methods": [
+    "TODO: choose exact-symbol, semantic-concept, dependency, and architecture checks"
+  ],
+  "observations": [
+    {
+      "id": "OBS-STARTER-01",
+      "classification": "TODO: CONFIRMED | LIKELY | UNKNOWN | CONFLICT",
+      "claim": "TODO: make one falsifiable repository claim",
+      "evidence_paths": [
+        "TODO: cite an exact path from repository-snapshot.json"
+      ],
+      "resolution": "TODO: state how this changes the plan or why work must stop"
+    }
+  ],
+  "unknowns": [
+    "TODO: preserve consequential unknowns rather than guessing"
+  ],
+  "boundary": "Repository observations inform planning but do not override approved requirements or architecture."
+}
+

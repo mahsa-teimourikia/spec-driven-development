@@ -1,0 +1,41 @@
+{
+  "schema_version":"1.0-training",
+  "id":"PLAN-AI-2219-UNSAFE",
+  "revision":1,
+  "status":"generated_from_ticket_only",
+  "specification":{"id":"AI-2219","revision":"unknown","digest":"sha256:ticket-text"},
+  "repository_revision":"repo-old999",
+  "architecture_decisions":["ADR-INVENTED-BROKER-SERVICE"],
+  "goal":"Implement AI-2219 end to end, including automatic updates.",
+  "discovery":{
+    "id":"DISCOVERY-UNSAFE",
+    "mode":"read_everything",
+    "guided_by_requirement_ids":[],
+    "observations":[
+      {"id":"OBS-U1","classification":"CONFLICT","claim":"Code appears to permit direct mutation despite ADR-031.","evidence_paths":["src/legacy/direct_update.py"]}
+    ]
+  },
+  "requirement_dispositions":[
+    {"requirement_id":"REQ-BR-003","disposition":"implement","work_unit_ids":["AWU-BR-ALL"]},
+    {"requirement_id":"SEC-BR-001","disposition":"already_satisfied","evidence_ids":[]},
+    {"requirement_id":"AUTO-BR-001","disposition":"implement","work_unit_ids":["AWU-BR-ALL"]}
+  ],
+  "work_units":[
+    {
+      "id":"AWU-BR-ALL","capability":"automatic_mutation","goal":"Implement everything.","deliverable":"Working feature.",
+      "requirement_ids":["REQ-BR-003"],"contracts":{},"contract_paths":["src/underwriting/proposals.py"],
+      "depends_on":["AWU-BR-CACHE"],"writable_paths":["*","src/auth"],"read_only_paths":[],
+      "verification":{},"completion_requires":["code"],"stop_conditions":[],"agent_authority":{},"relative_complexity":12
+    },
+    {
+      "id":"AWU-BR-CACHE","capability":"extraction","goal":"Add a cache.","deliverable":"Redis cache.",
+      "requirement_ids":[],"contracts":{},"contract_paths":[],"depends_on":["AWU-BR-ALL"],
+      "writable_paths":["src/auth"],"read_only_paths":["src/auth"],"verification":{},"completion_requires":["code"],
+      "stop_conditions":[],"agent_authority":{},"relative_complexity":2
+    }
+  ],
+  "tasks":[
+    {"id":"TASK-17","work_unit_id":"AWU-BR-CACHE","action":"Add Redis cache.","basis":{"requirement_ids":[],"adr_ids":[],"contract_ids":[],"dependency_ids":[]},"introduces_external_dependency":true}
+  ],
+  "boundary":"This candidate is deliberately unsafe and must not be dispatched."
+}

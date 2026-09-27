@@ -1,0 +1,13 @@
+{
+  "id": "CTX-AI-2290-UNSAFE",
+  "generated": true,
+  "expected_digest": "sha256:generated-source-digest",
+  "actual_digest": "sha256:manually-edited-digest",
+  "candidate_artifact_count": 3400,
+  "reviewed_context_budget": 100,
+  "required_source_ids": ["AI-007", "AI-030", "PRIV-018"],
+  "sources": [
+    {"id": "AI-030", "revision": null, "locator": null, "reason": null},
+    {"id": null, "revision": null, "locator": "copied-note.md", "reason": "probably relevant"}
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.0-training",
+  "fixture_status": "synthetic_training_fixture_not_production_evidence",
+  "profiles": [
+    {
+      "id": "W1",
+      "name": "commercial-underwriting-pilot",
+      "status": "owner_approved_training_fixture",
+      "source": "CAPACITY-DECISION-014",
+      "requests_per_minute": {"sustained": 120, "peak": 400},
+      "concurrency": {"typical": 20, "peak": 80},
+      "response_mix": {"simple": 0.60, "multi_field": 0.25, "complex": 0.15},
+      "eligible_population": {
+        "language": ["en"],
+        "modality": ["plain_text"],
+        "field_classes": ["construction_year", "occupancy", "building_value"]
+      },
+      "limitations": "Synthetic planning profile. It does not establish real traffic, provider quota, or deployed capacity."
+    },
+    {
+      "id": "W2",
+      "name": "regional-rollout",
+      "status": "target_unresolved",
+      "source": "PRODUCT-ROLLOUT-PLAN-DRAFT",
+      "requests_per_minute": {"sustained": 300, "peak": 900},
+      "concurrency": {"typical": 60, "peak": 180},
+      "response_mix": {"simple": 0.50, "multi_field": 0.30, "complex": 0.20},
+      "eligible_population": {
+        "language": ["en"],
+        "modality": ["plain_text"],
+        "field_classes": ["construction_year", "occupancy", "building_value"]
+      },
+      "limitations": "Planning hypothesis only; accountable capacity approval and load evidence are absent."
+    },
+    {
+      "id": "W3",
+      "name": "national-rollout",
+      "status": "target_unresolved",
+      "source": "PRODUCT-ROLLOUT-PLAN-DRAFT",
+      "requests_per_minute": {"sustained": 800, "peak": 2400},
+      "concurrency": {"typical": 160, "peak": 480},
+      "response_mix": {"simple": 0.45, "multi_field": 0.35, "complex": 0.20},
+      "eligible_population": {
+        "language": ["en"],
+        "modality": ["plain_text"],
+        "field_classes": ["construction_year", "occupancy", "building_value"]
+      },
+      "limitations": "Planning hypothesis only; provider quotas, regional topology, and load evidence are unresolved."
+    }
+  ]
+}

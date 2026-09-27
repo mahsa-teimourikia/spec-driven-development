@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0-training",
+  "id": "COMPLETION-AWU-BR-CONTRACT-01",
+  "work_unit_id": "AWU-BR-CONTRACT",
+  "status": "COMPLETED",
+  "input_context_digest": "sha256:6802a7f196b24062c56c296eed1ea50e8f20937764f7044deb4e1a72ef9f6cdf",
+  "actual_changed_paths": [
+    "src/underwriting/proposals.py",
+    "tests/contracts/test_proposed_update.py"
+  ],
+  "semantic_actions": [],
+  "checks_run": [
+    "contract",
+    "compatibility",
+    "static_tool_boundary"
+  ],
+  "evidence_ids": [
+    "EVID-CONTRACT-2219"
+  ],
+  "deviations": [],
+  "unresolved": [],
+  "claim": "executor_completion_report_only_pending_independent_verification",
+  "boundary": "COMPLETED is not VERIFIED, INTEGRATED, merged, deployed, or production-approved."
+}

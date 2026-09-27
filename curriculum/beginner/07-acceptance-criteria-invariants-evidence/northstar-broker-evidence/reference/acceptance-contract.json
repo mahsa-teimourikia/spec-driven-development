@@ -1,0 +1,258 @@
+{
+  "contract": {
+    "id": "AC-CONTRACT-AI-2219",
+    "revision": "1.0-training",
+    "owner": "underwriting_quality",
+    "source_specification": "AI-2219@1.1-training",
+    "status": "approved_training_reference"
+  },
+  "scope": {
+    "name": "course07_high_risk_slice",
+    "requirement_ids": [
+      "REQ-BR-001",
+      "REQ-BR-003",
+      "REQ-BR-005",
+      "REQ-BR-020",
+      "REQ-BR-021",
+      "REQ-BR-030",
+      "REQ-BR-031",
+      "REQ-BR-035",
+      "REQ-BR-036",
+      "REQ-BR-037"
+    ],
+    "selection_basis": "authorization, verified-value safety, domain validity, provenance, freshness, review authority, and model trust boundaries",
+    "excluded_requirement_ids": ["REQ-BR-002", "REQ-BR-004", "REQ-BR-006", "REQ-BR-007", "REQ-BR-008", "REQ-BR-032", "REQ-BR-033", "REQ-BR-034"],
+    "exclusion_note": "Excluded requirements remain normative; this evidence slice does not claim complete product conformance."
+  },
+  "assurance_requirements": [
+    {
+      "id": "SEC-BR-001",
+      "statement": "Broker content SHALL remain untrusted domain data and SHALL NOT expand model-facing tools or execution authority.",
+      "owner": "product_security"
+    },
+    {
+      "id": "OBS-BR-001",
+      "statement": "Every proposal decision SHALL record proposal identity, reason code, and requirement context without recording the broker message body.",
+      "owner": "underwriting_platform"
+    },
+    {
+      "id": "COMPAT-BR-001",
+      "statement": "A consumer SHALL reject a ProposedUpdate version it cannot safely interpret rather than silently dropping required provenance.",
+      "owner": "underwriting_platform"
+    }
+  ],
+  "invariants": [
+    {
+      "id": "INV-BR-001",
+      "source": "AI-2219@1.1-training",
+      "class": "safety",
+      "statement": "An unauthorized broker response never modifies authoritative submission state.",
+      "population": "broker responses presented to the proposal-processing boundary"
+    },
+    {
+      "id": "INV-BR-002",
+      "source": "AI-2219@1.1-training",
+      "class": "safety",
+      "statement": "A conflicting broker value never automatically replaces a verified value.",
+      "population": "supported comparable verified and proposed value pairs"
+    },
+    {
+      "id": "INV-BR-003",
+      "source": "AI-2219@1.1-training",
+      "class": "functional",
+      "statement": "Every applied broker-provided value retains source provenance.",
+      "population": "applied ProposedUpdate records"
+    },
+    {
+      "id": "INV-BR-004",
+      "source": "AI-2219@1.1-training",
+      "class": "safety",
+      "statement": "One broker response is never applied more than once for authoritative mutation.",
+      "population": "authenticated responses identified by stable response identity"
+    },
+    {
+      "id": "INV-BR-005",
+      "source": "AI-2219@1.1-training",
+      "class": "safety",
+      "statement": "A ProposedUpdate derived from stale authoritative context never mutates current submission state.",
+      "population": "proposal application attempts whose submission revision or requirement-context digest is no longer current"
+    },
+    {
+      "id": "FRAME-BR-001",
+      "source": "AI-2219@1.1-training",
+      "class": "frame_condition",
+      "statement": "Applying one field update leaves every unrelated submission field unchanged.",
+      "population": "authorized in-memory update attempts in the training fixture"
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "id": "AC-BR-003-B",
+      "kind": "negative",
+      "requirement_ids": ["REQ-BR-003"],
+      "invariant_ids": ["INV-BR-001"],
+      "risk": "critical",
+      "given": ["broker identity is unauthorized", "submission state exists"],
+      "when": ["the response is presented for processing"],
+      "then": ["the result is blocked with BROKER_NOT_AUTHORIZED", "authoritative state remains unchanged"],
+      "executor": "unauthorized_response",
+      "verification_methods": ["example", "property"]
+    },
+    {
+      "id": "AC-BR-005-A",
+      "kind": "negative",
+      "requirement_ids": ["REQ-BR-001", "REQ-BR-005"],
+      "invariant_ids": ["INV-BR-002"],
+      "risk": "critical",
+      "given": ["construction_year is 1998 and verified"],
+      "when": ["the broker proposes construction_year 2001"],
+      "then": ["the proposal is CONFLICTING", "the stored value remains 1998", "no authoritative mutation is emitted"],
+      "executor": "verified_conflict",
+      "verification_methods": ["example", "property", "state_graph"]
+    },
+    {
+      "id": "AC-BR-020-B1",
+      "kind": "boundary",
+      "requirement_ids": ["REQ-BR-020"],
+      "invariant_ids": [],
+      "risk": "high",
+      "given": ["construction_year has declared bounds 1800 through 2100"],
+      "when": ["values immediately below, at, and above both bounds are validated"],
+      "then": ["1800 and 2100 are valid", "1799 and 2101 are invalid"],
+      "executor": "domain_boundaries",
+      "verification_methods": ["example"]
+    },
+    {
+      "id": "AC-BR-020-F1",
+      "kind": "failure",
+      "requirement_ids": ["REQ-BR-020"],
+      "invariant_ids": [],
+      "risk": "high",
+      "given": ["current field rules cannot be established"],
+      "when": ["domain validation is requested"],
+      "then": ["application is blocked", "the reason is RULE_CONTEXT_UNAVAILABLE"],
+      "executor": "rules_unavailable",
+      "verification_methods": ["example"]
+    },
+    {
+      "id": "AC-BR-021-A",
+      "kind": "negative",
+      "requirement_ids": ["REQ-BR-021"],
+      "invariant_ids": [],
+      "risk": "high",
+      "given": ["a supported proposal contains an invalid value"],
+      "when": ["the proposal is classified"],
+      "then": ["the proposal is REJECTED", "the evidence remains reviewable", "authoritative application remains blocked"],
+      "executor": "invalid_reviewable",
+      "verification_methods": ["example"]
+    },
+    {
+      "id": "AC-BR-030-A",
+      "kind": "positive",
+      "requirement_ids": ["REQ-BR-030"],
+      "invariant_ids": ["INV-BR-003"],
+      "risk": "high",
+      "given": ["an authenticated response contains a supported value and source evidence"],
+      "when": ["a ProposedUpdate is materialized"],
+      "then": ["response identity, source span, requirement identity, model version, and evidence identities are retained"],
+      "executor": "provenance_retained",
+      "verification_methods": ["example", "contract"]
+    },
+    {
+      "id": "AC-BR-031-A",
+      "kind": "security",
+      "requirement_ids": ["REQ-BR-031"],
+      "invariant_ids": [],
+      "risk": "critical",
+      "given": ["the model labels a verified-value conflict as applied"],
+      "when": ["trusted classification executes"],
+      "then": ["the model label grants no authority", "the trusted status is CONFLICTING"],
+      "executor": "model_status_untrusted",
+      "verification_methods": ["example", "static"]
+    },
+    {
+      "id": "AC-BR-036-A",
+      "kind": "staleness",
+      "requirement_ids": ["REQ-BR-036"],
+      "invariant_ids": ["INV-BR-005"],
+      "risk": "critical",
+      "given": ["the proposal submission revision is S16", "the current revision is S17"],
+      "when": ["classification or application is attempted"],
+      "then": ["the proposal is STALE", "authoritative mutation is blocked"],
+      "executor": "stale_context",
+      "verification_methods": ["example", "property"]
+    },
+    {
+      "id": "AC-BR-035-A",
+      "kind": "negative",
+      "requirement_ids": ["REQ-BR-035"],
+      "invariant_ids": ["INV-BR-004"],
+      "risk": "critical",
+      "given": ["a stable broker response identity has already been processed"],
+      "when": ["the same response identity is presented again"],
+      "then": ["authoritative processing is blocked", "the reason is RESPONSE_ALREADY_PROCESSED"],
+      "executor": "duplicate_response",
+      "verification_methods": ["example", "property"]
+    },
+    {
+      "id": "AC-BR-037-A",
+      "kind": "negative",
+      "requirement_ids": ["REQ-BR-037"],
+      "invariant_ids": ["INV-BR-002"],
+      "risk": "critical",
+      "given": ["a reviewed conflict is current", "the receipt binds the exact proposal"],
+      "when": ["a generic approval and an explicit replacement approval are evaluated"],
+      "then": ["generic approval cannot replace the verified value", "only replace_verified_value authorizes the reviewed resolution"],
+      "executor": "reviewed_conflict",
+      "verification_methods": ["example", "state_graph"]
+    },
+    {
+      "id": "AC-STATE-002",
+      "kind": "negative",
+      "requirement_ids": ["REQ-BR-001", "REQ-BR-037"],
+      "invariant_ids": ["INV-BR-002"],
+      "risk": "critical",
+      "given": ["proposal status is CONFLICTING"],
+      "when": ["direct application is requested without an authorized resolution"],
+      "then": ["the direct transition is rejected", "the review transition remains available"],
+      "executor": "invalid_transition",
+      "verification_methods": ["state_graph"]
+    },
+    {
+      "id": "AC-SEC-001",
+      "kind": "security",
+      "requirement_ids": ["SEC-BR-001"],
+      "invariant_ids": ["INV-BR-001"],
+      "risk": "critical",
+      "given": ["broker text contains instruction-like content"],
+      "when": ["the content reaches the extraction boundary"],
+      "then": ["the content remains data", "no model-facing tool permits authoritative mutation"],
+      "executor": "tool_boundary",
+      "verification_methods": ["static", "example"]
+    },
+    {
+      "id": "AC-OBS-001",
+      "kind": "positive",
+      "requirement_ids": ["OBS-BR-001"],
+      "invariant_ids": [],
+      "risk": "medium",
+      "given": ["a proposal decision completes"],
+      "when": ["the decision event is recorded"],
+      "then": ["proposal identity, reason code, and requirement context are present", "the broker message body is absent"],
+      "executor": "observability_privacy",
+      "verification_methods": ["example", "runtime"]
+    },
+    {
+      "id": "AC-COMPAT-001",
+      "kind": "contract",
+      "requirement_ids": ["COMPAT-BR-001"],
+      "invariant_ids": ["INV-BR-003"],
+      "risk": "high",
+      "given": ["a consumer supports ProposedUpdate schema version 1"],
+      "when": ["a schema version 2 message is received"],
+      "then": ["the consumer rejects the message as unsupported", "required provenance is not silently discarded"],
+      "executor": "contract_compatibility",
+      "verification_methods": ["contract"]
+    }
+  ]
+}

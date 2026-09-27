@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc" viewBox="0 0 1640 900">
+<title id="title">Executable requirements across the broker-response trust boundary</title>
+<desc id="desc">A four-stage workflow. An authenticated broker response enters an extraction model that produces a non-authoritative proposal. Trusted validators check schema, domain rules, authorization, freshness, and conflicts. A decision table and approval gate determine disposition. Only a narrow update service may change the submission and must retain provenance.</desc>
+<defs>
+        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="7" flood-color="#16324F" flood-opacity="0.09"/></filter>
+        <marker id="arrow-model" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#7667E8"/></marker>
+        <marker id="arrow-data" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#16A3A5"/></marker>
+        <marker id="arrow-control" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#D97706"/></marker>
+        <marker id="arrow-service" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#2F6BFF"/></marker>
+        <style>text{font-family:Inter,Arial,sans-serif;fill:#16324F}.title{font-size:30px;font-weight:750}.subtitle{font-size:16px;fill:#52606D}.group{font-size:14px;font-weight:750;letter-spacing:1.4px;fill:#52606D}.label{font-size:17px;font-weight:700}.note{font-size:13px;fill:#52606D}.edge{font-size:13px;font-weight:650;fill:#52606D;paint-order:stroke;stroke:#F7F9FC;stroke-width:8px}</style>
+        </defs>
+<rect width="100%" height="100%" fill="#F7F9FC"/>
+<text x="60" y="58" class="title">Executable requirements across the broker-response trust boundary</text>
+<text x="60" y="92" class="subtitle">Typed model output remains a proposal; only trusted controls may authorize a state transition.</text>
+<g filter="url(#shadow)"><rect x="60" y="150" width="330" height="650" rx="18" fill="#FFFFFF" stroke="#D7DEE8"/></g><text x="84" y="188" class="group">UNTRUSTED PROPOSAL</text>
+<g filter="url(#shadow)"><rect x="430" y="150" width="360" height="650" rx="18" fill="#FFFFFF" stroke="#16A3A5"/></g><text x="454" y="188" class="group">TRUSTED VALIDATION</text>
+<g filter="url(#shadow)"><rect x="830" y="150" width="350" height="650" rx="18" fill="#FFFFFF" stroke="#D97706"/></g><text x="854" y="188" class="group">DISPOSITION &amp; AUTHORITY</text>
+<g filter="url(#shadow)"><rect x="1220" y="150" width="360" height="650" rx="18" fill="#FFFFFF" stroke="#2F6BFF"/></g><text x="1244" y="188" class="group">AUTHORITATIVE STATE</text>
+<polyline points="225,350 225,500" fill="none" stroke="#7667E8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-model)"/>
+<text x="245" y="435" text-anchor="middle" class="edge">observe</text>
+<polyline points="350,555 410,555 410,295 480,295" fill="none" stroke="#7667E8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-model)"/>
+<text x="410" y="425" text-anchor="middle" class="edge">propose</text>
+<polyline points="610,350 610,500" fill="none" stroke="#16A3A5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-data)"/>
+<text x="630" y="435" text-anchor="middle" class="edge">validate</text>
+<polyline points="740,555 810,555 810,295 875,295" fill="none" stroke="#16A3A5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-data)"/>
+<text x="810" y="425" text-anchor="middle" class="edge">trusted facts</text>
+<polyline points="1005,350 1005,500" fill="none" stroke="#D97706" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-control)"/>
+<text x="1025" y="435" text-anchor="middle" class="edge">gate</text>
+<polyline points="1135,555 1200,555 1200,295 1270,295" fill="none" stroke="#D97706" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-control)"/>
+<text x="1200" y="425" text-anchor="middle" class="edge">authorize</text>
+<polyline points="1400,350 1400,500" fill="none" stroke="#2F6BFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-service)"/>
+<text x="1450" y="435" text-anchor="middle" class="edge">apply + verify</text>
+<g><rect x="100" y="240" width="250" height="110" rx="14" fill="#FFFFFF" stroke="#52606D" stroke-width="2"/><text x="120" y="282" class="label">Broker response</text><text x="120" y="313" class="note">authenticated identity · source span</text></g>
+<g><rect x="100" y="500" width="250" height="110" rx="14" fill="#F0EEFF" stroke="#7667E8" stroke-width="2"/><text x="120" y="542" class="label">Extraction model</text><text x="120" y="573" class="note">field · value · evidence proposal</text></g>
+<g><rect x="480" y="240" width="260" height="110" rx="14" fill="#E5F7F6" stroke="#16A3A5" stroke-width="2"/><text x="500" y="282" class="label">ProposedUpdate</text><text x="500" y="313" class="note">typed ≠ trusted or authorized</text></g>
+<g><rect x="480" y="500" width="260" height="110" rx="14" fill="#E5F7F6" stroke="#16A3A5" stroke-width="2"/><text x="500" y="542" class="label">Deterministic validators</text><text x="500" y="573" class="note">domain · auth · freshness · conflict</text></g>
+<g><rect x="875" y="240" width="260" height="110" rx="14" fill="#FFF1DF" stroke="#D97706" stroke-width="2"/><text x="895" y="282" class="label">Decision table</text><text x="895" y="313" class="note">one governed disposition</text></g>
+<g><rect x="875" y="500" width="260" height="110" rx="14" fill="#FFF1DF" stroke="#D97706" stroke-width="2"/><text x="895" y="542" class="label">Policy &amp; approval gate</text><text x="895" y="573" class="note">current · exact · accountable</text></g>
+<g><rect x="1270" y="240" width="260" height="110" rx="14" fill="#EAF1FF" stroke="#2F6BFF" stroke-width="2"/><text x="1290" y="282" class="label">Trusted update service</text><text x="1290" y="313" class="note">guarded transition · idempotency</text></g>
+<g><rect x="1270" y="500" width="260" height="110" rx="14" fill="#E9F8ED" stroke="#238636" stroke-width="2"/><text x="1290" y="542" class="label">Submission state</text><text x="1290" y="573" class="note">value · prior value · provenance</text></g>
+</svg>

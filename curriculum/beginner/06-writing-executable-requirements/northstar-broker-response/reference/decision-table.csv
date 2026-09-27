@@ -1,0 +1,9 @@
+row_id,existing_value,existing_verified,proposed_valid,same_value,auto_accept_allowed,outcome
+DT-01,none,any,true,any,true,auto_apply_eligible
+DT-02,none,any,true,any,false,propose
+DT-03,present,false,true,true,any,no_change
+DT-04,present,false,true,false,true,auto_apply_eligible
+DT-05,present,false,true,false,false,propose
+DT-06,present,true,true,true,any,no_change
+DT-07,present,true,true,false,any,conflict
+DT-08,any,any,false,any,any,reject

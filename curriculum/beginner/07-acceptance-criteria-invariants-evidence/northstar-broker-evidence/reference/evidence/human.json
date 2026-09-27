@@ -1,0 +1,18 @@
+{
+  "records": [
+    {
+      "evidence_id": "EVID-HUMAN-RUBRIC",
+      "lifecycle_state": "planned",
+      "type": "human_evaluation",
+      "evidence_class": "human_judgment",
+      "requirement_ids": ["SEC-BR-001"],
+      "acceptance_ids": ["AC-SEC-001"],
+      "rubric_id": "RUBRIC-BR-001",
+      "rubric_revision": "1.0-training",
+      "producer": {"id": "underwriting-domain-review", "relationship_to_implementation": "independent_evaluator", "identity_authenticated": false},
+      "validity": {"specification_revision": "1.1-training", "implementation_revision": "course06-2dd6bc2-training", "environment_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "dataset_revision": "broker-response-eval-v1-training", "tool_revision": "course07-lab-1.0-training"},
+      "result": {"status": "not_run", "numerator": 0, "denominator": 0, "executed_at": null, "reason": "No qualified human panel was run in the offline course fixture."},
+      "limitations": ["A rubric template is not evidence of reviewer agreement, qualification, or adjudication."]
+    }
+  ]
+}

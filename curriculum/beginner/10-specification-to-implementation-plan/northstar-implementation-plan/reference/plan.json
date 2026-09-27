@@ -1,0 +1,43 @@
+{
+  "schema_version":"1.0-training",
+  "id":"PLAN-AI-2219",
+  "revision":1,
+  "status":"review_ready_training_reference",
+  "specification":{"id":"AI-2219","revision":"1.1-training-approved","digest":"sha256:60896db94866898e01b45dd35eb0569b8acfdfcdf0735e355699dec94d467644"},
+  "repository_revision":"repo-abc123",
+  "architecture_decisions":["ADR-031","ADR-042","ADR-047"],
+  "goal":"Implement the approved proposal-only broker response flow while preserving provenance, verified-value safety, review authority, and the model-facing mutation boundary.",
+  "non_goals":["automatic mutation","production deployment","new persistence architecture","policy or exception changes"],
+  "requirement_dispositions":[
+    {"requirement_id":"REQ-BR-003","disposition":"implement","work_unit_ids":["AWU-BR-EXTRACTION","AWU-BR-INTEGRATION"],"owner":"underwriting_product"},
+    {"requirement_id":"REQ-BR-005","disposition":"implement","work_unit_ids":["AWU-BR-CONFLICT","AWU-BR-INTEGRATION"],"owner":"underwriting_domain"},
+    {"requirement_id":"REQ-BR-020","disposition":"implement","work_unit_ids":["AWU-BR-VALIDATION","AWU-BR-INTEGRATION"],"owner":"underwriting_domain"},
+    {"requirement_id":"REQ-BR-030","disposition":"implement","work_unit_ids":["AWU-BR-CONTRACT","AWU-BR-EXTRACTION","AWU-BR-INTEGRATION"],"owner":"underwriting_platform"},
+    {"requirement_id":"INV-BR-002","disposition":"implement","work_unit_ids":["AWU-BR-CONFLICT","AWU-BR-REVIEW","AWU-BR-INTEGRATION"],"owner":"underwriting_risk"},
+    {"requirement_id":"REQ-BR-037","disposition":"implement","work_unit_ids":["AWU-BR-REVIEW","AWU-BR-INTEGRATION"],"owner":"underwriting_risk"},
+    {"requirement_id":"SEC-BR-001","disposition":"already_satisfied","evidence_ids":["OBS-SEC-001"],"owner":"product_security","review_trigger":"model-facing tool manifest or SubmissionService boundary changes"}
+  ],
+  "tasks":[
+    {"id":"TASK-BR-001","work_unit_id":"AWU-BR-CONTRACT","action":"Add versioned provenance fields to ProposedUpdate and compatibility tests.","basis":{"requirement_ids":["REQ-BR-030","SEC-BR-001"],"adr_ids":["ADR-047"],"contract_ids":["ProposedUpdate@2"],"dependency_ids":[]},"code_paths":["src/underwriting/proposals.py","tests/contracts/test_proposed_update.py"],"evidence_ids":["EVID-CONTRACT-2219"]},
+    {"id":"TASK-BR-002","work_unit_id":"AWU-BR-EXTRACTION","action":"Materialize ProposedUpdate records with source identity and span provenance.","basis":{"requirement_ids":["REQ-BR-003","REQ-BR-030"],"adr_ids":["ADR-047"],"contract_ids":["ProposedUpdate@2"],"dependency_ids":["TASK-BR-001"]},"code_paths":["src/broker/extraction.py","tests/broker/test_extraction.py"],"evidence_ids":["EVID-EXTRACTION-2219"]},
+    {"id":"TASK-BR-003","work_unit_id":"AWU-BR-VALIDATION","action":"Validate proposal values against current deterministic domain rules without widening mutation eligibility.","basis":{"requirement_ids":["REQ-BR-020"],"adr_ids":["ADR-031"],"contract_ids":["ProposedUpdate@2","FieldRules","ValidationResult"],"dependency_ids":["TASK-BR-001"]},"code_paths":["src/underwriting/validation.py","tests/underwriting/test_validation.py"],"evidence_ids":["EVID-VALIDATION-2219"]},
+    {"id":"TASK-BR-004","work_unit_id":"AWU-BR-CONFLICT","action":"Classify verified-value conflicts and prove authoritative state remains unchanged.","basis":{"requirement_ids":["REQ-BR-005","INV-BR-002","SEC-BR-001"],"adr_ids":["ADR-031"],"contract_ids":["ConflictResult"],"dependency_ids":["TASK-BR-002","TASK-BR-003"]},"code_paths":["src/underwriting/conflicts.py","tests/underwriting/test_conflicts.py"],"evidence_ids":["EVID-CONFLICT-2219"]},
+    {"id":"TASK-BR-005","work_unit_id":"AWU-BR-REVIEW","action":"Route conflicts through ReviewService with exact approval-receipt binding.","basis":{"requirement_ids":["REQ-BR-037","INV-BR-002","SEC-BR-001"],"adr_ids":["ADR-031","ADR-042"],"contract_ids":["ApprovalReceipt"],"dependency_ids":["TASK-BR-004"]},"code_paths":["src/review/service.py","tests/review/test_service.py"],"evidence_ids":["EVID-REVIEW-2219"]},
+    {"id":"TASK-BR-006","work_unit_id":"AWU-BR-INTEGRATION","action":"Verify the proposal-only flow and update requirement-to-evidence traceability.","basis":{"requirement_ids":["REQ-BR-003","REQ-BR-005","REQ-BR-020","REQ-BR-030","INV-BR-002","REQ-BR-037","SEC-BR-001"],"adr_ids":["ADR-031","ADR-042","ADR-047"],"contract_ids":["ProposedUpdate@2","ValidationResult","ConflictResult","ApprovalReceipt"],"dependency_ids":["TASK-BR-005"]},"code_paths":["tests/integration/test_broker_response_flow.py"],"evidence_ids":["EVID-INTEGRATION-2219"]}
+  ],
+  "risk_register":[
+    {"id":"RISK-01","issue":"ProposedUpdate contract evolution can invalidate parallel consumers.","affects":["AWU-BR-CONTRACT","AWU-BR-EXTRACTION","AWU-BR-VALIDATION","AWU-BR-CONFLICT","AWU-BR-REVIEW","AWU-BR-INTEGRATION"],"mitigation":"Stabilize the versioned contract first and route changes through a downstream impact request."},
+    {"id":"RISK-02","issue":"ReviewService compatibility with rationale-bearing requests requires verification.","affects":["AWU-BR-REVIEW","AWU-BR-INTEGRATION"],"mitigation":"Keep review work scoped-blocked if contract verification fails; do not block independent extraction and validation work."}
+  ],
+  "open_questions":[{"id":"OQ-PLAN-01","question":"Will future analytics require separate provenance persistence?","blocks":[],"does_not_block":["AWU-BR-CONTRACT","AWU-BR-EXTRACTION","AWU-BR-VALIDATION"],"stop_if_encountered":"architecture_change_required","owner":"underwriting_platform"}],
+  "future_work":[{"capability":"automatic_mutation","status":"deferred","blockers":["authorization_contract","representative_evaluation_threshold","production_evidence"],"not_scheduled":true,"review_trigger":"new approved specification and authorization decision"}],
+  "readiness_layers":{"implementation":"plan_ready","merge":"not_assessed","enablement":"blocked"},
+  "rollout_plan_id":"ROLLOUT-AI-2219-BOUNDARY",
+  "artifact_relationships":[
+    {"from":"AI-2219","to":"PLAN-AI-2219","relationship":"implemented_by"},
+    {"from":"PLAN-AI-2219","to":"AWU-BR-INTEGRATION","relationship":"integrated_by"},
+    {"from":"PLAN-AI-2219","to":"ROLLOUT-AI-2219-BOUNDARY","relationship":"rollout_governed_by"}
+  ],
+  "history":[{"revision":1,"reason":"Initial plan from approved AI-2219 specification and repo-abc123 discovery.","affected_work_units":["AWU-BR-CONTRACT","AWU-BR-EXTRACTION","AWU-BR-VALIDATION","AWU-BR-CONFLICT","AWU-BR-REVIEW","AWU-BR-INTEGRATION"]}],
+  "boundary":"PLAN_READY permits bounded dispatch preparation only; it is not agent identity, write authorization, merge approval, or production release."
+}

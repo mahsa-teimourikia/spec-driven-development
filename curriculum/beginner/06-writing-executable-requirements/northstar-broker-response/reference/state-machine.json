@@ -1,0 +1,46 @@
+{
+  "id": "SM-BR-001",
+  "revision": "1.1-training",
+  "role": "normative_elaboration",
+  "governs": ["STATE-BR-001", "STATE-BR-002", "STATE-BR-003"],
+  "initial_state": "extracted",
+  "states": ["extracted", "validated", "conflicting", "awaiting_review", "approved", "rejected", "applied", "stale"],
+  "terminal_states": ["rejected", "applied", "stale"],
+  "guards": {
+    "valid_no_conflict": {"conditions": ["domain validation passed", "no verified-value conflict exists"]},
+    "verified_conflict": {"conditions": ["existing value is verified", "proposed value differs from existing value"]},
+    "invalid": {"conditions": ["domain validation failed"]},
+    "review_required": {"conditions": ["policy does not permit automatic acceptance", "proposal remains current"]},
+    "auto_accept_and_current": {"conditions": ["policy permits automatic acceptance for the field", "submission revision is current", "requirement-context digest is current"]},
+    "authenticated_reviewer_assignment": {"conditions": ["reviewer identity is authenticated", "reviewer is authorized for the submission"]},
+    "valid_receipt_and_current": {"conditions": ["proposal origin disposition is not conflict", "approval proposal digest equals the current ProposedUpdate digest", "submission revision is current", "requirement-context digest is current", "approval is unexpired", "approval is unused", "approval resolution is accept_proposal"]},
+    "valid_conflict_replacement_receipt": {"conditions": ["proposal origin disposition is conflict", "approval proposal digest equals the current ProposedUpdate digest", "submission revision is current", "requirement-context digest is current", "approval is unexpired", "approval is unused", "approval resolution is replace_verified_value"]},
+    "valid_retain_existing_receipt": {"conditions": ["proposal origin disposition is conflict", "decision binds the current ProposedUpdate digest", "submission revision is current", "requirement-context digest is current", "decision is unexpired", "decision is unused", "resolution is retain_existing"]}
+  },
+  "transitions": [
+    {"id": "TR-01", "current": "extracted", "event": "validate", "guard": "valid_no_conflict", "next": "validated"},
+    {"id": "TR-02", "current": "extracted", "event": "validate", "guard": "verified_conflict", "next": "conflicting"},
+    {"id": "TR-03", "current": "extracted", "event": "validate", "guard": "invalid", "next": "rejected"},
+    {"id": "TR-04", "current": "validated", "event": "policy_check", "guard": "review_required", "next": "awaiting_review"},
+    {"id": "TR-05", "current": "validated", "event": "apply", "guard": "auto_accept_and_current", "next": "applied"},
+    {"id": "TR-06", "current": "awaiting_review", "event": "approve", "guard": "valid_receipt_and_current", "next": "approved"},
+    {"id": "TR-07", "current": "approved", "event": "apply", "guard": "valid_receipt_and_current", "next": "applied"},
+    {"id": "TR-08", "current": "extracted", "event": "source_changes", "guard": "always", "next": "stale"},
+    {"id": "TR-09", "current": "validated", "event": "source_changes", "guard": "always", "next": "stale"},
+    {"id": "TR-10", "current": "awaiting_review", "event": "source_changes", "guard": "always", "next": "stale"},
+    {"id": "TR-11", "current": "approved", "event": "source_changes", "guard": "always", "next": "stale"},
+    {"id": "TR-12", "current": "conflicting", "event": "request_review", "guard": "authenticated_reviewer_assignment", "next": "awaiting_review"},
+    {"id": "TR-13", "current": "awaiting_review", "event": "approve_replacement", "guard": "valid_conflict_replacement_receipt", "next": "approved"},
+    {"id": "TR-14", "current": "awaiting_review", "event": "retain_existing", "guard": "valid_retain_existing_receipt", "next": "rejected"},
+    {"id": "TR-15", "current": "approved", "event": "apply", "guard": "valid_conflict_replacement_receipt", "next": "applied"}
+  ],
+  "required_waypoints": [
+    {"source": "conflicting", "target": "applied", "via": "approved"}
+  ],
+  "critical_invalid_transitions": [
+    {"current": "extracted", "event": "apply", "next": "applied"},
+    {"current": "conflicting", "event": "apply", "next": "applied"},
+    {"current": "rejected", "event": "apply", "next": "applied"},
+    {"current": "stale", "event": "apply", "next": "applied"}
+  ]
+}

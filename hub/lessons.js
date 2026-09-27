@@ -250,6 +250,259 @@ const course05 = {
   }
 };
 
+const course06 = {
+  id: 'c06', course: 6, level: 'beginner', part: 'II · Executable specifications', status: 'available',
+  title: 'Writing executable requirements',
+  summary: 'Connect EARS and SHALL requirements to decision tables, scenarios, contracts, guarded states, and evidence without letting model output authorize state changes.',
+  outcomes: [
+    'Keep user stories as intent while expressing bounded obligations with an explicit normative convention.',
+    'Select ubiquitous, event-driven, state-driven, unwanted, optional, and complex EARS patterns.',
+    'Add preconditions, postconditions, frame conditions, failure behavior, invariants, and properties.',
+    'Make interacting facts complete and deterministic with a normative decision table.',
+    'Use role-labelled scenarios as examples without allowing them to become shadow policy.',
+    'Distinguish schema, semantic, context, authorization, policy, approval, and execution validation.',
+    'Recompute model-proposed status in trusted code and enforce guarded state transitions.',
+    'Route verified conflicts through review and bind any replacement to the exact proposal, current context, and selected resolution.',
+    'Stop on normative contradiction and report capability-scoped readiness with exact blockers.',
+    'Separate extraction evaluation from governed-decision evaluation and trace semantic change impact.'
+  ],
+  readme: `${REPO}/blob/main/curriculum/beginner/06-writing-executable-requirements/README.md`,
+  notebook: `${REPO}/blob/main/curriculum/beginner/06-writing-executable-requirements/requirements_writing.ipynb`,
+  lab: `${REPO}/blob/main/curriculum/beginner/06-writing-executable-requirements/lab.py`,
+  repoFixture: `${REPO}/tree/main/curriculum/beginner/06-writing-executable-requirements/northstar-broker-response`,
+  run: 'python3 curriculum/beginner/06-writing-executable-requirements/lab.py',
+  labs: [
+    {
+      title: 'Lab A — Execute the behavioral model',
+      description: 'Lint requirement language, validate representation consistency, classify proposals with trusted facts, enforce guarded transitions, inject contradictions, and measure bounded evidence.',
+      command: 'python3 curriculum/beginner/06-writing-executable-requirements/lab.py',
+      links: [['View the behavior lab', `${REPO}/blob/main/curriculum/beginner/06-writing-executable-requirements/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/beginner/06-writing-executable-requirements/requirements_writing.ipynb`]]
+    },
+    {
+      title: 'Lab B — Govern AI-2219 broker responses',
+      description: 'Complete the EARS/SHALL requirements, glossary, decision table, scenarios, proposal schema, and guarded state model before comparing with the reference behavior.',
+      command: 'Open the ticket and starter workspace; run Lab A before consulting the reference.',
+      links: [['Open the workshop', `${REPO}/tree/main/curriculum/beginner/06-writing-executable-requirements/northstar-broker-response`], ['Complete the starter package', `${REPO}/tree/main/curriculum/beginner/06-writing-executable-requirements/northstar-broker-response/workshop/starter`], ['Inspect the reference package', `${REPO}/tree/main/curriculum/beginner/06-writing-executable-requirements/northstar-broker-response/reference`]]
+    }
+  ],
+  references: [
+    ['EARS requirements syntax paper', 'https://doi.org/10.1109/RE.2009.9'],
+    ['RFC 8174 normative keyword clarification', 'https://www.rfc-editor.org/rfc/rfc8174'],
+    ['Cucumber Gherkin reference', 'https://cucumber.io/docs/gherkin/reference/'],
+    ['JSON Schema Draft 2020-12', 'https://json-schema.org/draft/2020-12']
+  ],
+  checkpoint: {
+    question: 'The model labels a broker-provided value approved, but it conflicts with a verified submission value. What owns the result?',
+    options: [
+      'Trusted rules recompute CONFLICTING, prohibit automatic mutation, and require an exact reviewed resolution before replacement.',
+      'The model status because it arrived in typed JSON.',
+      'The newest scenario even when it contradicts the normative requirement.'
+    ],
+    answer: 0,
+    explanation: 'Typed output is still a proposal. Trusted validation and the normative decision table classify the conflict. Automatic or direct replacement is prohibited; any reviewed replacement needs an authorized receipt bound to the exact proposal, current context, and replace-value resolution.'
+  }
+};
+
+const course07 = {
+  id: 'c07', course: 7, level: 'beginner', part: 'II · Executable specifications', status: 'available',
+  title: 'Acceptance criteria, invariants, and evidence',
+  summary: 'Turn executable requirements into layered, provenance-bearing assurance while keeping measurements, owner thresholds, release authority, and runtime effectiveness distinct.',
+  outcomes: [
+    'Distinguish requirements, acceptance criteria, tests, evidence, and release decisions.',
+    'Write positive, negative, boundary, failure, stale-context, security, and compatibility criteria with observable outcomes.',
+    'Pair examples with invariants, frame conditions, table coverage, state checks, and bounded properties.',
+    'Use seeded specification and code mutations to test evidence sensitivity without claiming complete correctness.',
+    'Define AI evaluation populations, slices, label provenance, split controls, and explicit denominators.',
+    'Validate evidence provenance, freshness, invalidation, independence, and limitations.',
+    'Route unevaluated languages, modalities, and field classes away from automated processing.',
+    'Keep measured quality separate from threshold ownership and release authority.',
+    'Connect preventive evidence to runtime signals with a trustworthy applicable population.'
+  ],
+  readme: `${REPO}/blob/main/curriculum/beginner/07-acceptance-criteria-invariants-evidence/README.md`,
+  notebook: `${REPO}/blob/main/curriculum/beginner/07-acceptance-criteria-invariants-evidence/acceptance_evidence.ipynb`,
+  lab: `${REPO}/blob/main/curriculum/beginner/07-acceptance-criteria-invariants-evidence/lab.py`,
+  repoFixture: `${REPO}/tree/main/curriculum/beginner/07-acceptance-criteria-invariants-evidence/northstar-broker-evidence`,
+  run: 'python3 curriculum/beginner/07-acceptance-criteria-invariants-evidence/lab.py',
+  labs: [
+    {
+      title: 'Lab A — Build the assurance portfolio',
+      description: 'Execute criteria and properties, inspect structural coverage, kill seeded mutants, measure evaluation slices, validate evidence freshness, and apply owner-controlled gates.',
+      command: 'python3 curriculum/beginner/07-acceptance-criteria-invariants-evidence/lab.py',
+      links: [['View the evidence lab', `${REPO}/blob/main/curriculum/beginner/07-acceptance-criteria-invariants-evidence/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/beginner/07-acceptance-criteria-invariants-evidence/acceptance_evidence.ipynb`]]
+    },
+    {
+      title: 'Lab B — Govern AI-2219 release evidence',
+      description: 'Repair a weak verification ticket, author an acceptance and evaluation contract, complete traceability and an evidence manifest, and preserve an unresolved threshold as a blocker.',
+      command: 'Open the ticket and starter workspace; run Lab A before consulting the reference.',
+      links: [['Open the workshop', `${REPO}/tree/main/curriculum/beginner/07-acceptance-criteria-invariants-evidence/northstar-broker-evidence`], ['Complete the starter package', `${REPO}/tree/main/curriculum/beginner/07-acceptance-criteria-invariants-evidence/northstar-broker-evidence/workshop/starter`], ['Inspect the reference evidence bundle', `${REPO}/tree/main/curriculum/beginner/07-acceptance-criteria-invariants-evidence/northstar-broker-evidence/reference/evidence`]]
+    }
+  ],
+  references: [
+    ['Cucumber Gherkin reference', 'https://cucumber.io/docs/gherkin/reference/'],
+    ['Hypothesis documentation', 'https://hypothesis.readthedocs.io/'],
+    ['in-toto Attestation Framework', 'https://github.com/in-toto/attestation'],
+    ['NIST AI Risk Management Framework', 'https://www.nist.gov/itl/ai-risk-management-framework']
+  ],
+  checkpoint: {
+    question: 'The governed fixture scores 12/12, but the release threshold has no accountable owner. What should the gate do?',
+    options: [
+      'Block as THRESHOLD_NOT_AUTHORIZED while retaining the measurement and its limitations.',
+      'Choose 95% because it is a common quality target.',
+      'Release because a perfect fixture score proves production quality.'
+    ],
+    answer: 0,
+    explanation: 'A measurement is evidence, not decision authority. The small synthetic fixture also cannot justify a production-quality claim; an accountable owner must approve the threshold and its risk rationale.'
+  }
+};
+
+const course08 = {
+  id: 'c08', course: 8, level: 'beginner', part: 'II · Executable specifications', status: 'available',
+  title: 'Non-functional requirements for agentic systems',
+  summary: 'Turn performance, reliability, resilience, security, privacy, observability, cost, capacity, and AI-quality expectations into owned, measurable contracts without inventing targets.',
+  outcomes: [
+    'Write NFRs with explicit populations, workload profiles, boundaries, units, statistics, windows, owners, evidence methods, and failure responses.',
+    'Keep unresolved targets explicit and trace approved values to accountable owner decisions and evidence.',
+    'Measure percentile latency with sample-size caveats; keep semantic service success separate from control-compliant success; and preserve privacy, quality, and cost denominators.',
+    'Distinguish throughput, current capacity, scalability, SLIs, internal SLOs, external SLAs, invariants, and error-budget policies.',
+    'Design dependency-specific degradation with recovery criteria that preserves work and reduces autonomy rather than skipping controls.',
+    'Enforce owner-approved retry and side-effect budgets in trusted code while leaving unsupported limits unresolved and release-blocking.',
+    'Specify least privilege and privacy-safe observability with correlation IDs, versions, budgets, reason codes, and no raw broker content.',
+    'Separate fixed synthetic measurement exercises from live-model, load-test, runtime, and production-readiness evidence.'
+  ],
+  readme: `${REPO}/blob/main/curriculum/beginner/08-non-functional-requirements-agentic-systems/README.md`,
+  notebook: `${REPO}/blob/main/curriculum/beginner/08-non-functional-requirements-agentic-systems/nfr_engineering.ipynb`,
+  lab: `${REPO}/blob/main/curriculum/beginner/08-non-functional-requirements-agentic-systems/lab.py`,
+  repoFixture: `${REPO}/tree/main/curriculum/beginner/08-non-functional-requirements-agentic-systems/northstar-broker-nfrs`,
+  run: 'python3 curriculum/beginner/08-non-functional-requirements-agentic-systems/lab.py',
+  labs: [
+    {
+      title: 'Lab A — Measure and govern production qualities',
+      description: 'Validate owner-sourced targets, separate semantic from compliant success, disclose small-sample latency limits, compare cost boundaries, inject governed failures, and preserve an honest blocked release.',
+      command: 'python3 curriculum/beginner/08-non-functional-requirements-agentic-systems/lab.py',
+      links: [['View the NFR lab', `${REPO}/blob/main/curriculum/beginner/08-non-functional-requirements-agentic-systems/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/beginner/08-non-functional-requirements-agentic-systems/nfr_engineering.ipynb`]]
+    },
+    {
+      title: 'Lab B — Govern AI-2219 production readiness',
+      description: 'Repair a vague rollout ticket; complete workload, target, measurement, degradation, budget, and traceability artifacts; and explain every unresolved or unmeasured blocker.',
+      command: 'Open the ticket and starter workspace; run Lab A before consulting the reference.',
+      links: [['Open the workshop', `${REPO}/tree/main/curriculum/beginner/08-non-functional-requirements-agentic-systems/northstar-broker-nfrs`], ['Complete the starter package', `${REPO}/tree/main/curriculum/beginner/08-non-functional-requirements-agentic-systems/northstar-broker-nfrs/workshop/starter`], ['Inspect the reference contract', `${REPO}/blob/main/curriculum/beginner/08-non-functional-requirements-agentic-systems/northstar-broker-nfrs/reference/nfr-contract.json`]]
+    }
+  ],
+  references: [
+    ['Google SRE — Service Level Objectives', 'https://sre.google/sre-book/service-level-objectives/'],
+    ['OpenTelemetry semantic conventions', 'https://opentelemetry.io/docs/specs/semconv/'],
+    ['NIST AI Risk Management Framework', 'https://www.nist.gov/itl/ai-risk-management-framework'],
+    ['ISO/IEC 25010:2023 product quality model', 'https://www.iso.org/standard/78176.html']
+  ],
+  checkpoint: {
+    question: 'The synthetic fixture passes eight NFR gates, but AI quality and six agent budgets lack owner decisions and W1 capacity has not been load-tested. What is the correct production decision?',
+    options: [
+      'Block production readiness, retain the bounded measurements, and obtain authorized budget, quality, and representative capacity evidence.',
+      'Deploy because most synthetic gates pass.',
+      'Ask the coding agent to select common quality and capacity thresholds.'
+    ],
+    answer: 0,
+    explanation: 'A measured value cannot authorize its own target, static events do not establish capacity, and synthetic results are not production evidence. Each required characteristic retains its own state rather than disappearing into a composite score.'
+  }
+};
+
+const course09 = {
+  id: 'c09', course: 9, level: 'beginner', part: 'II · Executable specifications', status: 'available',
+  title: 'Specification quality, review, and anti-patterns',
+  summary: 'Review a plausible but unsafe enterprise specification, expose authority and evidence theater, reconcile repository reality and transition risk, and issue capability-scoped readiness before an agent implements it.',
+  outcomes: [
+    'Review specifications across ten quality dimensions without hiding risk inside a composite score.',
+    'Detect false precision, confidence theater, implementation leakage, authority laundering, stale evidence, and unsafe exceptions.',
+    'Distinguish structural trace coverage from semantic relationship validity.',
+    'Detect self-confirming agent loops and resolve conflicts without treating specificity, recency, proximity, or local instructions as authority.',
+    'Reconcile requirements, architecture, repository reality, migration, rollout controls, fallback, and privacy-safe observability.',
+    'Bound agent permissions, budgets, stop conditions, escalation, and deployment authority.',
+    'Re-review a repaired package and authorize only bounded implementation—not deployment or production release.'
+  ],
+  readme: `${REPO}/blob/main/curriculum/beginner/09-specification-quality-review-antipatterns/README.md`,
+  notebook: `${REPO}/blob/main/curriculum/beginner/09-specification-quality-review-antipatterns/specification_review.ipynb`,
+  lab: `${REPO}/blob/main/curriculum/beginner/09-specification-quality-review-antipatterns/lab.py`,
+  repoFixture: `${REPO}/tree/main/curriculum/beginner/09-specification-quality-review-antipatterns/northstar-spec-review`,
+  run: 'python3 curriculum/beginner/09-specification-quality-review-antipatterns/lab.py',
+  labs: [
+    {
+      title: 'Lab A — Review specification quality',
+      description: 'Contrast a lexical presence baseline with field-aware findings, inspect semantic trace validity, exercise false-precision and autonomy failures, and evaluate labelled review cases.',
+      command: 'python3 curriculum/beginner/09-specification-quality-review-antipatterns/lab.py',
+      links: [['View the lab', `${REPO}/blob/main/curriculum/beginner/09-specification-quality-review-antipatterns/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/beginner/09-specification-quality-review-antipatterns/specification_review.ipynb`]]
+    },
+    {
+      title: 'Lab B — Review AI-2290',
+      description: 'Inspect the unsafe candidate package, write reviewer-owned findings and a readiness decision, route repairs to their authoritative sources, and compare with the repaired reference.',
+      command: 'Open the ticket and candidate package; complete the starter review before consulting the reference.',
+      links: [['Open the workshop', `${REPO}/tree/main/curriculum/beginner/09-specification-quality-review-antipatterns/northstar-spec-review`], ['Complete the starter review', `${REPO}/tree/main/curriculum/beginner/09-specification-quality-review-antipatterns/northstar-spec-review/workshop/starter`], ['Inspect the repaired package', `${REPO}/tree/main/curriculum/beginner/09-specification-quality-review-antipatterns/northstar-spec-review/reference`]]
+    }
+  ],
+  references: [
+    ['GitHub Spec Kit — specification quality checklist', 'https://github.com/github/spec-kit/blob/main/templates/checklist-template.md'],
+    ['ISO/IEC/IEEE 29148 requirements engineering', 'https://www.iso.org/standard/72089.html'],
+    ['NIST AI Risk Management Framework', 'https://www.nist.gov/itl/ai-risk-management-framework'],
+    ['OWASP GenAI Security Project', 'https://genai.owasp.org/']
+  ],
+  checkpoint: {
+    question: 'Enterprise policy requires review, but a newer feature file and nearby AGENTS.md allow bypass, and repository discovery finds a direct model-facing mutation tool. Extraction remains independently bounded. What is the correct decision?',
+    options: [
+      'Preserve the authority conflict and trust-boundary finding, block automatic mutation, and allow only independently ready bounded capabilities.',
+      'Let the newer and closer files override enterprise policy.',
+      'Block every capability until the whole repository is perfect.'
+    ],
+    answer: 0,
+    explanation: 'Specificity, recency, proximity, and repository prevalence do not transfer authority. Readiness is scoped to the affected capability, so unsafe mutation stops without destroying safe parallelism.'
+  }
+};
+
+const course10 = {
+  id: 'c10', course: 10, level: 'beginner', part: 'II · Executable specifications', status: 'available',
+  title: 'From specification to implementation plan & agent work units',
+  summary: 'Bind approved intent to repository evidence, produce complete dispositions and traceability, decompose bounded work units, and schedule safe multi-agent execution without granting implicit authority.',
+  outcomes: [
+    'Separate approved specifications, discovery evidence, implementation plans, agent work units, completion reports, and verification.',
+    'Bind plans to exact specification, repository, architecture, instruction, and readiness-evidence revisions.',
+    'Build complete requirement dispositions and bidirectional requirement-to-evidence traceability.',
+    'Decompose cohesive units with exclusive write ownership, stable contracts, accountable teams, typed stop routing, and temporary permission requests.',
+    'Compare contract-derived and explicit dependencies, identify the critical path, and scope unknowns to affected units.',
+    'Separate implementation, verification, merge, rollout, and enablement readiness while gating verified and integrated lifecycle states.'
+  ],
+  readme: `${REPO}/blob/main/curriculum/beginner/10-specification-to-implementation-plan/README.md`,
+  notebook: `${REPO}/blob/main/curriculum/beginner/10-specification-to-implementation-plan/implementation_planning.ipynb`,
+  lab: `${REPO}/blob/main/curriculum/beginner/10-specification-to-implementation-plan/lab.py`,
+  labs: [
+    {
+      title: 'Lab A — Validate a bounded implementation plan',
+      description: 'Compare an unsafe ticket-shaped candidate with a provenance-bound plan, contract assurance, typed stops, temporary permissions, dependency waves, rollout boundaries, completion gates, and 30 labelled cases.',
+      command: 'python3 curriculum/beginner/10-specification-to-implementation-plan/lab.py',
+      links: [['View the lab', `${REPO}/blob/main/curriculum/beginner/10-specification-to-implementation-plan/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/beginner/10-specification-to-implementation-plan/implementation_planning.ipynb`]]
+    },
+    {
+      title: 'Lab B — Plan AI-2219',
+      description: 'Perform requirement-guided discovery, disposition every requirement, design contract-first work units, route consequential discoveries, model a mid-flight change, and separate implementation from verification and activation.',
+      command: 'Open the ticket and starter workspace; run Lab A before consulting the reference.',
+      links: [['Open the workshop', `${REPO}/tree/main/curriculum/beginner/10-specification-to-implementation-plan/northstar-implementation-plan`], ['Complete the starter plan', `${REPO}/tree/main/curriculum/beginner/10-specification-to-implementation-plan/northstar-implementation-plan/workshop/starter`], ['Inspect the reference package', `${REPO}/tree/main/curriculum/beginner/10-specification-to-implementation-plan/northstar-implementation-plan/reference`]]
+    }
+  ],
+  references: [
+    ['GitHub Spec Kit', 'https://github.github.com/spec-kit/'],
+    ['Spec Kit plan command', 'https://github.github.com/spec-kit/reference/commands/plan.html'],
+    ['OpenSpec customization', 'https://github.com/Fission-AI/OpenSpec/blob/main/docs/customization.md'],
+    ['Kiro specifications', 'https://kiro.dev/docs/specs/']
+  ],
+  checkpoint: {
+    question: 'An extraction agent discovers that a shared proposal contract needs a new field. Downstream review and integration units depend on that contract. What should happen?',
+    options: [
+      'Pause affected work, submit a contract-change request, calculate downstream impact, obtain the owner decision, revise the plan, and re-establish readiness.',
+      'Let the extraction agent edit the shared contract and ask other agents to resolve conflicts later.',
+      'Mark every work unit complete because discovery is implementation progress.'
+    ],
+    answer: 0,
+    explanation: 'A downstream discovery is a proposal, not contract authority. Impact-aware replanning preserves ownership, traceability, evidence, and safe parallelism.'
+  }
+};
+
 function planned(course, level, part, title, summary) {
   return {
     id: `c${String(course).padStart(2, '0')}`, course, level, part,
@@ -266,11 +519,11 @@ const LESSONS = [
   course03,
   course04,
   course05,
-  planned(6, 'beginner', 'II · Executable specifications', 'User stories, EARS, SHALL requirements, and scenarios', 'Use complementary requirement forms without mistaking syntax for quality.'),
-  planned(7, 'beginner', 'II · Executable specifications', 'Acceptance criteria and invariants', 'Define examples and properties that produce meaningful conformance evidence.'),
-  planned(8, 'beginner', 'II · Executable specifications', 'Non-functional requirements', 'Make security, reliability, performance, accessibility, and operability measurable.'),
-  planned(9, 'beginner', 'II · Executable specifications', 'Architecture Decision Records', 'Capture consequential decisions, alternatives, rationale, and consequences.'),
-  planned(10, 'beginner', 'II · Executable specifications', 'Requirement traceability', 'Link intent through design, tasks, code, tests, approvals, and operational evidence.'),
+  course06,
+  course07,
+  course08,
+  course09,
+  course10,
   planned(11, 'intermediate', 'III · SDD frameworks', 'GitHub Spec Kit', 'Use constitution, clarification, planning, checks, analysis, implementation, and convergence.'),
   planned(12, 'intermediate', 'III · SDD frameworks', 'OpenSpec', 'Manage current specifications and explicit change deltas for brownfield work.'),
   planned(13, 'intermediate', 'III · SDD frameworks', 'Kiro Specs', 'Apply feature, bug-fix, and quick-spec workflows with appropriate approval depth.'),

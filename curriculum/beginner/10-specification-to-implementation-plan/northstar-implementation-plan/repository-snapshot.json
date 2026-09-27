@@ -1,0 +1,27 @@
+{
+  "schema_version":"1.0-training",
+  "repository":"northstar-underwriter-fixture",
+  "revision":"repo-abc123",
+  "changed_paths_since_plan":[],
+  "components":[
+    {"path":"src/broker/ingestion.py","symbol":"BrokerIngestion","responsibility":"authenticated response ingestion"},
+    {"path":"src/broker/extraction.py","symbol":"BrokerResponseExtractor","responsibility":"candidate extraction"},
+    {"path":"src/underwriting/proposals.py","symbol":"ProposedUpdate","responsibility":"versioned proposal contract"},
+    {"path":"src/underwriting/validation.py","symbol":"DomainValidator","responsibility":"deterministic validation"},
+    {"path":"src/underwriting/conflicts.py","symbol":"ConflictClassifier","responsibility":"verified-value conflict classification"},
+    {"path":"src/underwriting/submission.py","symbol":"SubmissionService","responsibility":"authoritative submission state"},
+    {"path":"src/review/service.py","symbol":"ReviewService","responsibility":"human review workflow"},
+    {"path":"src/agents/broker_agent.py","symbol":"BrokerAgent","responsibility":"model-facing proposal generation"},
+    {"path":"tests/contracts/test_proposed_update.py","symbol":"contract tests","responsibility":"schema compatibility"},
+    {"path":"tests/broker/test_extraction.py","symbol":"extraction tests","responsibility":"extraction and provenance"},
+    {"path":"tests/underwriting/test_validation.py","symbol":"validation tests","responsibility":"domain validation"},
+    {"path":"tests/underwriting/test_conflicts.py","symbol":"conflict tests","responsibility":"safety invariant"},
+    {"path":"tests/review/test_service.py","symbol":"review tests","responsibility":"approval receipt behavior"},
+    {"path":"tests/integration/test_broker_response_flow.py","symbol":"integration tests","responsibility":"end-to-end bounded flow"}
+  ],
+  "protected_paths":["src/auth","infrastructure","policy","src/underwriting/submission.py"],
+  "evidence_records":[
+    {"id":"OBS-SEC-001","subject":"SEC-BR-001","revision":"repo-abc123","producer":"repository_security_inspection","status":"current","claim":"BrokerAgent has proposal-only tools and no SubmissionService mutation capability."}
+  ],
+  "boundary":"A repository snapshot is planning evidence, not authority to weaken approved requirements."
+}

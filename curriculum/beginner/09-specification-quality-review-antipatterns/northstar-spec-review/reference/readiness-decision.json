@@ -1,0 +1,6 @@
+{
+  "schema_version":"1.0-training",
+  "candidate":{"subject_id":"AI-2290-SPEC@candidate-v1","decision":"stop","ready":false,"score":null,"reason":"Blocking authority, autonomy, policy, failure-semantics, evidence-freshness, and context-integrity findings affect automatic mutation."},
+  "repaired":{"subject_id":"AI-2290-SPEC@reference-v2","decision":"ready_for_bounded_implementation","ready":true,"score":null,"scope":"Implementation may proceed only within AGENT-AI-2290-BOUNDED; this is not production deployment approval."},
+  "authority_boundary":"The reviewer may recommend and gate readiness under policy. Product, policy, architecture, risk, exception, and release decisions remain with their accountable owners."
+}
