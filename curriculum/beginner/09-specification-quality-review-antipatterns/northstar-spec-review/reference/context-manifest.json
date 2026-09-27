@@ -1,0 +1,14 @@
+{
+  "id":"CTX-AI-2290-REFERENCE",
+  "generated":true,
+  "expected_digest":"sha256:reference-context-v2",
+  "actual_digest":"sha256:reference-context-v2",
+  "candidate_artifact_count":9,
+  "reviewed_context_budget":20,
+  "required_source_ids":["AI-007","AI-030","PRIV-018"],
+  "sources":[
+    {"id":"AI-007","revision":"4.0-training","locator":"enterprise-policy/ai/AI-007.json","reason":"production model routing applies"},
+    {"id":"AI-030","revision":"3.0-training","locator":"enterprise-policy/ai/AI-030.json","reason":"authoritative underwriting change requires review"},
+    {"id":"PRIV-018","revision":"4.2-training","locator":"enterprise-policy/privacy/PRIV-018.json","reason":"restricted broker data is processed"}
+  ]
+}

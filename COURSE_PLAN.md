@@ -88,7 +88,7 @@ Each future course follows this learning arc, adapted where the subject demands 
 | 06 | beginner/06 | User stories, EARS, SHALL requirements, scenarios | **Available** | C05 | AI-2219 EARS/SHALL requirements, decision table, scenarios, proposal contract, guarded states, contradiction tests, and governed-decision evidence |
 | 07 | beginner/07 | Acceptance criteria, invariants, and evidence | **Available** | C06 | AI-2219 acceptance contract, bounded properties, mutation evidence, evaluation slices, provenance-bearing evidence bundle, owned gates, and runtime denominators |
 | 08 | beginner/08 | Non-functional requirements for agentic systems | **Available** | C06–C07 | AI-2219 workload profiles, NFR contract, owner-approved and unresolved targets, semantic SLIs, degradation policy, agent budgets, unit economics, and blocked production assessment |
-| 09 | beginner/09 | Architecture Decision Records | Planned | C02, C08 | ADR with alternatives, consequences, supersession rule |
+| 09 | beginner/09 | Specification quality, review, and anti-patterns | **Available** | C03–C08 | AI-2290 lexical-baseline failure, ten-dimension findings, semantic trace review, 35-case anti-pattern portfolio, brownfield/transition review, capability-scoped readiness, repaired specification package |
 | 10 | beginner/10 | Requirement traceability | Planned | C05–C09 | Bidirectional intent → design → task → code → evidence graph |
 
 ## Part III — SDD frameworks
@@ -299,6 +299,21 @@ Course 08 turns the Course 06–07 behavioral and evidence contracts into a prod
 - **Evidence boundary:** runtime events, workload figures, owner decisions, costs, and fixed quality predictions are synthetic teaching fixtures. They do not prove live-model quality, provider behavior, production SLO attainment, or W1 capacity.
 - **Release result:** eight fixture gates pass, cost and AI-quality targets remain blocked, capacity is not measured, six agent budgets lack owner decisions, and production readiness remains false. Separate states replace a misleading composite score.
 - **Production upgrade:** authenticated telemetry, representative load and quota tests, durable operation identity, atomic budget/mutation accounting, calibrated evaluation, capability attestations, cost reconciliation, and owner-controlled operational response remain required.
+
+## Course 09 design record
+
+Course 09 reverses Courses 01–08: learners receive a plausible enterprise specification and determine whether it is safe and effective enough for a coding agent.
+
+- **Scenario:** AI-2290 names AI, performance, security, scalability, human review, policy, and testing while leaving semantics, authority, failure behavior, evidence, provenance, and autonomy unsafe.
+- **Review model:** correctness, completeness, clarity, consistency, verifiability, traceability, authority, maintainability, autonomy, and decision ownership produce typed `blocking`, `review`, or `informational` findings—not a composite score.
+- **Baseline:** lexical presence finds 7/7 responsible-sounding concepts and incorrectly looks complete, demonstrating specification theater.
+- **Lab A:** review statements, scenario classes, policy/exception metadata, artifact structure, agent permissions, evidence, semantic traceability, and generated context; then issue a scoped readiness decision.
+- **Lab B:** inspect the AI-2290 candidate package, complete reviewer-owned starter findings, route repairs to owning sources, and compare with a clean reference package and bounded autonomy contract.
+- **Traceability experiment:** structural link coverage is 10/10 while semantic link validity is 1/10, proving that relationship presence is not relationship correctness.
+- **Extended review:** authority heuristics, derived intent, self-confirming loops, uncertainty scope, requirement shape, enforcement, approvals, retries, NFR/gate states, lifecycle, repository reconciliation, migration, rollout controls, fallback, observability, and bounded production claims are exercised separately from the core candidate count.
+- **Evaluation:** 35 labelled deterministic cases exercise positive, negative, and boundary rules with 78 expected finding labels, explicit false-positive/false-negative reporting, and clean controls. Results are fixture coverage, not general reviewer accuracy.
+- **Readiness boundary:** the candidate stops with 16 blocking and 24 review findings. The repaired fixture becomes ready only for bounded implementation; capability review permits four work areas while automatic mutation remains blocked. None of these decisions authorize exceptions, deployment, or production release.
+- **Production upgrade:** authenticated sources/owners, exact revision binding, protected reviewer state, independently labelled cross-domain evaluation, three-way repository reconciliation, migration/rollback rehearsal, tested rollout controls, fallback capacity, privacy-safe observability, severity calibration, expiring waivers, drift detection, and policy-backed CI remain required.
 
 ## Risk boundaries
 

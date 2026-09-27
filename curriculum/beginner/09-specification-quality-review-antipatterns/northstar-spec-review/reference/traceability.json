@@ -1,0 +1,16 @@
+{
+  "schema_version":"1.0-training",
+  "claim":"structural_and_semantic_links_reviewed",
+  "links":[
+    {"requirement_id":"REQ-2290-001","evidence_id":"SPEC-REVIEW-2290","relationship_claim":"reviewed"},
+    {"requirement_id":"REQ-2290-002","evidence_id":"SPEC-REVIEW-2290","relationship_claim":"reviewed"},
+    {"requirement_id":"REQ-2290-003","evidence_id":"SPEC-REVIEW-2290","relationship_claim":"reviewed"},
+    {"requirement_id":"REQ-2290-004","evidence_id":"SPEC-REVIEW-2290","relationship_claim":"reviewed"},
+    {"requirement_id":"REQ-2290-005","evidence_id":"SPEC-REVIEW-2290","relationship_claim":"reviewed"},
+    {"requirement_id":"REQ-2290-006","evidence_id":"SPEC-REVIEW-2290","relationship_claim":"reviewed"},
+    {"requirement_id":"REQ-2290-007","evidence_id":"SPEC-REVIEW-2290","relationship_claim":"reviewed"},
+    {"requirement_id":"REQ-2290-008","evidence_id":"SPEC-REVIEW-2290","relationship_claim":"reviewed"},
+    {"requirement_id":"REQ-2290-009","evidence_id":"SPEC-REVIEW-2290","relationship_claim":"reviewed"},
+    {"requirement_id":"REQ-2290-010","evidence_id":"SPEC-REVIEW-2290","relationship_claim":"reviewed"}
+  ]
+}

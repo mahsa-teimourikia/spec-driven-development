@@ -1,0 +1,130 @@
+{
+  "schema_version": "1.0-training",
+  "fixture_status": "intentionally_defective_specification",
+  "specification_id": "AI-2290-SPEC",
+  "revision": "candidate-v1",
+  "authoritative_side_effects": true,
+  "change_owner": null,
+  "freshness_review_triggers": [],
+  "source_of_truth_claims": ["tests_define_all_behavior", "current_code_is_required_behavior"],
+  "scenario_classes": ["primary"],
+  "policy_manifest": [
+    {"id": "AI-030", "revision": null, "locator": null, "applicability_evidence": null}
+  ],
+  "exceptions": [
+    {"id": "TEMP-AI-2290", "requirement_id": "AI-030", "approver": "Project Team", "approver_authorized": false, "scope": null, "conditions": [], "expires_on": null}
+  ],
+  "artifacts": [
+    {"path": "spec.md", "lines": 1810, "concerns": ["product", "enterprise_policy", "architecture", "database_schema", "tasks", "tests", "deployment", "runbook", "agent_instructions"]}
+  ],
+  "average_requirements_per_artifact": 10,
+  "statements": [
+    {
+      "id": "REQ-2290-001",
+      "text": "The system shall use GPT-5.6 with LangChain to intelligently process broker messages.",
+      "owner": null,
+      "defined_terms": [],
+      "measurement": null,
+      "source_refs": [],
+      "technology_names": ["GPT-5.6", "LangChain"],
+      "technology_basis": "ticket_preference",
+      "alternatives_considered": false,
+      "semantic_concept": "message_processing"
+    },
+    {
+      "id": "REQ-2290-002",
+      "text": "Responses should be processed quickly and accurately.",
+      "owner": null,
+      "defined_terms": [],
+      "measurement": null,
+      "source_refs": [],
+      "metric_name": "accuracy",
+      "component_metrics": [],
+      "critical_slices": [],
+      "semantic_concept": "quality"
+    },
+    {
+      "id": "REQ-2290-003",
+      "text": "The agent should update the submission automatically whenever confidence is above 90%.",
+      "owner": null,
+      "defined_terms": [],
+      "measurement": null,
+      "decision": {},
+      "source_refs": [],
+      "controls_authoritative_action": true,
+      "confidence_contract": {},
+      "semantic_concept": "automatic_mutation"
+    },
+    {
+      "id": "REQ-2290-004",
+      "text": "Use Redis to cache results because another team uses it.",
+      "owner": null,
+      "defined_terms": [],
+      "measurement": null,
+      "source_refs": [],
+      "technology_names": ["Redis"],
+      "technology_basis": "informal_suggestion",
+      "alternatives_considered": false,
+      "semantic_concept": "caching"
+    },
+    {
+      "id": "REQ-2290-005",
+      "text": "All broker responses should be handled.",
+      "owner": null,
+      "defined_terms": [],
+      "measurement": null,
+      "source_refs": [],
+      "scope_quantifier": "all",
+      "eligible_population": null,
+      "semantic_concept": "eligible_population"
+    },
+    {
+      "id": "REQ-2290-006",
+      "text": "The system should be secure and scalable.",
+      "owner": null,
+      "defined_terms": [],
+      "measurement": null,
+      "source_refs": [],
+      "semantic_concept": "system_quality"
+    },
+    {
+      "id": "REQ-2290-007",
+      "text": "Human review should be used where appropriate.",
+      "owner": null,
+      "defined_terms": [],
+      "measurement": null,
+      "source_refs": [],
+      "semantic_concept": "human_review"
+    },
+    {
+      "id": "REQ-2290-008",
+      "text": "The implementation should follow AI-030 and all relevant enterprise policies.",
+      "owner": null,
+      "defined_terms": [],
+      "measurement": null,
+      "source_refs": [],
+      "semantic_concept": "policy_conformance"
+    },
+    {
+      "id": "REQ-2290-009",
+      "text": "Tests should ensure everything works correctly.",
+      "owner": null,
+      "defined_terms": [],
+      "measurement": null,
+      "source_refs": [],
+      "evidence_contract": false,
+      "semantic_concept": "verification"
+    },
+    {
+      "id": "REQ-2290-010",
+      "text": "For this feature, human review is not required because Sarah said auto-send is probably okay.",
+      "owner": null,
+      "defined_terms": [],
+      "measurement": null,
+      "source_refs": [{"authority": "hearsay", "source": "project conversation"}],
+      "weakens_requirement_id": "AI-030",
+      "exception_id": null,
+      "semantic_concept": "human_review"
+    }
+  ]
+}

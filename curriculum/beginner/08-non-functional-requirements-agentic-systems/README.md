@@ -710,4 +710,4 @@ Correct answer: **B**. Passing evidence does not compensate for an unauthorized 
 
 ## Continue
 
-Course 09 will use these NFR trade-offs as decision forces in Architecture Decision Records. Course 10 will connect requirements and NFRs through design, tasks, code, tests, evaluations, runtime evidence, and operating decisions.
+Course 09 will review whether requirements, NFRs, authority, evidence, traceability, and agent boundaries are good enough for bounded implementation. Course 10 will connect valid requirements through design, tasks, code, tests, evaluations, runtime evidence, and operating decisions.

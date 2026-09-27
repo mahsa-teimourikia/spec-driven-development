@@ -1,0 +1,64 @@
+{
+  "schema_version": "1.0-training",
+  "fixture_status": "fictional_capability_scoped_implementation_readiness",
+  "capabilities": [
+    {
+      "id": "extraction",
+      "scope_bounded": true,
+      "requirements_approved": true,
+      "context_current": true,
+      "autonomy_bounded": true,
+      "protected_decisions_known": true,
+      "stop_conditions_defined": true,
+      "verification_defined": true,
+      "blocking_questions": []
+    },
+    {
+      "id": "proposal_creation",
+      "scope_bounded": true,
+      "requirements_approved": true,
+      "context_current": true,
+      "autonomy_bounded": true,
+      "protected_decisions_known": true,
+      "stop_conditions_defined": true,
+      "verification_defined": true,
+      "blocking_questions": []
+    },
+    {
+      "id": "conflict_detection",
+      "scope_bounded": true,
+      "requirements_approved": true,
+      "context_current": true,
+      "autonomy_bounded": true,
+      "protected_decisions_known": true,
+      "stop_conditions_defined": true,
+      "verification_defined": true,
+      "blocking_questions": []
+    },
+    {
+      "id": "human_review_workflow",
+      "scope_bounded": true,
+      "requirements_approved": true,
+      "context_current": true,
+      "autonomy_bounded": true,
+      "protected_decisions_known": true,
+      "stop_conditions_defined": true,
+      "verification_defined": true,
+      "blocking_questions": []
+    },
+    {
+      "id": "automatic_mutation",
+      "scope_bounded": true,
+      "requirements_approved": false,
+      "context_current": true,
+      "autonomy_bounded": false,
+      "protected_decisions_known": true,
+      "stop_conditions_defined": true,
+      "verification_defined": false,
+      "blocking_questions": [
+        "authorization_contract_unresolved",
+        "evaluation_population_not_approved"
+      ]
+    }
+  ]
+}
