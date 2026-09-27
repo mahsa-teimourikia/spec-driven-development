@@ -77,6 +77,10 @@ class Course10PlanningTests(unittest.TestCase):
         repository = copy.deepcopy(self.reference["repository"])
         repository.update(revision="new", changed_paths_since_plan=["docs/style.md"])
         self.assertEqual("stale_unrelated", lab.assess_plan_staleness(self.reference["plan"], repository)["state"])
+        self.assertNotIn(
+            "PLAN_REPOSITORY_REVISION_STALE",
+            self.finding_codes(lab.validate_plan_provenance(self.reference["plan"], self.reference["specification"], repository, self.reference["architecture"])),
+        )
 
     def test_relevant_drift_targets_affected_units(self):
         repository = copy.deepcopy(self.reference["repository"])
@@ -84,10 +88,14 @@ class Course10PlanningTests(unittest.TestCase):
         result = lab.assess_plan_staleness(self.reference["plan"], repository)
         self.assertEqual("stale_relevant", result["state"])
         self.assertIn("AWU-BR-CONTRACT", result["affected_work_units"])
+        self.assertIn(
+            "PLAN_REPOSITORY_REVISION_STALE",
+            self.finding_codes(lab.validate_plan_provenance(self.reference["plan"], self.reference["specification"], repository, self.reference["architecture"])),
+        )
 
-    def test_all_six_requirements_have_dispositions(self):
+    def test_all_seven_requirements_have_dispositions(self):
         coverage = lab.disposition_metrics(self.reference["plan"], self.reference["specification"])
-        self.assertEqual((6, 6), (coverage["requirements_with_disposition"]["numerator"], coverage["requirements_with_disposition"]["denominator"]))
+        self.assertEqual((7, 7), (coverage["requirements_with_disposition"]["numerator"], coverage["requirements_with_disposition"]["denominator"]))
 
     def test_missing_disposition_is_detected(self):
         plan = copy.deepcopy(self.reference["plan"])
@@ -102,7 +110,12 @@ class Course10PlanningTests(unittest.TestCase):
 
     def test_all_requirements_have_complete_trace_chains(self):
         coverage = lab.implementation_traceability(self.reference["plan"], self.reference["specification"])["complete_requirement_chains"]
-        self.assertEqual((6, 6), (coverage["numerator"], coverage["denominator"]))
+        self.assertEqual((7, 7), (coverage["numerator"], coverage["denominator"]))
+
+    def test_validation_work_is_grounded_in_validation_requirement(self):
+        unit = next(item for item in self.reference["plan"]["work_units"] if item["id"] == "AWU-BR-VALIDATION")
+        self.assertEqual(["REQ-BR-020"], unit["requirement_ids"])
+        self.assertEqual({"AC-BR-020-A", "AC-BR-020-B"}, set(unit["verification"]["acceptance_ids"]))
 
     def test_traceability_uses_semantic_granularity(self):
         trace = lab.implementation_traceability(self.reference["plan"], self.reference["specification"])
@@ -126,6 +139,17 @@ class Course10PlanningTests(unittest.TestCase):
         for index, left in enumerate(units):
             for right in units[index + 1:]:
                 self.assertFalse(set(left["writable_paths"]) & set(right["writable_paths"]))
+
+    def test_transitively_ordered_overlap_is_not_a_parallel_collision(self):
+        plan = copy.deepcopy(self.reference["plan"])
+        contract = next(item for item in plan["work_units"] if item["id"] == "AWU-BR-CONTRACT")
+        conflict = next(item for item in plan["work_units"] if item["id"] == "AWU-BR-CONFLICT")
+        conflict["writable_paths"] = contract["writable_paths"]
+        conflict["read_only_paths"] = []
+        profile = next(item for item in plan["permission_profiles"] if item["id"] == "PERM-AWU-BR-CONFLICT")
+        profile["writable_paths"] = contract["writable_paths"]
+        findings = lab.validate_work_units(plan, self.reference["specification"], self.reference["repository"])
+        self.assertNotIn("PARALLEL_WRITE_COLLISION", self.finding_codes(findings))
 
     def test_wildcard_write_scope_is_detected(self):
         plan = copy.deepcopy(self.reference["plan"])
@@ -164,6 +188,12 @@ class Course10PlanningTests(unittest.TestCase):
         plan["readiness_evidence_catalog"][0]["status"] = "stale"
         self.assertIn("WORK_UNIT_READINESS_EVIDENCE_INVALID", self.finding_codes(lab.validate_work_units(plan, self.reference["specification"], self.reference["repository"])))
 
+    def test_readiness_evidence_must_cover_the_exact_work_unit(self):
+        plan = copy.deepcopy(self.reference["plan"])
+        plan["work_units"][0]["readiness_evidence_ids"][-1] = "EVIDENCE-PLAN-AWU-BR-EXTRACTION"
+        findings = lab.validate_work_units(plan, self.reference["specification"], self.reference["repository"])
+        self.assertIn("WORK_UNIT_READINESS_EVIDENCE_WRONG_SUBJECT", self.finding_codes(findings))
+
     def test_missing_verification_infrastructure_does_not_hide_dispatch_state(self):
         plan = copy.deepcopy(self.reference["plan"])
         next(item for item in plan["readiness_evidence_catalog"] if item["id"] == "VERIFICATION-INFRA-2219")["status"] = "missing"
@@ -198,6 +228,7 @@ class Course10PlanningTests(unittest.TestCase):
 
     def test_reference_contract_registry_matches_graph(self):
         self.assertEqual([], lab.validate_contract_dependencies(self.reference["plan"]))
+        self.assertTrue(all(item["accountable_owner"] and item["status"] for item in self.reference["plan"]["contract_registry"]))
 
     def test_hidden_contract_dependency_is_detected(self):
         plan = copy.deepcopy(self.reference["plan"])
@@ -211,8 +242,18 @@ class Course10PlanningTests(unittest.TestCase):
 
     def test_total_work_and_elapsed_are_separate(self):
         metrics = lab.coordination_metrics(self.reference["plan"])
-        self.assertGreater(metrics["total_work_units"], metrics["dependency_aware_elapsed_units"])
+        self.assertGreater(metrics["total_relative_complexity"], metrics["dependency_aware_complexity"])
         self.assertEqual(5, metrics["wave_count"])
+
+    def test_relative_complexity_is_explicitly_not_a_duration(self):
+        self.assertIn("not_elapsed_time_or_delivery_commitment", lab.critical_path(self.reference["plan"])["unit"])
+        self.assertTrue(all("relative_complexity" in item for item in self.reference["plan"]["work_units"]))
+
+    def test_integration_is_a_delivery_type_not_a_product_capability_alias(self):
+        unit = next(item for item in self.reference["plan"]["work_units"] if item["id"] == "AWU-BR-INTEGRATION")
+        self.assertEqual("integration_verification", unit["capability"])
+        self.assertEqual("integration", unit["work_unit_type"])
+        self.assertIn("human_review_workflow", unit["capability_scope"])
 
     def test_initial_scheduler_exposes_only_contract_unit(self):
         self.assertEqual(["AWU-BR-CONTRACT"], lab.ready_work_units(self.reference["plan"])["ready"])
@@ -255,6 +296,8 @@ class Course10PlanningTests(unittest.TestCase):
     def test_reference_contract_change_has_complete_impact(self):
         request = json.loads((LESSON / "northstar-implementation-plan" / "reference" / "contract-change-request.json").read_text(encoding="utf-8"))
         self.assertEqual([], lab.validate_contract_change_request(request, self.reference["plan"]))
+        self.assertIn("source_message_revision", request["proposed_change"])
+        self.assertNotIn("confidence_reason", request["proposed_change"])
 
     def test_reference_completion_report_is_clean_and_context_bound(self):
         path = LESSON / "northstar-implementation-plan" / "reference" / "completion-report.json"

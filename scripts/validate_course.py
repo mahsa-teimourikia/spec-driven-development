@@ -1611,8 +1611,8 @@ def check_course_10_implementation_planning() -> list[str]:
 
     candidate = report.get("candidate", {})
     candidate_review = candidate.get("review", {})
-    if candidate_review.get("counts") != {"blocking": 31, "review": 9}:
-        errors.append("Course 10 unsafe candidate must retain 31 blocking and nine review findings")
+    if candidate_review.get("counts") != {"blocking": 32, "review": 8}:
+        errors.append("Course 10 unsafe candidate must retain 32 blocking and eight review findings")
     candidate_decision = candidate.get("decision", {})
     if candidate_decision.get("state") != "PLAN_REQUIRES_ARCHITECTURE" or candidate_decision.get("ready_for_dispatch") is not False:
         errors.append("Course 10 unsafe candidate must stop for architecture review")
@@ -1650,11 +1650,11 @@ def check_course_10_implementation_planning() -> list[str]:
     if critical.get("path") != ["AWU-BR-CONTRACT", "AWU-BR-EXTRACTION", "AWU-BR-CONFLICT", "AWU-BR-REVIEW", "AWU-BR-INTEGRATION"] or "not_elapsed_time" not in critical.get("unit", ""):
         errors.append("Course 10 must retain a dependency critical path without presenting estimates as elapsed time")
     disposition = reference_review.get("disposition_metrics", {}).get("requirements_with_disposition", {})
-    if (disposition.get("numerator"), disposition.get("denominator")) != (6, 6):
-        errors.append("Course 10 reference must retain six of six requirement dispositions")
+    if (disposition.get("numerator"), disposition.get("denominator")) != (7, 7):
+        errors.append("Course 10 reference must retain seven of seven requirement dispositions")
     trace = reference_review.get("traceability", {}).get("complete_requirement_chains", {})
-    if (trace.get("numerator"), trace.get("denominator")) != (6, 6):
-        errors.append("Course 10 reference must retain six complete requirement-to-evidence chains")
+    if (trace.get("numerator"), trace.get("denominator")) != (7, 7):
+        errors.append("Course 10 reference must retain seven complete requirement-to-evidence chains")
     context = reference.get("example_execution_context", {})
     if not context.get("plan_digest", "").startswith("sha256:") or "not grant" not in context.get("authority_boundary", ""):
         errors.append("Course 10 execution context must carry provenance and reject implicit authority")
@@ -1664,12 +1664,19 @@ def check_course_10_implementation_planning() -> list[str]:
     change_request = json.loads((scenario / "reference" / "contract-change-request.json").read_text(encoding="utf-8"))
     if set(change_request.get("affected_work_unit_ids", [])) != {"AWU-BR-CONFLICT", "AWU-BR-REVIEW", "AWU-BR-INTEGRATION"}:
         errors.append("Course 10 contract-change request must preserve transitive downstream impact")
+    if "source_message_revision" not in change_request.get("proposed_change", "") or change_request.get("reason_requirement_ids") != ["REQ-BR-030"]:
+        errors.append("Course 10 contract-change example must propose provenance grounded directly in REQ-BR-030")
     work_units = json.loads((scenario / "reference" / "work-units.json").read_text(encoding="utf-8"))
     if len(work_units.get("stop_condition_catalog", [])) != 8 or {item.get("outcome") for item in work_units.get("stop_condition_catalog", [])} != {"ASK", "PROPOSE", "STOP"}:
         errors.append("Course 10 reference must route eight stop conditions through ASK, PROPOSE, and STOP")
     permissions = work_units.get("permission_profiles", [])
     if len(permissions) != 6 or any(item.get("grant_state") != "planned_not_provisioned" or item.get("self_provisioning_allowed") is not False for item in permissions):
         errors.append("Course 10 permission profiles must remain temporary external requests, never self-grants")
+    validation_unit = next((item for item in work_units.get("work_units", []) if item.get("id") == "AWU-BR-VALIDATION"), {})
+    if validation_unit.get("requirement_ids") != ["REQ-BR-020"] or set(validation_unit.get("verification", {}).get("acceptance_ids", [])) != {"AC-BR-020-A", "AC-BR-020-B"}:
+        errors.append("Course 10 validation work unit must trace directly to REQ-BR-020 and its acceptance criteria")
+    if any("relative_complexity" not in item or "estimated_work_units" in item for item in work_units.get("work_units", [])):
+        errors.append("Course 10 work units must use ordinal relative_complexity rather than duration-like work-unit estimates")
     rollout = json.loads((scenario / "reference" / "rollout-boundary.json").read_text(encoding="utf-8"))
     if rollout.get("status") != "NOT_AUTHORIZED_FOR_ENABLEMENT" or len(rollout.get("shadow_requirements", [])) != 2:
         errors.append("Course 10 rollout boundary must preserve shadow safety and blocked enablement")

@@ -104,7 +104,7 @@
           "TODO"
         ]
       },
-      "estimated_work_units": 1
+      "relative_complexity": 1
     }
   ],
   "boundary": "TODO: explain why a READY work unit is still not a production permission grant."

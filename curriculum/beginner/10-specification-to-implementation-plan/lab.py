@@ -190,10 +190,11 @@ def validate_plan_provenance(
             "The plan is not bound to the exact approved specification content.",
             "Planning owner", "Regenerate the plan binding from the approved specification ID and digest.",
         ))
-    if plan.get("repository_revision") != repository.get("revision"):
+    staleness = assess_plan_staleness(plan, repository)
+    if staleness["state"] == "stale_relevant":
         findings.append(_finding(
             "PLAN_REPOSITORY_REVISION_STALE", Severity.REVIEW, plan_id,
-            "The plan repository revision differs from the discovery snapshot.",
+            "The repository revision differs and changed paths intersect planned work-unit scope.",
             "Planning owner", "Perform affected-path analysis and targeted re-discovery before execution.",
         ))
     approved_adrs = {item["id"] for item in architecture.get("decisions", [])}
@@ -320,6 +321,20 @@ def validate_work_units(
         item["id"] for item in specification.get("capabilities", [])
         if item.get("implementation_readiness") == "BLOCKED"
     }
+    dependency_map = {
+        str(item.get("id")): {str(value) for value in item.get("depends_on", [])}
+        for item in work_units
+    }
+
+    def dependency_ancestors(unit_id: str) -> set[str]:
+        found: set[str] = set()
+        queue = deque(dependency_map.get(unit_id, set()))
+        while queue:
+            dependency = queue.popleft()
+            if dependency not in found:
+                found.add(dependency)
+                queue.extend(dependency_map.get(dependency, set()))
+        return found
 
     for unit in work_units:
         unit_id = str(unit.get("id", "work-unit"))
@@ -353,6 +368,17 @@ def validate_work_units(
                     "WORK_UNIT_READINESS_EVIDENCE_INVALID", Severity.BLOCKING, unit_id,
                     f"Readiness evidence is missing or not current: {', '.join(bad_evidence)}.",
                     "Planning owner", "Resolve the evidence relationships before scheduling the unit.",
+                ))
+            wrong_subject = [
+                str(identifier) for identifier in evidence_ids
+                if readiness_evidence.get(identifier, {}).get("subject_work_unit_id")
+                and readiness_evidence[identifier].get("subject_work_unit_id") != unit_id
+            ]
+            if wrong_subject:
+                findings.append(_finding(
+                    "WORK_UNIT_READINESS_EVIDENCE_WRONG_SUBJECT", Severity.BLOCKING, unit_id,
+                    f"Readiness evidence is current but belongs to another work unit: {', '.join(wrong_subject)}.",
+                    "Planning owner", "Link subject-scoped permission and evidence-plan records for this exact work unit.",
                 ))
         verification_prerequisites = unit.get("verification_prerequisite_ids", [])
         if not verification_prerequisites:
@@ -489,10 +515,9 @@ def validate_work_units(
                 for right_path in right.get("writable_paths", [])
                 if _path_overlaps(left_path, right_path)
             }
-            ordered = (
-                right.get("id") in left.get("depends_on", [])
-                or left.get("id") in right.get("depends_on", [])
-            )
+            left_id = str(left.get("id"))
+            right_id = str(right.get("id"))
+            ordered = right_id in dependency_ancestors(left_id) or left_id in dependency_ancestors(right_id)
             if overlap and not ordered:
                 findings.append(_finding(
                     "PARALLEL_WRITE_COLLISION", Severity.BLOCKING,
@@ -578,11 +603,17 @@ def validate_contract_dependencies(plan: dict[str, Any]) -> list[Finding]:
         contract_id = str(contract.get("id", "contract"))
         producer = contract.get("producer_work_unit_id")
         consumers = contract.get("consumer_work_unit_ids", [])
-        if not producer or producer not in work_units or not contract.get("revision"):
+        if (
+            not producer
+            or producer not in work_units
+            or not contract.get("revision")
+            or not contract.get("accountable_owner")
+            or not contract.get("status")
+        ):
             findings.append(_finding(
                 "CONTRACT_OWNERSHIP_INVALID", Severity.BLOCKING, contract_id,
-                "The contract lacks a valid producer work unit or explicit revision.",
-                "Contract owner", "Name one authoritative producer and the version consumed by the work graph.",
+                "The contract lacks an accountable owner, valid producer work unit, explicit revision, or stability status.",
+                "Contract owner", "Name the accountable owner, authoritative producer, consumed revision, and wave stability state.",
             ))
             continue
         if contract_id not in work_units[producer].get("contracts", {}).get("output", []):
@@ -670,7 +701,7 @@ def critical_path(plan: dict[str, Any]) -> dict[str, Any]:
         return {"available": False, "path": [], "indicator_total": None, "reason": "dependency_cycle"}
     graph = dependency_graph(plan)
     estimates = {
-        item["id"]: int(item.get("estimated_work_units", 1))
+        item["id"]: int(item.get("relative_complexity", 1))
         for item in plan.get("work_units", [])
     }
     best_total: dict[str, int] = {}
@@ -690,7 +721,7 @@ def critical_path(plan: dict[str, Any]) -> dict[str, Any]:
         "available": True,
         "path": best_path[terminal],
         "indicator_total": best_total[terminal],
-        "unit": "coarse_work_indicator_not_elapsed_time",
+        "unit": "ordinal_relative_complexity_not_elapsed_time_or_delivery_commitment",
     }
 
 
@@ -698,7 +729,7 @@ def coordination_metrics(plan: dict[str, Any]) -> dict[str, Any]:
     """Compare total effort with dependency-aware elapsed waves without conflating them."""
     schedule = topological_waves(plan)
     estimates = {
-        unit["id"]: int(unit.get("estimated_work_units", 1))
+        unit["id"]: int(unit.get("relative_complexity", 1))
         for unit in plan.get("work_units", [])
     }
     total_work = sum(estimates.values())
@@ -706,12 +737,12 @@ def coordination_metrics(plan: dict[str, Any]) -> dict[str, Any]:
     if schedule["acyclic"]:
         elapsed = sum(max(estimates[item] for item in wave) for wave in schedule["waves"])
     return {
-        "total_work_units": total_work,
-        "dependency_aware_elapsed_units": elapsed,
+        "total_relative_complexity": total_work,
+        "dependency_aware_complexity": elapsed,
         "parallelism_ratio": total_work / elapsed if elapsed else None,
         "work_unit_count": len(estimates),
         "wave_count": len(schedule["waves"]),
-        "interpretation": "Total work and dependency-aware elapsed time are different measures; parallel work is not free.",
+        "interpretation": "Relative complexity is an ordinal planning aid, not duration or a delivery commitment; parallel work is not free.",
     }
 
 

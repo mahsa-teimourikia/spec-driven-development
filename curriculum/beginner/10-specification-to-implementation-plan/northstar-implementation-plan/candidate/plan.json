@@ -25,13 +25,13 @@
       "id":"AWU-BR-ALL","capability":"automatic_mutation","goal":"Implement everything.","deliverable":"Working feature.",
       "requirement_ids":["REQ-BR-003"],"contracts":{},"contract_paths":["src/underwriting/proposals.py"],
       "depends_on":["AWU-BR-CACHE"],"writable_paths":["*","src/auth"],"read_only_paths":[],
-      "verification":{},"completion_requires":["code"],"stop_conditions":[],"agent_authority":{},"estimated_work_units":12
+      "verification":{},"completion_requires":["code"],"stop_conditions":[],"agent_authority":{},"relative_complexity":12
     },
     {
       "id":"AWU-BR-CACHE","capability":"extraction","goal":"Add a cache.","deliverable":"Redis cache.",
       "requirement_ids":[],"contracts":{},"contract_paths":[],"depends_on":["AWU-BR-ALL"],
       "writable_paths":["src/auth"],"read_only_paths":["src/auth"],"verification":{},"completion_requires":["code"],
-      "stop_conditions":[],"agent_authority":{},"estimated_work_units":2
+      "stop_conditions":[],"agent_authority":{},"relative_complexity":2
     }
   ],
   "tasks":[

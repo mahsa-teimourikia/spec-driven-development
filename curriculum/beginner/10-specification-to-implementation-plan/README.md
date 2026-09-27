@@ -203,7 +203,7 @@ The unit is ready only when its prerequisites are backed by inspectable evidence
 
 A good unit has one meaningful responsibility, a stable contract, a bounded write set, an independently reviewable result, and evidence that can fail clearly. It is too large when it spans unrelated subsystems, mixes policy decisions with code, cannot be reviewed independently, or needs many owners. It is too small when most effort becomes coordination, contract negotiation, duplicate context loading, or integration repair.
 
-Estimate size to reason about review and scheduling—not to create a fake precision score. Preserve separate dimensions such as expected effort, uncertainty, ownership count, contract volatility, and verification cost.
+Use `relative_complexity` only as an ordinal aid for comparing work inside one plan. It is not a duration or delivery commitment. Preserve separate dimensions such as uncertainty, ownership count, contract volatility, and verification cost instead of compressing them into false precision.
 
 ## 8. Separate accountability from execution
 
@@ -248,7 +248,7 @@ This yields five execution waves:
 4. review integration;
 5. end-to-end integration.
 
-Parallel execution is safe only when units have stable input/output contracts, exclusive write ownership, compatible decision authority, and independent evidence. Downstream units consume shared contracts read-only. If two parallel agents can edit the same path, the plan needs ownership or sequencing—not optimistic merge conflict resolution.
+Parallel execution is safe only when units have stable input/output contracts, exclusive write ownership, compatible decision authority, and independent evidence. Downstream units consume shared contracts read-only. Write overlap within the same execution wave is a strong collision signal. Ordered units may intentionally touch the same component, but still need explicit ownership and handoff review. If two parallel agents can edit the same path, the plan needs ownership or sequencing—not optimistic merge conflict resolution.
 
 ### Maximum useful parallelism
 
@@ -265,7 +265,7 @@ Track total effort separately from dependency-aware elapsed waves. Parallel work
 
 ### Contract ownership and hidden dependencies
 
-An explicit graph can still be wrong. If `AWU-BR-CONTRACT` owns `ProposedUpdate@2` and validation consumes that contract, validation needs a dependency path from the contract unit even when no engineer typed the edge. Keep a contract registry with one authoritative producer, revision, and known consumers. Infer candidate edges from producer/consumer relationships, compare them with explicit semantic dependencies, and report `UNDECLARED_CONTRACT_DEPENDENCY` rather than silently rewriting the graph.
+An explicit graph can still be wrong. If `AWU-BR-CONTRACT` produces `ProposedUpdate@2` and validation consumes that contract, validation needs a dependency path from the contract unit even when no engineer typed the edge. Keep a contract registry with an accountable owner, authoritative producer, revision, stability status, and known consumers. Infer candidate edges from producer/consumer relationships, compare them with explicit semantic dependencies, and report `UNDECLARED_CONTRACT_DEPENDENCY` rather than silently rewriting the graph.
 
 Some dependencies are semantic rather than artifact-shaped. Conflict handling may rely on validation semantics even when it does not exchange a new file. Use explicit dependencies plus inferred contract dependencies, then review disagreements. Before dispatch, validate that every dependency exists, the graph is acyclic, blocked capabilities are absent, contract producers precede consumers, parallel write sets do not overlap, and integration depends on its producers.
 
@@ -292,7 +292,7 @@ At dispatch, assemble only the context required by the work unit:
 
 An execution-context digest makes later reports comparable. It is not a security token and must not contain secrets. Runtime credentials and sandbox policy belong to the execution platform.
 
-The permission profile is a request, not a grant. It must match the exact repositories and writable paths, remain work-unit-bound and temporary, and name its revocation trigger. A planning or execution agent must never approve or provision its own access. Cross-repository work should normally be decomposed into contract, producer, and consumer units with narrower permission surfaces and an explicit publication/version-compatibility edge.
+The permission profile is a request, not a grant. It must match the exact repositories and writable paths, remain work-unit-bound and temporary, and name its revocation trigger. A planning or execution agent must never approve or provision its own access. Readiness evidence must also name its subject: “a permission record exists” is weaker than “this current record covers `AWU-BR-EXTRACTION`.” Cross-repository work should normally be decomposed into contract, producer, and consumer units with narrower permission surfaces and an explicit publication/version-compatibility edge.
 
 ## 11. Make stop conditions concrete
 
@@ -482,8 +482,8 @@ python3 curriculum/beginner/10-specification-to-implementation-plan/lab.py
 The reference should produce:
 
 - `PLAN_READY` with zero findings;
-- six of six requirements with a disposition;
-- six of six complete requirement-to-evidence chains;
+- seven of seven requirements with a disposition;
+- seven of seven complete requirement-to-evidence chains;
 - an acyclic five-wave plan with extraction and validation in parallel;
 - a coarse-indicator critical path of contract → extraction → conflict → review → integration;
 - typed stop routing, contract ownership, temporary permission requests, and separate rollout boundaries;
@@ -525,7 +525,7 @@ Create a DAG with exclusive writable paths, read-only downstream contracts, acco
 
 ### Exercise D — Mid-flight change
 
-Assume extraction needs a new `confidence_reason` field in `ProposedUpdate`. Produce a change request, calculate affected downstream units, and state which active work can continue.
+Assume extraction needs a new `source_message_revision` provenance field in `ProposedUpdate`. Produce a change request, calculate affected downstream units, and state which active work can continue.
 
 ### Exercise E — Completion and verification
 
@@ -542,6 +542,18 @@ Remove the contract edge from validation, then compare the explicit graph with t
 ### Exercise H — Rollout boundary
 
 Define shadow-mode requirements and a version-compatibility sequence for a hypothetical separate contract repository. Keep implementation, merge, release, and enablement decisions distinct.
+
+### Exercise I — Compare two valid decompositions
+
+Compare a two-unit plan (extraction + validation + conflict; review + integration) with the reference contract-first DAG. Both may satisfy the specification. Evaluate parallelism, coupling, contract stability, review surface, write overlap, and integration risk; justify which is better for the stated team and repository context rather than declaring a universal winner.
+
+### Exercise J — Repair over-decomposition
+
+A planning agent produces 18 traceable work units for a four-file feature. Consolidate them around cohesion, stable interfaces, reviewability, and independent evidence. Explain where coordination cost exceeded the value of isolation.
+
+### Exercise K — Classify repository drift
+
+Start with a plan bound to `abc123`. For a later `abc124` revision, classify `docs/README.md` as `stale_unrelated` with `continue_with_revision_note`, then classify `src/underwriting/proposals.py` as `stale_relevant` with `targeted_rediscovery`. Explain why a revision mismatch alone is not semantic invalidation.
 
 ## 20. When not to use the full model
 
