@@ -1,0 +1,16 @@
+{
+  "schema_version":"1.0-training",
+  "id":"REVIEW-PACKAGE-CONFLICT-020",
+  "work_unit_id":"AWU-BR-CONFLICT",
+  "requirements":["REQ-BR-005","INV-BR-002","SEC-BR-001"],
+  "changed_paths":["src/underwriting/conflicts.py","tests/underwriting/test_conflicts.py"],
+  "contracts":{"ProposedUpdate":"v2","ValidationResult":"v1","ConflictResult":"v1"},
+  "evidence_ids":["TEST-BR-005","PROP-BR-002","EVID-CONFLICT-2219"],
+  "deviations":[],
+  "unresolved":[],
+  "base_revision":"wave2-integrated",
+  "implementation_revision":"1ac221",
+  "specification_digest":"sha256:ai2219-approved-fixture",
+  "review_queues":["ENGINEERING_REVIEW","DOMAIN_REVIEW","SECURITY_REVIEW"],
+  "summary_boundary":"The package guides attention; reviewers still inspect the diff and evidence."
+}

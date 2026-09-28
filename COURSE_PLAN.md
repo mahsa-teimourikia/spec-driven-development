@@ -17,7 +17,7 @@ The primary audience is senior software engineers, technical product managers, a
 The six conceptual parts are preserved below. Repository folders also expose learning levels for Hub filtering:
 
 - **Beginner:** Courses 01–10, foundations and executable requirements.
-- **Intermediate:** Courses 11–23, frameworks and end-to-end Agentic PDLC practices.
+- **Intermediate:** Courses 11–23, multi-agent execution, frameworks, and end-to-end Agentic PDLC practices.
 - **Advanced:** Courses 24–38, enterprise controls and advanced agentic SDD.
 - **Enterprise Agent:** final operating-model capstone integrating the program.
 
@@ -67,7 +67,7 @@ Each future course follows this learning arc, adapted where the subject demands 
 ## Outcomes by level
 
 - **Beginner:** explain why agentic coding changes the PDLC; distinguish artifact types; compose specification layers; write behavioral, non-functional, and architectural decisions that can be traced to evidence.
-- **Intermediate:** operate and compare SDD frameworks; design proportional greenfield, brownfield, bug, multi-repository, parallel-agent, PR, and approval workflows.
+- **Intermediate:** coordinate bounded multi-agent execution; operate and compare SDD frameworks; design proportional greenfield, brownfield, bug, multi-repository, PR, and approval workflows.
 - **Advanced:** embed security, privacy, governance, quality, observability, compliance, supply-chain, and CI controls; engineer agent context, decomposition, compression, orchestration, drift detection, continuous specs, and evaluation.
 - **Enterprise Agent capstone:** design roles, repositories, artifacts, workflows, controls, metrics, exceptions, and rollout for a real enterprise Agentic PDLC, then defend trade-offs with reproducible evidence.
 
@@ -89,28 +89,28 @@ Each future course follows this learning arc, adapted where the subject demands 
 | 07 | beginner/07 | Acceptance criteria, invariants, and evidence | **Available** | C06 | AI-2219 acceptance contract, bounded properties, mutation evidence, evaluation slices, provenance-bearing evidence bundle, owned gates, and runtime denominators |
 | 08 | beginner/08 | Non-functional requirements for agentic systems | **Available** | C06–C07 | AI-2219 workload profiles, NFR contract, owner-approved and unresolved targets, semantic SLIs, degradation policy, agent budgets, unit economics, and blocked production assessment |
 | 09 | beginner/09 | Specification quality, review, and anti-patterns | **Available** | C03–C08 | AI-2290 lexical-baseline failure, ten-dimension findings, semantic trace review, 35-case anti-pattern portfolio, brownfield/transition review, capability-scoped readiness, repaired specification package |
-| 10 | beginner/10 | From specification to implementation plan & agent work units | **Available** | C05–C09 | AI-2219 repository discovery, exact provenance, six dispositions, contract-assured work-unit DAG, typed stop routing, temporary permissions, rollout boundary, lifecycle, and 30-case rule evaluation |
+| 10 | beginner/10 | From specification to implementation plan & agent work units | **Available** | C05–C09 | AI-2219 repository discovery, exact provenance, seven dispositions, contract-assured work-unit DAG, typed stop routing, temporary permissions, rollout boundary, lifecycle, and 30-case rule evaluation |
 
-## Part III — SDD frameworks
+## Part III — Agentic execution & SDD frameworks
 
 | Course | Level folder | Topic | Status | Prerequisite | Learner evidence |
 | --- | --- | --- | --- | --- | --- |
-| 11 | intermediate/01 | GitHub Spec Kit | Planned | Part I–II | Re-run Northstar policy Q&A through constitution → specify → clarify → plan → checklist → tasks → analyze → implement → converge, including a persistence decision |
-| 12 | intermediate/02 | OpenSpec | Planned | C10–C11 | Re-run the same Northstar change as current truth + change delta, then compare experience and brownfield convergence with Course 11 |
-| 13 | intermediate/03 | Kiro Specs | Planned | C06–C10 | Requirements/design/tasks flow plus defended routing of typo, export, API-contract, and AI-underwriting changes through direct, Quick Spec, Feature Spec, or specialist review |
-| 14 | intermediate/04 | Agent instructions such as `AGENTS.md` | Planned | C03–C04 | Scoped cross-agent instructions and conflict tests |
-| 15 | intermediate/05 | Comparing and choosing frameworks | Planned | C11–C14 | Weighted selection backed by scenario evidence |
-| 16 | intermediate/06 | Custom enterprise extensions | Planned | C11–C15 | Organization-specific template/gate extension with upgrade path |
+| 11 | intermediate/01 | Multi-Agent Coding Workflows & Coordination | **Available** | C07, C09–C10 | AI-2219 governed execution graph, identities, leases, locks, handoffs, pull scheduling, independent verification, integration/recovery artifacts, flow comparison, and 31-case rule evaluation |
+| 12 | intermediate/02 | GitHub Spec Kit | Planned | C10–C11 | Re-run Northstar policy Q&A through constitution → specify → clarify → plan → checklist → tasks → analyze → implement → converge, including a persistence decision |
+| 13 | intermediate/03 | OpenSpec | Planned | C10–C12 | Re-run the same Northstar change as current truth + change delta, then compare experience and brownfield convergence with Course 12 |
+| 14 | intermediate/04 | Kiro Specs | Planned | C06–C10 | Requirements/design/tasks flow plus defended routing of typo, export, API-contract, and AI-underwriting changes through direct, Quick Spec, Feature Spec, or specialist review |
+| 15 | intermediate/05 | Agent instructions such as `AGENTS.md` | Planned | C03–C04, C11 | Scoped cross-agent instructions and conflict tests |
+| 16 | intermediate/06 | Comparing frameworks and custom enterprise extensions | Planned | C11–C15 | Evidence-backed framework selection plus organization-specific template/gate extension with upgrade path |
 
 ## Part IV — Agentic PDLC
 
 | Course | Level folder | Topic | Status | Prerequisite | Learner evidence |
 | --- | --- | --- | --- | --- | --- |
 | 17 | intermediate/07 | Idea → discovery → spec → design → implementation | Planned | Parts I–III | End-to-end small-batch change and convergence record |
-| 18 | intermediate/08 | Brownfield development | Planned | C12, C17 | Characterization baseline, change delta, migration checks |
+| 18 | intermediate/08 | Brownfield development | Planned | C13, C17 | Characterization baseline, change delta, migration checks |
 | 19 | intermediate/09 | Bug fixes and small changes | Planned | C17–C18 | Proportional triage, minimal fix, regression evidence |
 | 20 | intermediate/10 | Multi-repository development | Planned | C10, C17 | Cross-repo change graph and staged integration |
-| 21 | intermediate/11 | Parallel agents | Planned | C17, C20 | Partitioned work, ownership leases, merge evidence |
+| 21 | intermediate/11 | Multi-repository parallel-agent delivery | Planned | C11, C17, C20 | Cross-repository partitioning, ownership leases, staged integration, recovery, and merge evidence |
 | 22 | intermediate/12 | PR and review strategy | Planned | C17–C21 | Spec → design → implementation PR series compared with a mega-PR using latency, depth, rework, conflict, exception, and size evidence |
 | 23 | intermediate/13 | Human approval gates | Planned | C04, C22 | Risk-tiered approvals, expiry, revocation, audit trail |
 
@@ -184,7 +184,8 @@ Notebook results must be generated by included code. Vendor benchmarks and resea
 - C01: inherited specification context and bounded Agentic PDLC feedback loop.
 - C03–C04: hierarchy, applicability, ownership, and exception resolution.
 - C10: traceability graph.
-- C11–C16: framework artifact/lifecycle comparisons.
+- C11: multi-agent coordination control plane, execution waves, and recovery.
+- C12–C16: framework artifact/lifecycle comparisons.
 - C17–C23: PDLC state machine, work graph, parallel agents, review and approval boundaries.
 - C24–C31: layered control/evidence pipeline.
 - C32–C38: context supply chain, orchestration, compression loss, drift, continuous evaluation.
@@ -330,6 +331,21 @@ Course 10 starts where Course 09 ends: an approved specification is eligible for
 - **Release boundary:** plan-ready implementation, merge assessment, release/rollout planning, shadow execution, and enablement remain separate decisions; shadow safety requirements do not authorize activation.
 - **Evidence boundary:** all approvals, revisions, permission profiles, estimates, and outputs are synthetic. The package does not authenticate owners, provision permissions, execute agents, prove implementation, approve merge, or authorize release.
 - **Production upgrade:** signed provenance, repository APIs, protected ownership, runtime permission brokerage, durable scheduler state, concurrency leases, immutable evidence, change-impact services, independent verification, audit retention, and CI/policy enforcement remain required.
+
+## Course 11 design record
+
+Course 11 starts with Course 10's six-node work-unit graph and asks a different question: how can several agents execute it without turning concurrency into duplicate work, hidden authority, integration debt, or unreviewable queues?
+
+- **Scenario:** Northstar coordinates AI-2219 across contract, extraction, validation, conflict, review, and integration work while preserving the approved behavior and bounded decision rights.
+- **Decision boundary:** multiple agents are justified only by separable work, stable interfaces, independent evidence, and expected flow benefit. A single-agent baseline remains visible, and low-risk local changes remain single-owner work.
+- **Control plane:** a deterministic state machine owns dependency transitions, pull scheduling, budgets, idempotency, identity checks, leases, locks, event validation, retry routing, and evidence invalidation. Agents retain bounded implementation and proposal work, not orchestration authority.
+- **Identity and authority:** assignments bind expiring workload identities to exact temporary permissions and leases. Delegation may narrow but never amplify authority; integration may diagnose and propose but cannot change shared contracts, acceptance criteria, authorization semantics, or architecture.
+- **Parallelism:** five dependency waves expose one safe parallel pair. Each unit receives a dedicated branch, pinned base, context digest, exclusive writable paths, and typed review queues.
+- **Handoffs and recovery:** durable artifacts preserve outputs, contract revisions, evidence, discoveries, unresolved items, partial state, current context, and inspection outcomes—not private reasoning.
+- **Flow:** pull scheduling combines implementation slots with human-review capacity and work-in-progress limits. The objective is evidence-bearing change throughput, not keeping every agent active.
+- **Evaluation:** 31 transparent deterministic mutation cases produce 32 expected findings with zero fixture false positives or false negatives. The result is rule-regression coverage, not general orchestrator accuracy or a productivity benchmark.
+- **Evidence boundary:** all identities, permissions, approvals, revisions, timings, events, and results are fictional fixtures. The course does not execute agents, authenticate workloads, provision access, approve merge, or authorize release.
+- **Production upgrade:** authenticated workload identity, short-lived capability brokerage, protected repository APIs, durable transactional state, signed authority artifacts, immutable event/evidence storage, distributed tracing, reviewer-capacity telemetry, independent assurance, and CI/policy enforcement remain required.
 
 ## Risk boundaries
 

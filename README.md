@@ -4,7 +4,7 @@
 
 ## Start here
 
-Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through Course 09, then complete [Course 10: From specification to implementation plan & agent work units](curriculum/beginner/10-specification-to-implementation-plan/README.md) with its guided [notebook](curriculum/beginner/10-specification-to-implementation-plan/implementation_planning.ipynb), deterministic [planning lab](curriculum/beginner/10-specification-to-implementation-plan/lab.py), realistic [AI-2219 planning workshop](curriculum/beginner/10-specification-to-implementation-plan/northstar-implementation-plan/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
+Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through Course 10, then complete [Course 11: Multi-Agent Coding Workflows & Coordination](curriculum/intermediate/01-multi-agent-coding-workflows-coordination/README.md) with its guided [notebook](curriculum/intermediate/01-multi-agent-coding-workflows-coordination/multi_agent_coordination.ipynb), deterministic [coordination lab](curriculum/intermediate/01-multi-agent-coding-workflows-coordination/lab.py), realistic [AI-2219 workshop](curriculum/intermediate/01-multi-agent-coding-workflows-coordination/northstar-multi-agent-delivery/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
 
 This is not simply a tutorial for one specification framework. The central skill is turning organizational intent, architecture rules, product requirements, and engineering constraints into a hierarchy of durable specifications that agents can execute—and humans can govern.
 
@@ -14,7 +14,7 @@ This is not simply a tutorial for one specification framework. The central skill
 | --- | ---: | --- |
 | I · SDD foundations | 01–04 | Why the PDLC changes and how specifications form a hierarchy |
 | II · Executable specifications | 05–10 | Requirements, scenarios, invariants, NFRs, specification review, and traceability |
-| III · SDD frameworks | 11–16 | Spec Kit, OpenSpec, Kiro, agent instructions, selection, and extensions |
+| III · Agentic execution & SDD frameworks | 11–16 | Multi-agent coordination, Spec Kit, OpenSpec, Kiro, agent instructions, selection, and extensions |
 | IV · Agentic PDLC | 17–23 | Delivery flows, brownfield work, parallel agents, reviews, and approvals |
 | V · Enterprise controls | 24–31 | Security, AI governance, architecture, quality, compliance, and CI/CD |
 | VI · Advanced agentic SDD | 32–38 | Context engineering, orchestration, drift, continuous specs, and evaluation |
@@ -159,9 +159,22 @@ Course 10 turns an approved specification into a bounded, evidence-backed execut
 - distinguish executor completion from independent verification and integration evidence; and
 - separate implementation, merge, release, rollout, shadow, and enablement readiness.
 
+## Course 11 outcome
+
+Course 11 turns the work-unit graph into a durable, bounded multi-agent execution system. You will:
+
+- decide when multi-agent execution is justified and retain a single-agent baseline;
+- derive execution waves from dependencies, stable contracts, pinned context, and exclusive write ownership;
+- separate orchestration, implementation, verification, integration, and accountable decision rights;
+- bind assignments to authenticated workload identities, temporary permissions, leases, locks, and branch isolation;
+- route typed handoffs, events, retries, failures, recovery, and shared-contract changes without authority amplification;
+- use pull scheduling and work-in-progress limits that include human review capacity;
+- invalidate revision-bound component and integration evidence when subjects change; and
+- compare execution models using flow, review, integration, rework, and forbidden-action evidence rather than agent utilization.
+
 ## Run locally
 
-Everything in Courses 01–10 is credential-free and uses the Python standard library.
+Everything in Courses 01–11 is credential-free and uses the Python standard library.
 
 ```bash
 python3 curriculum/beginner/01-why-agentic-coding-changes-pdlc/lab.py
@@ -175,6 +188,7 @@ python3 curriculum/beginner/07-acceptance-criteria-invariants-evidence/lab.py
 python3 curriculum/beginner/08-non-functional-requirements-agentic-systems/lab.py
 python3 curriculum/beginner/09-specification-quality-review-antipatterns/lab.py
 python3 curriculum/beginner/10-specification-to-implementation-plan/lab.py
+python3 curriculum/intermediate/01-multi-agent-coding-workflows-coordination/lab.py
 python3 -m unittest discover -s tests -v
 python3 scripts/validate_course.py
 ```

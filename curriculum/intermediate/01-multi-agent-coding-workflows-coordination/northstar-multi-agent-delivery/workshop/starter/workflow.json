@@ -1,0 +1,9 @@
+{
+  "schema_version":"1.0-training",
+  "id":"TODO",
+  "mode":"multi_agent",
+  "multi_agent_decision":{"why_multiple_agents":["TODO"],"single_agent_baseline":"TODO","coordination_costs":["TODO"]},
+  "budgets":{"max_parallel":"TODO","max_handoffs":"TODO","max_replans":"TODO","max_delegation_depth":"TODO","max_units_waiting_for_review":"TODO"},
+  "work_units":[{"id":"AWU-BR-CONTRACT","wave":"TODO","depends_on":[],"branch":"TODO","writable_paths":["TODO"],"context_manifest":{"shared":{"TODO":"TODO"},"local":{"TODO":"TODO"}}}],
+  "boundary":"TODO: state what coordination readiness does not authorize."
+}

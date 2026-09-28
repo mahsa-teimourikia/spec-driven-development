@@ -1,0 +1,24 @@
+{
+  "schema_version":"1.0-training",
+  "id":"INT-BR-2219",
+  "specification_digest":"sha256:ai2219-approved-fixture",
+  "components":{
+    "AWU-BR-EXTRACTION":{"revision":"92bc31","evidence_ids":["EVID-EXTRACTION-2219"]},
+    "AWU-BR-VALIDATION":{"revision":"73de19","evidence_ids":["EVID-VALIDATION-2219"]},
+    "AWU-BR-CONFLICT":{"revision":"1ac221","evidence_ids":["EVID-CONFLICT-2219"]},
+    "AWU-BR-REVIEW":{"revision":"4fe812","evidence_ids":["EVID-REVIEW-2219"]}
+  },
+  "contracts":{"ProposedUpdate":"v2","ValidationResult":"v1","ConflictResult":"v1"},
+  "cross_component_invariants":[
+    {"id":"INV-INT-001","statement":"Source provenance remains associated with a proposal through validation and conflict review."},
+    {"id":"INV-INT-002","statement":"No model-facing component gains authoritative submission mutation capability."}
+  ],
+  "agent_authority":{
+    "may_decide":["test_fixture_structure","diagnostic_sequence"],
+    "may_propose":["contract_correction","dependency_correction","missing_observability"],
+    "may_not_decide":["rewrite_component_behavior","change_shared_contract","weaken_acceptance_criteria","change_authorization_semantics","approve_architecture_change"]
+  },
+  "evidence":{"revision_digest":"sha256:92bc31+73de19+1ac221+4fe812","evidence_ids":["EVID-INTEGRATION-2219"],"claim":"cross-component fixture conformance only"},
+  "failure_routing":{"contract_mismatch":"contract_owner","component_defect":"owning_work_unit","specification_ambiguity":"requirement_owner"},
+  "boundary":"The integration agent diagnoses and routes failures; it does not rewrite independently verified components."
+}

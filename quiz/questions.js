@@ -1020,5 +1020,89 @@ const QUESTIONS = [
     options: ['Artifact publication, version compatibility, release ordering, and narrow per-repository permissions', 'One agent with permanent write access everywhere', 'Only Git commit dependencies', 'No contract revision'],
     answer: 0,
     explanation: 'Cross-repository work needs explicit publication and compatibility semantics beyond local Git dependencies.'
+  },
+  {
+    category: 'Multi-agent decision',
+    question: 'When is using multiple coding agents justified?',
+    options: ['When separable work, stable interfaces, and expected flow benefit outweigh coordination cost', 'Whenever more agents are available', 'Whenever a change has more than one file', 'Only when no human reviewers exist'],
+    answer: 0,
+    explanation: 'Multi-agent execution is a design decision. The expected benefit must exceed handoff, context, integration, and review overhead.'
+  },
+  {
+    category: 'Coordination control plane',
+    question: 'Which responsibility belongs in a deterministic coordination control plane?',
+    options: ['Enforcing state transitions, leases, identity, budgets, and authority checks', 'Inventing product requirements', 'Approving its own architecture changes', 'Replacing all semantic review'],
+    answer: 0,
+    explanation: 'Durable deterministic controls govern orchestration while agents perform bounded judgment and implementation work.'
+  },
+  {
+    category: 'Safe parallelism',
+    question: 'What is the strongest basis for placing two work units in the same execution wave?',
+    options: ['Their dependencies are satisfied and their write ownership and contracts do not conflict', 'Two agents are idle', 'Their task titles differ', 'They use separate prompts'],
+    answer: 0,
+    explanation: 'Parallelism is derived from dependency, contract, context, and ownership safety—not utilization pressure.'
+  },
+  {
+    category: 'Workload identity',
+    question: 'Why is “validation agent” insufficient as an execution identity?',
+    options: ['A role label does not authenticate a specific workload or support attributable, expiring authorization', 'Role labels are too long', 'Only humans can have identities', 'Validation never needs permissions'],
+    answer: 0,
+    explanation: 'A workload identity binds a particular execution to attributable, bounded credentials; a role merely describes intended function.'
+  },
+  {
+    category: 'Leases and locks',
+    question: 'How do an execution lease and a write lock differ?',
+    options: ['A lease bounds who owns the assignment and for how long; a lock reserves named write surfaces', 'They are synonyms', 'A lock grants release approval', 'A lease replaces repository review'],
+    answer: 0,
+    explanation: 'The controls protect different subjects and must be reconciled during timeout, recovery, and reassignment.'
+  },
+  {
+    category: 'Pull scheduling',
+    question: 'A ready unit needs domain review, but that queue is at capacity. What should a pull scheduler do?',
+    options: ['Keep the unit waiting instead of creating more unreviewable work in progress', 'Start it to maximize agent utilization', 'Remove the review requirement', 'Ask the agent to approve itself'],
+    answer: 0,
+    explanation: 'Human review capacity is part of delivery capacity. Starting excess work increases queues, staleness, and rework.'
+  },
+  {
+    category: 'Delegation',
+    question: 'What must happen to authority when an implementation agent delegates research?',
+    options: ['The delegate receives no more authority than the parent and normally remains read-only', 'The delegate inherits organization-wide access', 'The delegate may approve discovered changes', 'Delegation removes the parent boundary'],
+    answer: 0,
+    explanation: 'Delegation may narrow authority but must not amplify it or silently transfer protected decisions.'
+  },
+  {
+    category: 'Independent verification',
+    question: 'What most strengthens verification independence?',
+    options: ['A separate verifier receives requirements, interfaces, revisions, and evidence needs without implementer private reasoning', 'The implementer reruns its own tests', 'A child agent uses the same objective and context', 'The verifier trusts completion claims'],
+    answer: 0,
+    explanation: 'Independent objectives, identity, inputs, and evidence reduce correlated blind spots; self-checks remain useful but weaker.'
+  },
+  {
+    category: 'Integration authority',
+    question: 'An integration agent discovers that a shared contract should change. What may it do?',
+    options: ['Propose the correction and route impact; it may not silently rewrite the contract', 'Change the contract because integration owns everything', 'Weaken acceptance criteria', 'Approve the architecture decision'],
+    answer: 0,
+    explanation: 'Integration authority should diagnose and assemble, while contract, product, policy, and architecture owners retain their decisions.'
+  },
+  {
+    category: 'Recovery',
+    question: 'What is the safe response when an assignment lease expires with partial code present?',
+    options: ['Enter recovery, inspect observable state and current context, then continue, repair, discard, or replan', 'Blindly resume the old process', 'Immediately trust every partial artifact', 'Persist private chain-of-thought as the source of truth'],
+    answer: 0,
+    explanation: 'Recovery reconstructs trustworthy engineering state from artifacts, revisions, discoveries, checks, and evidence.'
+  },
+  {
+    category: 'Retry policy',
+    question: 'Which failure should not receive an unchanged automatic retry?',
+    options: ['A policy denial', 'A declared transient infrastructure interruption within budget', 'A one-time transport timeout', 'A recoverable worker restart'],
+    answer: 0,
+    explanation: 'Denials and missing authority require routing or changed preconditions. Repeating the same forbidden action is not recovery.'
+  },
+  {
+    category: 'Coordination evidence',
+    question: 'A verified component changes after integration evidence passed. What follows?',
+    options: ['Invalidate affected integration evidence and revalidate against the new revision', 'Keep the prior PASS because it once succeeded', 'Rename the component', 'Treat unit tests as release approval'],
+    answer: 0,
+    explanation: 'Evidence is bound to exact subjects and revisions. Changed inputs require impact-aware invalidation and revalidation.'
   }
 ];

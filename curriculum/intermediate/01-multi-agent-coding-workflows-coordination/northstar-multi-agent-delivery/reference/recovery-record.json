@@ -1,0 +1,17 @@
+{
+  "schema_version":"1.0-training",
+  "id":"RECOVERY-EXTRACTION-018",
+  "work_unit_id":"AWU-BR-EXTRACTION",
+  "assignment_id":"ASSIGN-EXTRACTION-018",
+  "last_commit":"92bc31",
+  "completed":["ProposedUpdate mapping","source-span extraction"],
+  "remaining":["malformed-response handling","acceptance tests"],
+  "discoveries":["DISC-2219-17"],
+  "blockers":[],
+  "evidence":{"current":[],"stale":[]},
+  "context":{"specification_digest":"sha256:ai2219-approved-fixture","contracts":{"ProposedUpdate":"v2"},"repository_base":"81ab21"},
+  "inspection":{"partial_work_treated_as_trusted":false,"scope_compared":true,"context_revisions_validated":true,"checks_run":["contract","unit","scope"]},
+  "resume_decision":"continue_bounded_work",
+  "private_reasoning":null,
+  "boundary":"A replacement agent validates observable engineering state; private chain-of-thought is neither required nor persisted."
+}
