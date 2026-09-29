@@ -12,6 +12,7 @@ import hashlib
 import json
 from collections import Counter, defaultdict, deque
 from dataclasses import asdict, dataclass
+from datetime import datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any, Iterable
@@ -59,7 +60,10 @@ ALLOWED_EVENTS = {
     "WORK_UNIT_PAUSED",
     "WORK_UNIT_CANCELLED",
 }
-AUTHORITATIVE_EVENTS = {"WORK_UNIT_VERIFIED", "CONTRACT_CHANGE_APPROVED"}
+EVENTS_REQUIRING_TRANSITION_ARTIFACT = {
+    "WORK_UNIT_VERIFIED": "verification_evidence",
+    "CONTRACT_CHANGE_APPROVED": "contract_owner_approval",
+}
 TERMINAL_DENIALS = {"policy_denied", "authorization_denied", "scope_denied"}
 CONTROL_PLANE_CLAIM = (
     "training_control_plane_only_not_agent_identity_permission_grant_merge_approval_or_release_authority"
@@ -73,6 +77,15 @@ def load_json(path: Path) -> dict[str, Any]:
 def stable_digest(payload: Any) -> str:
     encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"))
     return "sha256:" + hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+
+
+def _parse_timestamp(value: Any) -> datetime | None:
+    if not isinstance(value, str) or not value:
+        return None
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
 
 
 def load_bundle(*, candidate: bool = False) -> dict[str, Any]:
@@ -156,6 +169,13 @@ def validate_strategy(workflow: dict[str, Any]) -> list[Finding]:
             "The plan bounds agents but not review queues, contract churn, or retry work in progress.",
             "Delivery-system owner", "Set evidence-based WIP limits and tune them with operating data.",
         ))
+    provenance = workflow.get("budget_provenance", {})
+    if not provenance.get("source_id") or not provenance.get("claim"):
+        findings.append(_finding(
+            "COORDINATION_BUDGET_PROVENANCE_MISSING", Severity.REVIEW, workflow_id,
+            "Fixed coordination limits have no decision source or fixture limitation.",
+            "Delivery-system owner", "Record the source and state that training values are not recommended defaults.",
+        ))
     scheduling = workflow.get("scheduling_policy", {})
     if scheduling.get("mode") != "pull" or not scheduling.get("dispatch_requires"):
         findings.append(_finding(
@@ -210,11 +230,54 @@ def validate_strategy(workflow: dict[str, Any]) -> list[Finding]:
     return findings
 
 
+def validate_contract_registry(workflow: dict[str, Any]) -> list[Finding]:
+    findings: list[Finding] = []
+    units = {item.get("id"): item for item in workflow.get("work_units", [])}
+    registry = {item.get("id"): item for item in workflow.get("contract_registry", [])}
+    for contract_id, contract in registry.items():
+        consumers = contract.get("consumers")
+        if not consumers:
+            findings.append(_finding(
+                "CONTRACT_CONSUMERS_MISSING", Severity.REVIEW, str(contract_id),
+                "A shared contract has a producer but no explicit consumer registry.",
+                "Contract owner", "Record every consumer so contract changes have deterministic blast radius.",
+            ))
+            continue
+        unknown = set(consumers) - set(units)
+        if unknown or contract.get("producer") in set(consumers):
+            findings.append(_finding(
+                "CONTRACT_CONSUMERS_INVALID", Severity.BLOCKING, str(contract_id),
+                "The consumer registry contains unknown units or its producer as a consumer.",
+                "Contract owner", "Bind producer and consumers to distinct current work-unit IDs.",
+            ))
+        actual_consumers = {
+            unit_id for unit_id, unit in units.items()
+            if unit_id != contract.get("producer")
+            and contract_id in unit.get("context_manifest", {}).get("shared", {})
+        }
+        if actual_consumers - set(consumers):
+            findings.append(_finding(
+                "CONTRACT_CONSUMER_UNREGISTERED", Severity.BLOCKING, str(contract_id),
+                "A work-unit context consumes the contract but is absent from its consumer registry.",
+                "Contract owner", "Register every context consumer before dispatch.",
+            ))
+    integration = next((item for item in units.values() if item.get("id") == "AWU-BR-INTEGRATION"), {})
+    expected_inputs = {item.get("id") for item in workflow.get("component_registry", [])}
+    if set(integration.get("integration_inputs", [])) != expected_inputs:
+        findings.append(_finding(
+            "INTEGRATION_INPUTS_UNDECLARED", Severity.REVIEW, "AWU-BR-INTEGRATION",
+            "Execution ordering does not state the full component set consumed by integration.",
+            "Integration owner", "Keep minimal ordering edges if desired, but declare every revision-bound integration input.",
+        ))
+    return findings
+
+
 def validate_assignments(workflow: dict[str, Any]) -> list[Finding]:
     findings: list[Finding] = []
     units = {item.get("id"): item for item in workflow.get("work_units", [])}
     identities = {item.get("id"): item for item in workflow.get("identity_registry", [])}
     assignments = workflow.get("assignments", [])
+    locks_by_unit = Counter(item.get("work_unit_id") for item in workflow.get("locks", []))
     assignment_counts = Counter(item.get("work_unit_id") for item in assignments)
     for unit_id, count in assignment_counts.items():
         if count != 1:
@@ -223,8 +286,20 @@ def validate_assignments(workflow: dict[str, Any]) -> list[Finding]:
                 "A work unit has multiple assignment identities.",
                 "Orchestration owner", "Use one stable assignment ID and reconcile duplicate delivery idempotently.",
             ))
-    for unit_id in units:
-        if assignment_counts.get(unit_id, 0) == 0:
+    pre_dispatch_states = {"PROPOSED", "PLANNED", "READY"}
+    for unit_id, unit in units.items():
+        state = unit.get("state", "ASSIGNED")
+        if state in pre_dispatch_states and (
+            assignment_counts.get(unit_id, 0)
+            or locks_by_unit.get(unit_id, 0)
+            or unit.get("execution_owner") not in {None, "unassigned"}
+        ):
+            findings.append(_finding(
+                "PREMATURE_RESOURCE_RESERVATION", Severity.BLOCKING, str(unit_id),
+                "A pre-dispatch work unit already holds an agent, permission, lease, lock, or execution owner.",
+                "Orchestration owner", "Keep PLANNED/READY work unassigned; bind resources atomically only after pull dispatch succeeds.",
+            ))
+        elif state not in pre_dispatch_states and assignment_counts.get(unit_id, 0) == 0:
             findings.append(_finding(
                 "WORK_UNIT_UNASSIGNED", Severity.BLOCKING, str(unit_id),
                 "A work unit has no accountable execution assignment.",
@@ -245,6 +320,7 @@ def validate_assignments(workflow: dict[str, Any]) -> list[Finding]:
         if (
             permissions.get("lifecycle") != "assignment_bound_temporary"
             or permissions.get("self_provisioned") is not False
+            or not permissions.get("expires_at")
             or set(permissions.get("write_paths", [])) != set(unit.get("writable_paths", []))
         ):
             findings.append(_finding(
@@ -253,11 +329,37 @@ def validate_assignments(workflow: dict[str, Any]) -> list[Finding]:
                 "Execution control-plane owner", "Use external provisioning with exact paths, expiry, and revocation.",
             ))
         lease = assignment.get("lease", {})
-        if not lease.get("id") or not lease.get("expires_at") or not lease.get("heartbeat_policy"):
+        if not lease.get("id") or not lease.get("expires_at") or not lease.get("heartbeat_policy") or not lease.get("state"):
             findings.append(_finding(
                 "EXECUTION_LEASE_INCOMPLETE", Severity.BLOCKING, assignment_id,
                 "The assignment cannot be safely recovered because its lease lifecycle is incomplete.",
                 "Orchestration owner", "Add a lease ID, expiry, heartbeat policy, and recovery transition.",
+            ))
+        identity_expiry = _parse_timestamp(identity.get("expires_at") if identity else None)
+        lease_expiry = _parse_timestamp(lease.get("expires_at"))
+        permission_expiry = _parse_timestamp(permissions.get("expires_at"))
+        if identity_expiry and lease_expiry and lease_expiry > identity_expiry:
+            findings.append(_finding(
+                "LEASE_OUTLIVES_IDENTITY", Severity.BLOCKING, assignment_id,
+                "The execution lease remains valid after its workload identity expires.",
+                "Identity control-plane owner", "Cap lease expiry at or before identity expiry and revoke both during recovery.",
+            ))
+        if permission_expiry and (
+            (lease_expiry and permission_expiry > lease_expiry)
+            or (identity_expiry and permission_expiry > identity_expiry)
+        ):
+            findings.append(_finding(
+                "PERMISSION_OUTLIVES_ASSIGNMENT", Severity.BLOCKING, assignment_id,
+                "Temporary write permission outlives the assignment lease or workload identity.",
+                "Execution control-plane owner", "Expire permission no later than both lease and identity.",
+            ))
+        assignment_state = assignment.get("state")
+        expected_lease_state = "RELEASED" if assignment_state == "COMPLETED" else "ACTIVE"
+        if lease.get("state") and lease.get("state") != expected_lease_state:
+            findings.append(_finding(
+                "EXECUTION_LEASE_STATE_INVALID", Severity.BLOCKING, assignment_id,
+                "Lease state is inconsistent with the assignment lifecycle.",
+                "Orchestration owner", "Activate leases only for dispatched work and release them at completion or recovery.",
             ))
     return findings
 
@@ -279,10 +381,19 @@ def validate_branches_locks_and_context(workflow: dict[str, Any]) -> list[Findin
     for lock in locks:
         lock_by_unit[lock.get("work_unit_id")].append(lock)
         assignment = assignments.get(lock.get("work_unit_id"), {})
+        lease = assignment.get("lease", {})
+        expected_lock_state = {
+            "ASSIGNED": "RESERVED",
+            "IN_PROGRESS": "ACTIVE",
+            "COMPLETED": "RELEASED",
+        }.get(assignment.get("state"))
         if (
             lock.get("assignment_id") != assignment.get("id")
-            or not lock.get("lease_id")
+            or lock.get("lease_id") != lease.get("id")
             or lock.get("state") not in {"RESERVED", "ACTIVE", "RELEASED"}
+            or (expected_lock_state and lock.get("state") != expected_lock_state)
+            or (lock.get("state") in {"RESERVED", "ACTIVE"} and lease.get("state") != "ACTIVE")
+            or (lock.get("state") == "RELEASED" and lease.get("state") != "RELEASED")
         ):
             findings.append(_finding(
                 "WRITE_LOCK_LIFECYCLE_INVALID", Severity.BLOCKING, str(lock.get("id", "lock")),
@@ -291,7 +402,7 @@ def validate_branches_locks_and_context(workflow: dict[str, Any]) -> list[Findin
             ))
     for unit in units:
         covered = {path for lock in lock_by_unit.get(unit.get("id"), []) for path in lock.get("paths", [])}
-        if set(unit.get("writable_paths", [])) - covered:
+        if unit.get("state", "ASSIGNED") not in {"PROPOSED", "PLANNED", "READY"} and set(unit.get("writable_paths", [])) - covered:
             findings.append(_finding(
                 "WRITE_LOCK_MISSING", Severity.BLOCKING, str(unit.get("id")),
                 "A writable path has no work-unit-bound logical lock.",
@@ -386,7 +497,9 @@ def validate_events(workflow: dict[str, Any], event_log: dict[str, Any]) -> list
     findings: list[Finding] = []
     known_units = {item.get("id") for item in workflow.get("work_units", [])}
     identities = {item.get("id") for item in workflow.get("identity_registry", [])}
-    approvals = {item.get("id") for item in workflow.get("approval_artifacts", [])}
+    transition_artifacts = {
+        item.get("id"): item for item in workflow.get("transition_artifacts", [])
+    }
     seen: set[str] = set()
     for event in event_log.get("events", []):
         event_id = str(event.get("id", "event"))
@@ -416,12 +529,25 @@ def validate_events(workflow: dict[str, Any], event_log: dict[str, Any]) -> list
                 "The event producer is a role label or unknown identity.",
                 "Identity control-plane owner", "Authenticate the event producer and record its execution identity.",
             ))
-        if event_type in AUTHORITATIVE_EVENTS and event.get("authority_artifact_id") not in approvals:
-            findings.append(_finding(
-                "COORDINATION_EVENT_AUTHORITY_UNPROVEN", Severity.BLOCKING, event_id,
-                "An authoritative label is not backed by an authorized verification or approval artifact.",
-                "Control-plane owner", "Validate the external artifact before applying the state transition.",
-            ))
+        required_kind = EVENTS_REQUIRING_TRANSITION_ARTIFACT.get(event_type)
+        if required_kind:
+            artifact = transition_artifacts.get(event.get("transition_artifact_id"), {})
+            required_state = "passed" if required_kind == "verification_evidence" else "approved"
+            valid_state = artifact.get("state") == required_state
+            supports_related = (
+                event_type != "WORK_UNIT_VERIFIED"
+                or event.get("related_artifact_id") in artifact.get("supports_evidence_ids", [])
+            )
+            revision_bound = (
+                event_type != "WORK_UNIT_VERIFIED"
+                or artifact.get("subject_revision") == event.get("repository_revision")
+            )
+            if artifact.get("kind") != required_kind or not valid_state or not supports_related or not revision_bound:
+                findings.append(_finding(
+                    "COORDINATION_TRANSITION_ARTIFACT_INVALID", Severity.BLOCKING, event_id,
+                    "A governed transition lacks current evidence or owner authority of the required kind.",
+                    "Control-plane owner", "Validate the referenced transition artifact and its evidence relationship before applying the event.",
+                ))
         if not event.get("repository_revision") or not event.get("timestamp"):
             findings.append(_finding(
                 "COORDINATION_EVENT_PROVENANCE_MISSING", Severity.REVIEW, event_id,
@@ -483,6 +609,24 @@ def validate_handoff(workflow: dict[str, Any], handoff: dict[str, Any]) -> list[
                 "HANDOFF_CONTRACT_REVISION_STALE", Severity.BLOCKING, str(handoff.get("id")),
                 "The handoff names a contract revision different from the coordination registry.",
                 "Contract owner", "Regenerate the handoff against the approved contract revision.",
+            )]
+    artifacts = {item.get("id"): item for item in workflow.get("transition_artifacts", [])}
+    for evidence_id in handoff.get("evidence_ids", []):
+        evidence = artifacts.get(evidence_id, {})
+        verification = next(
+            (
+                item for item in artifacts.values()
+                if item.get("kind") == "verification_evidence"
+                and item.get("state") == "passed"
+                and evidence_id in item.get("supports_evidence_ids", [])
+            ),
+            None,
+        )
+        if evidence.get("kind") != "component_evidence_bundle" or not verification:
+            return [_finding(
+                "HANDOFF_EVIDENCE_UNVERIFIED", Severity.BLOCKING, str(handoff.get("id")),
+                "The handoff evidence bundle has no explicit current verification relationship.",
+                "System evidence owner", "Register the component evidence and link passed verification evidence to it.",
             )]
     return []
 
@@ -553,6 +697,7 @@ def review_workflow(bundle: dict[str, Any]) -> dict[str, Any]:
     workflow = bundle["workflow"]
     findings = (
         validate_strategy(workflow)
+        + validate_contract_registry(workflow)
         + validate_assignments(workflow)
         + validate_branches_locks_and_context(workflow)
         + validate_delegation_and_independence(workflow)
@@ -630,6 +775,42 @@ def pull_dispatch(
     }
 
 
+def bind_dispatch_resources(
+    workflow: dict[str, Any],
+    states: dict[str, str],
+    *,
+    work_unit_id: str,
+    assignment: dict[str, Any],
+    lock: dict[str, Any],
+) -> dict[str, Any]:
+    """Atomically model READY -> ASSIGNED resource binding for one pull decision."""
+    if work_unit_id not in ready_work_units(workflow, states):
+        return {"outcome": "NOT_READY", "workflow": copy.deepcopy(workflow), "findings": []}
+    if any(item.get("work_unit_id") == work_unit_id for item in workflow.get("assignments", [])) or any(
+        item.get("work_unit_id") == work_unit_id for item in workflow.get("locks", [])
+    ):
+        return {"outcome": "RESOURCE_ALREADY_RESERVED", "workflow": copy.deepcopy(workflow), "findings": []}
+    updated = copy.deepcopy(workflow)
+    unit = next(item for item in updated["work_units"] if item.get("id") == work_unit_id)
+    unit["state"] = "ASSIGNED"
+    unit["execution_owner"] = assignment.get("agent_identity")
+    bound_assignment = copy.deepcopy(assignment)
+    bound_assignment["state"] = "ASSIGNED"
+    bound_assignment.setdefault("lease", {})["state"] = "ACTIVE"
+    bound_lock = copy.deepcopy(lock)
+    bound_lock["state"] = "RESERVED"
+    updated.setdefault("assignments", []).append(bound_assignment)
+    updated.setdefault("locks", []).append(bound_lock)
+    findings = validate_assignments(updated) + validate_branches_locks_and_context(updated)
+    if findings:
+        return {
+            "outcome": "DISPATCH_REJECTED",
+            "workflow": copy.deepcopy(workflow),
+            "findings": [asdict(item) for item in findings],
+        }
+    return {"outcome": "ASSIGNED", "workflow": updated, "findings": []}
+
+
 def classify_execution_failure(failure_class: str, attempt: int, policy: dict[str, Any]) -> dict[str, Any]:
     retry_policy = policy.get("retry_policy", {})
     if failure_class in retry_policy.get("not_retryable", []) or failure_class in TERMINAL_DENIALS:
@@ -662,10 +843,9 @@ def contract_change_blast_radius(
     evidence_by_unit: dict[str, list[str]],
 ) -> dict[str, Any]:
     registry = next(item for item in workflow.get("contract_registry", []) if item.get("id") == contract_id)
-    producer = registry.get("producer")
     graph = dependency_graph(workflow)
-    affected: set[str] = set()
-    queue = deque([producer])
+    affected: set[str] = set(registry.get("consumers", []))
+    queue = deque(affected)
     while queue:
         current = queue.popleft()
         for unit_id, dependencies in graph.items():
@@ -695,7 +875,8 @@ def process_assignment_delivery(state: dict[str, Any], assignment: dict[str, Any
 
 def recover_expired_lease(assignment: dict[str, Any], *, now: str) -> dict[str, Any]:
     lease = assignment.get("lease", {})
-    expired = bool(lease.get("expires_at") and lease["expires_at"] <= now)
+    terminal = assignment.get("state") == "COMPLETED" or lease.get("state") == "RELEASED"
+    expired = bool(not terminal and lease.get("expires_at") and lease["expires_at"] <= now)
     return {
         "assignment_id": assignment.get("id"),
         "expired": expired,
@@ -755,8 +936,12 @@ def _evaluation_findings(case: dict[str, Any]) -> list[Finding]:
             workflow["delegations"][0].update(mutation.get("changes", {}))
         elif section == "lock":
             workflow["locks"][0].update(mutation.get("changes", {}))
+        elif section == "contract":
+            item = next(value for value in workflow["contract_registry"] if value["id"] == mutation["id"])
+            item.update(mutation.get("changes", {}))
         return (
             validate_strategy(workflow)
+            + validate_contract_registry(workflow)
             + validate_assignments(workflow)
             + validate_branches_locks_and_context(workflow)
             + validate_delegation_and_independence(workflow)

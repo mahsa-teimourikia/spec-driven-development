@@ -1059,9 +1059,9 @@ const QUESTIONS = [
   {
     category: 'Pull scheduling',
     question: 'A ready unit needs domain review, but that queue is at capacity. What should a pull scheduler do?',
-    options: ['Keep the unit waiting instead of creating more unreviewable work in progress', 'Start it to maximize agent utilization', 'Remove the review requirement', 'Ask the agent to approve itself'],
+    options: ['Keep it unassigned and bind identity, permission, lease, and lock only when capacity permits dispatch', 'Start it to maximize agent utilization', 'Reserve its agent and permissions while it waits', 'Ask the agent to approve itself'],
     answer: 0,
-    explanation: 'Human review capacity is part of delivery capacity. Starting excess work increases queues, staleness, and rework.'
+    explanation: 'Human review capacity is part of delivery capacity. A ready unit remains unassigned until pull dispatch can bind short-lived resources without inflating queues, stale leases, or permissions.'
   },
   {
     category: 'Delegation',

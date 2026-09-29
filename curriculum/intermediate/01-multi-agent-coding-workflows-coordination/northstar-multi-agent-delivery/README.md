@@ -11,10 +11,10 @@ The unsafe candidate demonstrates “start six agents” coordination: one share
 The reference demonstrates:
 
 - five dependency-aware execution waves;
-- one branch/worktree and assignment identity per work unit;
+- one branch/worktree per work unit, with assignments and resources bound only at pull dispatch;
 - minimal logical write locks with leases and recovery;
 - shared-source pinning with work-unit-specific local context;
-- artifact-based handoff and durable coordination events;
+- explicit contract consumers, artifact-based handoff, and durable coordination events backed by typed transition artifacts;
 - independent-context verification;
 - revision-bound integration evidence and routed failures;
 - pull scheduling with typed reviewer capacity and WIP limits;
@@ -27,7 +27,7 @@ The reference demonstrates:
 python3 curriculum/intermediate/01-multi-agent-coding-workflows-coordination/lab.py
 ```
 
-Expected reference result: `COORDINATION_READY`, no findings, five waves, extraction and validation in wave two, and 31/31 exact labelled evaluation cases. The unsafe candidate must remain blocked. These are transparent fixture checks, not estimates of general orchestrator correctness or productivity.
+Expected reference result: `COORDINATION_READY`, no findings, five waves, extraction and validation in wave two, and 36/36 exact labelled evaluation cases covering 38 findings. The unsafe candidate must remain blocked. These are transparent fixture checks, not estimates of general orchestrator correctness or productivity.
 
 ## Workshop sequence
 
@@ -37,6 +37,7 @@ Expected reference result: `COORDINATION_READY`, no findings, five waves, extrac
 4. Inject a shared-contract revision and calculate active work, completed work, and stale evidence.
 5. Model a saturated security-review queue and explain why pull scheduling should wait.
 6. Compare the single-agent, unsafe-parallel, and governed-multi-agent fixture observations without claiming a benchmark.
+7. Attempt to assign `AWU-BR-REVIEW` before it is ready, then use just-in-time dispatch to bind `AWU-BR-CONFLICT` safely.
 
 ## Evidence boundary
 

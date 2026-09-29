@@ -5,11 +5,11 @@
   "invariants": [
     {"id":"ORCH-INV-001","statement":"A work unit SHALL NOT enter IN_PROGRESS until mandatory dependencies satisfy their required predecessor state."},
     {"id":"ORCH-INV-002","statement":"Concurrently executing work units SHALL NOT hold conflicting exclusive write ownership."},
-    {"id":"ORCH-INV-003","statement":"An agent SHALL NOT receive permissions outside its active work-unit authority."},
+    {"id":"ORCH-INV-003","statement":"A PLANNED or READY work unit SHALL remain unassigned; identity, temporary permission, lease, and lock binding SHALL occur only during successful pull dispatch."},
     {"id":"ORCH-INV-004","statement":"A shared-contract revision change SHALL invalidate affected downstream execution contexts."},
     {"id":"ORCH-INV-005","statement":"A VERIFIED work unit SHALL return to REVALIDATION_REQUIRED when its implementation revision changes."},
     {"id":"ORCH-INV-006","statement":"A child agent SHALL NOT receive authority exceeding the delegated authority of its parent execution."},
-    {"id":"ORCH-INV-007","statement":"At most one active execution lease SHALL exist for an exclusive work-unit assignment."},
+    {"id":"ORCH-INV-007","statement":"At most one active lease SHALL exist for an exclusive assignment; its permissions and locks SHALL NOT outlive the lease or workload identity."},
     {"id":"ORCH-INV-008","statement":"A work unit SHALL NOT become VERIFIED without evidence bound to current implementation and specification revisions."},
     {"id":"ORCH-INV-009","statement":"Integration evidence SHALL identify the exact component revisions it evaluates."},
     {"id":"ORCH-INV-010","statement":"A downstream work unit SHALL consume only contract revisions in its execution context or approved refresh."}
@@ -17,7 +17,7 @@
   "state_machine": {
     "states": ["PROPOSED","READY","ASSIGNED","IN_PROGRESS","PAUSED","BLOCKED","COMPLETED","VERIFYING","VERIFIED","INTEGRATING","INTEGRATED","VERIFICATION_FAILED","INTEGRATION_FAILED","CONTEXT_INVALIDATED","REVALIDATION_REQUIRED","SCOPE_EXPANSION_REQUIRED","CANCELLED"],
     "preconditions": {
-      "READY_TO_ASSIGNED": ["dependency_states_satisfied","downstream_capacity_available","review_capacity_reserved"],
+      "READY_TO_ASSIGNED": ["dependency_states_satisfied","downstream_capacity_available","review_capacity_reserved","no_prior_assignment_or_resource_reservation","identity_permission_lease_and_lock_bound_atomically"],
       "ASSIGNED_TO_IN_PROGRESS": ["assignment_active","lease_current","permissions_current","context_current","locks_reserved"],
       "COMPLETED_TO_VERIFYING": ["completion_report_current","evidence_inputs_available"],
       "VERIFYING_TO_VERIFIED": ["independent_verification_passed","evidence_revision_bound"],

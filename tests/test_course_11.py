@@ -40,7 +40,7 @@ class Course11CoordinationTests(unittest.TestCase):
 
     def test_candidate_is_blocked_with_stable_counts(self):
         report = lab.review_workflow(self.candidate)
-        self.assertEqual({"review": 9, "blocking": 50}, report["counts"])
+        self.assertEqual({"review": 11, "blocking": 50}, report["counts"])
         self.assertEqual("COORDINATION_BLOCKED", lab.coordination_decision(report)["state"])
 
     def test_multi_agent_use_requires_a_written_justification(self):
@@ -51,6 +51,7 @@ class Course11CoordinationTests(unittest.TestCase):
     def test_budget_is_not_agent_count_alone(self):
         budgets = self.reference["workflow"]["budgets"]
         self.assertTrue({"max_parallel", "max_handoffs", "max_replans", "max_units_waiting_for_review"} <= set(budgets))
+        self.assertIn("not recommended defaults", self.reference["workflow"]["budget_provenance"]["claim"])
 
     def test_dependency_graph_has_five_waves(self):
         schedule = lab.topological_waves(self.reference["workflow"])
@@ -108,11 +109,78 @@ class Course11CoordinationTests(unittest.TestCase):
         for assignment in self.reference["workflow"]["assignments"]:
             self.assertEqual("assignment_bound_temporary", assignment["permissions"]["lifecycle"])
             self.assertFalse(assignment["permissions"]["self_provisioned"])
+            self.assertTrue(assignment["permissions"]["expires_at"])
 
     def test_each_assignment_has_an_expiring_lease(self):
         for assignment in self.reference["workflow"]["assignments"]:
             lease = assignment["lease"]
-            self.assertTrue(lease["id"] and lease["expires_at"] and lease["heartbeat_policy"])
+            self.assertTrue(lease["id"] and lease["expires_at"] and lease["heartbeat_policy"] and lease["state"])
+
+    def test_future_work_has_no_assignment_permission_lease_or_lock(self):
+        workflow = self.reference["workflow"]
+        assigned = {item["work_unit_id"] for item in workflow["assignments"]}
+        locked = {item["work_unit_id"] for item in workflow["locks"]}
+        for unit in workflow["work_units"]:
+            if unit["state"] in {"PLANNED", "READY"}:
+                self.assertEqual("unassigned", unit["execution_owner"])
+                self.assertNotIn(unit["id"], assigned)
+                self.assertNotIn(unit["id"], locked)
+
+    def test_premature_assignment_is_rejected(self):
+        workflow = copy.deepcopy(self.reference["workflow"])
+        workflow["assignments"].append({
+            "id": "ASSIGN-CONFLICT-EARLY", "work_unit_id": "AWU-BR-CONFLICT",
+            "agent_identity": "agent-conflict-01", "state": "ASSIGNED",
+            "permissions": {
+                "write_paths": ["src/underwriting/conflicts.py", "tests/underwriting/test_conflicts.py"],
+                "lifecycle": "assignment_bound_temporary", "expires_at": "2026-10-01T17:00:00Z",
+                "self_provisioned": False,
+            },
+            "lease": {
+                "id": "LEASE-CONFLICT-EARLY", "state": "ACTIVE", "expires_at": "2026-10-01T17:00:00Z",
+                "heartbeat_policy": "every_5_minutes", "recovery_policy": "inspect_before_reassign",
+            },
+        })
+        self.assertIn("PREMATURE_RESOURCE_RESERVATION", self.codes(lab.validate_assignments(workflow)))
+
+    def test_pull_dispatch_binds_resources_only_for_ready_work(self):
+        workflow = self.reference["workflow"]
+        states = {item["id"]: item["state"] for item in workflow["work_units"]}
+        assignment = {
+            "id": "ASSIGN-CONFLICT-020", "work_unit_id": "AWU-BR-CONFLICT",
+            "agent_identity": "agent-conflict-01",
+            "permissions": {
+                "write_paths": ["src/underwriting/conflicts.py", "tests/underwriting/test_conflicts.py"],
+                "lifecycle": "assignment_bound_temporary", "expires_at": "2026-10-01T17:00:00Z",
+                "self_provisioned": False,
+            },
+            "lease": {
+                "id": "LEASE-CONFLICT-020", "expires_at": "2026-10-01T17:00:00Z",
+                "heartbeat_policy": "every_5_minutes", "recovery_policy": "inspect_before_reassign",
+            },
+        }
+        lock = {
+            "id": "LOCK-CONFLICT", "work_unit_id": "AWU-BR-CONFLICT",
+            "assignment_id": "ASSIGN-CONFLICT-020", "lease_id": "LEASE-CONFLICT-020",
+            "paths": ["src/underwriting/conflicts.py", "tests/underwriting/test_conflicts.py"],
+        }
+        result = lab.bind_dispatch_resources(
+            workflow, states, work_unit_id="AWU-BR-CONFLICT", assignment=assignment, lock=lock
+        )
+        self.assertEqual("ASSIGNED", result["outcome"])
+        unit = next(item for item in result["workflow"]["work_units"] if item["id"] == "AWU-BR-CONFLICT")
+        self.assertEqual(("ASSIGNED", "agent-conflict-01"), (unit["state"], unit["execution_owner"]))
+        self.assertEqual("RESERVED", result["workflow"]["locks"][-1]["state"])
+
+    def test_lease_cannot_outlive_workload_identity(self):
+        workflow = copy.deepcopy(self.reference["workflow"])
+        workflow["assignments"][0]["lease"]["expires_at"] = "2026-10-01T19:00:00Z"
+        self.assertIn("LEASE_OUTLIVES_IDENTITY", self.codes(lab.validate_assignments(workflow)))
+
+    def test_permission_cannot_outlive_lease(self):
+        workflow = copy.deepcopy(self.reference["workflow"])
+        workflow["assignments"][0]["permissions"]["expires_at"] = "2026-10-01T17:30:00Z"
+        self.assertIn("PERMISSION_OUTLIVES_ASSIGNMENT", self.codes(lab.validate_assignments(workflow)))
 
     def test_duplicate_assignment_delivery_is_idempotent(self):
         assignment = self.reference["workflow"]["assignments"][0]
@@ -123,10 +191,18 @@ class Course11CoordinationTests(unittest.TestCase):
         self.assertEqual("duplicate_delivery_reconciled", second["outcome"])
 
     def test_expired_lease_requires_inspection_before_reassignment(self):
-        assignment = self.reference["workflow"]["assignments"][0]
+        assignment = copy.deepcopy(self.reference["workflow"]["assignments"][0])
+        assignment["state"] = "IN_PROGRESS"
+        assignment["lease"]["state"] = "ACTIVE"
         result = lab.recover_expired_lease(assignment, now="2030-01-01T00:00:00Z")
         self.assertEqual("RECOVERY_REQUIRED", result["next_state"])
         self.assertTrue(result["may_reassign"])
+
+    def test_released_completed_lease_does_not_reenter_recovery(self):
+        assignment = self.reference["workflow"]["assignments"][0]
+        result = lab.recover_expired_lease(assignment, now="2030-01-01T00:00:00Z")
+        self.assertFalse(result["expired"])
+        self.assertEqual("COMPLETED", result["next_state"])
 
     def test_each_work_unit_has_its_own_branch(self):
         branches = [item["branch"] for item in self.reference["workflow"]["work_units"]]
@@ -138,9 +214,33 @@ class Course11CoordinationTests(unittest.TestCase):
         right = units["AWU-BR-VALIDATION"]
         self.assertFalse(set(left["writable_paths"]) & set(right["writable_paths"]))
 
+    def test_same_path_in_different_waves_is_sequential_ownership(self):
+        workflow = copy.deepcopy(self.reference["workflow"])
+        contract = next(item for item in workflow["work_units"] if item["id"] == "AWU-BR-CONTRACT")
+        conflict = next(item for item in workflow["work_units"] if item["id"] == "AWU-BR-CONFLICT")
+        conflict["writable_paths"] = contract["writable_paths"]
+        findings = lab.validate_branches_locks_and_context(workflow)
+        self.assertNotIn("PARALLEL_WRITE_COLLISION", self.codes(findings))
+
+    def test_same_path_in_same_wave_is_parallel_collision(self):
+        workflow = copy.deepcopy(self.reference["workflow"])
+        extraction = next(item for item in workflow["work_units"] if item["id"] == "AWU-BR-EXTRACTION")
+        validation = next(item for item in workflow["work_units"] if item["id"] == "AWU-BR-VALIDATION")
+        validation["writable_paths"] = extraction["writable_paths"]
+        findings = lab.validate_branches_locks_and_context(workflow)
+        self.assertIn("PARALLEL_WRITE_COLLISION", self.codes(findings))
+
     def test_locks_bind_owner_subject_and_lease(self):
         for lock in self.reference["workflow"]["locks"]:
             self.assertTrue(lock["work_unit_id"] and lock["paths"] and lock["lease_id"])
+
+    def test_released_lease_cannot_hold_active_lock(self):
+        workflow = copy.deepcopy(self.reference["workflow"])
+        workflow["locks"][0]["state"] = "ACTIVE"
+        self.assertIn(
+            "WRITE_LOCK_LIFECYCLE_INVALID",
+            self.codes(lab.validate_branches_locks_and_context(workflow)),
+        )
 
     def test_shared_context_is_revision_pinned(self):
         workflow = self.reference["workflow"]
@@ -167,18 +267,71 @@ class Course11CoordinationTests(unittest.TestCase):
             self.assertTrue(event["id"] and event["type"] and event["producer_identity"])
             self.assertTrue(event["repository_revision"] and event["timestamp"])
 
-    def test_external_authority_event_has_authority_artifact(self):
-        authority_events = [
+    def test_verified_event_references_verification_evidence(self):
+        governed_events = [
             item for item in self.reference["event_log"]["events"]
             if item.get("type") == "WORK_UNIT_VERIFIED"
         ]
-        self.assertTrue(authority_events)
-        self.assertTrue(all(item.get("authority_artifact_id") for item in authority_events))
+        self.assertTrue(governed_events)
+        self.assertTrue(all(item.get("transition_artifact_id") for item in governed_events))
+
+    def test_event_label_does_not_substitute_for_transition_artifact(self):
+        log = copy.deepcopy(self.reference["event_log"])
+        event = next(item for item in log["events"] if item["type"] == "WORK_UNIT_VERIFIED")
+        event["transition_artifact_id"] = "agent-says-passed"
+        self.assertIn(
+            "COORDINATION_TRANSITION_ARTIFACT_INVALID",
+            self.codes(lab.validate_events(self.reference["workflow"], log)),
+        )
+
+    def test_verification_transition_evidence_is_revision_bound(self):
+        workflow = copy.deepcopy(self.reference["workflow"])
+        artifact = next(item for item in workflow["transition_artifacts"] if item["id"] == "VERIFY-CONTRACT-81AB21")
+        artifact["subject_revision"] = "stale-revision"
+        self.assertIn(
+            "COORDINATION_TRANSITION_ARTIFACT_INVALID",
+            self.codes(lab.validate_events(workflow, self.reference["event_log"])),
+        )
 
     def test_handoff_contains_outputs_evidence_and_unresolved_items(self):
         handoff = self.reference["handoff"]
         self.assertTrue(handoff["outputs"] and handoff["evidence_ids"])
         self.assertIn("unresolved", handoff)
+
+    def test_handoff_evidence_is_explicitly_verified(self):
+        artifacts = {item["id"]: item for item in self.reference["workflow"]["transition_artifacts"]}
+        evidence_id = self.reference["handoff"]["evidence_ids"][0]
+        verification = next(item for item in artifacts.values() if evidence_id in item.get("supports_evidence_ids", []))
+        self.assertEqual("component_evidence_bundle", artifacts[evidence_id]["kind"])
+        self.assertEqual(("verification_evidence", "passed"), (verification["kind"], verification["state"]))
+
+    def test_handoff_rejects_unverified_component_evidence(self):
+        workflow = copy.deepcopy(self.reference["workflow"])
+        verification = next(
+            item for item in workflow["transition_artifacts"]
+            if item["id"] == "VERIFY-CONTRACT-81AB21"
+        )
+        verification["supports_evidence_ids"] = []
+        self.assertIn(
+            "HANDOFF_EVIDENCE_UNVERIFIED",
+            self.codes(lab.validate_handoff(workflow, self.reference["handoff"])),
+        )
+
+    def test_contract_registry_names_consumers(self):
+        contracts = {item["id"]: item for item in self.reference["workflow"]["contract_registry"]}
+        self.assertEqual(
+            {"AWU-BR-EXTRACTION", "AWU-BR-VALIDATION", "AWU-BR-CONFLICT", "AWU-BR-REVIEW", "AWU-BR-INTEGRATION"},
+            set(contracts["ProposedUpdate"]["consumers"]),
+        )
+        self.assertEqual([], lab.validate_contract_registry(self.reference["workflow"]))
+
+    def test_integration_inputs_are_explicit_beyond_ordering_edge(self):
+        integration = next(item for item in self.reference["workflow"]["work_units"] if item["id"] == "AWU-BR-INTEGRATION")
+        self.assertEqual(["AWU-BR-REVIEW"], integration["depends_on"])
+        self.assertEqual(
+            {item["id"] for item in self.reference["workflow"]["component_registry"]},
+            set(integration["integration_inputs"]),
+        )
 
     def test_stale_handoff_contract_is_detected(self):
         handoff = copy.deepcopy(self.reference["handoff"])
@@ -257,11 +410,11 @@ class Course11CoordinationTests(unittest.TestCase):
 
     def test_evaluation_is_exact_on_declared_fixture(self):
         evaluation = lab.evaluate_coordination_rules()
-        self.assertEqual((31, 32, 0, 0), (
+        self.assertEqual((36, 38, 0, 0), (
             evaluation["population"], evaluation["true_positive"],
             evaluation["false_positive"], evaluation["false_negative"],
         ))
-        self.assertEqual({"numerator": 31, "denominator": 31}, evaluation["exact_matches"])
+        self.assertEqual({"numerator": 36, "denominator": 36}, evaluation["exact_matches"])
 
     def test_evaluation_discloses_non_general_boundary(self):
         self.assertIn("not_general", lab.evaluate_coordination_rules()["claim"])

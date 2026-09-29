@@ -524,7 +524,7 @@ const course11 = {
   labs: [
     {
       title: 'Lab A — Validate the coordination control plane',
-      description: 'Compare unsafe parallel execution with a governed workflow, exercise pull scheduling, idempotency, leases, delegation, verification independence, integration evidence, recovery, failure routing, and 31 labelled cases.',
+      description: 'Compare unsafe parallel execution with a governed workflow, exercise just-in-time dispatch, idempotency, lease/identity lifetimes, delegation, typed transition evidence, integration, recovery, and 36 labelled cases.',
       command: 'python3 curriculum/intermediate/01-multi-agent-coding-workflows-coordination/lab.py',
       links: [['View the lab', `${REPO}/blob/main/curriculum/intermediate/01-multi-agent-coding-workflows-coordination/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/intermediate/01-multi-agent-coding-workflows-coordination/multi_agent_coordination.ipynb`]]
     },
@@ -545,12 +545,12 @@ const course11 = {
   checkpoint: {
     question: 'Two wave-two units are ready, but the domain-review queue is at capacity. What should the scheduler do?',
     options: [
-      'Pull only the unit whose required review capacity is available and leave the other waiting.',
+      'Pull only the unit whose review capacity is available; leave the other unassigned until dispatch can bind short-lived resources.',
       'Start both to maximize agent utilization and defer review.',
       'Remove the domain-review requirement because the dependency graph is acyclic.'
     ],
     answer: 0,
-    explanation: 'Review capacity is part of system capacity. Pull scheduling limits work in progress, evidence staleness, and reviewer overload rather than optimizing agent activity.'
+    explanation: 'Review capacity is part of system capacity. Pull scheduling keeps waiting work unassigned and binds identity, permission, lease, and lock only when dispatch can proceed.'
   }
 };
 

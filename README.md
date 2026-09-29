@@ -166,7 +166,7 @@ Course 11 turns the work-unit graph into a durable, bounded multi-agent executio
 - decide when multi-agent execution is justified and retain a single-agent baseline;
 - derive execution waves from dependencies, stable contracts, pinned context, and exclusive write ownership;
 - separate orchestration, implementation, verification, integration, and accountable decision rights;
-- bind assignments to authenticated workload identities, temporary permissions, leases, locks, and branch isolation;
+- keep planned/ready work unassigned, then bind authenticated workload identities, temporary permissions, leases, and locks atomically at pull dispatch;
 - route typed handoffs, events, retries, failures, recovery, and shared-contract changes without authority amplification;
 - use pull scheduling and work-in-progress limits that include human review capacity;
 - invalidate revision-bound component and integration evidence when subjects change; and

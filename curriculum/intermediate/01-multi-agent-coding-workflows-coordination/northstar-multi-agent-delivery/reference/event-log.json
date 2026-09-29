@@ -3,7 +3,7 @@
   "events":[
     {"id":"EVT-001","type":"WORK_UNIT_STARTED","subject_work_unit_id":"AWU-BR-CONTRACT","producer_identity":"orchestrator-run-2219","repository_revision":"repo-c10-verified","timestamp":"2026-10-01T10:00:00Z","related_artifact_id":"ASSIGN-CONTRACT-017"},
     {"id":"EVT-002","type":"WORK_UNIT_COMPLETED","subject_work_unit_id":"AWU-BR-CONTRACT","producer_identity":"agent-contract-01","repository_revision":"81ab21","timestamp":"2026-10-01T10:18:00Z","related_artifact_id":"COMPLETE-CONTRACT-017"},
-    {"id":"EVT-003","type":"WORK_UNIT_VERIFIED","subject_work_unit_id":"AWU-BR-CONTRACT","producer_identity":"orchestrator-run-2219","repository_revision":"81ab21","timestamp":"2026-10-01T10:21:00Z","related_artifact_id":"EVID-CONTRACT-2219","authority_artifact_id":"VERIFY-CONTRACT-81AB21"},
+    {"id":"EVT-003","type":"WORK_UNIT_VERIFIED","subject_work_unit_id":"AWU-BR-CONTRACT","producer_identity":"orchestrator-run-2219","repository_revision":"81ab21","timestamp":"2026-10-01T10:21:00Z","related_artifact_id":"EVID-CONTRACT-2219","transition_artifact_id":"VERIFY-CONTRACT-81AB21"},
     {"id":"EVT-004","type":"WORK_UNIT_READY","subject_work_unit_id":"AWU-BR-EXTRACTION","producer_identity":"orchestrator-run-2219","repository_revision":"81ab21","timestamp":"2026-10-01T10:23:00Z","related_artifact_id":"HANDOFF-CONTRACT-WAVE2"},
     {"id":"EVT-005","type":"WORK_UNIT_READY","subject_work_unit_id":"AWU-BR-VALIDATION","producer_identity":"orchestrator-run-2219","repository_revision":"81ab21","timestamp":"2026-10-01T10:23:00Z","related_artifact_id":"HANDOFF-CONTRACT-WAVE2"},
     {"id":"EVT-006","type":"WORK_UNIT_STARTED","subject_work_unit_id":"AWU-BR-EXTRACTION","producer_identity":"orchestrator-run-2219","repository_revision":"81ab21","timestamp":"2026-10-01T10:25:00Z","related_artifact_id":"ASSIGN-EXTRACTION-018"},
@@ -11,9 +11,9 @@
     {"id":"EVT-008","type":"DISCOVERY_PUBLISHED","subject_work_unit_id":"AWU-BR-EXTRACTION","producer_identity":"agent-extraction-01","repository_revision":"92bc31","timestamp":"2026-10-01T10:39:00Z","related_artifact_id":"DISC-2219-17"},
     {"id":"EVT-009","type":"WORK_UNIT_COMPLETED","subject_work_unit_id":"AWU-BR-EXTRACTION","producer_identity":"agent-extraction-01","repository_revision":"92bc31","timestamp":"2026-10-01T10:50:00Z","related_artifact_id":"COMPLETE-EXTRACTION-018"},
     {"id":"EVT-010","type":"WORK_UNIT_COMPLETED","subject_work_unit_id":"AWU-BR-VALIDATION","producer_identity":"agent-validation-01","repository_revision":"73de19","timestamp":"2026-10-01T10:54:00Z","related_artifact_id":"COMPLETE-VALIDATION-019"},
-    {"id":"EVT-011","type":"WORK_UNIT_VERIFIED","subject_work_unit_id":"AWU-BR-EXTRACTION","producer_identity":"orchestrator-run-2219","repository_revision":"92bc31","timestamp":"2026-10-01T11:05:00Z","related_artifact_id":"EVID-EXTRACTION-2219","authority_artifact_id":"VERIFY-EXTRACTION-92BC31"},
-    {"id":"EVT-012","type":"WORK_UNIT_VERIFIED","subject_work_unit_id":"AWU-BR-VALIDATION","producer_identity":"orchestrator-run-2219","repository_revision":"73de19","timestamp":"2026-10-01T11:07:00Z","related_artifact_id":"EVID-VALIDATION-2219","authority_artifact_id":"VERIFY-VALIDATION-73DE19"},
+    {"id":"EVT-011","type":"WORK_UNIT_VERIFIED","subject_work_unit_id":"AWU-BR-EXTRACTION","producer_identity":"orchestrator-run-2219","repository_revision":"92bc31","timestamp":"2026-10-01T11:05:00Z","related_artifact_id":"EVID-EXTRACTION-2219","transition_artifact_id":"VERIFY-EXTRACTION-92BC31"},
+    {"id":"EVT-012","type":"WORK_UNIT_VERIFIED","subject_work_unit_id":"AWU-BR-VALIDATION","producer_identity":"orchestrator-run-2219","repository_revision":"73de19","timestamp":"2026-10-01T11:07:00Z","related_artifact_id":"EVID-VALIDATION-2219","transition_artifact_id":"VERIFY-VALIDATION-73DE19"},
     {"id":"EVT-013","type":"WORK_UNIT_READY","subject_work_unit_id":"AWU-BR-CONFLICT","producer_identity":"orchestrator-run-2219","repository_revision":"wave2-integrated","timestamp":"2026-10-01T11:08:00Z","related_artifact_id":"WAVE2-INTEGRATION"}
   ],
-  "boundary":"Event labels are applied only after deterministic preconditions and external authority artifacts are checked."
+  "boundary":"Event labels never create authority. Governed transitions apply only after the referenced verification evidence or owner-approval artifact is validated."
 }

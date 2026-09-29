@@ -5,7 +5,7 @@
   "multi_agent_decision":{"why_multiple_agents":[],"single_agent_baseline":null,"coordination_costs":[]},
   "budgets":{"max_parallel":3},
   "identity_registry":[{"id":"implementation_agent","kind":"role_label"}],
-  "approval_artifacts":[],
+  "transition_artifacts":[],
   "contract_registry":[{"id":"ProposedUpdate","revision":"v2","owner":"underwriting_platform","producer":"AWU-BR-CONTRACT","status":"changing_during_wave"}],
   "component_registry":[],
   "work_units":[

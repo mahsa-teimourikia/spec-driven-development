@@ -175,9 +175,22 @@ organization → control plane → work unit → assignment → workload identit
 
 Permissions should bind a short-lived identity to one repository, branch/worktree, work unit, and exact write paths. Agents cannot self-provision or share a permanent token.
 
+Resource binding is a dispatch transition, not a planning activity:
+
+```text
+PLANNED → dependencies satisfied → READY
+READY + implementation/review capacity
+→ atomically create assignment, bind identity, issue permission and lease, reserve lock
+→ ASSIGNED → IN_PROGRESS
+```
+
+The reference snapshot retains historical assignments and released locks for already verified contract, extraction, and validation work. Conflict is `READY`; review and integration are `PLANNED`. Those future units have `execution_owner = unassigned` and no assignment, permission, lease, or lock. Reserving those resources several waves early would inflate permission lifetimes, create stale leases and false ownership, and contradict pull scheduling.
+
 Logical locks protect semantic ownership. Their minimal scope may be a contract, component, directory, or file set. Locks require owner, assignment, lease, state, heartbeat/expiry, and recovery behavior. Agents cannot steal them because another execution seems slow.
 
 At most one active lease may own an exclusive assignment. Duplicate delivery of the same stable assignment ID must be idempotent.
+
+Lifetime ordering is also deterministic: permission expiry must be no later than lease expiry, and lease expiry must be no later than workload-identity expiry. An active lock requires an active lease; a completed assignment releases both. Expired identity or lease state sends the unit to recovery instead of allowing a nominally valid lock to continue.
 
 ## 10. Make branch topology reflect the DAG
 
@@ -204,6 +217,8 @@ A PR is an execution artifact. Generate its summary from durable work-unit and c
 
 If an agent discovers an undocumented mutation path or unsupported assumption, it publishes a discovery with evidence and affected work units. Systemic discoveries can pause other agents.
 
+The reference distinguishes `EVID-CONTRACT-2219`, the component evidence bundle handed to consumers, from `VERIFY-CONTRACT-81AB21`, the independent verification evidence that supports that bundle. Neither is called an approval. A future contract-change transition would require a different `contract_owner_approval` artifact.
+
 ## 12. Integration is a revision-bound graph operation
 
 Git can merge different files while semantics conflict. Enums, state transitions, error codes, authorization assumptions, retries, transactions, event ordering, and telemetry names can disagree without a textual conflict.
@@ -218,6 +233,8 @@ Integration tests should emphasize boundaries and cross-component invariants:
 - no model-facing component gains authoritative mutation capability.
 
 An integration agent may assemble revisions, configure fixtures, run suites, diagnose, and report. It may propose corrections. It generally may not rewrite verified component behavior, change shared contracts, weaken criteria, change authorization, or approve architecture.
+
+Execution ordering and integration inputs are related but distinct. `AWU-BR-INTEGRATION` needs only Review as its immediate DAG predecessor because Review is transitively ordered after Extraction, Validation, and Conflict. Its separate `integration_inputs` field nevertheless names all four exact component revisions that integration consumes. Minimal ordering edges answer “what must finish first?”; explicit inputs answer “which subjects make this evidence valid?”
 
 ## 13. Route integration failure instead of “fixing everything”
 
@@ -276,7 +293,7 @@ Useful event types include work-unit ready/started/completed/verified, contract-
 
 Every event needs stable ID, subject, authenticated producer identity, repository/spec revision, timestamp, and related artifact. Duplicate delivery should be idempotent.
 
-An event named `CONTRACT_CHANGE_APPROVED` is not authority. The control plane must validate the associated owner approval. A message label never grants permission.
+An event named `CONTRACT_CHANGE_APPROVED` is not authority. The control plane classifies it as an event requiring a transition artifact, then validates a `contract_owner_approval` before changing state. `WORK_UNIT_VERIFIED` instead requires `verification_evidence` that explicitly supports the component evidence bundle. Evidence and approval are not interchangeable, and a message label never grants permission.
 
 ## 19. Use a precise lifecycle, not `DONE`
 
@@ -331,6 +348,20 @@ Humans belong in the topology. Model engineering, domain, security, architecture
 ## 22. Encode orchestration invariants
 
 The fixture implements ten invariants covering dependency preconditions, concurrent write exclusion, work-unit-scoped permissions, contract-context invalidation, evidence invalidation, authority attenuation, exclusive leases, verified-state evidence, revision-bound integration, and pinned handoffs.
+
+The numeric limits come from fictional `TRAINING-POLICY-001` solely to exercise the mechanics:
+
+| Limit | Fixture value | Production decision input |
+|---|---:|---|
+| Parallel units | 2 | repository isolation, integration capacity, failure rate |
+| Handoffs | 6 | semantic loss, review delay, ownership boundaries |
+| Replans | 2 | change volatility and escalation policy |
+| Delegation depth | 1 | identity platform and authority-attenuation assurance |
+| Units waiting for review | 3 | measured reviewer queues and service expectations |
+| Shared-contract changes in flight | 1 | consumer blast radius and revalidation capacity |
+| Execution attempts | 2 | failure classes, side-effect safety, recovery cost |
+
+These are not recommended defaults. An organization must own, justify, observe, and revise its limits using risk and delivery evidence.
 
 Coordination policy-as-code can also route review:
 
@@ -400,7 +431,7 @@ python3 curriculum/intermediate/01-multi-agent-coding-workflows-coordination/lab
 
 Then use [the notebook](multi_agent_coordination.ipynb) and [Northstar workshop](northstar-multi-agent-delivery/README.md).
 
-The governed fixture produces no findings and `COORDINATION_READY`. The unsafe candidate stops with typed findings. The 31 labelled mutations must match exactly, with explicit false-positive and false-negative counts. None of those results prove production safety or general orchestrator quality.
+The governed fixture produces no findings and `COORDINATION_READY`. The unsafe candidate stops with typed findings. The 36 labelled mutations must produce 38 expected findings exactly, with explicit false-positive and false-negative counts. None of those results prove production safety or general orchestrator quality.
 
 ## 28. Experiments
 
@@ -411,6 +442,7 @@ The governed fixture produces no findings and `COORDINATION_READY`. The unsafe c
 5. Change extraction from revision `92bc31` and invalidate integration evidence.
 6. Propose `ProposedUpdate v3` and calculate active consumers, completed consumers, and stale evidence.
 7. Feed A→B→A repair history and stop for systemic analysis.
+8. Attempt to reserve an agent, permission, lease, and lock for `AWU-BR-REVIEW` while it is still `PLANNED`; identify the premature-resource finding and repair the lifecycle.
 
 ## 29. Failure modes and anti-patterns
 
@@ -466,6 +498,10 @@ Prefer one agent or a human-led change when work is tiny, tightly coupled, ambig
 12. Detect repeated contract churn and decide when to replan the parent change.
 13. Compare two valid decompositions by review surface and integration risk.
 14. Explain why a faster unsafe fixture is not the better delivery system.
+15. Diagnose a wave-four work unit that already has an active lease and reserved lock. Repair it to `PLANNED → READY → ASSIGNED` just-in-time binding.
+16. Compare two units writing `schema.py` in different waves with the same units writing it in one wave. Explain sequential ownership handoff versus parallel collision.
+17. Given integration evidence for `Extraction E1 + Validation V1`, decide what happens after independently verified `Extraction E2` replaces E1.
+18. Compare a multi-agent run with lower coding time but higher coordination, review, and repair time against a single-agent run. Defend the better workflow using lead time, review load, rework, integration, and quality—not coding time alone.
 
 ## Review questions
 
@@ -475,7 +511,7 @@ Prefer one agent or a human-led change when work is tiny, tightly coupled, ambig
 4. How do leases and logical locks differ?
 5. What invalidates component and integration evidence?
 6. Why should downstream units normally keep a pinned within-wave base?
-7. When does a coordination event require an external authority artifact?
+7. When does a coordination event require verification evidence, and when does it require an owner-approval artifact?
 8. What makes verification meaningfully independent?
 9. Why can more scope-expansion requests be a positive signal?
 10. How does pull scheduling incorporate human review capacity?

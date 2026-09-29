@@ -1777,8 +1777,8 @@ def check_course_11_multi_agent_coordination() -> list[str]:
 
     candidate = report.get("candidate", {})
     candidate_review = candidate.get("review", {})
-    if candidate_review.get("counts") != {"review": 9, "blocking": 50}:
-        errors.append("Course 11 unsafe candidate must retain 50 blocking and nine review findings")
+    if candidate_review.get("counts") != {"review": 11, "blocking": 50}:
+        errors.append("Course 11 unsafe candidate must retain 50 blocking and 11 review findings")
     candidate_decision = candidate.get("decision", {})
     if candidate_decision.get("state") != "COORDINATION_BLOCKED" or candidate_decision.get("ready_for_bounded_dispatch") is not False:
         errors.append("Course 11 unsafe candidate must remain blocked from bounded dispatch")
@@ -1822,10 +1822,49 @@ def check_course_11_multi_agent_coordination() -> list[str]:
     workflow = json.loads((scenario / "reference" / "workflow.json").read_text(encoding="utf-8"))
     if workflow.get("budgets", {}).get("max_parallel") != 2:
         errors.append("Course 11 reference must retain a bounded parallelism budget of two")
+    if "not recommended defaults" not in workflow.get("budget_provenance", {}).get("claim", ""):
+        errors.append("Course 11 fixture budgets must retain explicit non-default decision provenance")
     if len({item.get("branch") for item in workflow.get("work_units", [])}) != 6:
         errors.append("Course 11 work units must retain dedicated branch ownership")
     if any(item.get("permissions", {}).get("self_provisioned") is not False for item in workflow.get("assignments", [])):
         errors.append("Course 11 assignment permissions must never be self-provisioned")
+    future_units = {
+        item.get("id") for item in workflow.get("work_units", [])
+        if item.get("state") in {"PLANNED", "READY"}
+    }
+    assigned_units = {item.get("work_unit_id") for item in workflow.get("assignments", [])}
+    locked_units = {item.get("work_unit_id") for item in workflow.get("locks", [])}
+    if future_units & (assigned_units | locked_units) or any(
+        item.get("execution_owner") != "unassigned"
+        for item in workflow.get("work_units", [])
+        if item.get("id") in future_units
+    ):
+        errors.append("Course 11 future work must remain unassigned and unlocked until pull dispatch")
+    identities = {item.get("id"): item for item in workflow.get("identity_registry", [])}
+    for assignment in workflow.get("assignments", []):
+        identity_expiry = identities.get(assignment.get("agent_identity"), {}).get("expires_at", "")
+        lease_expiry = assignment.get("lease", {}).get("expires_at", "")
+        permission_expiry = assignment.get("permissions", {}).get("expires_at", "")
+        if not permission_expiry or lease_expiry > identity_expiry or permission_expiry > min(lease_expiry, identity_expiry):
+            errors.append("Course 11 leases and permissions must not outlive workload identity or assignment")
+            break
+    contracts = {item.get("id"): item for item in workflow.get("contract_registry", [])}
+    if set(contracts.get("ProposedUpdate", {}).get("consumers", [])) != {
+        "AWU-BR-EXTRACTION", "AWU-BR-VALIDATION", "AWU-BR-CONFLICT", "AWU-BR-REVIEW", "AWU-BR-INTEGRATION"
+    }:
+        errors.append("Course 11 ProposedUpdate registry must retain its explicit consumers")
+    integration_unit = next((item for item in workflow.get("work_units", []) if item.get("id") == "AWU-BR-INTEGRATION"), {})
+    if set(integration_unit.get("integration_inputs", [])) != {item.get("id") for item in workflow.get("component_registry", [])}:
+        errors.append("Course 11 must distinguish minimal execution ordering from explicit integration inputs")
+    transition_artifacts = {item.get("id"): item for item in workflow.get("transition_artifacts", [])}
+    contract_evidence = transition_artifacts.get("EVID-CONTRACT-2219", {})
+    contract_verification = transition_artifacts.get("VERIFY-CONTRACT-81AB21", {})
+    if (
+        contract_evidence.get("kind") != "component_evidence_bundle"
+        or contract_verification.get("kind") != "verification_evidence"
+        or "EVID-CONTRACT-2219" not in contract_verification.get("supports_evidence_ids", [])
+    ):
+        errors.append("Course 11 must distinguish component evidence from verification transition evidence")
     if workflow.get("verification", {}).get("independent") is not True:
         errors.append("Course 11 verification must remain independent from implementation")
     integration_denials = set(workflow.get("integration_authority", {}).get("may_not_decide", []))
@@ -1853,8 +1892,8 @@ def check_course_11_multi_agent_coordination() -> list[str]:
         evaluation.get("false_negative"),
         exact.get("numerator"),
         exact.get("denominator"),
-    ) != (31, 32, 0, 0, 31, 31):
-        errors.append("Course 11 labelled fixture evaluation must retain 31 exact cases and 32 expected findings")
+    ) != (36, 38, 0, 0, 36, 36):
+        errors.append("Course 11 labelled fixture evaluation must retain 36 exact cases and 38 expected findings")
     if "not_general" not in evaluation.get("claim", ""):
         errors.append("Course 11 evaluation must disclose its labelled-fixture boundary")
 
