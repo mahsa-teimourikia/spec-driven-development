@@ -612,4 +612,4 @@ A lightweight path still needs:
 
 This course demonstrates deterministic planning rules over fictional fixtures. It does not authenticate approvals, inspect a live repository, provision permissions, execute coding agents, prove implementation correctness, approve a merge, or authorize a release.
 
-Next: [Course 11](../../intermediate/01-multi-agent-coding-workflows-coordination/README.md) turns the work-unit graph into a bounded multi-agent coordination system. Course 12 then applies the hierarchy through GitHub Spec Kit as an extensible process harness.
+Next: [Course 11](../../intermediate/01-multi-agent-coding-workflows-coordination/README.md) turns the work-unit graph into a bounded multi-agent coordination system. [Course 12](../../intermediate/02-sdd-framework-landscape-enterprise-operating-model/README.md) then compares SDD frameworks inside one enterprise operating-model boundary.

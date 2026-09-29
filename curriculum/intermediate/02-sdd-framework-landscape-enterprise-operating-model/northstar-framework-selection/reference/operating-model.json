@@ -1,0 +1,145 @@
+{
+  "id": "NORTHSTAR-SDD-OPERATING-MODEL-001",
+  "observed_at": "2026-09-28",
+  "fixture_status": "fictional_training_model_not_vendor_certification",
+  "enterprise_requirements": [
+    {"id": "SDD-ENT-001", "capability": "stable_requirement_identity", "authority_domain": "BUSINESS", "owner": "Product Operations"},
+    {"id": "SDD-ENT-002", "capability": "policy_inheritance", "authority_domain": "POLICY", "owner": "Governance Platform"},
+    {"id": "SDD-ENT-003", "capability": "architecture_separation", "authority_domain": "ARCHITECTURE", "owner": "Architecture Council"},
+    {"id": "SDD-ENT-004", "capability": "open_question_preservation", "authority_domain": "BUSINESS", "owner": "Product and Risk"},
+    {"id": "SDD-ENT-005", "capability": "brownfield_current_truth", "authority_domain": "BUSINESS", "owner": "Service Owners"},
+    {"id": "SDD-ENT-006", "capability": "bounded_agent_work_units", "authority_domain": "EXECUTION", "owner": "Developer Platform"},
+    {"id": "SDD-ENT-007", "capability": "evidence_provenance", "authority_domain": "EVIDENCE", "owner": "Quality Engineering"},
+    {"id": "SDD-ENT-008", "capability": "tool_portability", "authority_domain": "EXECUTION", "owner": "Developer Platform"},
+    {"id": "SDD-ENT-009", "capability": "change_and_upgrade_assurance", "authority_domain": "ARCHITECTURE", "owner": "SDD Platform"},
+    {"id": "SDD-ENT-010", "capability": "release_authority_separation", "authority_domain": "RELEASE", "owner": "Release Engineering"}
+  ],
+  "variants": [
+    {
+      "id": "STYLE-REPO-NATIVE",
+      "family": "repository_native",
+      "description": "Portable files and repository-owned automation enriched by enterprise adapters.",
+      "source_context_id": "CTX-AI-2310@1-training",
+      "source_ids": ["TICKET-AI-2310", "AI-POLICY-042", "DOMAIN-DOC-11", "ADR-058", "DISCOVERY-AI-2310"],
+      "requirement_ids": ["SDD-ENT-001", "SDD-ENT-002", "SDD-ENT-003", "SDD-ENT-004", "SDD-ENT-005", "SDD-ENT-006", "SDD-ENT-007", "SDD-ENT-008", "SDD-ENT-009", "SDD-ENT-010"],
+      "policy_source_ids": ["AI-POLICY-042@7-training"],
+      "open_question_ids": ["Q-AUTH-2310"],
+      "requirements_contain_architecture": false,
+      "execution": {"autonomous_tasks": true, "agent_work_unit_enrichment": true},
+      "evidence": {"manifest": true, "subject_revision_binding": true},
+      "change_semantics": {"current_truth": "specs/current/", "proposed_change": "changes/AI-2310/"},
+      "critical_semantics_survive_framework_removal": true,
+      "portable_semantics": ["requirements", "authority", "decisions", "evidence", "change_history"],
+      "agent_boundary": {"may_generate": ["specification", "plan", "tasks", "code"], "may_not_decide": ["policy", "architecture_approval", "exception", "release"]},
+      "capabilities": {"artifact_progression": "extension", "change_semantics": "extension", "brownfield_discovery": "extension", "policy_inheritance": "extension", "authority_model": "external", "evidence_provenance": "extension", "agent_work_units": "extension", "multi_agent_control": "external", "portability": "native", "extensibility": "native"}
+    },
+    {
+      "id": "STYLE-SPEC-FIRST",
+      "family": "guided_spec_plan_tasks",
+      "description": "A structured artifact progression wrapped by enterprise context and assurance.",
+      "source_context_id": "CTX-AI-2310@1-training",
+      "source_ids": ["TICKET-AI-2310", "AI-POLICY-042", "DOMAIN-DOC-11", "ADR-058", "DISCOVERY-AI-2310"],
+      "requirement_ids": ["SDD-ENT-001", "SDD-ENT-002", "SDD-ENT-003", "SDD-ENT-004", "SDD-ENT-005", "SDD-ENT-006", "SDD-ENT-007", "SDD-ENT-008", "SDD-ENT-009", "SDD-ENT-010"],
+      "policy_source_ids": ["AI-POLICY-042@7-training"],
+      "open_question_ids": ["Q-AUTH-2310"],
+      "requirements_contain_architecture": false,
+      "execution": {"autonomous_tasks": true, "agent_work_unit_enrichment": true},
+      "evidence": {"manifest": true, "subject_revision_binding": true},
+      "change_semantics": {"current_truth": "enterprise-spec-registry", "proposed_change": "specs/AI-2310"},
+      "critical_semantics_survive_framework_removal": true,
+      "portable_semantics": ["requirements", "authority", "decisions", "evidence", "change_history"],
+      "agent_boundary": {"may_generate": ["specification", "plan", "tasks", "code"], "may_not_decide": ["policy", "architecture_approval", "exception", "release"]},
+      "capabilities": {"artifact_progression": "native", "change_semantics": "extension", "brownfield_discovery": "native", "policy_inheritance": "extension", "authority_model": "external", "evidence_provenance": "extension", "agent_work_units": "extension", "multi_agent_control": "external", "portability": "native", "extensibility": "native"}
+    },
+    {
+      "id": "STYLE-CHANGE-ORIENTED",
+      "family": "current_truth_plus_delta",
+      "description": "Current system truth and explicit change deltas wrapped by enterprise controls.",
+      "source_context_id": "CTX-AI-2310@1-training",
+      "source_ids": ["TICKET-AI-2310", "AI-POLICY-042", "DOMAIN-DOC-11", "ADR-058", "DISCOVERY-AI-2310"],
+      "requirement_ids": ["SDD-ENT-001", "SDD-ENT-002", "SDD-ENT-003", "SDD-ENT-004", "SDD-ENT-005", "SDD-ENT-006", "SDD-ENT-007", "SDD-ENT-008", "SDD-ENT-009", "SDD-ENT-010"],
+      "policy_source_ids": ["AI-POLICY-042@7-training"],
+      "open_question_ids": ["Q-AUTH-2310"],
+      "requirements_contain_architecture": false,
+      "execution": {"autonomous_tasks": true, "agent_work_unit_enrichment": true},
+      "evidence": {"manifest": true, "subject_revision_binding": true},
+      "change_semantics": {"current_truth": "specs/document-classification", "proposed_change": "changes/AI-2310/delta"},
+      "critical_semantics_survive_framework_removal": true,
+      "portable_semantics": ["requirements", "authority", "decisions", "evidence", "change_history"],
+      "agent_boundary": {"may_generate": ["proposal", "delta", "design", "tasks", "code"], "may_not_decide": ["policy", "architecture_approval", "exception", "release"]},
+      "capabilities": {"artifact_progression": "native", "change_semantics": "native", "brownfield_discovery": "native", "policy_inheritance": "extension", "authority_model": "external", "evidence_provenance": "extension", "agent_work_units": "extension", "multi_agent_control": "external", "portability": "native", "extensibility": "native"}
+    },
+    {
+      "id": "STYLE-ROLE-ORIENTED",
+      "family": "role_and_workflow_methodology",
+      "description": "A broader analysis-to-implementation method constrained by canonical authority and evidence adapters.",
+      "source_context_id": "CTX-AI-2310@1-training",
+      "source_ids": ["TICKET-AI-2310", "AI-POLICY-042", "DOMAIN-DOC-11", "ADR-058", "DISCOVERY-AI-2310"],
+      "requirement_ids": ["SDD-ENT-001", "SDD-ENT-002", "SDD-ENT-003", "SDD-ENT-004", "SDD-ENT-005", "SDD-ENT-006", "SDD-ENT-007", "SDD-ENT-008", "SDD-ENT-009", "SDD-ENT-010"],
+      "policy_source_ids": ["AI-POLICY-042@7-training"],
+      "open_question_ids": ["Q-AUTH-2310"],
+      "requirements_contain_architecture": false,
+      "execution": {"autonomous_tasks": true, "agent_work_unit_enrichment": true},
+      "evidence": {"manifest": true, "subject_revision_binding": true},
+      "change_semantics": {"current_truth": "canonical-spec-registry", "proposed_change": "initiative/AI-2310"},
+      "critical_semantics_survive_framework_removal": true,
+      "portable_semantics": ["requirements", "authority", "decisions", "evidence", "change_history"],
+      "agent_boundary": {"may_generate": ["analysis", "product_brief", "architecture_proposal", "stories", "code"], "may_not_decide": ["policy", "architecture_approval", "exception", "release"]},
+      "capabilities": {"artifact_progression": "native", "change_semantics": "extension", "brownfield_discovery": "native", "policy_inheritance": "extension", "authority_model": "external", "evidence_provenance": "extension", "agent_work_units": "extension", "multi_agent_control": "extension", "portability": "extension", "extensibility": "native"}
+    }
+  ],
+  "canonical_artifact_registry": [
+    {"type": "requirement", "authority_domain": "BUSINESS", "normative_scope": "business", "required_metadata": ["id", "owner", "source", "revision", "scope"]},
+    {"type": "architecture_decision", "authority_domain": "ARCHITECTURE", "normative_scope": "architecture", "required_metadata": ["id", "owner", "status", "alternatives", "revision"]},
+    {"type": "implementation_plan", "authority_domain": "EXECUTION", "normative_scope": "execution", "required_metadata": ["id", "specification_digest", "repository_revision"]},
+    {"type": "task", "authority_domain": "EXECUTION", "normative_scope": "non_normative", "required_metadata": ["id", "basis"]},
+    {"type": "agent_work_unit", "authority_domain": "EXECUTION", "normative_scope": "execution", "required_metadata": ["id", "scope", "authority", "stop_conditions", "evidence"]},
+    {"type": "evidence", "authority_domain": "EVIDENCE", "normative_scope": "claim_support", "required_metadata": ["id", "subject", "revision", "producer", "result"]},
+    {"type": "exception", "authority_domain": "POLICY", "normative_scope": "conditional_deviation", "required_metadata": ["id", "approver", "scope", "conditions", "expiry"]}
+  ],
+  "command_authority_matrix": [
+    {"stage": "specify", "may_generate": ["proposed_requirements"], "may_approve": false, "validators": ["authority", "ambiguity", "conflict", "open_questions", "provenance"]},
+    {"stage": "plan", "may_generate": ["implementation_plan", "architecture_proposal"], "may_approve": false, "validators": ["coverage", "orphan_work", "architecture_invention", "protected_decisions"]},
+    {"stage": "tasks", "may_generate": ["implementation_tasks"], "may_approve": false, "validators": ["scope", "justification", "dependency", "work_unit_enrichment"]},
+    {"stage": "implement", "may_generate": ["code", "tests", "completion_report"], "may_approve": false, "validators": ["scope_conformance", "independent_evidence", "subject_revision", "unresolved_risk"]}
+  ],
+  "authoritative_capability_owners": [
+    {"capability": "enterprise_policy", "owner": "Governance Platform", "system_of_record": "policy-catalog"},
+    {"capability": "architecture_decisions", "owner": "Architecture Council", "system_of_record": "adr-registry"},
+    {"capability": "project_change_workflow", "owner": "SDD Framework", "system_of_record": "repository"},
+    {"capability": "execution_permissions", "owner": "Developer Platform", "system_of_record": "workload-control-plane"},
+    {"capability": "release_decisions", "owner": "Release Engineering", "system_of_record": "delivery-control-plane"}
+  ],
+  "extension_boundary": {
+    "policy_propagation": "generated_revision_bound_effective_context",
+    "framework_fork_required": false,
+    "inputs": ["effective-context.json", "canonical-artifact-map.json"],
+    "outputs": ["evidence-manifest.json", "transformation-report.json"]
+  },
+  "selection_evidence": [
+    {"id": "EVID-CANONICAL-REGISTRY", "subject_revision": "NORTHSTAR-SDD-OPERATING-MODEL-001@1", "producer": "course12-deterministic-validator", "result": "registry_complete_in_fixture"},
+    {"id": "EVID-CONTEXT-ADAPTER", "subject_revision": "CTX-AI-2310@1-training", "producer": "course12-deterministic-validator", "result": "source_equivalence_passed"},
+    {"id": "EVID-COMMAND-MATRIX", "subject_revision": "NORTHSTAR-SDD-OPERATING-MODEL-001@1", "producer": "course12-deterministic-validator", "result": "command_authority_checks_passed"},
+    {"id": "EVID-GOLDEN-01", "subject_revision": "SDD-CONFORMANCE-SUITE-001@1", "producer": "course12-conformance-runner", "result": "unresolved_authority_preserved"},
+    {"id": "EVID-CHANGE-MODEL", "subject_revision": "NORTHSTAR-SDD-OPERATING-MODEL-001@1", "producer": "course12-deterministic-validator", "result": "current_and_proposed_states_explicit"},
+    {"id": "EVID-AWU-ADAPTER", "subject_revision": "NORTHSTAR-SDD-OPERATING-MODEL-001@1", "producer": "course12-deterministic-validator", "result": "autonomous_tasks_enriched"},
+    {"id": "EVID-EVIDENCE-MANIFEST", "subject_revision": "NORTHSTAR-SDD-OPERATING-MODEL-001@1", "producer": "course12-deterministic-validator", "result": "evidence_revision_binding_present"},
+    {"id": "EVID-MIGRATION-TEST", "subject_revision": "NORTHSTAR-SDD-OPERATING-MODEL-001@1", "producer": "course12-migration-runner", "result": "critical_semantics_retained"},
+    {"id": "EVID-GOLDEN-SUITE", "subject_revision": "SDD-CONFORMANCE-SUITE-001@1", "producer": "course12-conformance-runner", "result": "six_synthetic_scenarios_passed"},
+    {"id": "EVID-RELEASE-BOUNDARY", "subject_revision": "NORTHSTAR-SDD-OPERATING-MODEL-001@1", "producer": "course12-deterministic-validator", "result": "release_authority_external"}
+  ],
+  "risk_tiers": [
+    {"tier": 1, "mode": "direct_or_lightweight", "examples": ["documentation", "local_reversible_refactor"]},
+    {"tier": 2, "mode": "structured_spec", "examples": ["product_behavior", "shared_contract"]},
+    {"tier": 3, "mode": "governed_consequential_ai", "examples": ["regulated_ai", "policy_exception"]},
+    {"tier": 4, "mode": "full_orchestrated_delivery", "examples": ["multi_agent", "cross_repository", "irreversible"]}
+  ],
+  "framework_upgrade_assurance": {
+    "baseline_version": "framework-training-v1",
+    "candidate_version": "framework-training-v2",
+    "prompt_template_versions": ["specify@training-v1", "plan@training-v1", "tasks@training-v1"],
+    "golden_scenario_ids": ["GOLDEN-01", "GOLDEN-02", "GOLDEN-03", "GOLDEN-04", "GOLDEN-05", "GOLDEN-06"],
+    "rollout": "representative_projects_then_bounded_cohort"
+  },
+  "boundary": "Capability profiles describe this dated training model. They are not universal vendor scores, certifications, or purchasing advice."
+}

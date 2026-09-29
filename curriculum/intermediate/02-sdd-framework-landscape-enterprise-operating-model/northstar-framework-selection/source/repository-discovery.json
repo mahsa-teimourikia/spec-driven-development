@@ -1,0 +1,12 @@
+{
+  "id": "DISCOVERY-AI-2310",
+  "repository": "northstar/submission-service",
+  "revision": "c0ffee7-training",
+  "observations": [
+    {"path": "src/documents/envelope.py", "contract": "DocumentEnvelope@4"},
+    {"path": "src/review/proposals.py", "contract": "ReviewProposal@2"},
+    {"path": "src/underwriting/requirements.py", "protected": true},
+    {"path": "tests/contracts/test_document_envelope.py", "evidence_role": "contract"}
+  ]
+}
+

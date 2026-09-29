@@ -7,7 +7,7 @@ This curriculum develops one idea across 38 courses: an enterprise should conver
 | Level | Global courses | Program parts | Status |
 | --- | ---: | --- | --- |
 | [Beginner](beginner/README.md) | 01–10 | SDD foundations; executable specifications | Courses 01–10 available |
-| [Intermediate](intermediate/README.md) | 11–23 | Agentic execution; frameworks; Agentic PDLC | Course 11 available |
+| [Intermediate](intermediate/README.md) | 11–23 | Agentic execution; frameworks; Agentic PDLC | Courses 11–12 available |
 | [Advanced](advanced/README.md) | 24–38 | Enterprise controls; advanced agentic SDD | Planned |
 | [Enterprise Agent](enterprise-agent/README.md) | Capstone | Design a real enterprise Agentic PDLC | Planned |
 
@@ -24,6 +24,7 @@ This curriculum develops one idea across 38 courses: an enterprise should conver
 9. [Specification quality, review, and anti-patterns](beginner/09-specification-quality-review-antipatterns/README.md) — [notebook](beginner/09-specification-quality-review-antipatterns/specification_review.ipynb) · [review lab](beginner/09-specification-quality-review-antipatterns/lab.py) · [AI-2290 specification-review workshop](beginner/09-specification-quality-review-antipatterns/northstar-spec-review/README.md)
 10. [From specification to implementation plan & agent work units](beginner/10-specification-to-implementation-plan/README.md) — [notebook](beginner/10-specification-to-implementation-plan/implementation_planning.ipynb) · [planning lab](beginner/10-specification-to-implementation-plan/lab.py) · [AI-2219 implementation-planning workshop](beginner/10-specification-to-implementation-plan/northstar-implementation-plan/README.md)
 11. [Multi-Agent Coding Workflows & Coordination](intermediate/01-multi-agent-coding-workflows-coordination/README.md) — [notebook](intermediate/01-multi-agent-coding-workflows-coordination/multi_agent_coordination.ipynb) · [coordination lab](intermediate/01-multi-agent-coding-workflows-coordination/lab.py) · [AI-2219 multi-agent delivery workshop](intermediate/01-multi-agent-coding-workflows-coordination/northstar-multi-agent-delivery/README.md)
+12. [SDD Framework Landscape & Choosing an Enterprise Operating Model](intermediate/02-sdd-framework-landscape-enterprise-operating-model/README.md) — [notebook](intermediate/02-sdd-framework-landscape-enterprise-operating-model/framework_landscape.ipynb) · [selection lab](intermediate/02-sdd-framework-landscape-enterprise-operating-model/lab.py) · [AI-2310 framework-selection workshop](intermediate/02-sdd-framework-landscape-enterprise-operating-model/northstar-framework-selection/README.md)
 
 Each completed course is a vertical slice: chapter, guided notebook, reusable lab, checkpoint, references, and automated validation. Planned cards remain visible in the [deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/) without presenting unfinished content as complete.
 

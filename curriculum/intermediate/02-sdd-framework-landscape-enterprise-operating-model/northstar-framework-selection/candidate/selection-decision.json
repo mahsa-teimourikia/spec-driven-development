@@ -1,0 +1,12 @@
+{
+  "id": "ADR-SDD-UNSAFE",
+  "status": "approved",
+  "framework_authority": "enterprise_governance",
+  "decision": {"pattern": "one_tool_everywhere"},
+  "requirement_dispositions": [],
+  "alternatives": [],
+  "assumptions": [],
+  "reconsideration_triggers": [],
+  "overall_score": 94,
+  "claim": "best_framework"
+}

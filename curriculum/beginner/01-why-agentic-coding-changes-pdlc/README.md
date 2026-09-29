@@ -472,7 +472,7 @@ Work through it as a nine-stage professional exercise:
 | 8. Traceability | Where is each requirement realized and verified? | Design/task/code/test/runtime matrix with visible holes |
 | 9. Gate decision | May it merge, and may it release to production? | Human-readable gate report and JSON evidence bundle |
 
-The actual Spec Kit and OpenSpec command tracks are intentionally deferred to Courses 11 and 12. Those courses reuse this same Northstar change so the learner compares development experience and persistence semantics, not two unrelated toy problems.
+The actual framework command tracks are intentionally deferred until after Course 12 establishes a framework-neutral selection and authority model. Later courses reuse Northstar changes so learners compare development experience and persistence semantics rather than unrelated toy problems.
 
 The orchestrator copies this fixture to a temporary workspace before applying candidate source code, so the teaching repository remains unchanged:
 

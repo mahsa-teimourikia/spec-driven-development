@@ -1,0 +1,15 @@
+{
+  "id": "TODO",
+  "source_context_id": "CTX-AI-2310@1-training",
+  "enterprise_requirements": ["TODO: copy and disposition SDD-ENT-001 through SDD-ENT-010"],
+  "workflow_styles": [
+    {"id": "repo-native", "capabilities": {"TODO": "native|extension|external|unsupported"}},
+    {"id": "spec-first", "capabilities": {"TODO": "native|extension|external|unsupported"}},
+    {"id": "change-oriented", "capabilities": {"TODO": "native|extension|external|unsupported"}},
+    {"id": "role-oriented", "capabilities": {"TODO": "native|extension|external|unsupported"}}
+  ],
+  "canonical_artifacts": ["TODO"],
+  "command_authority": ["TODO"],
+  "extension_boundary": "TODO"
+}
+
