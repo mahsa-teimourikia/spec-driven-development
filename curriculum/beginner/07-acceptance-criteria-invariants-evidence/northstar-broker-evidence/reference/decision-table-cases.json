@@ -1,0 +1,19 @@
+{
+  "id": "DT-COVERAGE-BR-001",
+  "revision": "1.0-training",
+  "source_table": "DT-BR-001@1.1-training",
+  "cases": [
+    {"id": "DT-CASE-01", "facts": {"existing_value": "none", "existing_verified": "any", "proposed_valid": true, "same_value": "any", "auto_accept_allowed": true}, "expected_row_id": "DT-01", "expected_outcome": "auto_apply_eligible"},
+    {"id": "DT-CASE-02", "facts": {"existing_value": "none", "existing_verified": "any", "proposed_valid": true, "same_value": "any", "auto_accept_allowed": false}, "expected_row_id": "DT-02", "expected_outcome": "propose"},
+    {"id": "DT-CASE-03", "facts": {"existing_value": "present", "existing_verified": false, "proposed_valid": true, "same_value": true, "auto_accept_allowed": true}, "expected_row_id": "DT-03", "expected_outcome": "no_change"},
+    {"id": "DT-CASE-04", "facts": {"existing_value": "present", "existing_verified": false, "proposed_valid": true, "same_value": false, "auto_accept_allowed": true}, "expected_row_id": "DT-04", "expected_outcome": "auto_apply_eligible"},
+    {"id": "DT-CASE-05", "facts": {"existing_value": "present", "existing_verified": false, "proposed_valid": true, "same_value": false, "auto_accept_allowed": false}, "expected_row_id": "DT-05", "expected_outcome": "propose"},
+    {"id": "DT-CASE-06", "facts": {"existing_value": "present", "existing_verified": true, "proposed_valid": true, "same_value": true, "auto_accept_allowed": true}, "expected_row_id": "DT-06", "expected_outcome": "no_change"},
+    {"id": "DT-CASE-07", "facts": {"existing_value": "present", "existing_verified": true, "proposed_valid": true, "same_value": false, "auto_accept_allowed": true}, "expected_row_id": "DT-07", "expected_outcome": "conflict"},
+    {"id": "DT-CASE-08", "facts": {"existing_value": "present", "existing_verified": true, "proposed_valid": false, "same_value": false, "auto_accept_allowed": true}, "expected_row_id": "DT-08", "expected_outcome": "reject"}
+  ],
+  "limitations": [
+    "One example per row establishes structural row exercise, not business-rule correctness.",
+    "Course 06 separately checks exactly-one-row determinism over the declared fact space."
+  ]
+}

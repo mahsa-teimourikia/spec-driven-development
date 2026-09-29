@@ -1,0 +1,17 @@
+{
+  "id": "EVIDENCE-INVALIDATION-BR-001",
+  "revision": "1.0-training",
+  "changes": {
+    "business_logic": ["unit_test", "integration_test", "property_test", "contract_test", "security_test"],
+    "requirement": ["unit_test", "integration_test", "property_test", "contract_test", "security_test", "synthetic_evaluation_fixture", "runtime_monitor"],
+    "model_version": ["integration_test", "performance_test"],
+    "prompt": ["integration_test", "security_test"],
+    "authorization_policy": ["integration_test", "property_test", "security_test", "runtime_monitor"],
+    "infrastructure": ["integration_test", "security_test", "performance_test", "runtime_monitor"],
+    "dataset": ["synthetic_evaluation_fixture"]
+  },
+  "limitations": [
+    "The matrix identifies review and rerun scope; it does not prove that every listed artifact must change.",
+    "Production teams need repository- and control-specific invalidation rules."
+  ]
+}

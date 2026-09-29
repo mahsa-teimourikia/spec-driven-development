@@ -4,7 +4,7 @@
 
 ## Start here
 
-Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through Courses 02–05, then complete [Course 06: Writing executable requirements](curriculum/beginner/06-writing-executable-requirements/README.md) with its guided [notebook](curriculum/beginner/06-writing-executable-requirements/requirements_writing.ipynb), deterministic [behavior lab](curriculum/beginner/06-writing-executable-requirements/lab.py), realistic [AI-2219 workshop](curriculum/beginner/06-writing-executable-requirements/northstar-broker-response/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
+Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through Course 07, then complete [Course 08: Non-functional requirements for agentic systems](curriculum/beginner/08-non-functional-requirements-agentic-systems/README.md) with its guided [notebook](curriculum/beginner/08-non-functional-requirements-agentic-systems/nfr_engineering.ipynb), deterministic [NFR lab](curriculum/beginner/08-non-functional-requirements-agentic-systems/lab.py), realistic [AI-2219 production-readiness workshop](curriculum/beginner/08-non-functional-requirements-agentic-systems/northstar-broker-nfrs/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
 
 This is not simply a tutorial for one specification framework. The central skill is turning organizational intent, architecture rules, product requirements, and engineering constraints into a hierarchy of durable specifications that agents can execute—and humans can govern.
 
@@ -100,9 +100,35 @@ Course 06 connects complementary requirement representations into one governed b
 - evaluate model extraction separately from trusted application decisions; and
 - classify semantic requirement changes and trace direct and transitive impact.
 
+## Course 07 outcome
+
+Course 07 converts requirements into defensible, bounded evidence. You will:
+
+- distinguish requirements, acceptance criteria, tests, evidence, and release decisions;
+- design positive, negative, boundary, failure, stale-context, security, and compatibility criteria;
+- pair reviewable examples with broad invariants, frame conditions, decision-table coverage, and state checks;
+- use property-based reasoning and mutation testing without overclaiming proof;
+- define AI evaluation populations, slices, label provenance, split controls, and explicit denominators;
+- track evidence provenance, freshness, invalidation, independence, and limitations;
+- separate measured quality from threshold ownership and release authority; and
+- connect preventive controls with runtime signals that expose the applicable population.
+
+## Course 08 outcome
+
+Course 08 turns production qualities into governed measurement contracts. You will:
+
+- replace vague adjectives with population-bound, measurable NFRs without inventing targets;
+- define workload profiles, latency boundaries, percentiles, semantic good events, and capacity evidence;
+- distinguish SLIs, internal SLOs, external SLAs, invariants, and error-budget response policies;
+- design dependency-specific degradation that preserves work and reduces autonomy;
+- bound provider attempts, tool calls, model turns, tokens, deadlines, and authoritative side effects;
+- measure cost per successful compliant workflow rather than optimizing isolated API calls;
+- specify least privilege, privacy-safe telemetry, trace completeness, and AI-quality slices; and
+- keep production blocked when targets are unauthorized, capacity is unmeasured, or evidence is synthetic.
+
 ## Run locally
 
-Everything in Courses 01–06 is credential-free and uses the Python standard library.
+Everything in Courses 01–08 is credential-free and uses the Python standard library.
 
 ```bash
 python3 curriculum/beginner/01-why-agentic-coding-changes-pdlc/lab.py
@@ -112,6 +138,8 @@ python3 curriculum/beginner/03-the-specification-hierarchy/lab.py
 python3 curriculum/beginner/04-company-project-feature-requirements/lab.py
 python3 curriculum/beginner/05-requirements-engineering-for-agents/lab.py
 python3 curriculum/beginner/06-writing-executable-requirements/lab.py
+python3 curriculum/beginner/07-acceptance-criteria-invariants-evidence/lab.py
+python3 curriculum/beginner/08-non-functional-requirements-agentic-systems/lab.py
 python3 -m unittest discover -s tests -v
 python3 scripts/validate_course.py
 ```

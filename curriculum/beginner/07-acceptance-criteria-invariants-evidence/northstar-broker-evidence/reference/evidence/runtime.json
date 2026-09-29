@@ -1,0 +1,18 @@
+{
+  "records": [
+    {
+      "evidence_id": "EVID-RUNTIME-BR-001",
+      "lifecycle_state": "executed",
+      "type": "runtime_monitor",
+      "evidence_class": "runtime_operational",
+      "requirement_ids": ["REQ-BR-001", "REQ-BR-003"],
+      "invariant_ids": ["INV-BR-001", "INV-BR-002"],
+      "source": "synthetic_course07_event_fixture",
+      "production_evidence": false,
+      "producer": {"id": "synthetic-runtime-fixture", "relationship_to_implementation": "deterministic_ci_control", "identity_authenticated": false},
+      "validity": {"specification_revision": "1.1-training", "implementation_revision": "course06-2dd6bc2-training", "environment_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "tool_revision": "course07-lab-1.0-training"},
+      "result": {"status": "simulated", "numerator": 0, "denominator": 5, "executed_at": "2026-09-21T17:00:00Z", "production_status": "not_measured", "display_label": "SIMULATED COURSE FIXTURE — NOT PRODUCTION EVIDENCE"},
+      "limitations": ["Synthetic events demonstrate denominator semantics but cannot prove production control effectiveness or telemetry completeness."]
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "schema_version": "1.0-training",
+  "measurements": [
+    {"requirement_id":"PERF-BR-001","signal":"TODO","population":"TODO","aggregation":"TODO","producer":"TODO","retention":"TODO","content_capture":"TODO","limitations":"TODO"}
+  ]
+}

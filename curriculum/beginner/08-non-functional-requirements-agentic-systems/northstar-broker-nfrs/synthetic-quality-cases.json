@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0-training",
+  "fixture_status": "fixed_prediction_pipeline_exercise_not_model_quality_evidence",
+  "cases": [
+    {"case_id": "Q-01", "risk_slice": "verified_conflict", "governed_decision_correct": true},
+    {"case_id": "Q-02", "risk_slice": "verified_conflict", "governed_decision_correct": true},
+    {"case_id": "Q-03", "risk_slice": "stale_context", "governed_decision_correct": true},
+    {"case_id": "Q-04", "risk_slice": "stale_context", "governed_decision_correct": true},
+    {"case_id": "Q-05", "risk_slice": "unauthorized", "governed_decision_correct": true},
+    {"case_id": "Q-06", "risk_slice": "unauthorized", "governed_decision_correct": true},
+    {"case_id": "Q-07", "risk_slice": "unsupported_field", "governed_decision_correct": true},
+    {"case_id": "Q-08", "risk_slice": "unsupported_field", "governed_decision_correct": false}
+  ]
+}

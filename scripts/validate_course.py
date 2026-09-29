@@ -1065,6 +1065,326 @@ def check_course_06_executable_requirements() -> list[str]:
     return errors
 
 
+def check_course_07_acceptance_evidence() -> list[str]:
+    lesson = ROOT / "curriculum" / "beginner" / "07-acceptance-criteria-invariants-evidence"
+    scenario = lesson / "northstar-broker-evidence"
+    required = [
+        "README.md",
+        "acceptance_evidence.ipynb",
+        "lab.py",
+        "assets/diagram-spec.json",
+        "assets/render_diagram.py",
+        "assets/requirement-to-runtime-evidence.svg",
+        "northstar-broker-evidence/README.md",
+        "northstar-broker-evidence/evaluation-cases.json",
+        "northstar-broker-evidence/ticket/AI-2219-verification.md",
+        "northstar-broker-evidence/reference/acceptance-contract.json",
+        "northstar-broker-evidence/reference/decision-table-cases.json",
+        "northstar-broker-evidence/reference/evaluation-contract.json",
+        "northstar-broker-evidence/reference/gate-policy.json",
+        "northstar-broker-evidence/reference/human-rubric.json",
+        "northstar-broker-evidence/reference/invalidation-matrix.json",
+        "northstar-broker-evidence/reference/runtime-events.json",
+        "northstar-broker-evidence/reference/tool-manifest.json",
+        "northstar-broker-evidence/reference/traceability.csv",
+        "northstar-broker-evidence/reference/evidence/manifest.json",
+        "northstar-broker-evidence/reference/evidence/deterministic.json",
+        "northstar-broker-evidence/reference/evidence/properties.json",
+        "northstar-broker-evidence/reference/evidence/mutation.json",
+        "northstar-broker-evidence/reference/evidence/statistical.json",
+        "northstar-broker-evidence/reference/evidence/human.json",
+        "northstar-broker-evidence/reference/evidence/runtime.json",
+        "northstar-broker-evidence/workshop/starter/README.md",
+        "northstar-broker-evidence/workshop/starter/acceptance-contract.json",
+        "northstar-broker-evidence/workshop/starter/evaluation-contract.json",
+        "northstar-broker-evidence/workshop/starter/gate-policy.json",
+        "northstar-broker-evidence/workshop/starter/human-rubric.json",
+        "northstar-broker-evidence/workshop/starter/traceability.csv",
+        "northstar-broker-evidence/workshop/starter/evidence/manifest.json",
+    ]
+    errors = [f"missing Course 07 artifact: {item}" for item in required if not (lesson / item).exists()]
+    if errors:
+        return errors
+
+    json_paths = [
+        scenario / "evaluation-cases.json",
+        scenario / "reference" / "acceptance-contract.json",
+        scenario / "reference" / "decision-table-cases.json",
+        scenario / "reference" / "evaluation-contract.json",
+        scenario / "reference" / "gate-policy.json",
+        scenario / "reference" / "human-rubric.json",
+        scenario / "reference" / "invalidation-matrix.json",
+        scenario / "reference" / "runtime-events.json",
+        scenario / "reference" / "tool-manifest.json",
+        scenario / "reference" / "evidence" / "manifest.json",
+        lesson / "assets" / "diagram-spec.json",
+    ]
+    evidence_files = sorted((scenario / "reference" / "evidence").glob("*.json"))
+    json_paths.extend(path for path in evidence_files if path.name != "manifest.json")
+    payloads: dict[Path, dict] = {}
+    for path in json_paths:
+        try:
+            payloads[path] = json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError) as exc:
+            errors.append(f"invalid Course 07 JSON {path.relative_to(ROOT)}: {exc}")
+    if errors:
+        return errors
+
+    reference = scenario / "reference"
+    contract = payloads[reference / "acceptance-contract.json"]
+    criteria = contract.get("acceptance_criteria", [])
+    kinds = {item.get("kind") for item in criteria}
+    required_kinds = {"positive", "negative", "boundary", "failure", "staleness", "security", "contract"}
+    if len(contract.get("scope", {}).get("requirement_ids", [])) != 10:
+        errors.append("Course 07 high-risk scope must retain ten Course 06 requirements")
+    if len(criteria) != 14 or not required_kinds.issubset(kinds):
+        errors.append("Course 07 must retain fourteen diverse observable acceptance criteria")
+    if len(contract.get("invariants", [])) != 6:
+        errors.append("Course 07 must retain five invariants and one frame condition")
+    stale_criterion = next((item for item in criteria if item.get("id") == "AC-BR-036-A"), {})
+    if stale_criterion.get("requirement_ids") != ["REQ-BR-036"] or stale_criterion.get("invariant_ids") != ["INV-BR-005"]:
+        errors.append("Course 07 stale-context criterion must not reuse replay/idempotency traceability")
+    rubric = payloads[reference / "human-rubric.json"]
+    protocol = rubric.get("review_protocol", {})
+    if rubric.get("status") != "template_only_not_run" or rubric.get("release_threshold") is not None:
+        errors.append("Course 07 human rubric must remain unexecuted and must not invent a release threshold")
+    if protocol.get("reviewers_per_case", 0) < 2 or not protocol.get("independent_before_adjudication"):
+        errors.append("Course 07 human rubric must require independent ratings before adjudication")
+
+    records = [
+        record
+        for path in evidence_files
+        if path.name != "manifest.json"
+        for record in payloads[path].get("records", [])
+    ]
+    expected_classes = {"deterministic_conformance", "statistical_quality", "human_judgment", "runtime_operational"}
+    if len(records) != 14 or {item.get("evidence_class") for item in records} != expected_classes:
+        errors.append("Course 07 evidence bundle must retain fourteen records across all four evidence classes")
+    if any(not item.get("limitations") for item in records):
+        errors.append("Course 07 evidence records must declare limitations")
+    record_map = {item.get("evidence_id"): item for item in records}
+    if record_map.get("EVID-PROP-PROVENANCE", {}).get("invariant_ids") != ["INV-BR-003"]:
+        errors.append("Course 07 provenance invariant needs direct behavioral property evidence")
+    if record_map.get("EVID-HUMAN-RUBRIC", {}).get("lifecycle_state") != "planned":
+        errors.append("Course 07 unexecuted human rubric must remain planned evidence")
+    if any(item.get("lifecycle_state") != "executed" for item in records if item.get("evidence_id") != "EVID-HUMAN-RUBRIC"):
+        errors.append("Course 07 executed evidence records must declare their lifecycle state")
+
+    reference_text = "\n".join(path.read_text(encoding="utf-8") for path in reference.rglob("*") if path.is_file())
+    if "TODO" in reference_text:
+        errors.append("Course 07 reference artifacts contain unresolved TODOs")
+    starter = scenario / "workshop" / "starter"
+    starter_text = "\n".join(path.read_text(encoding="utf-8") for path in starter.rglob("*") if path.is_file())
+    if "TODO" not in starter_text:
+        errors.append("Course 07 starter workspace has no editable TODO prompts")
+
+    result = subprocess.run(
+        [sys.executable, str(lesson / "lab.py")],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    try:
+        report = json.loads(result.stdout) if result.returncode == 0 else {}
+    except json.JSONDecodeError:
+        report = {}
+    if report.get("contract_findings") or report.get("evidence_findings") or report.get("traceability_findings"):
+        errors.append("Course 07 reference contracts, evidence, and traceability must validate cleanly")
+    if report.get("acceptance", {}).get("passed") != 14 or report.get("acceptance", {}).get("total") != 14:
+        errors.append("Course 07 acceptance suite must pass all fourteen declared criteria")
+    properties = report.get("properties", [])
+    if len(properties) != 5 or any(item.get("violations") != 0 or item.get("checked", 0) == 0 for item in properties):
+        errors.append("Course 07 must exercise five non-empty bounded properties without reference violations")
+    coverage = report.get("decision_table_coverage", {})
+    if (coverage.get("covered"), coverage.get("total")) != (8, 8) or coverage.get("failed_case_ids"):
+        errors.append("Course 07 must retain complete decision-table row coverage with no reference failures")
+    mutation = report.get("mutation_evidence", {})
+    if (mutation.get("killed"), mutation.get("total")) != (3, 3):
+        errors.append("Course 07 evidence must detect all three seeded mutants")
+    governed = report.get("evaluation", {}).get("governed", {}).get("overall", {})
+    baseline = report.get("evaluation", {}).get("baseline", {}).get("overall", {})
+    if (governed.get("numerator"), governed.get("denominator")) != (12, 12) or baseline.get("value", 1) >= governed.get("value", 0):
+        errors.append("Course 07 evaluation fixtures must preserve twelve labelled cases and a weaker baseline")
+    gates = {item.get("gate_id"): item for item in report.get("gates", [])}
+    if gates.get("GATE-BR-CONFLICT-EVAL", {}).get("decision") != "blocked" or gates.get("GATE-BR-CONFLICT-EVAL", {}).get("reason_codes") != ["THRESHOLD_NOT_AUTHORIZED"]:
+        errors.append("Course 07 statistical gate must remain blocked until an owner authorizes its threshold")
+    runtime = report.get("runtime", {})
+    if (runtime.get("violations"), runtime.get("applicable_events")) != (0, 5):
+        errors.append("Course 07 runtime fixture must retain an explicit non-zero applicable population")
+    if runtime.get("production_evidence") is not False or runtime.get("evidence_status") != "simulated_not_production":
+        errors.append("Course 07 runtime output must be visibly labelled simulated and non-production")
+    release = report.get("release_assessment", {})
+    scope = release.get("scope", {})
+    if release.get("production_ready") is not False or release.get("claim") != "bounded_high_risk_slice_conformance_only":
+        errors.append("Course 07 green bounded evidence must not claim production readiness")
+    if (scope.get("course06_requirement_count"), scope.get("assurance_requirement_count"), scope.get("excluded_normative_requirement_count")) != (10, 3, 8):
+        errors.append("Course 07 release assessment must expose included and excluded scope")
+    populations = report.get("population_eligibility", {})
+    if populations.get("french", {}).get("disposition") != "manual_review" or populations.get("attachment", {}).get("disposition") != "manual_review":
+        errors.append("Course 07 out-of-population inputs must route to manual review")
+    field_coverage = report.get("evaluation_field_coverage", {})
+    if field_coverage.get("missing_supported_fields") != ["sprinkler_system"] or field_coverage.get("prior_evidence_wholly_invalid") is not False:
+        errors.append("Course 07 must report new-field evaluation gaps as partial invalidation")
+    freshness = report.get("freshness", [])
+    if len(freshness) != 14 or any(not item.get("current") for item in freshness):
+        errors.append("Course 07 reference evidence must be current for the declared fixture revisions")
+    return errors
+
+
+def check_course_08_non_functional_requirements() -> list[str]:
+    lesson = ROOT / "curriculum" / "beginner" / "08-non-functional-requirements-agentic-systems"
+    scenario = lesson / "northstar-broker-nfrs"
+    required = [
+        "README.md",
+        "nfr_engineering.ipynb",
+        "lab.py",
+        "northstar-broker-nfrs/README.md",
+        "northstar-broker-nfrs/workload-profiles.json",
+        "northstar-broker-nfrs/synthetic-runtime-events.json",
+        "northstar-broker-nfrs/synthetic-quality-cases.json",
+        "northstar-broker-nfrs/ticket/AI-2219-rollout.md",
+        "northstar-broker-nfrs/reference/nfr-contract.json",
+        "northstar-broker-nfrs/reference/target-decisions.json",
+        "northstar-broker-nfrs/reference/measurement-plan.json",
+        "northstar-broker-nfrs/reference/degradation-policy.json",
+        "northstar-broker-nfrs/reference/agent-budget.json",
+        "northstar-broker-nfrs/reference/traceability.csv",
+        "northstar-broker-nfrs/workshop/starter/README.md",
+        "northstar-broker-nfrs/workshop/starter/nfr-contract.json",
+        "northstar-broker-nfrs/workshop/starter/target-decisions.json",
+        "northstar-broker-nfrs/workshop/starter/measurement-plan.json",
+        "northstar-broker-nfrs/workshop/starter/degradation-policy.json",
+        "northstar-broker-nfrs/workshop/starter/agent-budget.json",
+        "northstar-broker-nfrs/workshop/starter/traceability.csv",
+    ]
+    errors = [f"missing Course 08 artifact: {item}" for item in required if not (lesson / item).exists()]
+    if errors:
+        return errors
+
+    json_paths = [
+        scenario / "workload-profiles.json",
+        scenario / "synthetic-runtime-events.json",
+        scenario / "synthetic-quality-cases.json",
+        scenario / "reference" / "nfr-contract.json",
+        scenario / "reference" / "target-decisions.json",
+        scenario / "reference" / "measurement-plan.json",
+        scenario / "reference" / "degradation-policy.json",
+        scenario / "reference" / "agent-budget.json",
+    ]
+    payloads: dict[Path, dict] = {}
+    for path in json_paths:
+        try:
+            payloads[path] = json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError) as exc:
+            errors.append(f"invalid Course 08 JSON {path.relative_to(ROOT)}: {exc}")
+    if errors:
+        return errors
+
+    reference = scenario / "reference"
+    reference_text = "\n".join(path.read_text(encoding="utf-8") for path in reference.rglob("*") if path.is_file())
+    if "TODO" in reference_text:
+        errors.append("Course 08 reference artifacts contain unresolved TODOs")
+    starter = scenario / "workshop" / "starter"
+    starter_text = "\n".join(path.read_text(encoding="utf-8") for path in starter.rglob("*") if path.is_file())
+    if "TODO" not in starter_text:
+        errors.append("Course 08 starter workspace has no editable TODO prompts")
+
+    contract = payloads[reference / "nfr-contract.json"]
+    requirements = contract.get("requirements", [])
+    expected_ids = {
+        "PERF-BR-001", "REL-BR-001", "RES-BR-001", "AGENT-NFR-001", "COST-BR-001",
+        "OBS-BR-001", "AIQ-BR-001", "SEC-NFR-001", "PRIV-NFR-001", "CAP-BR-001",
+        "SEC-NFR-002",
+    }
+    if {item.get("id") for item in requirements} != expected_ids:
+        errors.append("Course 08 must retain eleven atomic production-quality requirements")
+    unresolved = {item.get("id") for item in requirements if item.get("target", {}).get("status") == "target_unresolved"}
+    if unresolved != {"COST-BR-001", "AIQ-BR-001"}:
+        errors.append("Course 08 cost and AI-quality targets must remain explicitly unresolved")
+    if any(
+        item.get("target", {}).get("value") is not None or item.get("target", {}).get("decision_id") is not None
+        for item in requirements
+        if item.get("id") in unresolved
+    ):
+        errors.append("Course 08 unresolved targets must not contain invented values or decisions")
+
+    profiles = payloads[scenario / "workload-profiles.json"].get("profiles", [])
+    profile_status = {item.get("id"): item.get("status") for item in profiles}
+    if profile_status != {"W1": "owner_approved_training_fixture", "W2": "target_unresolved", "W3": "target_unresolved"}:
+        errors.append("Course 08 workload profiles must distinguish approved W1 from unresolved W2/W3 hypotheses")
+    events = payloads[scenario / "synthetic-runtime-events.json"]
+    quality = payloads[scenario / "synthetic-quality-cases.json"]
+    if events.get("fixture_status") != "synthetic_training_fixture_not_production_evidence" or len(events.get("events", [])) != 12:
+        errors.append("Course 08 runtime fixture must retain twelve explicitly synthetic events")
+    if quality.get("fixture_status") != "fixed_prediction_pipeline_exercise_not_model_quality_evidence" or len(quality.get("cases", [])) != 8:
+        errors.append("Course 08 quality fixture must retain eight fixed-prediction cases without model-quality claims")
+
+    with (reference / "traceability.csv").open(encoding="utf-8", newline="") as handle:
+        trace_rows = list(csv.DictReader(handle))
+    if {row.get("nfr_id") for row in trace_rows} != expected_ids or any(row.get("status") != "planned" for row in trace_rows):
+        errors.append("Course 08 traceability must cover every NFR without fabricating executed production evidence")
+
+    result = subprocess.run(
+        [sys.executable, str(lesson / "lab.py")],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    try:
+        report = json.loads(result.stdout) if result.returncode == 0 else {}
+    except json.JSONDecodeError:
+        report = {}
+    if report.get("contract_findings") or report.get("workload_findings") or report.get("measurement_plan_findings"):
+        errors.append("Course 08 reference contract, workloads, and measurement plan must validate cleanly")
+    runtime_report = report.get("runtime_measurements", {})
+    latency = runtime_report.get("end_to_end_latency_ms", {})
+    reliability = runtime_report.get("semantic_service_success_ratio", {})
+    compliant = runtime_report.get("compliant_workflow_success_ratio", {})
+    if (latency.get("p50"), latency.get("p95"), latency.get("p99"), latency.get("denominator")) != (1850.0, 4800.0, 4800.0, 12):
+        errors.append("Course 08 must preserve boundary-labelled p50/p95/p99 latency with denominator")
+    if (reliability.get("numerator"), reliability.get("denominator")) != (11, 12):
+        errors.append("Course 08 semantic service-success ratio must retain its numerator and denominator")
+    if (compliant.get("numerator"), compliant.get("denominator")) != (11, 12):
+        errors.append("Course 08 compliant workflow success must remain a separately labelled metric")
+    if latency.get("sample_size") != 12 or "not_statistically_representative" not in latency.get("representativeness", ""):
+        errors.append("Course 08 small-sample percentiles must disclose sample size and representativeness")
+    if runtime_report.get("evidence_status") != "synthetic_training_fixture_not_production_evidence":
+        errors.append("Course 08 runtime output must be visibly synthetic and non-production")
+    quality_report = report.get("quality_measurements", {})
+    if quality_report.get("claim") != "pipeline_mechanics_only_not_model_quality" or quality_report.get("slices", {}).get("unsupported_field", {}).get("value") != 0.5:
+        errors.append("Course 08 quality results must expose the unsupported-field slice without a model-quality claim")
+    resilience = report.get("resilience_experiment", {})
+    if resilience.get("unsafe", {}).get("provider_attempts") != 600 or resilience.get("governed", {}).get("provider_attempts") != 8:
+        errors.append("Course 08 must contrast retry amplification with bounded circuit-breaker behavior")
+    if resilience.get("governed", {}).get("work_items_preserved") != 100:
+        errors.append("Course 08 governed degradation must preserve every work item")
+    degradation = report.get("degradation", {})
+    if any(degradation.get(name, {}).get("automatic_mutation") is not False for name in ("authorization", "model_provider", "policy_service")):
+        errors.append("Course 08 critical dependency degradation must reduce automation")
+    if any(not degradation.get(name, {}).get("recovery_condition") for name in ("authorization", "model_provider", "policy_service", "analytics_export")):
+        errors.append("Course 08 degradation modes must include explicit recovery and exit criteria")
+    budget_findings = report.get("budget_policy_findings", [])
+    if sum(item.get("code") == "AGENT_BUDGET_TARGET_UNRESOLVED" for item in budget_findings) != 6:
+        errors.append("Course 08 must surface six unresolved agent-budget decisions instead of inventing limits")
+    gates = {item.get("requirement_id"): item for item in report.get("target_gates", [])}
+    if sum(item.get("decision") == "pass" for item in gates.values()) != 8:
+        errors.append("Course 08 reference fixture must retain eight bounded target passes")
+    if gates.get("COST-BR-001", {}).get("decision") != "blocked" or gates.get("AIQ-BR-001", {}).get("decision") != "blocked":
+        errors.append("Course 08 measured but unauthorized cost and quality targets must remain blocked")
+    if gates.get("CAP-BR-001", {}).get("decision") != "not_measured":
+        errors.append("Course 08 static events must not be presented as capacity evidence")
+    if gates.get("PRIV-NFR-001", {}).get("numerator") != 0 or gates.get("PRIV-NFR-001", {}).get("denominator") != 12:
+        errors.append("Course 08 privacy gate must retain numerator and denominator")
+    release = report.get("release_assessment", {})
+    if release.get("production_ready") is not False or release.get("claim") != "nfr_contract_and_measurement_pipeline_exercised_only":
+        errors.append("Course 08 synthetic NFR exercise must not claim production readiness")
+    if "AGENT_BUDGET_TARGETS_UNRESOLVED" not in release.get("blockers", []):
+        errors.append("Course 08 unresolved agent budgets must block bounded production autonomy")
+    return errors
+
+
 def main() -> None:
     checks = {
         "local links": check_local_links,
@@ -1077,6 +1397,8 @@ def main() -> None:
         "Course 04 ownership": check_course_04_ownership,
         "Course 05 requirements engineering": check_course_05_discovery,
         "Course 06 executable requirements": check_course_06_executable_requirements,
+        "Course 07 acceptance evidence": check_course_07_acceptance_evidence,
+        "Course 08 non-functional requirements": check_course_08_non_functional_requirements,
         "diagrams": render_and_validate_diagrams,
         "labs": run_labs,
         "repository labs": run_repository_labs,

@@ -1,0 +1,10 @@
+{
+  "id": "TOOL-MANIFEST-BR-001",
+  "revision": "1.0-training",
+  "tools": [
+    {"id": "read_submission", "model_facing": true, "authority": "read", "side_effect": false},
+    {"id": "create_proposal", "model_facing": true, "authority": "proposal_write", "side_effect": false},
+    {"id": "apply_submission_update", "model_facing": false, "authority": "authoritative_mutation", "side_effect": true, "owner": "trusted_update_service"}
+  ],
+  "boundary": "Model-facing tools may read and propose; only the trusted update service can mutate authoritative state."
+}
