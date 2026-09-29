@@ -1703,10 +1703,10 @@ def check_course_10_implementation_planning() -> list[str]:
         errors.append("Course 10 evaluation claim must disclose its labelled-fixture boundary")
 
     quiz_source = (ROOT / "quiz" / "questions.js").read_text(encoding="utf-8")
-    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 146:
-        errors.append("Course 10 cumulative quiz must contain 146 questions")
-    if "Courses 01–10" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
-        errors.append("Course 10 cumulative quiz must identify Courses 01–10")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) < 146:
+        errors.append("Course 10 cumulative quiz must retain at least 146 questions")
+    if "Courses 01–" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
+        errors.append("The cumulative quiz must retain its course-range label")
     hub_source = (ROOT / "hub" / "lessons.js").read_text(encoding="utf-8")
     expected_hub_fragments = [
         "const course10 = {",
@@ -1715,6 +1715,202 @@ def check_course_10_implementation_planning() -> list[str]:
     ]
     if any(fragment not in hub_source for fragment in expected_hub_fragments):
         errors.append("Course 10 Learning Hub entry is incomplete or points outside the workshop package")
+    return errors
+
+
+def check_course_11_multi_agent_coordination() -> list[str]:
+    lesson = (
+        ROOT
+        / "curriculum"
+        / "intermediate"
+        / "01-multi-agent-coding-workflows-coordination"
+    )
+    scenario = lesson / "northstar-multi-agent-delivery"
+    required = [
+        "README.md",
+        "coordination-policy.json",
+        "candidate/workflow.json",
+        "reference/workflow.json",
+        "reference/event-log.json",
+        "reference/handoff.json",
+        "reference/integration-manifest.json",
+        "reference/recovery-record.json",
+        "reference/review-package.json",
+        "workshop/starter/README.md",
+        "workshop/starter/workflow.json",
+        "workshop/starter/handoff.json",
+        "workshop/starter/recovery-record.json",
+        "evaluation-cases.json",
+    ]
+    errors = [
+        f"missing Course 11 coordination artifact: {item}"
+        for item in required
+        if not (scenario / item).exists()
+    ]
+    if errors:
+        return errors
+
+    for path in (scenario / "reference").glob("*.json"):
+        if "TODO" in path.read_text(encoding="utf-8"):
+            errors.append(f"unresolved TODO in Course 11 reference: {path.relative_to(ROOT)}")
+    starter_files = list((scenario / "workshop" / "starter").glob("*.json"))
+    if len(starter_files) != 3 or not all("TODO" in path.read_text(encoding="utf-8") for path in starter_files):
+        errors.append("Course 11 starter workspace must retain three editable TODO artifacts")
+
+    result = subprocess.run(
+        [sys.executable, str(lesson / "lab.py")],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    try:
+        report = json.loads(result.stdout) if result.returncode == 0 else {}
+    except json.JSONDecodeError:
+        report = {}
+    if not report:
+        errors.append("Course 11 lab did not produce its JSON coordination report")
+        return errors
+
+    if "fictional_training_fixture" not in report.get("fixture_status", ""):
+        errors.append("Course 11 report must disclose its fictional, non-executing fixture boundary")
+
+    candidate = report.get("candidate", {})
+    candidate_review = candidate.get("review", {})
+    if candidate_review.get("counts") != {"review": 11, "blocking": 50}:
+        errors.append("Course 11 unsafe candidate must retain 50 blocking and 11 review findings")
+    candidate_decision = candidate.get("decision", {})
+    if candidate_decision.get("state") != "COORDINATION_BLOCKED" or candidate_decision.get("ready_for_bounded_dispatch") is not False:
+        errors.append("Course 11 unsafe candidate must remain blocked from bounded dispatch")
+    required_candidate_codes = {
+        "SHARED_EXECUTION_BRANCH",
+        "AGENT_IDENTITY_UNVERIFIED",
+        "PARALLEL_WRITE_COLLISION",
+        "DELEGATION_AUTHORITY_AMPLIFIED",
+        "VERIFICATION_INDEPENDENCE_WEAK",
+        "INTEGRATION_AUTHORITY_TOO_BROAD",
+    }
+    candidate_codes = {item.get("code") for item in candidate_review.get("findings", [])}
+    if not required_candidate_codes <= candidate_codes:
+        errors.append("Course 11 candidate no longer exposes the intended coordination failures")
+
+    reference = report.get("reference", {})
+    reference_review = reference.get("review", {})
+    if reference_review.get("findings") or reference_review.get("counts") != {}:
+        errors.append("Course 11 reference workflow must validate without findings")
+    reference_decision = reference.get("decision", {})
+    if reference_decision.get("state") != "COORDINATION_READY" or reference_decision.get("ready_for_bounded_dispatch") is not True:
+        errors.append("Course 11 reference must be ready only for bounded dispatch")
+    if "does not provision identities" not in reference_decision.get("boundary", ""):
+        errors.append("Course 11 readiness must not claim identity, permission, merge, or release authority")
+    expected_waves = [
+        ["AWU-BR-CONTRACT"],
+        ["AWU-BR-EXTRACTION", "AWU-BR-VALIDATION"],
+        ["AWU-BR-CONFLICT"],
+        ["AWU-BR-REVIEW"],
+        ["AWU-BR-INTEGRATION"],
+    ]
+    if reference_review.get("schedule", {}).get("waves") != expected_waves:
+        errors.append("Course 11 reference must retain the five-wave execution graph")
+    if reference.get("initial_ready") != ["AWU-BR-CONTRACT"]:
+        errors.append("Course 11 initial pull must expose only the contract work unit")
+
+    policy = json.loads((scenario / "coordination-policy.json").read_text(encoding="utf-8"))
+    invariant_ids = {item.get("id") for item in policy.get("invariants", [])}
+    if invariant_ids != {f"ORCH-INV-{index:03d}" for index in range(1, 11)}:
+        errors.append("Course 11 policy must retain ten named orchestration invariants")
+    workflow = json.loads((scenario / "reference" / "workflow.json").read_text(encoding="utf-8"))
+    if workflow.get("budgets", {}).get("max_parallel") != 2:
+        errors.append("Course 11 reference must retain a bounded parallelism budget of two")
+    if "not recommended defaults" not in workflow.get("budget_provenance", {}).get("claim", ""):
+        errors.append("Course 11 fixture budgets must retain explicit non-default decision provenance")
+    if len({item.get("branch") for item in workflow.get("work_units", [])}) != 6:
+        errors.append("Course 11 work units must retain dedicated branch ownership")
+    if any(item.get("permissions", {}).get("self_provisioned") is not False for item in workflow.get("assignments", [])):
+        errors.append("Course 11 assignment permissions must never be self-provisioned")
+    future_units = {
+        item.get("id") for item in workflow.get("work_units", [])
+        if item.get("state") in {"PLANNED", "READY"}
+    }
+    assigned_units = {item.get("work_unit_id") for item in workflow.get("assignments", [])}
+    locked_units = {item.get("work_unit_id") for item in workflow.get("locks", [])}
+    if future_units & (assigned_units | locked_units) or any(
+        item.get("execution_owner") != "unassigned"
+        for item in workflow.get("work_units", [])
+        if item.get("id") in future_units
+    ):
+        errors.append("Course 11 future work must remain unassigned and unlocked until pull dispatch")
+    identities = {item.get("id"): item for item in workflow.get("identity_registry", [])}
+    for assignment in workflow.get("assignments", []):
+        identity_expiry = identities.get(assignment.get("agent_identity"), {}).get("expires_at", "")
+        lease_expiry = assignment.get("lease", {}).get("expires_at", "")
+        permission_expiry = assignment.get("permissions", {}).get("expires_at", "")
+        if not permission_expiry or lease_expiry > identity_expiry or permission_expiry > min(lease_expiry, identity_expiry):
+            errors.append("Course 11 leases and permissions must not outlive workload identity or assignment")
+            break
+    contracts = {item.get("id"): item for item in workflow.get("contract_registry", [])}
+    if set(contracts.get("ProposedUpdate", {}).get("consumers", [])) != {
+        "AWU-BR-EXTRACTION", "AWU-BR-VALIDATION", "AWU-BR-CONFLICT", "AWU-BR-REVIEW", "AWU-BR-INTEGRATION"
+    }:
+        errors.append("Course 11 ProposedUpdate registry must retain its explicit consumers")
+    integration_unit = next((item for item in workflow.get("work_units", []) if item.get("id") == "AWU-BR-INTEGRATION"), {})
+    if set(integration_unit.get("integration_inputs", [])) != {item.get("id") for item in workflow.get("component_registry", [])}:
+        errors.append("Course 11 must distinguish minimal execution ordering from explicit integration inputs")
+    transition_artifacts = {item.get("id"): item for item in workflow.get("transition_artifacts", [])}
+    contract_evidence = transition_artifacts.get("EVID-CONTRACT-2219", {})
+    contract_verification = transition_artifacts.get("VERIFY-CONTRACT-81AB21", {})
+    if (
+        contract_evidence.get("kind") != "component_evidence_bundle"
+        or contract_verification.get("kind") != "verification_evidence"
+        or "EVID-CONTRACT-2219" not in contract_verification.get("supports_evidence_ids", [])
+    ):
+        errors.append("Course 11 must distinguish component evidence from verification transition evidence")
+    if workflow.get("verification", {}).get("independent") is not True:
+        errors.append("Course 11 verification must remain independent from implementation")
+    integration_denials = set(workflow.get("integration_authority", {}).get("may_not_decide", []))
+    if not {"change_shared_contract", "weaken_acceptance_criteria", "approve_architecture_change"} <= integration_denials:
+        errors.append("Course 11 integration authority must remain bounded")
+    recovery = json.loads((scenario / "reference" / "recovery-record.json").read_text(encoding="utf-8"))
+    if recovery.get("private_reasoning") is not None or recovery.get("inspection", {}).get("partial_work_treated_as_trusted") is not False:
+        errors.append("Course 11 recovery must inspect observable state without persisting private reasoning")
+
+    comparison = report.get("model_comparison", {})
+    models = {item.get("name"): item for item in comparison.get("models", [])}
+    if (
+        "not_productivity_benchmark" not in comparison.get("claim", "")
+        or models.get("unsafe_parallel", {}).get("rework_units", 0)
+        <= models.get("governed_multi_agent", {}).get("rework_units", 0)
+    ):
+        errors.append("Course 11 model comparison must preserve flow trade-offs and its non-benchmark boundary")
+
+    evaluation = report.get("evaluation", {})
+    exact = evaluation.get("exact_matches", {})
+    if (
+        evaluation.get("population"),
+        evaluation.get("true_positive"),
+        evaluation.get("false_positive"),
+        evaluation.get("false_negative"),
+        exact.get("numerator"),
+        exact.get("denominator"),
+    ) != (36, 38, 0, 0, 36, 36):
+        errors.append("Course 11 labelled fixture evaluation must retain 36 exact cases and 38 expected findings")
+    if "not_general" not in evaluation.get("claim", ""):
+        errors.append("Course 11 evaluation must disclose its labelled-fixture boundary")
+
+    quiz_source = (ROOT / "quiz" / "questions.js").read_text(encoding="utf-8")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 158:
+        errors.append("Course 11 cumulative quiz must contain 158 questions")
+    if "Courses 01–11" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
+        errors.append("Course 11 cumulative quiz must identify Courses 01–11")
+    hub_source = (ROOT / "hub" / "lessons.js").read_text(encoding="utf-8")
+    expected_hub_fragments = [
+        "const course11 = {",
+        "01-multi-agent-coding-workflows-coordination/multi_agent_coordination.ipynb",
+        "01-multi-agent-coding-workflows-coordination/northstar-multi-agent-delivery/workshop/starter",
+        "01-multi-agent-coding-workflows-coordination/northstar-multi-agent-delivery/reference",
+    ]
+    if any(fragment not in hub_source for fragment in expected_hub_fragments):
+        errors.append("Course 11 Learning Hub entry is incomplete or points outside the workshop package")
     return errors
 
 
@@ -1734,6 +1930,7 @@ def main() -> None:
         "Course 08 non-functional requirements": check_course_08_non_functional_requirements,
         "Course 09 specification review": check_course_09_specification_review,
         "Course 10 implementation planning": check_course_10_implementation_planning,
+        "Course 11 multi-agent coordination": check_course_11_multi_agent_coordination,
         "diagrams": render_and_validate_diagrams,
         "labs": run_labs,
         "repository labs": run_repository_labs,

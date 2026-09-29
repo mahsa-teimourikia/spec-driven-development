@@ -503,6 +503,57 @@ const course10 = {
   }
 };
 
+const course11 = {
+  id: 'c11', course: 11, level: 'intermediate', part: 'III · Agentic execution & SDD frameworks', status: 'available',
+  title: 'Multi-Agent Coding Workflows & Coordination',
+  summary: 'Design a durable coordination control plane that uses dependency waves, workload identity, leases, exclusive ownership, pull scheduling, independent evidence, bounded integration, and recovery without confusing orchestration with authority.',
+  outcomes: [
+    'Decide when multiple agents provide enough flow benefit to justify coordination cost.',
+    'Separate orchestration, execution, verification, integration, and accountable decision rights.',
+    'Derive safe execution waves from dependencies, stable contracts, pinned context, and exclusive write ownership.',
+    'Use authenticated workload identities, temporary permissions, assignment leases, logical locks, and bounded delegation.',
+    'Design typed handoffs, events, idempotency, retries, recovery, evidence invalidation, and contract-change propagation.',
+    'Optimize total delivery flow using work-in-progress limits and implementation plus human-review capacity.',
+    'Evaluate coordination, integration, rework, review load, and forbidden attempts without claiming a general productivity benchmark.'
+  ],
+  readme: `${REPO}/blob/main/curriculum/intermediate/01-multi-agent-coding-workflows-coordination/README.md`,
+  notebook: `${REPO}/blob/main/curriculum/intermediate/01-multi-agent-coding-workflows-coordination/multi_agent_coordination.ipynb`,
+  lab: `${REPO}/blob/main/curriculum/intermediate/01-multi-agent-coding-workflows-coordination/lab.py`,
+  repoFixture: `${REPO}/tree/main/curriculum/intermediate/01-multi-agent-coding-workflows-coordination/northstar-multi-agent-delivery`,
+  run: 'python3 curriculum/intermediate/01-multi-agent-coding-workflows-coordination/lab.py',
+  labs: [
+    {
+      title: 'Lab A — Validate the coordination control plane',
+      description: 'Compare unsafe parallel execution with a governed workflow, exercise just-in-time dispatch, idempotency, lease/identity lifetimes, delegation, typed transition evidence, integration, recovery, and 36 labelled cases.',
+      command: 'python3 curriculum/intermediate/01-multi-agent-coding-workflows-coordination/lab.py',
+      links: [['View the lab', `${REPO}/blob/main/curriculum/intermediate/01-multi-agent-coding-workflows-coordination/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/intermediate/01-multi-agent-coding-workflows-coordination/multi_agent_coordination.ipynb`]]
+    },
+    {
+      title: 'Lab B — Coordinate Northstar AI-2219',
+      description: 'Complete the workflow, handoff, and recovery artifacts for a six-unit delivery graph before comparing with the reference control-plane package.',
+      command: 'Open the scenario and starter workspace; run Lab A before consulting the reference.',
+      links: [['Open the workshop', `${REPO}/tree/main/curriculum/intermediate/01-multi-agent-coding-workflows-coordination/northstar-multi-agent-delivery`], ['Complete the starter artifacts', `${REPO}/tree/main/curriculum/intermediate/01-multi-agent-coding-workflows-coordination/northstar-multi-agent-delivery/workshop/starter`], ['Inspect the reference package', `${REPO}/tree/main/curriculum/intermediate/01-multi-agent-coding-workflows-coordination/northstar-multi-agent-delivery/reference`]]
+    }
+  ],
+  references: [
+    ['Git worktree documentation', 'https://git-scm.com/docs/git-worktree'],
+    ['GitHub rulesets', 'https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/about-rulesets'],
+    ['OpenTelemetry CI/CD conventions', 'https://opentelemetry.io/docs/specs/semconv/cicd/'],
+    ['SPIFFE workload identity', 'https://spiffe.io/docs/latest/spiffe/concepts/'],
+    ['NIST Zero Trust Architecture', 'https://csrc.nist.gov/pubs/sp/800/207/final']
+  ],
+  checkpoint: {
+    question: 'Two wave-two units are ready, but the domain-review queue is at capacity. What should the scheduler do?',
+    options: [
+      'Pull only the unit whose review capacity is available; leave the other unassigned until dispatch can bind short-lived resources.',
+      'Start both to maximize agent utilization and defer review.',
+      'Remove the domain-review requirement because the dependency graph is acyclic.'
+    ],
+    answer: 0,
+    explanation: 'Review capacity is part of system capacity. Pull scheduling keeps waiting work unassigned and binds identity, permission, lease, and lock only when dispatch can proceed.'
+  }
+};
+
 function planned(course, level, part, title, summary) {
   return {
     id: `c${String(course).padStart(2, '0')}`, course, level, part,
@@ -524,17 +575,17 @@ const LESSONS = [
   course08,
   course09,
   course10,
-  planned(11, 'intermediate', 'III · SDD frameworks', 'GitHub Spec Kit', 'Use constitution, clarification, planning, checks, analysis, implementation, and convergence.'),
-  planned(12, 'intermediate', 'III · SDD frameworks', 'OpenSpec', 'Manage current specifications and explicit change deltas for brownfield work.'),
-  planned(13, 'intermediate', 'III · SDD frameworks', 'Kiro Specs', 'Apply feature, bug-fix, and quick-spec workflows with appropriate approval depth.'),
-  planned(14, 'intermediate', 'III · SDD frameworks', 'Agent instructions such as AGENTS.md', 'Make repository-local operating guidance discoverable and maintainable.'),
-  planned(15, 'intermediate', 'III · SDD frameworks', 'Comparing and choosing frameworks', 'Select a process harness using risk, lifecycle, integration, and governance criteria.'),
-  planned(16, 'intermediate', 'III · SDD frameworks', 'Custom enterprise extensions', 'Extend workflows with organizational templates, policies, evidence, and exception paths.'),
+  course11,
+  planned(12, 'intermediate', 'III · Agentic execution & SDD frameworks', 'GitHub Spec Kit', 'Use constitution, clarification, planning, checks, analysis, implementation, and convergence.'),
+  planned(13, 'intermediate', 'III · Agentic execution & SDD frameworks', 'OpenSpec', 'Manage current specifications and explicit change deltas for brownfield work.'),
+  planned(14, 'intermediate', 'III · Agentic execution & SDD frameworks', 'Kiro Specs', 'Apply feature, bug-fix, and quick-spec workflows with appropriate approval depth.'),
+  planned(15, 'intermediate', 'III · Agentic execution & SDD frameworks', 'Agent instructions such as AGENTS.md', 'Make repository-local operating guidance discoverable and maintainable across agents.'),
+  planned(16, 'intermediate', 'III · Agentic execution & SDD frameworks', 'Comparing frameworks & enterprise extensions', 'Select and extend process harnesses using risk, lifecycle, integration, governance, and upgrade criteria.'),
   planned(17, 'intermediate', 'IV · Agentic PDLC', 'Idea → discovery → spec → design → implementation', 'Build an end-to-end flow with explicit state, owners, gates, and handoffs.'),
   planned(18, 'intermediate', 'IV · Agentic PDLC', 'Brownfield development', 'Recover system truth before changing code with incomplete or stale specifications.'),
   planned(19, 'intermediate', 'IV · Agentic PDLC', 'Bug fixes and small changes', 'Use a proportional workflow that preserves evidence without process theatre.'),
   planned(20, 'intermediate', 'IV · Agentic PDLC', 'Multi-repository development', 'Coordinate contracts, versions, sequencing, and ownership across repositories.'),
-  planned(21, 'intermediate', 'IV · Agentic PDLC', 'Parallel agents', 'Partition work by contracts and boundaries while controlling integration risk.'),
+  planned(21, 'intermediate', 'IV · Agentic PDLC', 'Multi-repository parallel-agent delivery', 'Extend bounded coordination across repository, contract, release, and integration boundaries.'),
   planned(22, 'intermediate', 'IV · Agentic PDLC', 'PR and review strategy', 'Design changes and evidence so humans can review agent output efficiently.'),
   planned(23, 'intermediate', 'IV · Agentic PDLC', 'Human approval gates', 'Place accountable decisions at risk-bearing transitions without becoming a bottleneck.'),
   planned(24, 'advanced', 'V · Enterprise controls', 'Security and privacy', 'Translate threat, data, identity, and privacy obligations into preventive and detective controls.'),

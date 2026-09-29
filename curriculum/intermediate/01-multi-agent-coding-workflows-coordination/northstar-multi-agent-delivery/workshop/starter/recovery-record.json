@@ -1,0 +1,15 @@
+{
+  "schema_version":"1.0-training",
+  "id":"TODO",
+  "work_unit_id":"TODO",
+  "assignment_id":"TODO",
+  "last_commit":"TODO",
+  "completed":["TODO"],
+  "remaining":["TODO"],
+  "discoveries":["TODO"],
+  "blockers":["TODO"],
+  "evidence":{"current":["TODO"],"stale":["TODO"]},
+  "context":{"specification_digest":"TODO","contracts":{"TODO":"TODO"}},
+  "inspection":{"partial_work_treated_as_trusted":"TODO","checks_run":["TODO"]},
+  "resume_decision":"TODO"
+}

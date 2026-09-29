@@ -1,0 +1,29 @@
+{
+  "schema_version":"1.0-training",
+  "id":"ORCH-AI-2219-UNSAFE",
+  "mode":"multi_agent",
+  "multi_agent_decision":{"why_multiple_agents":[],"single_agent_baseline":null,"coordination_costs":[]},
+  "budgets":{"max_parallel":3},
+  "identity_registry":[{"id":"implementation_agent","kind":"role_label"}],
+  "transition_artifacts":[],
+  "contract_registry":[{"id":"ProposedUpdate","revision":"v2","owner":"underwriting_platform","producer":"AWU-BR-CONTRACT","status":"changing_during_wave"}],
+  "component_registry":[],
+  "work_units":[
+    {"id":"AWU-BR-CONTRACT","wave":1,"depends_on":[],"branch":"feature/ai-2219","pinned_base_revision":null,"writable_paths":["src/underwriting/proposals.py"],"context_manifest":{"shared":{"ProposedUpdate":"v2"}},"context_digest":null},
+    {"id":"AWU-BR-EXTRACTION","wave":1,"depends_on":["AWU-BR-CONTRACT"],"branch":"feature/ai-2219","pinned_base_revision":null,"writable_paths":["src/underwriting/proposals.py","src/broker/extraction.py"],"context_manifest":{"shared":{"AI-030":"rev4","ProposedUpdate":"v2"}},"context_digest":null},
+    {"id":"AWU-BR-VALIDATION","wave":1,"depends_on":["AWU-BR-CONTRACT"],"branch":"feature/ai-2219","pinned_base_revision":null,"writable_paths":["src/underwriting/proposals.py","src/underwriting/validation.py"],"context_manifest":{"shared":{"AI-030":"rev5","ProposedUpdate":"v3"}},"context_digest":null},
+    {"id":"AWU-BR-CONFLICT","wave":1,"depends_on":["AWU-BR-EXTRACTION","AWU-BR-VALIDATION"],"branch":"feature/ai-2219","pinned_base_revision":null,"writable_paths":["src/underwriting/conflicts.py"],"context_manifest":{"shared":{"AI-030":"rev4"}},"context_digest":null},
+    {"id":"AWU-BR-REVIEW","wave":1,"depends_on":["AWU-BR-CONFLICT"],"branch":"feature/ai-2219","pinned_base_revision":null,"writable_paths":["src/review/service.py"],"context_manifest":{"shared":{"AI-030":"rev4"}},"context_digest":null},
+    {"id":"AWU-BR-INTEGRATION","wave":1,"depends_on":["AWU-BR-REVIEW"],"branch":"feature/ai-2219","pinned_base_revision":null,"writable_paths":["src/broker/extraction.py","src/underwriting/conflicts.py","src/review/service.py"],"context_manifest":{"shared":{"AI-030":"rev4"}},"context_digest":null}
+  ],
+  "assignments":[
+    {"id":"ASSIGN-ALL-1","work_unit_id":"AWU-BR-CONTRACT","agent_identity":"implementation_agent","permissions":{"write_paths":["**"],"lifecycle":"permanent","self_provisioned":true},"lease":{}},
+    {"id":"ASSIGN-ALL-2","work_unit_id":"AWU-BR-EXTRACTION","agent_identity":"implementation_agent","permissions":{"write_paths":["**"],"lifecycle":"permanent","self_provisioned":true},"lease":{}},
+    {"id":"ASSIGN-ALL-3","work_unit_id":"AWU-BR-EXTRACTION","agent_identity":"implementation_agent","permissions":{"write_paths":["**"],"lifecycle":"permanent","self_provisioned":true},"lease":{}}
+  ],
+  "locks":[],
+  "delegations":[{"id":"DELEGATE-UNBOUNDED","parent_assignment_id":"ASSIGN-ALL-2","child_identity":"child-agent","allowed_role":"read_only_researcher","depth":4,"child_permissions":{"write_paths":["auth/**"],"read_paths":["**"]}}],
+  "verification":{"independent":false,"spawned_by_implementer":true,"receives_implementer_reasoning":true},
+  "integration_authority":{"may_decide":["rewrite_component_behavior","change_shared_contract","weaken_acceptance_criteria","change_authorization_semantics","approve_architecture_change"],"may_propose":[],"may_not_decide":[]},
+  "boundary":"unsafe teaching candidate; never dispatch"
+}

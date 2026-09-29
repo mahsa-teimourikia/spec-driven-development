@@ -1,0 +1,14 @@
+{
+  "schema_version":"1.0-training",
+  "id":"TODO",
+  "mode":"multi_agent",
+  "multi_agent_decision":{"why_multiple_agents":["TODO"],"single_agent_baseline":"TODO","coordination_costs":["TODO"]},
+  "budgets":{"max_parallel":"TODO","max_handoffs":"TODO","max_replans":"TODO","max_delegation_depth":"TODO","max_units_waiting_for_review":"TODO"},
+  "budget_provenance":{"source_id":"TODO","claim":"TODO: explain why fixture values are not recommended defaults."},
+  "work_units":[{"id":"AWU-BR-CONTRACT","state":"TODO","execution_owner":"TODO","wave":"TODO","depends_on":[],"branch":"TODO","writable_paths":["TODO"],"context_manifest":{"shared":{"TODO":"TODO"},"local":{"TODO":"TODO"}}}],
+  "transition_artifacts":[{"id":"TODO","kind":"TODO: component evidence, verification evidence, or owner approval","state":"TODO"}],
+  "contract_registry":[{"id":"TODO","producer":"TODO","consumers":["TODO"],"revision":"TODO"}],
+  "assignments":[],
+  "locks":[],
+  "boundary":"TODO: state what coordination readiness does not authorize."
+}

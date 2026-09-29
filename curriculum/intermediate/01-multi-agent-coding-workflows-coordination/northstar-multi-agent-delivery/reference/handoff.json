@@ -1,0 +1,12 @@
+{
+  "schema_version":"1.0-training",
+  "id":"HANDOFF-CONTRACT-WAVE2",
+  "from_work_unit":"AWU-BR-CONTRACT",
+  "to_work_units":["AWU-BR-EXTRACTION","AWU-BR-VALIDATION"],
+  "repository_revision":"81ab21",
+  "outputs":{"ProposedUpdate":{"revision":"v2","schema_path":"src/underwriting/proposals.py","digest":"sha256:proposed-update-v2-fixture"}},
+  "evidence_ids":["EVID-CONTRACT-2219"],
+  "discoveries":[{"id":"DISC-CONTRACT-01","statement":"No approved new provenance persistence owner exists.","source":"repository-discovery@repo-c10-verified"}],
+  "unresolved":["future provenance persistence ownership"],
+  "boundary":"Downstream units may consume ProposedUpdate v2 but must route semantic changes through the contract owner."
+}

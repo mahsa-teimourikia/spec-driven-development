@@ -1,0 +1,11 @@
+{
+  "schema_version":"1.0-training",
+  "id":"TODO",
+  "from_work_unit":"TODO",
+  "to_work_units":["TODO"],
+  "outputs":{"TODO":{"revision":"TODO","digest":"TODO"}},
+  "evidence_ids":["TODO"],
+  "discoveries":["TODO"],
+  "unresolved":["TODO"],
+  "boundary":"TODO"
+}
