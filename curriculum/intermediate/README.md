@@ -3,11 +3,11 @@
 This path turns specification skills into repeatable delivery flows.
 
 11. [Multi-Agent Coding Workflows & Coordination](01-multi-agent-coding-workflows-coordination/README.md) — available
-12. GitHub Spec Kit
-13. OpenSpec
-14. Kiro Specs
-15. Agent instructions such as `AGENTS.md`
-16. Comparing frameworks and custom enterprise extensions
+12. [SDD Framework Landscape & Choosing an Enterprise Operating Model](02-sdd-framework-landscape-enterprise-operating-model/README.md) — available
+13. GitHub Spec Kit
+14. OpenSpec
+15. Kiro Specs
+16. Agent instructions & custom enterprise adapters
 17. Idea → discovery → spec → design → implementation
 18. Brownfield development
 19. Bug fixes and small changes
@@ -16,4 +16,4 @@ This path turns specification skills into repeatable delivery flows.
 22. PR and review strategy
 23. Human approval gates
 
-Course 11 is available. The remaining courses will be published as complete vertical slices; see the [course plan](../../COURSE_PLAN.md).
+Courses 11–12 are available. The remaining courses will be published as complete vertical slices; see the [course plan](../../COURSE_PLAN.md).

@@ -96,18 +96,18 @@ Each future course follows this learning arc, adapted where the subject demands 
 | Course | Level folder | Topic | Status | Prerequisite | Learner evidence |
 | --- | --- | --- | --- | --- | --- |
 | 11 | intermediate/01 | Multi-Agent Coding Workflows & Coordination | **Available** | C07, C09–C10 | AI-2219 governed execution graph, just-in-time identities/leases/locks, handoffs, pull scheduling, independent verification, integration/recovery artifacts, flow comparison, and 36-case rule evaluation |
-| 12 | intermediate/02 | GitHub Spec Kit | Planned | C10–C11 | Re-run Northstar policy Q&A through constitution → specify → clarify → plan → checklist → tasks → analyze → implement → converge, including a persistence decision |
-| 13 | intermediate/03 | OpenSpec | Planned | C10–C12 | Re-run the same Northstar change as current truth + change delta, then compare experience and brownfield convergence with Course 12 |
-| 14 | intermediate/04 | Kiro Specs | Planned | C06–C10 | Requirements/design/tasks flow plus defended routing of typo, export, API-contract, and AI-underwriting changes through direct, Quick Spec, Feature Spec, or specialist review |
-| 15 | intermediate/05 | Agent instructions such as `AGENTS.md` | Planned | C03–C04, C11 | Scoped cross-agent instructions and conflict tests |
-| 16 | intermediate/06 | Comparing frameworks and custom enterprise extensions | Planned | C11–C15 | Evidence-backed framework selection plus organization-specific template/gate extension with upgrade path |
+| 12 | intermediate/02 | SDD Framework Landscape & Choosing an Enterprise Operating Model | **Available** | C09–C11 | AI-2310 identical-source comparison, four workflow-style capability profiles, canonical artifact/authority registry, command assurance, risk tiers, migration test, selection ADR, six golden scenarios, and 30-case rule evaluation |
+| 13 | intermediate/03 | GitHub Spec Kit | Planned | C10–C12 | Re-run a Northstar change through constitution → specify → clarify → plan → checklist → tasks → analyze → implement → converge under the Course 12 authority boundary |
+| 14 | intermediate/04 | OpenSpec | Planned | C10, C12–C13 | Re-run the same Northstar change as current truth + change delta, then compare brownfield convergence with the spec-first implementation |
+| 15 | intermediate/05 | Kiro Specs | Planned | C06–C12 | Requirements/design/tasks flow plus defended routing of typo, export, API-contract, and AI-underwriting changes through direct, Quick Spec, Feature Spec, or specialist review |
+| 16 | intermediate/06 | Agent instructions & custom enterprise adapters | Planned | C03–C04, C11–C15 | Scoped cross-agent instructions plus an organization-specific context/evidence adapter with conformance and upgrade path |
 
 ## Part IV — Agentic PDLC
 
 | Course | Level folder | Topic | Status | Prerequisite | Learner evidence |
 | --- | --- | --- | --- | --- | --- |
 | 17 | intermediate/07 | Idea → discovery → spec → design → implementation | Planned | Parts I–III | End-to-end small-batch change and convergence record |
-| 18 | intermediate/08 | Brownfield development | Planned | C13, C17 | Characterization baseline, change delta, migration checks |
+| 18 | intermediate/08 | Brownfield development | Planned | C14, C17 | Characterization baseline, change delta, migration checks |
 | 19 | intermediate/09 | Bug fixes and small changes | Planned | C17–C18 | Proportional triage, minimal fix, regression evidence |
 | 20 | intermediate/10 | Multi-repository development | Planned | C10, C17 | Cross-repo change graph and staged integration |
 | 21 | intermediate/11 | Multi-repository parallel-agent delivery | Planned | C11, C17, C20 | Cross-repository partitioning, ownership leases, staged integration, recovery, and merge evidence |
@@ -161,7 +161,7 @@ Learners design a real Agentic PDLC for an organization or realistic enterprise 
 | Markdown + Git | Durable portable artifacts | Diffable, reviewable, near code | Structure is not correctness or enforcement |
 | Python standard library | Offline teaching primitives | Deterministic, credential-free, transparent | Not a production platform recommendation |
 | GitHub Spec Kit | Extensible SDD process harness | Constitution, quality gates, cross-artifact analysis, convergence, broad integrations | Must be integrated with enterprise ownership/policy |
-| OpenSpec | Current truth + change delta | Brownfield and cross-repository planning model | Stores are beta; operating controls remain external |
+| OpenSpec | Current truth + change delta | Brownfield change reasoning and explicit archive semantics | Operating controls remain external |
 | Kiro Specs | Requirements/design/tasks variants | Requirements-first/design-first/quick/bug comparisons | Tool approval UX is not enterprise authorization |
 | Agent instruction files | Standing local context | Cross-tool/repository proximity | Stochastic adherence and scope conflicts |
 | ADRs | Consequential design decisions | Durable alternatives and consequences | Not complete behavioral specs |
@@ -211,7 +211,7 @@ The old lesson files are removed from the available curriculum rather than appen
 - **Independent evidence:** specification, policy, architecture, real unit-test, traceability, reviewer, and approval outputs in a release bundle, including explicit unverified risks.
 - **Specification persistence:** change specification, living system truth, and decision-history distinctions tied to current Spec Kit and OpenSpec practice.
 
-A third realism audit deepened Lab B into a nine-stage learner workflow: a deficient and internally conflicting Jira ticket; human-readable enterprise policies plus machine-readable controls; starter and reference change packages; candidate-owned versus independent tests; labelled evaluation cases; design/task/code/test/runtime traceability; proposal- and policy-bound approval receipts; and separate merge versus production-release decisions. Framework execution remains in Courses 11–12, where the same Northstar change is implemented through Spec Kit and OpenSpec for an apples-to-apples comparison.
+A third realism audit deepened Lab B into a nine-stage learner workflow: a deficient and internally conflicting Jira ticket; human-readable enterprise policies plus machine-readable controls; starter and reference change packages; candidate-owned versus independent tests; labelled evaluation cases; design/task/code/test/runtime traceability; proposal- and policy-bound approval receipts; and separate merge versus production-release decisions. Course 12 now establishes a framework-neutral selection and authority model; Courses 13–15 apply it in deeper Spec Kit, OpenSpec, and Kiro workflows.
 
 ## Course 04 design record
 

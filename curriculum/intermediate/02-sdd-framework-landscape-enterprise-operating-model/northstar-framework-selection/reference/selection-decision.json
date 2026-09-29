@@ -1,0 +1,58 @@
+{
+  "id": "ADR-SDD-001",
+  "title": "Northstar SDD operating model",
+  "status": "ready_for_owner_review",
+  "owner": "Developer Platform Council",
+  "context": {
+    "team_size": "100+",
+    "delivery_model": "multi_team",
+    "system_type": "brownfield",
+    "regulatory_context": "high",
+    "repositories": "many",
+    "coding_agents": ["Codex", "Claude Code", "GitHub Copilot"]
+  },
+  "framework_authority": "project_change_layer",
+  "decision": {
+    "pattern": "hybrid_enterprise_operating_model",
+    "framework_role": "project_change_specification_and_transformation_harness",
+    "enterprise_extensions": ["effective_context_resolution", "canonical_artifact_registry", "evidence_manifest", "agent_work_units", "orchestration_control_plane", "release_gates"]
+  },
+  "requirement_dispositions": [
+    {"requirement_id": "SDD-ENT-001", "disposition": "canonical_model", "evidence_ids": ["EVID-CANONICAL-REGISTRY"]},
+    {"requirement_id": "SDD-ENT-002", "disposition": "enterprise_extension", "evidence_ids": ["EVID-CONTEXT-ADAPTER"]},
+    {"requirement_id": "SDD-ENT-003", "disposition": "framework_plus_gate", "evidence_ids": ["EVID-COMMAND-MATRIX"]},
+    {"requirement_id": "SDD-ENT-004", "disposition": "framework_plus_gate", "evidence_ids": ["EVID-GOLDEN-01"]},
+    {"requirement_id": "SDD-ENT-005", "disposition": "framework_plus_registry", "evidence_ids": ["EVID-CHANGE-MODEL"]},
+    {"requirement_id": "SDD-ENT-006", "disposition": "enterprise_extension", "evidence_ids": ["EVID-AWU-ADAPTER"]},
+    {"requirement_id": "SDD-ENT-007", "disposition": "enterprise_extension", "evidence_ids": ["EVID-EVIDENCE-MANIFEST"]},
+    {"requirement_id": "SDD-ENT-008", "disposition": "canonical_model_and_adapters", "evidence_ids": ["EVID-MIGRATION-TEST"]},
+    {"requirement_id": "SDD-ENT-009", "disposition": "conformance_suite", "evidence_ids": ["EVID-GOLDEN-SUITE"]},
+    {"requirement_id": "SDD-ENT-010", "disposition": "external_control_plane", "evidence_ids": ["EVID-RELEASE-BOUNDARY"]}
+  ],
+  "alternatives": [
+    {"id": "ALT-REPO-NATIVE", "strength": "maximum fit and portability", "cost": "platform ownership and maintenance"},
+    {"id": "ALT-SPEC-FIRST", "strength": "guided artifact progression", "cost": "enterprise authority and evidence adapters"},
+    {"id": "ALT-CHANGE-ORIENTED", "strength": "explicit current truth and deltas", "cost": "external execution and governance controls"},
+    {"id": "ALT-ROLE-ORIENTED", "strength": "broad PDLC support", "cost": "handoff, duplication, and authority mapping"}
+  ],
+  "assumptions": [
+    "Specifications remain version controlled.",
+    "Git remains authoritative for code revisions.",
+    "Enterprise policies remain externally authoritative.",
+    "Framework-generated plans require review.",
+    "Agents cannot approve exceptions or releases.",
+    "CI and trusted evidence services remain authoritative for execution evidence."
+  ],
+  "reconsideration_triggers": [
+    "framework maintenance stops",
+    "multi-repository architecture materially changes",
+    "enterprise policy model changes",
+    "required traceability cannot be represented",
+    "measured workflow overhead exceeds the approved threshold",
+    "tool coupling prevents an approved coding agent"
+  ],
+  "overall_score": null,
+  "claim": "fitness_under_northstar_constraints_not_best_framework",
+  "boundary": "This synthetic ADR is ready for an accountable owner to review; it is not an authenticated adoption approval."
+}
+

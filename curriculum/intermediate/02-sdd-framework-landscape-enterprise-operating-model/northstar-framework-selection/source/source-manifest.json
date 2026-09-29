@@ -1,0 +1,12 @@
+{
+  "context_id": "CTX-AI-2310@1-training",
+  "fixture": "fictional_northstar_training_package",
+  "artifacts": [
+    {"id": "TICKET-AI-2310", "path": "ticket.md", "revision": "1", "authority": "product_intent"},
+    {"id": "AI-POLICY-042", "path": "enterprise-policy.json", "revision": "7-training", "authority": "policy"},
+    {"id": "DOMAIN-DOC-11", "path": "domain-rules.md", "revision": "4-training", "authority": "domain"},
+    {"id": "ADR-058", "path": "architecture.md", "revision": "3-training", "authority": "architecture"},
+    {"id": "DISCOVERY-AI-2310", "path": "repository-discovery.json", "revision": "c0ffee7-training", "authority": "repository_evidence"}
+  ],
+  "boundary": "Equivalent source input supports comparison; it does not make generated outputs correct or authoritative."
+}
