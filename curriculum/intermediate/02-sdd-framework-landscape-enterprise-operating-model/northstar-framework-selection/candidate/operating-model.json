@@ -10,7 +10,7 @@
       "id": "FEATURE-WINNER",
       "source_context_id": "ticket-only",
       "source_ids": ["TICKET-AI-2310"],
-      "requirement_ids": [],
+      "requirement_dispositions": [],
       "policy_source_ids": [],
       "open_question_ids": [],
       "requirements_contain_architecture": true,
@@ -20,7 +20,7 @@
       "critical_semantics_survive_framework_removal": false,
       "portable_semantics": ["tasks"],
       "agent_boundary": {"may_generate": ["everything"], "may_not_decide": []},
-      "capabilities": {"templates": "native"}
+      "capabilities": {"templates": "built_in_to_style"}
     }
   ],
   "canonical_artifact_registry": [
@@ -36,4 +36,3 @@
   "extension_boundary": {"policy_propagation": "manual_copy", "framework_fork_required": true},
   "framework_upgrade_assurance": {}
 }
-

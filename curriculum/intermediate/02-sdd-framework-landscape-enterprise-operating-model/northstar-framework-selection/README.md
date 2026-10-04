@@ -12,5 +12,4 @@ Northstar must choose how AI-2310 will move from intent to verified change witho
 
 The four variants are synthetic workflow families—not executions of GitHub Spec Kit, OpenSpec, Kiro, BMad, or any other product. The vendor landscape in the chapter is dated and source-backed; the lab isolates portable operating-model semantics.
 
-Expected reference result: `READY_FOR_OWNER_REVIEW`, zero findings, six of six golden conformance scenarios, and 30 of 30 exact labelled mutation cases. “Ready for owner review” is intentionally not an enterprise adoption approval.
-
+Expected reference result: `READY_FOR_OWNER_REVIEW`, zero findings, eight of eight golden conformance scenarios, and 34 of 34 exact labelled mutation cases. “Ready for owner review” is intentionally not an enterprise adoption approval.

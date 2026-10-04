@@ -26,6 +26,8 @@ EVALUATION_PATH = SCENARIO_DIR / "evaluation-cases.json"
 
 REQUIRED_CANONICAL_TYPES = {
     "requirement",
+    "acceptance_criterion",
+    "open_question",
     "architecture_decision",
     "implementation_plan",
     "task",
@@ -35,6 +37,12 @@ REQUIRED_CANONICAL_TYPES = {
 }
 AUTHORITY_DOMAINS = {"BUSINESS", "POLICY", "ARCHITECTURE", "EXECUTION", "EVIDENCE", "RELEASE"}
 TRANSFORMATIONS = {"specify", "plan", "tasks", "implement"}
+CAPABILITY_DISPOSITIONS = {
+    "built_in_to_style",
+    "enterprise_extension",
+    "external_control",
+    "not_modeled",
+}
 CONTROL_BOUNDARY = (
     "framework_and_agent_outputs_are_proposals; trusted_controls_validate_and_owners_authorize"
 )
@@ -110,12 +118,40 @@ def validate_variant(variant: dict[str, Any], requirements: list[dict[str, Any]]
     findings: list[Finding] = []
     variant_id = str(variant.get("id", "variant"))
     required_ids = {item.get("id") for item in requirements}
-    if set(variant.get("requirement_ids", [])) != required_ids:
+    dispositions = variant.get("requirement_dispositions", [])
+    disposition_ids = [item.get("requirement_id") for item in dispositions]
+    if set(disposition_ids) != required_ids or len(disposition_ids) != len(required_ids):
         findings.append(_finding(
-            "REQUIREMENT_IDENTITY_LOST", Severity.BLOCKING, variant_id,
-            "Stable enterprise requirement identity was not preserved through the workflow.",
-            "Requirements owner", "Carry every applicable requirement ID through specifications, plans, and evidence.",
+            "VARIANT_REQUIREMENT_DISPOSITION_INCOMPLETE", Severity.BLOCKING, variant_id,
+            "The workflow style does not disposition every enterprise operating-model requirement exactly once.",
+            "Operating-model owner", "Classify each requirement as built into the style, an enterprise extension, an external control, or not modeled.",
         ))
+    for disposition in dispositions:
+        requirement_id = str(disposition.get("requirement_id", "requirement"))
+        if disposition.get("disposition") not in CAPABILITY_DISPOSITIONS:
+            findings.append(_finding(
+                "VARIANT_REQUIREMENT_DISPOSITION_INVALID", Severity.BLOCKING, f"{variant_id}:{requirement_id}",
+                "The adapter-boundary disposition is not recognized.",
+                "Operating-model owner", "Use built_in_to_style, enterprise_extension, external_control, or not_modeled.",
+            ))
+        if not disposition.get("framework_obligation"):
+            findings.append(_finding(
+                "VARIANT_FRAMEWORK_OBLIGATION_MISSING", Severity.BLOCKING, f"{variant_id}:{requirement_id}",
+                "The operating-model disposition does not state what the adapter boundary must preserve.",
+                "Operating-model owner", "Record a narrow framework obligation even when the capability is implemented externally.",
+            ))
+        if disposition.get("disposition") == "not_modeled":
+            findings.append(_finding(
+                "MANDATORY_OPERATING_MODEL_REQUIREMENT_UNSUPPORTED", Severity.BLOCKING, f"{variant_id}:{requirement_id}",
+                "A mandatory enterprise operating-model requirement has no implementation disposition.",
+                "Operating-model owner", "Add a supported adapter or external control, or reject this workflow style.",
+            ))
+        if disposition.get("framework_requirement_identity_required") and not disposition.get("preserved_in_framework_artifacts"):
+            findings.append(_finding(
+                "REQUIREMENT_IDENTITY_LOST", Severity.BLOCKING, f"{variant_id}:{requirement_id}",
+                "A requirement applicable to the framework boundary lost stable identity in generated artifacts.",
+                "Requirements owner", "Preserve the applicable requirement ID through specifications, plans, and evidence.",
+            ))
     if not variant.get("policy_source_ids"):
         findings.append(_finding(
             "POLICY_PROVENANCE_LOST", Severity.BLOCKING, variant_id,
@@ -190,11 +226,17 @@ def validate_artifact_registry(model: dict[str, Any]) -> list[Finding]:
                 "Governance owner", "Map the artifact to business, policy, architecture, execution, evidence, or release authority.",
             ))
     task = registry.get("task", {})
-    if task.get("normative_scope") not in {"non_normative", "derived_execution_input"}:
+    if task.get("normative_scope") != "non_normative" or task.get("business_authority") is not False:
         findings.append(_finding(
             "TASK_MISTAKEN_FOR_BUSINESS_AUTHORITY", Severity.BLOCKING, "task",
             "A generated task is being allowed to redefine business or architecture intent.",
             "Planning owner", "Keep tasks downstream of requirements and approved architecture.",
+        ))
+    if task and task.get("execution_binding") != "binding_when_derived_from_approved_plan":
+        findings.append(_finding(
+            "TASK_EXECUTION_BINDING_UNDEFINED", Severity.REVIEW, "task",
+            "The task model does not distinguish business authority from execution-plan binding.",
+            "Planning owner", "State that a task may govern execution only when derived from an approved plan.",
         ))
     return findings
 
@@ -221,6 +263,14 @@ def validate_command_authority(model: dict[str, Any]) -> list[Finding]:
                 "A generated artifact can flow downstream without semantic checks.",
                 "Quality owner", "Attach the appropriate authority, consistency, coverage, and evidence validators.",
             ))
+    implement = commands.get("implement", {})
+    required_protected = {"approved_requirements", "architecture_decisions", "exceptions", "acceptance_thresholds"}
+    if required_protected - set(implement.get("protected_outputs", [])) or not implement.get("change_request_route"):
+        findings.append(_finding(
+            "IMPLEMENT_PROTECTED_OUTPUTS_MISSING", Severity.BLOCKING, "implement",
+            "Implementation may silently rewrite protected specifications, decisions, exceptions, or thresholds.",
+            "Governance owner", "Protect approved outputs and require a formal change request for semantic changes.",
+        ))
     return findings
 
 
@@ -233,6 +283,17 @@ def validate_extension_boundary(model: dict[str, Any]) -> list[Finding]:
             "AUTHORITATIVE_OWNER_AMBIGUOUS", Severity.BLOCKING, "capability-owners",
             f"Capabilities lack exactly one authoritative owner: {duplicated}.",
             "Operating-model owner", "Assign one system of record and make all framework copies derived.",
+        ))
+    missing_accountability = [
+        item.get("capability")
+        for item in model.get("authoritative_capability_owners", [])
+        if not item.get("accountable_owner")
+    ]
+    if missing_accountability:
+        findings.append(_finding(
+            "ACCOUNTABLE_OWNER_MISSING", Severity.BLOCKING, "capability-owners",
+            f"Capabilities lack an accountable human or organizational owner: {sorted(missing_accountability)}.",
+            "Operating-model owner", "Name an accountable team separately from the implementation mechanism.",
         ))
     boundary = model.get("extension_boundary", {})
     if boundary.get("policy_propagation") == "manual_copy":
@@ -263,7 +324,7 @@ def validate_selection_decision(
         findings.append(_finding(
             "SELECTION_REQUIREMENT_DISPOSITION_INCOMPLETE", Severity.BLOCKING, decision_id,
             "The framework decision does not disposition every enterprise requirement.",
-            "Operating-model owner", "Record native, extension, external, or unsupported disposition with evidence.",
+            "Operating-model owner", "Record a canonical, framework-assisted, extension, external-control, or unsupported disposition with evidence.",
         ))
     if evidence_catalog is not None:
         evidence = {item.get("id"): item for item in evidence_catalog}
@@ -299,6 +360,12 @@ def validate_selection_decision(
             "SELECTION_ALTERNATIVES_MISSING", Severity.REVIEW, decision_id,
             "The selection record does not compare credible alternatives.",
             "Architecture review board", "Record options, strengths, gaps, extension cost, and rejection rationale.",
+        ))
+    if not decision.get("rationale"):
+        findings.append(_finding(
+            "SELECTION_RATIONALE_MISSING", Severity.REVIEW, decision_id,
+            "The ADR records a pattern without explaining why it fits the operating-model constraints.",
+            "Architecture review board", "State why canonical artifacts, adapters, and external controls form the selected composition.",
         ))
     if not decision.get("assumptions"):
         findings.append(_finding(
@@ -386,10 +453,10 @@ def capability_profiles(model: dict[str, Any]) -> dict[str, Any]:
         capabilities = variant.get("capabilities", {})
         profiles.append({
             "id": variant.get("id"),
-            "native": sorted(key for key, value in capabilities.items() if value == "native"),
-            "extension": sorted(key for key, value in capabilities.items() if value == "extension"),
-            "external": sorted(key for key, value in capabilities.items() if value == "external"),
-            "unsupported": sorted(key for key, value in capabilities.items() if value == "unsupported"),
+            "built_in_to_style": sorted(key for key, value in capabilities.items() if value == "built_in_to_style"),
+            "enterprise_extension": sorted(key for key, value in capabilities.items() if value == "enterprise_extension"),
+            "external_control": sorted(key for key, value in capabilities.items() if value == "external_control"),
+            "not_modeled": sorted(key for key, value in capabilities.items() if value == "not_modeled"),
         })
     return {
         "profiles": profiles,
@@ -446,6 +513,10 @@ def _execute_golden_scenario(case: dict[str, Any]) -> str:
         baseline = stable_digest(inputs.get("baseline_template", ""))
         candidate = stable_digest(inputs.get("candidate_template", ""))
         return "stop_rollout_and_review_semantic_diff" if baseline != candidate else "continue_rollout"
+    if kind == "protected_nfr_change":
+        return "protected_target_change_route_owner_review" if inputs.get("approved_target") != inputs.get("generated_target") else "continue"
+    if kind == "evidence_laundering":
+        return "self_reported_completion_not_conformance_evidence" if not inputs.get("independent_evidence_ids") else "evaluate_evidence"
     return "unsupported_scenario"
 
 
@@ -487,8 +558,11 @@ def _mutated_bundle(case: dict[str, Any]) -> dict[str, Any]:
         variant["source_context_id"] = "CTX-OTHER"
     elif mutation == "drop_source_artifact":
         variant["source_ids"] = variant["source_ids"][:-1]
-    elif mutation == "drop_requirement_ids":
-        variant["requirement_ids"] = []
+    elif mutation == "drop_variant_disposition":
+        variant["requirement_dispositions"] = variant["requirement_dispositions"][:-1]
+    elif mutation == "lose_applicable_requirement_identity":
+        applicable = next(item for item in variant["requirement_dispositions"] if item["framework_requirement_identity_required"])
+        applicable["preserved_in_framework_artifacts"] = False
     elif mutation == "drop_policy_sources":
         variant["policy_source_ids"] = []
     elif mutation == "collapse_open_question":
@@ -517,8 +591,13 @@ def _mutated_bundle(case: dict[str, Any]) -> dict[str, Any]:
         model["command_authority_matrix"][0]["may_approve"] = True
     elif mutation == "command_has_no_validators":
         model["command_authority_matrix"][0]["validators"] = []
+    elif mutation == "allow_implement_spec_mutation":
+        implement = next(item for item in model["command_authority_matrix"] if item["stage"] == "implement")
+        implement["protected_outputs"] = []
     elif mutation == "duplicate_capability_owner":
         model["authoritative_capability_owners"].append(copy.deepcopy(model["authoritative_capability_owners"][0]))
+    elif mutation == "remove_accountable_owner":
+        model["authoritative_capability_owners"][0]["accountable_owner"] = None
     elif mutation == "manual_policy_copy":
         model["extension_boundary"]["policy_propagation"] = "manual_copy"
     elif mutation == "deep_fork":
@@ -527,6 +606,8 @@ def _mutated_bundle(case: dict[str, Any]) -> dict[str, Any]:
         decision["overall_score"] = 94
     elif mutation == "remove_alternatives":
         decision["alternatives"] = []
+    elif mutation == "remove_rationale":
+        decision["rationale"] = []
     elif mutation == "remove_assumptions":
         decision["assumptions"] = []
     elif mutation == "remove_reconsideration":

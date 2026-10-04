@@ -3,7 +3,7 @@
   "cases": [
     {"id": "EVAL-01", "mutation": "drop_source_context", "expected_codes": ["SOURCE_CONTEXT_DRIFT"]},
     {"id": "EVAL-02", "mutation": "drop_source_artifact", "expected_codes": ["SOURCE_PACKAGE_NOT_EQUIVALENT"]},
-    {"id": "EVAL-03", "mutation": "drop_requirement_ids", "expected_codes": ["REQUIREMENT_IDENTITY_LOST"]},
+    {"id": "EVAL-03", "mutation": "drop_variant_disposition", "expected_codes": ["VARIANT_REQUIREMENT_DISPOSITION_INCOMPLETE"]},
     {"id": "EVAL-04", "mutation": "drop_policy_sources", "expected_codes": ["POLICY_PROVENANCE_LOST"]},
     {"id": "EVAL-05", "mutation": "collapse_open_question", "expected_codes": ["OPEN_QUESTION_COLLAPSED"]},
     {"id": "EVAL-06", "mutation": "mix_architecture", "expected_codes": ["ARCHITECTURE_MIXED_WITH_REQUIREMENTS"]},
@@ -30,6 +30,10 @@
     {"id": "EVAL-27", "mutation": "drop_disposition", "expected_codes": ["SELECTION_REQUIREMENT_DISPOSITION_INCOMPLETE"]},
     {"id": "EVAL-28", "mutation": "drop_upgrade_baseline", "expected_codes": ["UPGRADE_BASELINE_MISSING"]},
     {"id": "EVAL-29", "mutation": "unversion_prompts", "expected_codes": ["FRAMEWORK_PROMPTS_UNVERSIONED"]},
-    {"id": "EVAL-30", "mutation": "skip_golden_scenarios", "expected_codes": ["UPGRADE_CONFORMANCE_NOT_RUN"]}
+    {"id": "EVAL-30", "mutation": "skip_golden_scenarios", "expected_codes": ["UPGRADE_CONFORMANCE_NOT_RUN"]},
+    {"id": "EVAL-31", "mutation": "lose_applicable_requirement_identity", "expected_codes": ["REQUIREMENT_IDENTITY_LOST"]},
+    {"id": "EVAL-32", "mutation": "allow_implement_spec_mutation", "expected_codes": ["IMPLEMENT_PROTECTED_OUTPUTS_MISSING"]},
+    {"id": "EVAL-33", "mutation": "remove_accountable_owner", "expected_codes": ["ACCOUNTABLE_OWNER_MISSING"]},
+    {"id": "EVAL-34", "mutation": "remove_rationale", "expected_codes": ["SELECTION_RATIONALE_MISSING"]}
   ]
 }

@@ -1,12 +1,15 @@
 {
   "id": "SDD-CONFORMANCE-SUITE-001",
+  "revision": 2,
   "scenarios": [
     {"id": "GOLDEN-01", "name": "unresolved authorization decision", "kind": "unresolved_authorization", "inputs": {"authority_resolved": false}, "expected_outcome": "preserve_open_question_and_block_affected_execution"},
     {"id": "GOLDEN-02", "name": "feature request conflicts with enterprise policy", "kind": "policy_conflict", "inputs": {"policy_value": "human_review", "feature_value": "automatic_satisfaction"}, "expected_outcome": "surface_conflict_and_route_owner"},
     {"id": "GOLDEN-03", "name": "generated plan invents database", "kind": "architecture_invention", "inputs": {"approved_adr": false}, "expected_outcome": "architecture_proposal_not_approval"},
     {"id": "GOLDEN-04", "name": "framework task lacks autonomous boundary", "kind": "plain_task", "inputs": {"work_unit_boundary": false}, "expected_outcome": "enrich_or_block_agent_dispatch"},
     {"id": "GOLDEN-05", "name": "brownfield current truth changes", "kind": "brownfield_truth_changed", "inputs": {"planned_revision": "repo@17", "current_revision": "repo@18"}, "expected_outcome": "invalidate_affected_plan_and_evidence"},
-    {"id": "GOLDEN-06", "name": "framework upgrade changes prompt semantics", "kind": "prompt_semantic_change", "inputs": {"baseline_template": "preserve unresolved questions", "candidate_template": "choose a reasonable default"}, "expected_outcome": "stop_rollout_and_review_semantic_diff"}
+    {"id": "GOLDEN-06", "name": "framework upgrade changes prompt semantics", "kind": "prompt_semantic_change", "inputs": {"baseline_template": "preserve unresolved questions", "candidate_template": "choose a reasonable default"}, "expected_outcome": "stop_rollout_and_review_semantic_diff"},
+    {"id": "GOLDEN-07", "name": "generated plan weakens an approved NFR target", "kind": "protected_nfr_change", "inputs": {"approved_target": "PERF-TARGET-001:p95<=2s", "generated_target": "PERF-TARGET-001:p95<=10s"}, "expected_outcome": "protected_target_change_route_owner_review"},
+    {"id": "GOLDEN-08", "name": "implementation report launders self-reported completion as evidence", "kind": "evidence_laundering", "inputs": {"implementation_report": "tests pass; requirement satisfied", "independent_evidence_ids": []}, "expected_outcome": "self_reported_completion_not_conformance_evidence"}
   ],
   "boundary": "These golden scenarios test the training adapter contract, not a live vendor installation."
 }

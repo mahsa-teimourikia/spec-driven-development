@@ -4,6 +4,7 @@
   "context": "TODO",
   "requirements": ["TODO"],
   "decision": "TODO: framework role plus enterprise-owned extensions",
+  "rationale": ["TODO: explain why this composition fits mandatory requirements and authority boundaries"],
   "alternatives": ["TODO"],
   "assumptions": ["TODO"],
   "reconsideration_triggers": ["TODO"],

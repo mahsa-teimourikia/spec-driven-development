@@ -1117,7 +1117,7 @@ const QUESTIONS = [
     question: 'Why should framework evaluations avoid one overall score?',
     options: ['A total can hide a mandatory unsupported capability and erase context-specific trade-offs', 'Numbers cannot be stored in an ADR', 'Every framework has identical features', 'Only vendor popularity matters'],
     answer: 0,
-    explanation: 'Native, extension, external, and unsupported dispositions reveal mandatory gaps and composition cost more clearly than a winner score.'
+    explanation: 'Built-into-style, enterprise-extension, external-control, and not-modeled dispositions reveal mandatory gaps and composition cost more clearly than a winner score.'
   },
   {
     category: 'Change semantics',

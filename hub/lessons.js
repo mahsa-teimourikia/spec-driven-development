@@ -561,7 +561,7 @@ const course12 = {
   outcomes: [
     'Distinguish methodology, framework, repository instructions, and enterprise operating model.',
     'Compare Spec Kit, OpenSpec, Kiro Specs, BMad, and repo-native approaches from dated official sources.',
-    'Profile native, extension, external, and unsupported capabilities without hiding mandatory gaps in an overall score.',
+    'Profile capabilities as built into a synthetic style, supplied by enterprise extensions, enforced externally, or not modeled—without hiding mandatory gaps in an overall score.',
     'Map framework artifacts to a canonical model with business, policy, architecture, execution, evidence, and release authority.',
     'Validate specification, plan, task, and implementation transformations before generated output flows downstream.',
     'Route changes through proportional risk tiers and preserve a lightweight path for low-risk work.',
@@ -575,7 +575,7 @@ const course12 = {
   labs: [
     {
       title: 'Lab A — Validate the operating model',
-      description: 'Contrast an unsafe feature contest with four enterprise-enriched workflow styles, inspect capability profiles, route risk tiers, run migration checks, and exercise 30 labelled failures.',
+      description: 'Contrast an unsafe feature contest with four enterprise-enriched workflow styles, inspect capability profiles, route risk tiers, run migration checks, and exercise 34 labelled failures.',
       command: 'python3 curriculum/intermediate/02-sdd-framework-landscape-enterprise-operating-model/lab.py',
       links: [['View the selection lab', `${REPO}/blob/main/curriculum/intermediate/02-sdd-framework-landscape-enterprise-operating-model/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/intermediate/02-sdd-framework-landscape-enterprise-operating-model/framework_landscape.ipynb`]]
     },
@@ -597,11 +597,11 @@ const course12 = {
     question: 'A spec-first framework produces excellent plans and tasks but has no enterprise policy resolver, authenticated approvals, or evidence service. What is the sound adoption decision?',
     options: [
       'Use it for the bounded project workflow if clean adapters and external controls satisfy those mandatory capabilities; do not call the framework governance.',
-      'Reject it automatically because every capability must be native.',
+      'Reject it automatically because every capability must be built into the workflow style.',
       'Treat generated plans as approved because the workflow is structured.'
     ],
     answer: 0,
-    explanation: 'Enterprise fit is compositional. A framework can own the project transformation workflow while organization-owned services retain policy, authority, evidence, execution, and release decisions.'
+    explanation: 'Enterprise fit is compositional. A framework can implement the project transformation workflow while the accountable team and organization-owned services retain policy, authority, evidence, execution, and release decisions.'
   }
 };
 

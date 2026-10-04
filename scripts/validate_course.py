@@ -2003,12 +2003,12 @@ def check_course_12_framework_landscape() -> list[str]:
     profiles = report.get("capability_profiles", {})
     if profiles.get("overall_ranking") is not None or len(profiles.get("profiles", [])) != 4:
         errors.append("Course 12 must compare four workflow styles without an overall ranking")
-    if any(not item.get("extension") or not item.get("external") for item in profiles.get("profiles", [])):
+    if any(not item.get("enterprise_extension") or not item.get("external_control") for item in profiles.get("profiles", [])):
         errors.append("Course 12 profiles must expose extension and external-control cost")
 
     conformance = report.get("conformance", {})
-    if (conformance.get("passed"), conformance.get("population"), conformance.get("failed")) != (6, 6, 0):
-        errors.append("Course 12 golden conformance suite must retain six passing scenarios")
+    if (conformance.get("passed"), conformance.get("population"), conformance.get("failed")) != (8, 8, 0):
+        errors.append("Course 12 golden conformance suite must retain eight passing scenarios")
     if "not_production" not in conformance.get("claim", ""):
         errors.append("Course 12 conformance suite must disclose its synthetic boundary")
 
@@ -2021,16 +2021,16 @@ def check_course_12_framework_landscape() -> list[str]:
         evaluation.get("false_negative"),
         exact.get("numerator"),
         exact.get("denominator"),
-    ) != (30, 30, 0, 0, 30, 30):
-        errors.append("Course 12 labelled evaluation must retain 30 exact cases and 30 findings")
+    ) != (34, 34, 0, 0, 34, 34):
+        errors.append("Course 12 labelled evaluation must retain 34 exact cases and 34 findings")
     if "not_general" not in evaluation.get("claim", ""):
         errors.append("Course 12 evaluation must disclose its labelled-fixture boundary")
 
     model = json.loads((scenario / "reference" / "operating-model.json").read_text(encoding="utf-8"))
     if len(model.get("enterprise_requirements", [])) != 10 or len(model.get("variants", [])) != 4:
         errors.append("Course 12 reference must retain ten requirements and four workflow styles")
-    if len(model.get("canonical_artifact_registry", [])) != 7:
-        errors.append("Course 12 canonical registry must retain seven artifact types")
+    if len(model.get("canonical_artifact_registry", [])) != 9:
+        errors.append("Course 12 canonical registry must retain nine artifact types")
     if len(model.get("selection_evidence", [])) != 10 or any(
         not all(item.get(field) for field in ("id", "subject_revision", "producer", "result"))
         for item in model.get("selection_evidence", [])
@@ -2038,9 +2038,16 @@ def check_course_12_framework_landscape() -> list[str]:
         errors.append("Course 12 selection evidence must retain ten provenance-bearing fixture records")
     if any(item.get("may_approve") for item in model.get("command_authority_matrix", [])):
         errors.append("Course 12 framework transformations must never self-approve")
+    implement = next((item for item in model.get("command_authority_matrix", []) if item.get("stage") == "implement"), {})
+    if not implement.get("protected_outputs") or not implement.get("change_request_route"):
+        errors.append("Course 12 implementation stage must protect approved semantics and route formal change requests")
+    if any(not item.get("accountable_owner") for item in model.get("authoritative_capability_owners", [])):
+        errors.append("Course 12 authoritative capabilities must name accountable organizational owners")
     decision = json.loads((scenario / "reference" / "selection-decision.json").read_text(encoding="utf-8"))
     if decision.get("status") != "ready_for_owner_review" or decision.get("overall_score") is not None:
         errors.append("Course 12 selection ADR must remain review-ready without a winner score")
+    if not decision.get("rationale"):
+        errors.append("Course 12 selection ADR must explain the hybrid operating-model rationale")
     if len(decision.get("requirement_dispositions", [])) != 10:
         errors.append("Course 12 selection ADR must disposition every enterprise requirement")
 

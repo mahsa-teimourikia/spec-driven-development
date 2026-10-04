@@ -34,7 +34,7 @@ The course uses fictional change **AI-2310 — Broker Document Classification**.
 - preserves stable requirement and source identity;
 - keeps unresolved authorization explicit;
 - separates requirements from proposed architecture;
-- exposes native, extension, external, and unsupported capabilities without collapsing them into one score;
+- exposes capabilities as built into the synthetic style, enterprise extensions, external controls, or not modeled—without collapsing them into one score;
 - binds evidence to exact subjects and revisions;
 - preserves critical semantics when a framework is removed;
 - ends with a reviewable decision—not synthetic approval; and
@@ -125,11 +125,13 @@ Use questions such as:
 Do not assign one `94/100` score. A high total can hide one mandatory unsupported control. Produce a capability profile:
 
 ```text
-native     implemented by the framework
-extension implemented through a supported adapter or extension point
-external  enforced by another organization-owned control plane
-unsupported cannot currently satisfy the requirement
+BUILT_IN_TO_STYLE    present in this fictional workflow style
+ENTERPRISE_EXTENSION supplied through an adapter or supported extension point
+EXTERNAL_CONTROL     enforced by an organization-owned control plane
+NOT_MODELED          absent from the evaluated composition
 ```
+
+These labels describe the four synthetic training styles only. They are not claims about a named vendor's current feature set.
 
 ## 5. Current framework landscape
 
@@ -139,7 +141,7 @@ This is a dated architectural snapshot, not a winner table.
 
 Current official documentation describes a full path of `constitution → specify → clarify → plan → checklist → tasks → analyze → implement → converge`. It presents Spec Kit as an extensible, agent-neutral process harness with integrations, presets, workflows, catalogs, and extensions.
 
-Useful native strengths include artifact progression, WHAT/HOW separation, quality checks, cross-artifact analysis, convergence, repository-local artifacts, and broad coding-agent support. Enterprise work still needs to decide how organization policy becomes effective project context, which generated decisions need owner review, how evidence is authenticated, and how runtime permission and release gates operate.
+Documented strengths include artifact progression, WHAT/HOW separation, quality checks, cross-artifact analysis, convergence, repository-local artifacts, and broad coding-agent support. Enterprise work still needs to decide how organization policy becomes effective project context, which generated decisions need owner review, how evidence is authenticated, and how runtime permission and release gates operate.
 
 The constitution is a project principle artifact. It is not automatically a full company → platform → domain → project authority resolver. A stronger enterprise composition is:
 
@@ -245,6 +247,8 @@ Map semantics rather than names:
 |---|---|
 | constitution / steering | Project principles and agent guidance |
 | specification | Feature requirements or current system behavior |
+| acceptance criterion | Measurable behavioral verification contract |
+| open question | Explicit unresolved decision with an owner and blocking effect |
 | proposal / delta | Intended change to current truth |
 | design | Technical proposal or approved architecture reference |
 | plan | Execution-normative implementation plan after review |
@@ -257,6 +261,8 @@ Northstar's training model includes:
 
 ```text
 Requirement
+Acceptance Criterion
+Open Question
 Architecture Decision
 Implementation Plan
 Task
@@ -273,7 +279,7 @@ Authority remains typed:
 BUSINESS · POLICY · ARCHITECTURE · EXECUTION · EVIDENCE · RELEASE
 ```
 
-An approved implementation plan can be normative for execution without becoming a business requirement. A task remains downstream of requirements and architecture. A framework-generated task cannot select a database against an approved ADR.
+An approved implementation plan can be normative for execution without becoming a business requirement. A task is non-normative with respect to business, policy, and architecture semantics, but it can become binding for execution when it is derived from an approved plan. A framework-generated task cannot select a database against an approved ADR.
 
 ## 10. Task is not agent work unit
 
@@ -321,22 +327,27 @@ Better prompts improve proposals. They do not grant approval.
 | specify | proposed requirements | business or policy decisions |
 | design/plan | implementation and architecture proposals | protected architecture or exceptions |
 | tasks | derived work | expanded scope or autonomous permission |
-| implement | code, tests, completion report | requirement changes, merge, or release |
+| implement | code, tests, completion report, formal change request | approved requirement, architecture, exception, or acceptance-threshold changes; merge; release |
 
 If a tool defines specialized “architect” or “reviewer” agents, map each to the same `may generate / may propose / may not decide` boundary. Role names are not organizational credentials.
+
+The implementation transformation must treat approved requirements, architecture decisions, exceptions, and acceptance thresholds as protected outputs. When code cannot satisfy one of them, the agent proposes a formal change request; it does not weaken the source artifact or rewrite the test until implementation passes.
 
 ## 13. One capability, one authoritative owner
 
 A hybrid model might assign:
 
 ```text
-Policy catalog          → enterprise policy
-ADR registry            → approved architecture decisions
-SDD framework           → project change workflow
-Workload control plane  → execution identity and permissions
-CI/evidence services    → execution evidence
-Release control plane   → release decisions
+Accountable team        Authoritative capability         Implementation
+Governance Platform  →  enterprise policy             → policy catalog
+Architecture Council →  architecture decisions        → ADR registry
+Developer Platform   →  project change workflow       → selected SDD framework
+Developer Platform   →  execution identity/permission → workload control plane
+Quality Engineering  →  conformance evidence          → CI/evidence services
+Release Engineering  →  release decisions             → release control plane
 ```
+
+The framework implements a workflow capability; it is not the accountable owner of that capability.
 
 Framework copies are derived context. Never manually copy a policy into dozens of project constitutions or steering files and hope they remain current. Resolve applicable controls from source, emit revision-bound context, and retain provenance.
 
@@ -358,7 +369,7 @@ Bad:
 fork framework → rewrite parser → patch every template → maintain forever
 ```
 
-Extension cost belongs in selection: implementation effort, upgrade burden, ownership, support, training, and failure recovery. A smaller native feature set with stable extension points may fit better than a larger but rigid product.
+Extension cost belongs in selection: implementation effort, upgrade burden, ownership, support, training, and failure recovery. A smaller built-in capability set with stable extension points may fit better than a larger but rigid product.
 
 ## 15. Portability has four levels
 
@@ -402,7 +413,7 @@ Treat adoption as an architectural/process decision. Record:
 
 - organization and portfolio context;
 - mandatory enterprise capabilities;
-- each requirement's native, extension, external, or unsupported disposition;
+- each requirement's built-in-style, enterprise-extension, external-control, or not-modeled disposition;
 - alternatives and trade-offs;
 - the framework's bounded role;
 - enterprise-owned extensions;
@@ -417,6 +428,8 @@ The correct conclusion is not “X is best.” It is:
 
 The fixture selection ADR ends at `ready_for_owner_review`. A JSON field cannot authenticate a platform council's decision.
 
+Northstar chooses a hybrid pattern because no evaluated workflow style should own enterprise policy or release authority, canonical artifacts preserve semantics across tools, adapters retain framework-specific developer experience, external controls retain accountable authority, and explicit change semantics fit brownfield delivery. A real ADR states this rationale directly instead of making reviewers infer it from dispositions.
+
 ## 19. Framework upgrades are operating-model changes
 
 Prompts, templates, commands, and artifact mappings are executable process assets. An upgrade may change requirements, plans, task semantics, or agent context across hundreds of repositories.
@@ -428,7 +441,9 @@ Pin baseline and candidate versions, version prompt/template digests, then run g
 - generated architecture remains a proposal;
 - plain tasks cannot bypass work-unit controls;
 - changed brownfield truth invalidates affected artifacts; and
-- semantic prompt drift stops rollout for review.
+- semantic prompt drift stops rollout for review;
+- a generated plan cannot weaken an approved NFR target; and
+- self-reported completion cannot become conformance evidence.
 
 Roll out to representative projects and a bounded cohort before broad adoption.
 
@@ -452,8 +467,8 @@ Expected reference output:
 ```text
 READY_FOR_OWNER_REVIEW
 zero findings
-six of six golden scenarios
-30 of 30 exact labelled mutation cases
+eight of eight golden scenarios
+34 of 34 exact labelled mutation cases
 ```
 
 The unsafe candidate chooses a feature winner, drops policy provenance and uncertainty, mixes architecture into requirements, treats tasks as autonomous work units, lets a command self-approve, copies policy manually, and claims adoption approval.
@@ -463,11 +478,11 @@ The unsafe candidate chooses a feature winner, drops policy provenance and uncer
 Use the [guided notebook](framework_landscape.ipynb) to:
 
 - compare a feature-count baseline with capability profiles;
-- inspect how enterprise extensions change the meaning of native gaps;
+- inspect how enterprise extensions change the meaning of built-in-style gaps;
 - route four changes through proportional risk tiers;
 - inject policy, authority, evidence, portability, and upgrade failures;
 - test transformation-specific assurance; and
-- measure the deterministic rule set against 30 labelled mutations.
+- measure the deterministic rule set against 34 labelled mutations.
 
 The fixture measures rule coverage only. It does not measure developer experience, vendor quality, real generated-artifact accuracy, productivity, or total cost of ownership.
 
@@ -543,12 +558,14 @@ Escalate process depth when uncertainty, consequence, shared contracts, regulato
 4. Design an effective-context adapter without copying enterprise policy into the repository by hand.
 5. Write a command authority matrix for `specify`, `plan`, `tasks`, and `implement`.
 6. Test what would be lost if your current framework disappeared tomorrow.
-7. Compare a native feature with a clean extension and a permanent framework fork.
+7. Compare a built-in-style feature with a clean extension and a permanent framework fork.
 8. Route a README fix, API-contract change, regulated classifier, and cross-repository multi-agent migration through the four risk tiers.
 9. Add a golden scenario in which a feature request conflicts with an enterprise rule.
 10. Design a pilot that measures review load and semantic omissions, not only time-to-code.
 11. Repair the unsafe candidate without changing the source package.
 12. Defend why `ready_for_owner_review` is the strongest fixture claim.
+13. Compare Framework A, which has excellent workflow features but poor authority and provenance fit, with Framework B, which has basic workflow UX but strong portability and extension hooks. Explain why feature count alone cannot select either one; evaluate mandatory requirements and extension cost.
+14. Migrate an unresolved question—`automatic delivery allowed?`—into a system that emits `auto_delivery = false`. Explain why converting `UNKNOWN` into `NO` is `MIGRATION_SEMANTIC_LOSS` even though every output field is populated.
 
 ## Review questions
 
@@ -580,4 +597,4 @@ A framework is an implementation choice inside the Agentic PDLC. Choose it only 
 - [`AGENTS.md` open format](https://github.com/agentsmd/agents.md)
 - [NIST Secure Software Development Framework](https://csrc.nist.gov/pubs/sp/800/218/final)
 
-Next: a deep, hands-on framework implementation course can apply this operating-model boundary to one concrete process harness without mistaking its native workflow for complete governance.
+Next: a deep, hands-on framework implementation course can apply this operating-model boundary to one concrete process harness without mistaking its built-in workflow for complete governance.

@@ -17,6 +17,13 @@
     "framework_role": "project_change_specification_and_transformation_harness",
     "enterprise_extensions": ["effective_context_resolution", "canonical_artifact_registry", "evidence_manifest", "agent_work_units", "orchestration_control_plane", "release_gates"]
   },
+  "rationale": [
+    "No evaluated workflow style should own enterprise policy, architecture approval, evidence acceptance, or release authority.",
+    "Canonical artifacts preserve requirements, open questions, acceptance criteria, decisions, evidence, and change history independently of a framework.",
+    "Adapters preserve framework-specific developer experience while keeping enterprise semantics portable.",
+    "External controls retain authorization, evidence validation, execution permission, and release authority.",
+    "Explicit current-truth and proposed-change semantics fit Northstar's brownfield delivery model."
+  ],
   "requirement_dispositions": [
     {"requirement_id": "SDD-ENT-001", "disposition": "canonical_model", "evidence_ids": ["EVID-CANONICAL-REGISTRY"]},
     {"requirement_id": "SDD-ENT-002", "disposition": "enterprise_extension", "evidence_ids": ["EVID-CONTEXT-ADAPTER"]},
@@ -55,4 +62,3 @@
   "claim": "fitness_under_northstar_constraints_not_best_framework",
   "boundary": "This synthetic ADR is ready for an accountable owner to review; it is not an authenticated adoption approval."
 }
-

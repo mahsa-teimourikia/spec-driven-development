@@ -62,15 +62,27 @@ class Course12FrameworkLandscapeTests(unittest.TestCase):
         model["variants"][0]["source_ids"] = []
         self.assertIn("SOURCE_PACKAGE_NOT_EQUIVALENT", self.codes(lab.validate_source_equivalence(self.reference["source"], model)))
 
-    def test_variants_preserve_stable_requirement_identity(self):
+    def test_variants_disposition_every_enterprise_requirement(self):
         expected = {item["id"] for item in self.reference["model"]["enterprise_requirements"]}
         for variant in self.reference["model"]["variants"]:
-            self.assertEqual(expected, set(variant["requirement_ids"]))
+            self.assertEqual(expected, {item["requirement_id"] for item in variant["requirement_dispositions"]})
+
+    def test_external_controls_do_not_pretend_to_be_framework_requirements(self):
+        for variant in self.reference["model"]["variants"]:
+            release = next(item for item in variant["requirement_dispositions"] if item["requirement_id"] == "SDD-ENT-010")
+            self.assertEqual("external_control", release["disposition"])
+            self.assertFalse(release["framework_requirement_identity_required"])
 
     def test_requirement_identity_loss_blocks(self):
         variant = copy.deepcopy(self.reference["model"]["variants"][0])
-        variant["requirement_ids"] = []
+        applicable = next(item for item in variant["requirement_dispositions"] if item["framework_requirement_identity_required"])
+        applicable["preserved_in_framework_artifacts"] = False
         self.assertIn("REQUIREMENT_IDENTITY_LOST", self.codes(lab.validate_variant(variant, self.reference["model"]["enterprise_requirements"])))
+
+    def test_missing_variant_requirement_disposition_blocks(self):
+        variant = copy.deepcopy(self.reference["model"]["variants"][0])
+        variant["requirement_dispositions"] = variant["requirement_dispositions"][:-1]
+        self.assertIn("VARIANT_REQUIREMENT_DISPOSITION_INCOMPLETE", self.codes(lab.validate_variant(variant, self.reference["model"]["enterprise_requirements"])))
 
     def test_policy_sources_remain_external_and_revisioned(self):
         for variant in self.reference["model"]["variants"]:
@@ -134,17 +146,26 @@ class Course12FrameworkLandscapeTests(unittest.TestCase):
 
     def test_profiles_expose_extension_and_external_cost(self):
         profiles = lab.capability_profiles(self.reference["model"])["profiles"]
-        self.assertTrue(all(item["extension"] for item in profiles))
-        self.assertTrue(all(item["external"] for item in profiles))
+        self.assertTrue(all(item["enterprise_extension"] for item in profiles))
+        self.assertTrue(all(item["external_control"] for item in profiles))
 
     def test_canonical_registry_contains_required_types(self):
         self.assertEqual([], lab.validate_artifact_registry(self.reference["model"]))
         types = {item["type"] for item in self.reference["model"]["canonical_artifact_registry"]}
         self.assertEqual(lab.REQUIRED_CANONICAL_TYPES, types)
+        self.assertTrue({"acceptance_criterion", "open_question"} <= types)
+
+    def test_portability_and_upgrade_authority_are_architectural(self):
+        requirements = {item["id"]: item for item in self.reference["model"]["enterprise_requirements"]}
+        self.assertEqual("ARCHITECTURE", requirements["SDD-ENT-008"]["authority_domain"])
+        self.assertEqual("Architecture Council", requirements["SDD-ENT-009"]["owner"])
+        self.assertEqual("Quality Engineering", requirements["SDD-ENT-009"]["evidence_owner"])
 
     def test_task_is_not_business_normative(self):
         task = next(item for item in self.reference["model"]["canonical_artifact_registry"] if item["type"] == "task")
         self.assertEqual("non_normative", task["normative_scope"])
+        self.assertFalse(task["business_authority"])
+        self.assertEqual("binding_when_derived_from_approved_plan", task["execution_binding"])
 
     def test_invalid_artifact_authority_domain_blocks(self):
         model = copy.deepcopy(self.reference["model"])
@@ -161,6 +182,14 @@ class Course12FrameworkLandscapeTests(unittest.TestCase):
         model["command_authority_matrix"][0]["may_approve"] = True
         self.assertIn("FRAMEWORK_COMMAND_SELF_APPROVES", self.codes(lab.validate_command_authority(model)))
 
+    def test_implement_cannot_mutate_protected_semantics(self):
+        implement = next(item for item in self.reference["model"]["command_authority_matrix"] if item["stage"] == "implement")
+        self.assertEqual(
+            {"approved_requirements", "architecture_decisions", "exceptions", "acceptance_thresholds"},
+            set(implement["protected_outputs"]),
+        )
+        self.assertTrue(implement["change_request_route"])
+
     def test_transformation_assurance_is_stage_specific(self):
         self.assertEqual(
             ["dependency", "stop_conditions", "work_unit_enrichment"],
@@ -173,6 +202,11 @@ class Course12FrameworkLandscapeTests(unittest.TestCase):
 
     def test_each_authoritative_capability_has_one_owner(self):
         self.assertEqual([], lab.validate_extension_boundary(self.reference["model"]))
+
+    def test_framework_is_implementation_not_accountable_owner(self):
+        workflow = next(item for item in self.reference["model"]["authoritative_capability_owners"] if item["capability"] == "project_change_workflow")
+        self.assertEqual("Developer Platform", workflow["accountable_owner"])
+        self.assertEqual("selected_sdd_framework", workflow["implementation"])
 
     def test_duplicate_capability_owner_blocks(self):
         model = copy.deepcopy(self.reference["model"])
@@ -214,6 +248,7 @@ class Course12FrameworkLandscapeTests(unittest.TestCase):
 
     def test_selection_has_assumptions_and_reconsideration_triggers(self):
         decision = self.reference["decision"]
+        self.assertTrue(decision["rationale"])
         self.assertTrue(decision["assumptions"])
         self.assertTrue(decision["reconsideration_triggers"])
 
@@ -255,7 +290,13 @@ class Course12FrameworkLandscapeTests(unittest.TestCase):
 
     def test_golden_conformance_suite_passes(self):
         result = lab.run_conformance_suite(self.reference["conformance"])
-        self.assertEqual((6, 6, 0), (result["passed"], result["population"], result["failed"]))
+        self.assertEqual((8, 8, 0), (result["passed"], result["population"], result["failed"]))
+
+    def test_golden_suite_blocks_nfr_weakening_and_evidence_laundering(self):
+        result = lab.run_conformance_suite(self.reference["conformance"])
+        outcomes = {item["id"]: item["observed"] for item in result["results"]}
+        self.assertEqual("protected_target_change_route_owner_review", outcomes["GOLDEN-07"])
+        self.assertEqual("self_reported_completion_not_conformance_evidence", outcomes["GOLDEN-08"])
 
     def test_conformance_suite_discloses_its_boundary(self):
         self.assertIn("not_production", lab.run_conformance_suite(self.reference["conformance"])["claim"])
@@ -267,11 +308,11 @@ class Course12FrameworkLandscapeTests(unittest.TestCase):
 
     def test_labelled_rule_evaluation_is_exact(self):
         evaluation = lab.evaluate_rules()
-        self.assertEqual((30, 30, 0, 0), (
+        self.assertEqual((34, 34, 0, 0), (
             evaluation["population"], evaluation["true_positive"],
             evaluation["false_positive"], evaluation["false_negative"],
         ))
-        self.assertEqual({"numerator": 30, "denominator": 30}, evaluation["exact_matches"])
+        self.assertEqual({"numerator": 34, "denominator": 34}, evaluation["exact_matches"])
 
     def test_rule_evaluation_does_not_claim_general_quality(self):
         self.assertIn("not_general", lab.evaluate_rules()["claim"])
