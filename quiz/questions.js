@@ -1188,5 +1188,89 @@ const QUESTIONS = [
     options: ['The synthetic composition is ready for an accountable owner to review', 'The enterprise has approved adoption', 'Every named framework is certified', 'Production release is authorized'],
     answer: 0,
     explanation: 'Fixture evidence supports only the declared training claims. It cannot authenticate an adoption, procurement, or release decision.'
+  },
+  {
+    category: 'Spec Kit authority',
+    question: 'A project constitution copies an enterprise AI policy and labels it project-owned. What failed?',
+    options: ['Authority was laundered; preserve the policy owner, revision, scope, and inherited status', 'Nothing; repository files always outrank enterprise policy', 'The constitution needs more implementation detail', 'The coding agent should become the policy owner'],
+    answer: 0,
+    explanation: 'A constitution can reference inherited constraints, but copying text does not transfer accountable authority to the project or framework.'
+  },
+  {
+    category: 'Effective context',
+    question: 'When should revision-bound policy and repository discovery be resolved for the Spec Kit workflow?',
+    options: ['Before specification, then carried by provenance through downstream artifacts', 'Only after implementation', 'Whenever the agent happens to search for them', 'Only during release'],
+    answer: 0,
+    explanation: 'A stable effective context prevents opportunistic discovery and lets every derived artifact prove which source state governed it.'
+  },
+  {
+    category: 'Clarification',
+    question: 'The source material does not define a confidence threshold for automatic satisfaction. What should clarification produce?',
+    options: ['An open owner-routed question and a blocked automatic-satisfaction capability', 'A statistically plausible threshold invented by the agent', 'A copied threshold from another project', 'An approved exception'],
+    answer: 0,
+    explanation: 'Clarification exposes missing decisions; it does not manufacture authority.'
+  },
+  {
+    category: 'Brownfield planning',
+    question: 'Why record current truth separately from proposed truth in a Spec Kit plan?',
+    options: ['To prevent duplicate capabilities and make architecture and authorization changes visible', 'To make the plan longer', 'To let the agent delete existing behavior freely', 'To replace repository discovery'],
+    answer: 0,
+    explanation: 'A brownfield plan must understand what already exists before proposing new components or changed decision boundaries.'
+  },
+  {
+    category: 'Agent work units',
+    question: 'A generated task names files and tests but has no authority boundary or stop conditions. Is it ready for autonomous dispatch?',
+    options: ['No; enrich it into an agent work unit with ancestry, scope, protected decisions, stops, and evidence', 'Yes; task generation grants execution authority', 'Yes, if the agent is confident', 'Only if the task is written in Markdown'],
+    answer: 0,
+    explanation: 'A task describes work. An AWU is the bounded execution contract needed for controlled autonomy.'
+  },
+  {
+    category: 'Independent evidence',
+    question: 'The coding agent reports that all tasks and tests are complete. What does that prove?',
+    options: ['It is useful completion provenance, not independent conformance or release evidence', 'The feature is production-ready', 'Policy approval is complete', 'The agent may release directly'],
+    answer: 0,
+    explanation: 'Independent checks must bind to the exact implementation revision and remain separate from the producer under evaluation.'
+  },
+  {
+    category: 'Convergence',
+    question: 'Convergence finds code that contradicts an approved review requirement. Which response preserves authority?',
+    options: ['Append repair work or route a formal semantic change to the owner', 'Rewrite the requirement to match code', 'Mark the divergence accepted automatically', 'Delete the evidence case'],
+    answer: 0,
+    explanation: 'Implementation is not an authoritative source for silently redefining intent.'
+  },
+  {
+    category: 'Multi-repository SDD',
+    question: 'What may a repository-local child specification do with a canonical parent requirement?',
+    options: ['Select and specialize its local implementation without weakening the parent semantics', 'Replace the parent ID with a local interpretation', 'Remove human review because another repository handles it', 'Approve the cross-repository contract'],
+    answer: 0,
+    explanation: 'Canonical IDs preserve meaning across repositories; child artifacts may refine implementation but not contradict the business change.'
+  },
+  {
+    category: 'Agent instructions',
+    question: 'Where should feature-specific classification semantics live?',
+    options: ['In the versioned feature specification, while agent instructions carry repository operating guidance', 'Duplicated independently in AGENTS.md and CLAUDE.md', 'Only in the model prompt', 'Only in CI logs'],
+    answer: 0,
+    explanation: 'Separating feature semantics from tool-specific instructions avoids competing sources of truth and adapter drift.'
+  },
+  {
+    category: 'Extension trust',
+    question: 'Spec Kit supports extension catalogs. What does that imply about an unvetted catalog?',
+    options: ['The mechanism is supported, but installation still requires source trust, digests, permissions, and approval', 'Every listed extension is automatically enterprise-approved', 'Extensions are not supply-chain inputs', 'The coding agent may install anything'],
+    answer: 0,
+    explanation: 'Extensibility is a capability, not a trust decision.'
+  },
+  {
+    category: 'Framework upgrades',
+    question: 'Why pin and hash Spec Kit templates in an enterprise workflow?',
+    options: ['Template and prompt changes can alter requirements, plans, tasks, and agent behavior', 'Only binary dependencies need provenance', 'Hashes grant approval', 'A latest tag is more reproducible'],
+    answer: 0,
+    explanation: 'Process configuration is executable behavior and needs review, conformance tests, rollout, and rollback.'
+  },
+  {
+    category: 'Course 13 evidence',
+    question: 'The Course 13 reference has zero findings and passes all synthetic scenarios. What is the strongest justified state?',
+    options: ['Ready for accountable owner review', 'Production approved', 'GitHub Spec Kit vendor-certified', 'Released to customers'],
+    answer: 0,
+    explanation: 'Deterministic synthetic evidence supports the declared training claims only; approval and release remain external authority decisions.'
   }
 ];

@@ -1,0 +1,47 @@
+{
+  "id": "SPEC-KIT-SNAPSHOT-2026-10-04",
+  "observed_at": "2026-10-04",
+  "official_source": "https://github.com/github/spec-kit",
+  "release": "v1.1.0",
+  "release_published_at": "2026-10-02T18:02:50Z",
+  "resolved_commit": "f1d3a4f8337ebbd3ae22760a9c12e3352b93a175",
+  "installation": {
+    "channel": "official_source_release_tag",
+    "command_shape": "uvx --from git+https://github.com/github/spec-kit.git@v1.1.0 specify init --here --non-interactive --integration codex --integration-options=--skills --ignore-agent-tools",
+    "reported_cli_version": "1.1.0",
+    "integration": "codex",
+    "invocation_style": "skills"
+  },
+  "core_commands": [
+    "speckit.constitution",
+    "speckit.specify",
+    "speckit.clarify",
+    "speckit.plan",
+    "speckit.checklist",
+    "speckit.tasks",
+    "speckit.analyze",
+    "speckit.implement",
+    "speckit.converge"
+  ],
+  "additional_core_command": "speckit.taskstoissues",
+  "scaffold_paths": [
+    ".agents/skills/speckit-specify/SKILL.md",
+    ".agents/skills/speckit-plan/SKILL.md",
+    ".agents/skills/speckit-tasks/SKILL.md",
+    ".agents/skills/speckit-implement/SKILL.md",
+    ".agents/skills/speckit-converge/SKILL.md",
+    ".specify/memory/constitution.md",
+    ".specify/templates/spec-template.md",
+    ".specify/templates/plan-template.md",
+    ".specify/templates/tasks-template.md",
+    ".specify/workflows/speckit/workflow.yml"
+  ],
+  "template_digests": {
+    "checklist-template.md": "70bbc48e884fab372ffb09e83e78ff983e28b69caebf8cd9964a02b6836683ac",
+    "constitution-template.md": "ce7549540fa45543cca797a150201d868e64495fdff39dc38246fb17bd4024b3",
+    "plan-template.md": "a828ad6206526574ab3fc99be6d0154588cb1c9774c5919d71b81ab5b2dbffa0",
+    "spec-template.md": "3945437fc35cd30a5b2bf7beea680337c3516826d3efa5a6b92c4a7eca1ba28e",
+    "tasks-template.md": "b0f527d41e546af0c31903e04f9b20965b6b497b573792198f663a64ce128863"
+  },
+  "claim": "observed_official_cli_scaffold_not_vendor_certification_or_production_installation"
+}

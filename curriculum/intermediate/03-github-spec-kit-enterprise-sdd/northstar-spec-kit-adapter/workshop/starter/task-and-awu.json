@@ -1,0 +1,16 @@
+{
+  "task": {
+    "id": "T001",
+    "basis": ["TODO: requirement ancestry"],
+    "risk": "consequential_ai",
+    "writable_paths": ["TODO"],
+    "protected_paths": ["TODO"],
+    "work_unit_id": "TODO"
+  },
+  "agent_work_unit": {
+    "id": "TODO",
+    "may_not_decide": ["TODO: protected decisions"],
+    "stop_conditions": ["TODO"],
+    "required_evidence": ["TODO: independent evidence"]
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "context_id": "TODO",
+  "source_ids": ["TODO: enumerate every required source from source/source-manifest.json"],
+  "policy_references": ["TODO: use an immutable revision"],
+  "repository_revision": "TODO"
+}

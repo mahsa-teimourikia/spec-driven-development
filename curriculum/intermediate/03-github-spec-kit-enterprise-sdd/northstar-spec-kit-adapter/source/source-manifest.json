@@ -1,0 +1,13 @@
+{
+  "context_id": "CTX-AI-2310@2-training",
+  "artifacts": [
+    {"id": "TICKET-AI-2310", "path": "ticket.md", "revision": "1-training", "authority": "Product Operations"},
+    {"id": "AI-030", "path": "enterprise-policy.json", "revision": "7-training", "authority": "AI Governance"},
+    {"id": "DOMAIN-DOC-11", "path": "domain-rules.md", "revision": "2-training", "authority": "Underwriting Operations"},
+    {"id": "ADR-058", "path": "architecture.md", "revision": "3-training", "authority": "Architecture Council"},
+    {"id": "DISCOVERY-AI-2310", "path": "repository-discovery.json", "revision": "repo-docs@a17-training", "authority": "Document Processing Owners"}
+  ],
+  "policy_references": ["AI-030@7-training"],
+  "repository_revision": "repo-docs@a17-training",
+  "fixture_status": "synthetic_training_context"
+}

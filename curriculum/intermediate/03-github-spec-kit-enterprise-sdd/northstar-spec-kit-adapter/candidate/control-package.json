@@ -1,0 +1,103 @@
+{
+  "id": "NORTHSTAR-SPEC-KIT-UNSAFE",
+  "observed_at": "2026-10-04",
+  "fixture_status": "intentionally_unsafe_training_candidate",
+  "framework_snapshot_id": "latest",
+  "context": {
+    "context_id": "ticket-only",
+    "source_ids": ["TICKET-AI-2310"],
+    "policy_references": [],
+    "repository_revision": "unknown",
+    "source_manifest_digest": null
+  },
+  "constitution_principles": [
+    {"id": "AI-030", "kind": "PROJECT_OWNED", "statement": "Use review when appropriate.", "owner": "Spec Kit", "source": "copied policy text", "authority": "enterprise_policy"}
+  ],
+  "specification": {
+    "id": "feature-spec",
+    "revision": "latest",
+    "template_version": null,
+    "template_digest": null,
+    "content_digest": null,
+    "supported_population": [],
+    "manual_review_population": [],
+    "requirements": [
+      {"id": "Requirement 1", "owner": null, "source": null, "revision": null, "implementation_choices": ["Pinecone", "Redis", "GPT"]}
+    ],
+    "open_questions": [],
+    "capability_gates": {"automatic_requirement_satisfaction": "READY"},
+    "acceptance_criteria": [{"id": "AC-1", "requirement_ids": ["REQ-UNKNOWN"], "oracle": "agent says done"}]
+  },
+  "plan": {
+    "id": "generated-plan",
+    "revision": "latest",
+    "specification_revision": "feature-spec@latest",
+    "repository_revision": "stale-repo",
+    "current_truth": [],
+    "proposed_truth": ["new_ocr", "vector_database", "redis", "authorization_change"],
+    "requirement_dispositions": [],
+    "work_items": [
+      {"id": "P001", "basis": [], "capability": "new_ocr", "justified": false}
+    ],
+    "architecture_changes": [{"id": "VECTOR-DB", "status": "APPROVED", "approved_by": "Spec Kit"}],
+    "duplicate_capabilities": ["existing_ocr"],
+    "protected_decision_changes": ["authorization_semantics"]
+  },
+  "tasks": [
+    {"id": "T001", "basis": ["REQ-UNKNOWN"], "requires_awu": true, "work_unit_id": null, "risk": "consequential_ai", "writable_paths": ["src/underwriting/submission.py"], "protected_paths": ["src/underwriting/submission.py"], "new_dependency": true, "dependency_proposal_id": null}
+  ],
+  "awu_policy": {
+    "may_decide": ["release", "authorization_semantics"],
+    "may_propose": [],
+    "may_not_decide": [],
+    "stop_conditions": [],
+    "required_evidence": []
+  },
+  "work_units": [],
+  "evidence_manifest": {
+    "implementation_revision": "impl-unknown",
+    "release_authority": "implementation_agent",
+    "production_ready": true,
+    "records": [
+      {"id": "REPORT-1", "kind": "completion_report", "producer": "coding-agent", "subject_revision": "stale", "result": "conformance_pass", "independent": false}
+    ],
+    "claim": "production_ready"
+  },
+  "convergence": {
+    "mode": "rewrite_spec_to_match_code",
+    "spec_mutations": ["REQ-DOC-003:auto_select_top_match"],
+    "plan_mutations": ["remove_review"],
+    "remaining_gaps": [],
+    "semantic_change_route": null,
+    "state": "APPROVED"
+  },
+  "multi_repository": {
+    "parent_change_id": "AI-2310",
+    "canonical_requirement_ids": ["REQ-DOC-003"],
+    "contract": {"id": "CONTRACT-DOC-REVIEW", "revision": null, "status": "APPROVED"},
+    "children": [
+      {"repository": "northstar/underwriting-review", "requirement_ids": ["REQ-DOC-003"], "semantic_overrides": ["skip_review_above_0_9"], "spec_kit_change": "014-ambiguous-document-review"}
+    ],
+    "integration_evidence_required": false
+  },
+  "agent_instruction_adapters": {
+    "canonical_rule_id": "AGENT-SEC-004",
+    "canonical_revision": "3-training",
+    "feature_semantics_in_instructions": true,
+    "generated": [{"target": "AGENTS.md", "source_revision": "2-training"}]
+  },
+  "extension_trust": {
+    "catalogs": [{"id": "builtin-community", "owner_vetted": false, "install_allowed": true, "artifact_digest_required": false}]
+  },
+  "risk_route": {
+    "determined_by": "coding_agent",
+    "mode": "lightweight",
+    "signals": [],
+    "basis": null
+  },
+  "authority_boundary": {
+    "framework_may_generate": ["everything"],
+    "framework_may_not_approve": [],
+    "framework_release_authority": true
+  }
+}
