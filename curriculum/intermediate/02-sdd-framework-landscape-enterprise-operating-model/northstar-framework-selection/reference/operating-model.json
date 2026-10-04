@@ -1,0 +1,191 @@
+{
+  "id": "NORTHSTAR-SDD-OPERATING-MODEL-001",
+  "observed_at": "2026-09-28",
+  "fixture_status": "fictional_training_model_not_vendor_certification",
+  "enterprise_requirements": [
+    {"id": "SDD-ENT-001", "capability": "stable_requirement_identity", "authority_domain": "BUSINESS", "owner": "Product Operations", "framework_obligation": "preserve_applicable_requirement_identity"},
+    {"id": "SDD-ENT-002", "capability": "policy_inheritance", "authority_domain": "POLICY", "owner": "Governance Platform", "framework_obligation": "preserve_revision_bound_policy_references"},
+    {"id": "SDD-ENT-003", "capability": "architecture_separation", "authority_domain": "ARCHITECTURE", "owner": "Architecture Council", "framework_obligation": "preserve_architecture_decision_boundary"},
+    {"id": "SDD-ENT-004", "capability": "open_question_preservation", "authority_domain": "BUSINESS", "owner": "Product and Risk", "framework_obligation": "preserve_unresolved_questions"},
+    {"id": "SDD-ENT-005", "capability": "brownfield_current_truth", "authority_domain": "BUSINESS", "owner": "Service Owners", "framework_obligation": "bind_plans_to_current_truth"},
+    {"id": "SDD-ENT-006", "capability": "bounded_agent_work_units", "authority_domain": "EXECUTION", "owner": "Developer Platform", "framework_obligation": "emit_tasks_eligible_for_work_unit_enrichment"},
+    {"id": "SDD-ENT-007", "capability": "evidence_provenance", "authority_domain": "EVIDENCE", "owner": "Quality Engineering", "framework_obligation": "emit_evidence_inputs_without_self_certification"},
+    {"id": "SDD-ENT-008", "capability": "tool_portability", "authority_domain": "ARCHITECTURE", "owner": "Developer Platform", "framework_obligation": "preserve_canonical_semantics_at_adapter_boundary"},
+    {"id": "SDD-ENT-009", "capability": "change_and_upgrade_assurance", "authority_domain": "ARCHITECTURE", "owner": "Architecture Council", "evidence_owner": "Quality Engineering", "framework_obligation": "expose_versioned_templates_and_adapter_behavior"},
+    {"id": "SDD-ENT-010", "capability": "release_authority_separation", "authority_domain": "RELEASE", "owner": "Release Engineering", "framework_obligation": "preserve_external_release_boundary"}
+  ],
+  "variants": [
+    {
+      "id": "STYLE-REPO-NATIVE",
+      "family": "repository_native",
+      "description": "Portable files and repository-owned automation enriched by enterprise adapters.",
+      "source_context_id": "CTX-AI-2310@1-training",
+      "source_ids": ["TICKET-AI-2310", "AI-POLICY-042", "DOMAIN-DOC-11", "ADR-058", "DISCOVERY-AI-2310"],
+      "requirement_dispositions": [
+        {"requirement_id": "SDD-ENT-001", "disposition": "built_in_to_style", "framework_obligation": "preserve_applicable_requirement_identity", "framework_requirement_identity_required": true, "preserved_in_framework_artifacts": true},
+        {"requirement_id": "SDD-ENT-002", "disposition": "enterprise_extension", "framework_obligation": "preserve_revision_bound_policy_references", "framework_requirement_identity_required": false},
+        {"requirement_id": "SDD-ENT-003", "disposition": "enterprise_extension", "framework_obligation": "preserve_architecture_decision_boundary", "framework_requirement_identity_required": true, "preserved_in_framework_artifacts": true},
+        {"requirement_id": "SDD-ENT-004", "disposition": "enterprise_extension", "framework_obligation": "preserve_unresolved_questions", "framework_requirement_identity_required": true, "preserved_in_framework_artifacts": true},
+        {"requirement_id": "SDD-ENT-005", "disposition": "built_in_to_style", "framework_obligation": "bind_plans_to_current_truth", "framework_requirement_identity_required": true, "preserved_in_framework_artifacts": true},
+        {"requirement_id": "SDD-ENT-006", "disposition": "enterprise_extension", "framework_obligation": "emit_tasks_eligible_for_work_unit_enrichment", "framework_requirement_identity_required": false},
+        {"requirement_id": "SDD-ENT-007", "disposition": "enterprise_extension", "framework_obligation": "emit_evidence_inputs_without_self_certification", "framework_requirement_identity_required": false},
+        {"requirement_id": "SDD-ENT-008", "disposition": "built_in_to_style", "framework_obligation": "preserve_canonical_semantics_at_adapter_boundary", "framework_requirement_identity_required": false},
+        {"requirement_id": "SDD-ENT-009", "disposition": "enterprise_extension", "framework_obligation": "expose_versioned_templates_and_adapter_behavior", "framework_requirement_identity_required": false},
+        {"requirement_id": "SDD-ENT-010", "disposition": "external_control", "framework_obligation": "preserve_external_release_boundary", "framework_requirement_identity_required": false}
+      ],
+      "policy_source_ids": ["AI-POLICY-042@7-training"],
+      "open_question_ids": ["Q-AUTH-2310"],
+      "requirements_contain_architecture": false,
+      "execution": {"autonomous_tasks": true, "agent_work_unit_enrichment": true},
+      "evidence": {"manifest": true, "subject_revision_binding": true},
+      "change_semantics": {"current_truth": "specs/current/", "proposed_change": "changes/AI-2310/"},
+      "critical_semantics_survive_framework_removal": true,
+      "portable_semantics": ["requirements", "authority", "decisions", "evidence", "change_history"],
+      "agent_boundary": {"may_generate": ["specification", "plan", "tasks", "code"], "may_not_decide": ["policy", "architecture_approval", "exception", "release"]},
+      "capabilities": {"artifact_progression": "enterprise_extension", "change_semantics": "enterprise_extension", "brownfield_discovery": "enterprise_extension", "policy_inheritance": "enterprise_extension", "authority_model": "external_control", "evidence_provenance": "enterprise_extension", "agent_work_units": "enterprise_extension", "multi_agent_control": "external_control", "portability": "built_in_to_style", "extensibility": "built_in_to_style"}
+    },
+    {
+      "id": "STYLE-SPEC-FIRST",
+      "family": "guided_spec_plan_tasks",
+      "description": "A structured artifact progression wrapped by enterprise context and assurance.",
+      "source_context_id": "CTX-AI-2310@1-training",
+      "source_ids": ["TICKET-AI-2310", "AI-POLICY-042", "DOMAIN-DOC-11", "ADR-058", "DISCOVERY-AI-2310"],
+      "requirement_dispositions": [
+        {"requirement_id": "SDD-ENT-001", "disposition": "built_in_to_style", "framework_obligation": "preserve_applicable_requirement_identity", "framework_requirement_identity_required": true, "preserved_in_framework_artifacts": true},
+        {"requirement_id": "SDD-ENT-002", "disposition": "enterprise_extension", "framework_obligation": "preserve_revision_bound_policy_references", "framework_requirement_identity_required": false},
+        {"requirement_id": "SDD-ENT-003", "disposition": "built_in_to_style", "framework_obligation": "preserve_architecture_decision_boundary", "framework_requirement_identity_required": true, "preserved_in_framework_artifacts": true},
+        {"requirement_id": "SDD-ENT-004", "disposition": "built_in_to_style", "framework_obligation": "preserve_unresolved_questions", "framework_requirement_identity_required": true, "preserved_in_framework_artifacts": true},
+        {"requirement_id": "SDD-ENT-005", "disposition": "built_in_to_style", "framework_obligation": "bind_plans_to_current_truth", "framework_requirement_identity_required": true, "preserved_in_framework_artifacts": true},
+        {"requirement_id": "SDD-ENT-006", "disposition": "enterprise_extension", "framework_obligation": "emit_tasks_eligible_for_work_unit_enrichment", "framework_requirement_identity_required": false},
+        {"requirement_id": "SDD-ENT-007", "disposition": "enterprise_extension", "framework_obligation": "emit_evidence_inputs_without_self_certification", "framework_requirement_identity_required": false},
+        {"requirement_id": "SDD-ENT-008", "disposition": "built_in_to_style", "framework_obligation": "preserve_canonical_semantics_at_adapter_boundary", "framework_requirement_identity_required": false},
+        {"requirement_id": "SDD-ENT-009", "disposition": "enterprise_extension", "framework_obligation": "expose_versioned_templates_and_adapter_behavior", "framework_requirement_identity_required": false},
+        {"requirement_id": "SDD-ENT-010", "disposition": "external_control", "framework_obligation": "preserve_external_release_boundary", "framework_requirement_identity_required": false}
+      ],
+      "policy_source_ids": ["AI-POLICY-042@7-training"],
+      "open_question_ids": ["Q-AUTH-2310"],
+      "requirements_contain_architecture": false,
+      "execution": {"autonomous_tasks": true, "agent_work_unit_enrichment": true},
+      "evidence": {"manifest": true, "subject_revision_binding": true},
+      "change_semantics": {"current_truth": "enterprise-spec-registry", "proposed_change": "specs/AI-2310"},
+      "critical_semantics_survive_framework_removal": true,
+      "portable_semantics": ["requirements", "authority", "decisions", "evidence", "change_history"],
+      "agent_boundary": {"may_generate": ["specification", "plan", "tasks", "code"], "may_not_decide": ["policy", "architecture_approval", "exception", "release"]},
+      "capabilities": {"artifact_progression": "built_in_to_style", "change_semantics": "enterprise_extension", "brownfield_discovery": "built_in_to_style", "policy_inheritance": "enterprise_extension", "authority_model": "external_control", "evidence_provenance": "enterprise_extension", "agent_work_units": "enterprise_extension", "multi_agent_control": "external_control", "portability": "built_in_to_style", "extensibility": "built_in_to_style"}
+    },
+    {
+      "id": "STYLE-CHANGE-ORIENTED",
+      "family": "current_truth_plus_delta",
+      "description": "Current system truth and explicit change deltas wrapped by enterprise controls.",
+      "source_context_id": "CTX-AI-2310@1-training",
+      "source_ids": ["TICKET-AI-2310", "AI-POLICY-042", "DOMAIN-DOC-11", "ADR-058", "DISCOVERY-AI-2310"],
+      "requirement_dispositions": [
+        {"requirement_id": "SDD-ENT-001", "disposition": "built_in_to_style", "framework_obligation": "preserve_applicable_requirement_identity", "framework_requirement_identity_required": true, "preserved_in_framework_artifacts": true},
+        {"requirement_id": "SDD-ENT-002", "disposition": "enterprise_extension", "framework_obligation": "preserve_revision_bound_policy_references", "framework_requirement_identity_required": false},
+        {"requirement_id": "SDD-ENT-003", "disposition": "built_in_to_style", "framework_obligation": "preserve_architecture_decision_boundary", "framework_requirement_identity_required": true, "preserved_in_framework_artifacts": true},
+        {"requirement_id": "SDD-ENT-004", "disposition": "built_in_to_style", "framework_obligation": "preserve_unresolved_questions", "framework_requirement_identity_required": true, "preserved_in_framework_artifacts": true},
+        {"requirement_id": "SDD-ENT-005", "disposition": "built_in_to_style", "framework_obligation": "bind_plans_to_current_truth", "framework_requirement_identity_required": true, "preserved_in_framework_artifacts": true},
+        {"requirement_id": "SDD-ENT-006", "disposition": "enterprise_extension", "framework_obligation": "emit_tasks_eligible_for_work_unit_enrichment", "framework_requirement_identity_required": false},
+        {"requirement_id": "SDD-ENT-007", "disposition": "enterprise_extension", "framework_obligation": "emit_evidence_inputs_without_self_certification", "framework_requirement_identity_required": false},
+        {"requirement_id": "SDD-ENT-008", "disposition": "built_in_to_style", "framework_obligation": "preserve_canonical_semantics_at_adapter_boundary", "framework_requirement_identity_required": false},
+        {"requirement_id": "SDD-ENT-009", "disposition": "enterprise_extension", "framework_obligation": "expose_versioned_templates_and_adapter_behavior", "framework_requirement_identity_required": false},
+        {"requirement_id": "SDD-ENT-010", "disposition": "external_control", "framework_obligation": "preserve_external_release_boundary", "framework_requirement_identity_required": false}
+      ],
+      "policy_source_ids": ["AI-POLICY-042@7-training"],
+      "open_question_ids": ["Q-AUTH-2310"],
+      "requirements_contain_architecture": false,
+      "execution": {"autonomous_tasks": true, "agent_work_unit_enrichment": true},
+      "evidence": {"manifest": true, "subject_revision_binding": true},
+      "change_semantics": {"current_truth": "specs/document-classification", "proposed_change": "changes/AI-2310/delta"},
+      "critical_semantics_survive_framework_removal": true,
+      "portable_semantics": ["requirements", "authority", "decisions", "evidence", "change_history"],
+      "agent_boundary": {"may_generate": ["proposal", "delta", "design", "tasks", "code"], "may_not_decide": ["policy", "architecture_approval", "exception", "release"]},
+      "capabilities": {"artifact_progression": "built_in_to_style", "change_semantics": "built_in_to_style", "brownfield_discovery": "built_in_to_style", "policy_inheritance": "enterprise_extension", "authority_model": "external_control", "evidence_provenance": "enterprise_extension", "agent_work_units": "enterprise_extension", "multi_agent_control": "external_control", "portability": "built_in_to_style", "extensibility": "built_in_to_style"}
+    },
+    {
+      "id": "STYLE-ROLE-ORIENTED",
+      "family": "role_and_workflow_methodology",
+      "description": "A broader analysis-to-implementation method constrained by canonical authority and evidence adapters.",
+      "source_context_id": "CTX-AI-2310@1-training",
+      "source_ids": ["TICKET-AI-2310", "AI-POLICY-042", "DOMAIN-DOC-11", "ADR-058", "DISCOVERY-AI-2310"],
+      "requirement_dispositions": [
+        {"requirement_id": "SDD-ENT-001", "disposition": "built_in_to_style", "framework_obligation": "preserve_applicable_requirement_identity", "framework_requirement_identity_required": true, "preserved_in_framework_artifacts": true},
+        {"requirement_id": "SDD-ENT-002", "disposition": "enterprise_extension", "framework_obligation": "preserve_revision_bound_policy_references", "framework_requirement_identity_required": false},
+        {"requirement_id": "SDD-ENT-003", "disposition": "built_in_to_style", "framework_obligation": "preserve_architecture_decision_boundary", "framework_requirement_identity_required": true, "preserved_in_framework_artifacts": true},
+        {"requirement_id": "SDD-ENT-004", "disposition": "built_in_to_style", "framework_obligation": "preserve_unresolved_questions", "framework_requirement_identity_required": true, "preserved_in_framework_artifacts": true},
+        {"requirement_id": "SDD-ENT-005", "disposition": "built_in_to_style", "framework_obligation": "bind_plans_to_current_truth", "framework_requirement_identity_required": true, "preserved_in_framework_artifacts": true},
+        {"requirement_id": "SDD-ENT-006", "disposition": "enterprise_extension", "framework_obligation": "emit_tasks_eligible_for_work_unit_enrichment", "framework_requirement_identity_required": false},
+        {"requirement_id": "SDD-ENT-007", "disposition": "enterprise_extension", "framework_obligation": "emit_evidence_inputs_without_self_certification", "framework_requirement_identity_required": false},
+        {"requirement_id": "SDD-ENT-008", "disposition": "enterprise_extension", "framework_obligation": "preserve_canonical_semantics_at_adapter_boundary", "framework_requirement_identity_required": false},
+        {"requirement_id": "SDD-ENT-009", "disposition": "enterprise_extension", "framework_obligation": "expose_versioned_templates_and_adapter_behavior", "framework_requirement_identity_required": false},
+        {"requirement_id": "SDD-ENT-010", "disposition": "external_control", "framework_obligation": "preserve_external_release_boundary", "framework_requirement_identity_required": false}
+      ],
+      "policy_source_ids": ["AI-POLICY-042@7-training"],
+      "open_question_ids": ["Q-AUTH-2310"],
+      "requirements_contain_architecture": false,
+      "execution": {"autonomous_tasks": true, "agent_work_unit_enrichment": true},
+      "evidence": {"manifest": true, "subject_revision_binding": true},
+      "change_semantics": {"current_truth": "canonical-spec-registry", "proposed_change": "initiative/AI-2310"},
+      "critical_semantics_survive_framework_removal": true,
+      "portable_semantics": ["requirements", "authority", "decisions", "evidence", "change_history"],
+      "agent_boundary": {"may_generate": ["analysis", "product_brief", "architecture_proposal", "stories", "code"], "may_not_decide": ["policy", "architecture_approval", "exception", "release"]},
+      "capabilities": {"artifact_progression": "built_in_to_style", "change_semantics": "enterprise_extension", "brownfield_discovery": "built_in_to_style", "policy_inheritance": "enterprise_extension", "authority_model": "external_control", "evidence_provenance": "enterprise_extension", "agent_work_units": "enterprise_extension", "multi_agent_control": "enterprise_extension", "portability": "enterprise_extension", "extensibility": "built_in_to_style"}
+    }
+  ],
+  "canonical_artifact_registry": [
+    {"type": "requirement", "authority_domain": "BUSINESS", "normative_scope": "business", "required_metadata": ["id", "owner", "source", "revision", "scope"]},
+    {"type": "acceptance_criterion", "authority_domain": "BUSINESS", "normative_scope": "behavioral_verification_contract", "required_metadata": ["id", "requirement_ids", "measure", "threshold", "verification_method", "revision"]},
+    {"type": "open_question", "authority_domain": "BUSINESS", "normative_scope": "unresolved_decision", "required_metadata": ["id", "owner", "affected_scope", "status", "blocking_effect", "revision"]},
+    {"type": "architecture_decision", "authority_domain": "ARCHITECTURE", "normative_scope": "architecture", "required_metadata": ["id", "owner", "status", "alternatives", "revision"]},
+    {"type": "implementation_plan", "authority_domain": "EXECUTION", "normative_scope": "execution", "required_metadata": ["id", "specification_digest", "repository_revision"]},
+    {"type": "task", "authority_domain": "EXECUTION", "normative_scope": "non_normative", "business_authority": false, "execution_binding": "binding_when_derived_from_approved_plan", "required_metadata": ["id", "basis", "approved_plan_id"]},
+    {"type": "agent_work_unit", "authority_domain": "EXECUTION", "normative_scope": "execution", "required_metadata": ["id", "scope", "authority", "stop_conditions", "evidence"]},
+    {"type": "evidence", "authority_domain": "EVIDENCE", "normative_scope": "claim_support", "required_metadata": ["id", "subject", "revision", "producer", "result"]},
+    {"type": "exception", "authority_domain": "POLICY", "normative_scope": "conditional_deviation", "required_metadata": ["id", "approver", "scope", "conditions", "expiry"]}
+  ],
+  "command_authority_matrix": [
+    {"stage": "specify", "may_generate": ["proposed_requirements"], "may_approve": false, "validators": ["authority", "ambiguity", "conflict", "open_questions", "provenance"]},
+    {"stage": "plan", "may_generate": ["implementation_plan", "architecture_proposal"], "may_approve": false, "validators": ["coverage", "orphan_work", "architecture_invention", "protected_decisions"]},
+    {"stage": "tasks", "may_generate": ["implementation_tasks"], "may_approve": false, "validators": ["scope", "justification", "dependency", "work_unit_enrichment"]},
+    {"stage": "implement", "may_generate": ["code", "tests", "completion_report", "formal_change_request"], "may_approve": false, "protected_outputs": ["approved_requirements", "architecture_decisions", "exceptions", "acceptance_thresholds"], "change_request_route": "formal_change_request_to_accountable_owner", "validators": ["scope_conformance", "independent_evidence", "subject_revision", "unresolved_risk", "protected_output_integrity"]}
+  ],
+  "authoritative_capability_owners": [
+    {"capability": "enterprise_policy", "accountable_owner": "Governance Platform", "system_of_record": "policy-catalog", "implementation": "policy_context_adapter"},
+    {"capability": "architecture_decisions", "accountable_owner": "Architecture Council", "system_of_record": "adr-registry", "implementation": "architecture_registry_adapter"},
+    {"capability": "project_change_workflow", "accountable_owner": "Developer Platform", "system_of_record": "repository", "implementation": "selected_sdd_framework"},
+    {"capability": "execution_permissions", "accountable_owner": "Developer Platform", "system_of_record": "workload-control-plane", "implementation": "agent_execution_control_plane"},
+    {"capability": "release_decisions", "accountable_owner": "Release Engineering", "system_of_record": "delivery-control-plane", "implementation": "release_gate_service"}
+  ],
+  "extension_boundary": {
+    "policy_propagation": "generated_revision_bound_effective_context",
+    "framework_fork_required": false,
+    "inputs": ["effective-context.json", "canonical-artifact-map.json"],
+    "outputs": ["evidence-manifest.json", "transformation-report.json"]
+  },
+  "selection_evidence": [
+    {"id": "EVID-CANONICAL-REGISTRY", "subject_revision": "NORTHSTAR-SDD-OPERATING-MODEL-001@1", "producer": "course12-deterministic-validator", "result": "registry_complete_in_fixture"},
+    {"id": "EVID-CONTEXT-ADAPTER", "subject_revision": "CTX-AI-2310@1-training", "producer": "course12-deterministic-validator", "result": "source_equivalence_passed"},
+    {"id": "EVID-COMMAND-MATRIX", "subject_revision": "NORTHSTAR-SDD-OPERATING-MODEL-001@1", "producer": "course12-deterministic-validator", "result": "command_authority_checks_passed"},
+    {"id": "EVID-GOLDEN-01", "subject_revision": "SDD-CONFORMANCE-SUITE-001@1", "producer": "course12-conformance-runner", "result": "unresolved_authority_preserved"},
+    {"id": "EVID-CHANGE-MODEL", "subject_revision": "NORTHSTAR-SDD-OPERATING-MODEL-001@1", "producer": "course12-deterministic-validator", "result": "current_and_proposed_states_explicit"},
+    {"id": "EVID-AWU-ADAPTER", "subject_revision": "NORTHSTAR-SDD-OPERATING-MODEL-001@1", "producer": "course12-deterministic-validator", "result": "autonomous_tasks_enriched"},
+    {"id": "EVID-EVIDENCE-MANIFEST", "subject_revision": "NORTHSTAR-SDD-OPERATING-MODEL-001@1", "producer": "course12-deterministic-validator", "result": "evidence_revision_binding_present"},
+    {"id": "EVID-MIGRATION-TEST", "subject_revision": "NORTHSTAR-SDD-OPERATING-MODEL-001@1", "producer": "course12-migration-runner", "result": "critical_semantics_retained"},
+    {"id": "EVID-GOLDEN-SUITE", "subject_revision": "SDD-CONFORMANCE-SUITE-001@2", "producer": "course12-conformance-runner", "result": "eight_synthetic_scenarios_passed"},
+    {"id": "EVID-RELEASE-BOUNDARY", "subject_revision": "NORTHSTAR-SDD-OPERATING-MODEL-001@1", "producer": "course12-deterministic-validator", "result": "release_authority_external"}
+  ],
+  "risk_tiers": [
+    {"tier": 1, "mode": "direct_or_lightweight", "examples": ["documentation", "local_reversible_refactor"]},
+    {"tier": 2, "mode": "structured_spec", "examples": ["product_behavior", "shared_contract"]},
+    {"tier": 3, "mode": "governed_consequential_ai", "examples": ["regulated_ai", "policy_exception"]},
+    {"tier": 4, "mode": "full_orchestrated_delivery", "examples": ["multi_agent", "cross_repository", "irreversible"]}
+  ],
+  "framework_upgrade_assurance": {
+    "baseline_version": "framework-training-v1",
+    "candidate_version": "framework-training-v2",
+    "prompt_template_versions": ["specify@training-v1", "plan@training-v1", "tasks@training-v1"],
+    "golden_scenario_ids": ["GOLDEN-01", "GOLDEN-02", "GOLDEN-03", "GOLDEN-04", "GOLDEN-05", "GOLDEN-06", "GOLDEN-07", "GOLDEN-08"],
+    "rollout": "representative_projects_then_bounded_cohort"
+  },
+  "boundary": "Capability profiles describe this dated training model. They are not universal vendor scores, certifications, or purchasing advice."
+}

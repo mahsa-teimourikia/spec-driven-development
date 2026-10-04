@@ -554,6 +554,57 @@ const course11 = {
   }
 };
 
+const course12 = {
+  id: 'c12', course: 12, level: 'intermediate', part: 'III · Agentic execution & SDD frameworks', status: 'available',
+  title: 'SDD Framework Landscape & Choosing an Enterprise Operating Model',
+  summary: 'Compare framework semantics, preserve organization-owned authority, map portable artifacts, choose proportional operating modes, and test adapters and upgrades without declaring a universal tool winner.',
+  outcomes: [
+    'Distinguish methodology, framework, repository instructions, and enterprise operating model.',
+    'Compare Spec Kit, OpenSpec, Kiro Specs, BMad, and repo-native approaches from dated official sources.',
+    'Profile capabilities as built into a synthetic style, supplied by enterprise extensions, enforced externally, or not modeled—without hiding mandatory gaps in an overall score.',
+    'Map framework artifacts to a canonical model with business, policy, architecture, execution, evidence, and release authority.',
+    'Validate specification, plan, task, and implementation transformations before generated output flows downstream.',
+    'Route changes through proportional risk tiers and preserve a lightweight path for low-risk work.',
+    'Write a reviewable framework-selection ADR and protect upgrades with migration tests and golden scenarios.'
+  ],
+  readme: `${REPO}/blob/main/curriculum/intermediate/02-sdd-framework-landscape-enterprise-operating-model/README.md`,
+  notebook: `${REPO}/blob/main/curriculum/intermediate/02-sdd-framework-landscape-enterprise-operating-model/framework_landscape.ipynb`,
+  lab: `${REPO}/blob/main/curriculum/intermediate/02-sdd-framework-landscape-enterprise-operating-model/lab.py`,
+  repoFixture: `${REPO}/tree/main/curriculum/intermediate/02-sdd-framework-landscape-enterprise-operating-model/northstar-framework-selection`,
+  run: 'python3 curriculum/intermediate/02-sdd-framework-landscape-enterprise-operating-model/lab.py',
+  labs: [
+    {
+      title: 'Lab A — Validate the operating model',
+      description: 'Contrast an unsafe feature contest with four enterprise-enriched workflow styles, inspect capability profiles, route risk tiers, run migration checks, and exercise 34 labelled failures.',
+      command: 'python3 curriculum/intermediate/02-sdd-framework-landscape-enterprise-operating-model/lab.py',
+      links: [['View the selection lab', `${REPO}/blob/main/curriculum/intermediate/02-sdd-framework-landscape-enterprise-operating-model/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/intermediate/02-sdd-framework-landscape-enterprise-operating-model/framework_landscape.ipynb`]]
+    },
+    {
+      title: 'Lab B — Select the Northstar SDD composition',
+      description: 'Evaluate AI-2310 against identical source context, complete the capability and selection artifacts, preserve unresolved authority, and compare with the review-ready reference.',
+      command: 'Open the source package and starter workspace; run Lab A before consulting the reference.',
+      links: [['Open the workshop', `${REPO}/tree/main/curriculum/intermediate/02-sdd-framework-landscape-enterprise-operating-model/northstar-framework-selection`], ['Complete the starter decision', `${REPO}/tree/main/curriculum/intermediate/02-sdd-framework-landscape-enterprise-operating-model/northstar-framework-selection/workshop/starter`], ['Inspect the reference model', `${REPO}/tree/main/curriculum/intermediate/02-sdd-framework-landscape-enterprise-operating-model/northstar-framework-selection/reference`]]
+    }
+  ],
+  references: [
+    ['GitHub Spec Kit', 'https://github.github.com/spec-kit/'],
+    ['OpenSpec overview', 'https://github.com/Fission-AI/OpenSpec/blob/main/docs/overview.md'],
+    ['Kiro Specs', 'https://kiro.dev/docs/specs/'],
+    ['BMad Method', 'https://docs.bmad-method.org/'],
+    ['AGENTS.md open format', 'https://github.com/agentsmd/agents.md']
+  ],
+  checkpoint: {
+    question: 'A spec-first framework produces excellent plans and tasks but has no enterprise policy resolver, authenticated approvals, or evidence service. What is the sound adoption decision?',
+    options: [
+      'Use it for the bounded project workflow if clean adapters and external controls satisfy those mandatory capabilities; do not call the framework governance.',
+      'Reject it automatically because every capability must be built into the workflow style.',
+      'Treat generated plans as approved because the workflow is structured.'
+    ],
+    answer: 0,
+    explanation: 'Enterprise fit is compositional. A framework can implement the project transformation workflow while the accountable team and organization-owned services retain policy, authority, evidence, execution, and release decisions.'
+  }
+};
+
 function planned(course, level, part, title, summary) {
   return {
     id: `c${String(course).padStart(2, '0')}`, course, level, part,
@@ -576,11 +627,11 @@ const LESSONS = [
   course09,
   course10,
   course11,
-  planned(12, 'intermediate', 'III · Agentic execution & SDD frameworks', 'GitHub Spec Kit', 'Use constitution, clarification, planning, checks, analysis, implementation, and convergence.'),
-  planned(13, 'intermediate', 'III · Agentic execution & SDD frameworks', 'OpenSpec', 'Manage current specifications and explicit change deltas for brownfield work.'),
-  planned(14, 'intermediate', 'III · Agentic execution & SDD frameworks', 'Kiro Specs', 'Apply feature, bug-fix, and quick-spec workflows with appropriate approval depth.'),
-  planned(15, 'intermediate', 'III · Agentic execution & SDD frameworks', 'Agent instructions such as AGENTS.md', 'Make repository-local operating guidance discoverable and maintainable across agents.'),
-  planned(16, 'intermediate', 'III · Agentic execution & SDD frameworks', 'Comparing frameworks & enterprise extensions', 'Select and extend process harnesses using risk, lifecycle, integration, governance, and upgrade criteria.'),
+  course12,
+  planned(13, 'intermediate', 'III · Agentic execution & SDD frameworks', 'GitHub Spec Kit', 'Run one Northstar change through the full Spec Kit lifecycle under the enterprise authority boundary.'),
+  planned(14, 'intermediate', 'III · Agentic execution & SDD frameworks', 'OpenSpec', 'Manage current specifications and explicit change deltas for brownfield work.'),
+  planned(15, 'intermediate', 'III · Agentic execution & SDD frameworks', 'Kiro Specs', 'Apply feature, bug-fix, and quick-spec workflows with appropriate approval depth.'),
+  planned(16, 'intermediate', 'III · Agentic execution & SDD frameworks', 'Agent instructions & custom enterprise adapters', 'Combine scoped cross-agent guidance with versioned context, evidence, conformance, and upgrade adapters.'),
   planned(17, 'intermediate', 'IV · Agentic PDLC', 'Idea → discovery → spec → design → implementation', 'Build an end-to-end flow with explicit state, owners, gates, and handoffs.'),
   planned(18, 'intermediate', 'IV · Agentic PDLC', 'Brownfield development', 'Recover system truth before changing code with incomplete or stale specifications.'),
   planned(19, 'intermediate', 'IV · Agentic PDLC', 'Bug fixes and small changes', 'Use a proportional workflow that preserves evidence without process theatre.'),

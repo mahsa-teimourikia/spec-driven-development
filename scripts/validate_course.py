@@ -1898,10 +1898,10 @@ def check_course_11_multi_agent_coordination() -> list[str]:
         errors.append("Course 11 evaluation must disclose its labelled-fixture boundary")
 
     quiz_source = (ROOT / "quiz" / "questions.js").read_text(encoding="utf-8")
-    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 158:
-        errors.append("Course 11 cumulative quiz must contain 158 questions")
-    if "Courses 01–11" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
-        errors.append("Course 11 cumulative quiz must identify Courses 01–11")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) < 158:
+        errors.append("Course 11 cumulative quiz must retain at least 158 questions")
+    if "Courses 01–" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
+        errors.append("The cumulative quiz must retain its course-range label")
     hub_source = (ROOT / "hub" / "lessons.js").read_text(encoding="utf-8")
     expected_hub_fragments = [
         "const course11 = {",
@@ -1911,6 +1911,160 @@ def check_course_11_multi_agent_coordination() -> list[str]:
     ]
     if any(fragment not in hub_source for fragment in expected_hub_fragments):
         errors.append("Course 11 Learning Hub entry is incomplete or points outside the workshop package")
+    return errors
+
+
+def check_course_12_framework_landscape() -> list[str]:
+    lesson = (
+        ROOT
+        / "curriculum"
+        / "intermediate"
+        / "02-sdd-framework-landscape-enterprise-operating-model"
+    )
+    scenario = lesson / "northstar-framework-selection"
+    required = [
+        "README.md",
+        "source/ticket.md",
+        "source/enterprise-policy.json",
+        "source/domain-rules.md",
+        "source/architecture.md",
+        "source/repository-discovery.json",
+        "source/source-manifest.json",
+        "reference/operating-model.json",
+        "reference/selection-decision.json",
+        "reference/conformance-suite.json",
+        "candidate/operating-model.json",
+        "candidate/selection-decision.json",
+        "workshop/starter/README.md",
+        "workshop/starter/operating-model.json",
+        "workshop/starter/selection-decision.json",
+        "evaluation-cases.json",
+    ]
+    errors = [
+        f"missing Course 12 framework-selection artifact: {item}"
+        for item in required
+        if not (scenario / item).exists()
+    ]
+    if errors:
+        return errors
+
+    for path in (scenario / "reference").glob("*.json"):
+        if "TODO" in path.read_text(encoding="utf-8"):
+            errors.append(f"unresolved TODO in Course 12 reference: {path.relative_to(ROOT)}")
+    starter_files = list((scenario / "workshop" / "starter").glob("*.json"))
+    if len(starter_files) != 2 or not all("TODO" in path.read_text(encoding="utf-8") for path in starter_files):
+        errors.append("Course 12 starter workspace must retain two editable TODO artifacts")
+
+    result = subprocess.run(
+        [sys.executable, str(lesson / "lab.py")],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    try:
+        report = json.loads(result.stdout) if result.returncode == 0 else {}
+    except json.JSONDecodeError:
+        report = {}
+    if not report:
+        errors.append("Course 12 lab did not produce its JSON operating-model report")
+        return errors
+
+    if report.get("fixture_status") != "fictional_training_scenario":
+        errors.append("Course 12 report must disclose its fictional training boundary")
+    if report.get("observed_at") != "2026-09-28":
+        errors.append("Course 12 framework landscape must retain a dated observation boundary")
+
+    reference = report.get("reference", {})
+    if reference.get("state") != "READY_FOR_OWNER_REVIEW" or reference.get("findings") or reference.get("counts") != {}:
+        errors.append("Course 12 reference must be finding-free and ready only for owner review")
+    if "not_vendor_certification" not in reference.get("claim", ""):
+        errors.append("Course 12 reference must not claim vendor certification")
+    if "trusted_controls_validate" not in reference.get("control_boundary", ""):
+        errors.append("Course 12 must preserve the proposal-validation-authorization boundary")
+
+    candidate = report.get("candidate", {})
+    if candidate.get("state") != "OPERATING_MODEL_BLOCKED":
+        errors.append("Course 12 feature-contest candidate must remain blocked")
+    candidate_codes = {item.get("code") for item in candidate.get("findings", [])}
+    required_candidate_codes = {
+        "FRAMEWORK_AS_GOVERNANCE",
+        "POLICY_PROVENANCE_LOST",
+        "OPEN_QUESTION_COLLAPSED",
+        "TASK_AUTHORITY_TOO_BROAD",
+        "EVIDENCE_MODEL_MISSING",
+        "FRAMEWORK_COMMAND_SELF_APPROVES",
+        "MANUAL_POLICY_COPY",
+        "SYNTHETIC_DECISION_OVERCLAIMS_APPROVAL",
+    }
+    if not required_candidate_codes <= candidate_codes:
+        errors.append("Course 12 unsafe candidate no longer exposes the intended operating-model failures")
+
+    profiles = report.get("capability_profiles", {})
+    if profiles.get("overall_ranking") is not None or len(profiles.get("profiles", [])) != 4:
+        errors.append("Course 12 must compare four workflow styles without an overall ranking")
+    if any(not item.get("enterprise_extension") or not item.get("external_control") for item in profiles.get("profiles", [])):
+        errors.append("Course 12 profiles must expose extension and external-control cost")
+
+    conformance = report.get("conformance", {})
+    if (conformance.get("passed"), conformance.get("population"), conformance.get("failed")) != (8, 8, 0):
+        errors.append("Course 12 golden conformance suite must retain eight passing scenarios")
+    if "not_production" not in conformance.get("claim", ""):
+        errors.append("Course 12 conformance suite must disclose its synthetic boundary")
+
+    evaluation = report.get("evaluation", {})
+    exact = evaluation.get("exact_matches", {})
+    if (
+        evaluation.get("population"),
+        evaluation.get("true_positive"),
+        evaluation.get("false_positive"),
+        evaluation.get("false_negative"),
+        exact.get("numerator"),
+        exact.get("denominator"),
+    ) != (34, 34, 0, 0, 34, 34):
+        errors.append("Course 12 labelled evaluation must retain 34 exact cases and 34 findings")
+    if "not_general" not in evaluation.get("claim", ""):
+        errors.append("Course 12 evaluation must disclose its labelled-fixture boundary")
+
+    model = json.loads((scenario / "reference" / "operating-model.json").read_text(encoding="utf-8"))
+    if len(model.get("enterprise_requirements", [])) != 10 or len(model.get("variants", [])) != 4:
+        errors.append("Course 12 reference must retain ten requirements and four workflow styles")
+    if len(model.get("canonical_artifact_registry", [])) != 9:
+        errors.append("Course 12 canonical registry must retain nine artifact types")
+    if len(model.get("selection_evidence", [])) != 10 or any(
+        not all(item.get(field) for field in ("id", "subject_revision", "producer", "result"))
+        for item in model.get("selection_evidence", [])
+    ):
+        errors.append("Course 12 selection evidence must retain ten provenance-bearing fixture records")
+    if any(item.get("may_approve") for item in model.get("command_authority_matrix", [])):
+        errors.append("Course 12 framework transformations must never self-approve")
+    implement = next((item for item in model.get("command_authority_matrix", []) if item.get("stage") == "implement"), {})
+    if not implement.get("protected_outputs") or not implement.get("change_request_route"):
+        errors.append("Course 12 implementation stage must protect approved semantics and route formal change requests")
+    if any(not item.get("accountable_owner") for item in model.get("authoritative_capability_owners", [])):
+        errors.append("Course 12 authoritative capabilities must name accountable organizational owners")
+    decision = json.loads((scenario / "reference" / "selection-decision.json").read_text(encoding="utf-8"))
+    if decision.get("status") != "ready_for_owner_review" or decision.get("overall_score") is not None:
+        errors.append("Course 12 selection ADR must remain review-ready without a winner score")
+    if not decision.get("rationale"):
+        errors.append("Course 12 selection ADR must explain the hybrid operating-model rationale")
+    if len(decision.get("requirement_dispositions", [])) != 10:
+        errors.append("Course 12 selection ADR must disposition every enterprise requirement")
+
+    quiz_source = (ROOT / "quiz" / "questions.js").read_text(encoding="utf-8")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 170:
+        errors.append("Course 12 cumulative quiz must contain 170 questions")
+    if "Courses 01–12" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
+        errors.append("Course 12 cumulative quiz must identify Courses 01–12")
+    hub_source = (ROOT / "hub" / "lessons.js").read_text(encoding="utf-8")
+    expected_hub_fragments = [
+        "const course12 = {",
+        "02-sdd-framework-landscape-enterprise-operating-model/framework_landscape.ipynb",
+        "02-sdd-framework-landscape-enterprise-operating-model/northstar-framework-selection/workshop/starter",
+        "02-sdd-framework-landscape-enterprise-operating-model/northstar-framework-selection/reference",
+    ]
+    if any(fragment not in hub_source for fragment in expected_hub_fragments):
+        errors.append("Course 12 Learning Hub entry is incomplete or points outside the workshop package")
     return errors
 
 
@@ -1931,6 +2085,7 @@ def main() -> None:
         "Course 09 specification review": check_course_09_specification_review,
         "Course 10 implementation planning": check_course_10_implementation_planning,
         "Course 11 multi-agent coordination": check_course_11_multi_agent_coordination,
+        "Course 12 framework landscape": check_course_12_framework_landscape,
         "diagrams": render_and_validate_diagrams,
         "labs": run_labs,
         "repository labs": run_repository_labs,

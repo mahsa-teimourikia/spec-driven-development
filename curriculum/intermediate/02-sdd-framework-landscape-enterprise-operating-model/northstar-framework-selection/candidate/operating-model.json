@@ -1,0 +1,38 @@
+{
+  "id": "NORTHSTAR-SDD-FEATURE-CONTEST",
+  "observed_at": "2026-09-28",
+  "enterprise_requirements": [
+    {"id": "SDD-ENT-001"}, {"id": "SDD-ENT-002"}, {"id": "SDD-ENT-003"}, {"id": "SDD-ENT-004"}, {"id": "SDD-ENT-005"},
+    {"id": "SDD-ENT-006"}, {"id": "SDD-ENT-007"}, {"id": "SDD-ENT-008"}, {"id": "SDD-ENT-009"}, {"id": "SDD-ENT-010"}
+  ],
+  "variants": [
+    {
+      "id": "FEATURE-WINNER",
+      "source_context_id": "ticket-only",
+      "source_ids": ["TICKET-AI-2310"],
+      "requirement_dispositions": [],
+      "policy_source_ids": [],
+      "open_question_ids": [],
+      "requirements_contain_architecture": true,
+      "execution": {"autonomous_tasks": true, "agent_work_unit_enrichment": false},
+      "evidence": {"manifest": false, "subject_revision_binding": false},
+      "change_semantics": {"current_truth": null, "proposed_change": "generated-folder"},
+      "critical_semantics_survive_framework_removal": false,
+      "portable_semantics": ["tasks"],
+      "agent_boundary": {"may_generate": ["everything"], "may_not_decide": []},
+      "capabilities": {"templates": "built_in_to_style"}
+    }
+  ],
+  "canonical_artifact_registry": [
+    {"type": "task", "authority_domain": "FRAMEWORK", "normative_scope": "business"}
+  ],
+  "command_authority_matrix": [
+    {"stage": "implement", "may_generate": ["code"], "may_approve": true, "validators": []}
+  ],
+  "authoritative_capability_owners": [
+    {"capability": "all_sdd", "owner": "Framework", "system_of_record": "generated-files"},
+    {"capability": "all_sdd", "owner": "Agent", "system_of_record": "chat"}
+  ],
+  "extension_boundary": {"policy_propagation": "manual_copy", "framework_fork_required": true},
+  "framework_upgrade_assurance": {}
+}

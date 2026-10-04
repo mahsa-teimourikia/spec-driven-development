@@ -1104,5 +1104,89 @@ const QUESTIONS = [
     options: ['Invalidate affected integration evidence and revalidate against the new revision', 'Keep the prior PASS because it once succeeded', 'Rename the component', 'Treat unit tests as release approval'],
     answer: 0,
     explanation: 'Evidence is bound to exact subjects and revisions. Changed inputs require impact-aware invalidation and revalidation.'
+  },
+  {
+    category: 'Framework operating model',
+    question: 'What is the strongest enterprise interpretation of an SDD framework?',
+    options: ['A process harness implementing part of an organization-owned operating model', 'The source of policy and release authority', 'A replacement for requirements ownership', 'An automatic compliance certification'],
+    answer: 0,
+    explanation: 'Frameworks can structure transformations and artifacts. The organization still owns policy, authority, evidence, exceptions, execution permissions, and release.'
+  },
+  {
+    category: 'Framework selection',
+    question: 'Why should framework evaluations avoid one overall score?',
+    options: ['A total can hide a mandatory unsupported capability and erase context-specific trade-offs', 'Numbers cannot be stored in an ADR', 'Every framework has identical features', 'Only vendor popularity matters'],
+    answer: 0,
+    explanation: 'Built-into-style, enterprise-extension, external-control, and not-modeled dispositions reveal mandatory gaps and composition cost more clearly than a winner score.'
+  },
+  {
+    category: 'Change semantics',
+    question: 'What does a current-truth plus change-delta model make explicit?',
+    options: ['What the system promises now and exactly what a proposal would change', 'Which agent has the longest prompt', 'That every historical feature remains current', 'Automatic approval on archive'],
+    answer: 0,
+    explanation: 'Separating current state from proposed change improves brownfield reasoning; applying a delta still requires appropriate review and evidence.'
+  },
+  {
+    category: 'Canonical artifacts',
+    question: 'Two frameworks both use the word “spec.” What should an enterprise adapter do?',
+    options: ['Map each artifact’s meaning, authority domain, lifecycle, and relationships', 'Assume the files are interchangeable', 'Rename both files and ignore content', 'Choose the larger file'],
+    answer: 0,
+    explanation: 'Names and file extensions do not establish semantics. Integration requires an explicit conceptual mapping.'
+  },
+  {
+    category: 'Agent work units',
+    question: 'A framework generates “Add document classifier” as a task. What is needed before autonomous dispatch?',
+    options: ['Enrich it with requirements, contracts, scope, authority, dependencies, stop conditions, and evidence', 'Only mark the checkbox incomplete', 'Let the agent choose its own permissions', 'Treat task generation as architecture approval'],
+    answer: 0,
+    explanation: 'A task is a derived step; an agent work unit is a bounded execution contract.'
+  },
+  {
+    category: 'Transformation assurance',
+    question: 'A generated plan introduces a new database not required by the specification. What should happen?',
+    options: ['Classify it as an architecture proposal and route it to the accountable owner', 'Treat plan generation as approval', 'Copy it into the requirement', 'Let task generation make it authoritative'],
+    answer: 0,
+    explanation: 'Plan generation may propose architecture but cannot approve a protected decision.'
+  },
+  {
+    category: 'Portability',
+    question: 'What is governance portability?',
+    options: ['Authority, provenance, decisions, evidence, and change history survive a tool migration', 'The files use Markdown', 'Two agents can open the repository', 'The CLI runs on two operating systems'],
+    answer: 0,
+    explanation: 'Readable content is only the first portability level. Enterprises need critical meaning and control history to survive framework replacement.'
+  },
+  {
+    category: 'Enterprise extensions',
+    question: 'Which is the cleaner enterprise extension boundary?',
+    options: ['Revision-bound effective context into the framework and provenance-bearing evidence out to external assurance', 'Manual policy copies in every generated file', 'A permanent fork of every parser and template', 'Giving the framework release credentials'],
+    answer: 0,
+    explanation: 'Stable adapters preserve framework upgradeability while authoritative systems and execution controls remain organization-owned.'
+  },
+  {
+    category: 'Progressive SDD',
+    question: 'Which factor should most influence SDD process depth?',
+    options: ['Consequence, uncertainty, reversibility, shared contracts, and coordination', 'The number of framework commands', 'Whether the diff is short', 'How many agents are idle'],
+    answer: 0,
+    explanation: 'A one-line authorization change can be high risk; a larger mechanical change can be well bounded. Semantic risk drives process depth.'
+  },
+  {
+    category: 'Selection decisions',
+    question: 'Why must a framework-selection ADR include reconsideration triggers?',
+    options: ['Maintenance, policy, architecture, overhead, or portability changes can invalidate its assumptions', 'An ADR must choose a new framework every month', 'Triggers create automatic approval', 'They replace alternatives'],
+    answer: 0,
+    explanation: 'Framework fit is conditional. Observable triggers make the decision reviewable rather than permanent folklore.'
+  },
+  {
+    category: 'Framework upgrades',
+    question: 'What should happen before rolling a new framework prompt/template set across many repositories?',
+    options: ['Pin versions, compare semantic outputs on golden scenarios, and use a bounded rollout', 'Upgrade silently because prompts are not code', 'Check only that files parse', 'Ask the framework to certify itself'],
+    answer: 0,
+    explanation: 'Prompts and templates transform requirements, plans, and tasks. They are governed process assets whose semantic changes need evidence.'
+  },
+  {
+    category: 'Decision authority',
+    question: 'The Course 12 fixture passes all deterministic rules and golden scenarios. What is the strongest conclusion?',
+    options: ['The synthetic composition is ready for an accountable owner to review', 'The enterprise has approved adoption', 'Every named framework is certified', 'Production release is authorized'],
+    answer: 0,
+    explanation: 'Fixture evidence supports only the declared training claims. It cannot authenticate an adoption, procurement, or release decision.'
   }
 ];
