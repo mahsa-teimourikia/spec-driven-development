@@ -21,6 +21,11 @@ REQUIRED_TEMPLATES = {
     "checklist-template.md", "constitution-template.md", "plan-template.md",
     "spec-template.md", "tasks-template.md",
 }
+EXPECTED_COMMAND_SEMANTICS = {
+    "speckit.clarify": {"ask_targeted_questions", "encode_answered_clarifications_into_spec"},
+    "speckit.analyze": {"check_cross_artifact_consistency", "internal_consistency_is_not_enterprise_conformance"},
+    "speckit.converge": {"append_tasks_only", "no_spec_mutation", "no_plan_mutation", "no_code_mutation"},
+}
 
 
 @dataclass(frozen=True, order=True)
@@ -56,6 +61,10 @@ def stable_digest(value: Any) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
+def file_digest(path: Path) -> str:
+    return "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
+
+
 def finding(code: str, path: str, message: str) -> Finding:
     return Finding(code=code, path=path, message=message)
 
@@ -72,6 +81,15 @@ def validate_snapshot(snapshot: dict[str, Any]) -> list[Finding]:
     templates = snapshot.get("template_digests", {})
     if REQUIRED_TEMPLATES - set(templates) or any(not HEX_64.fullmatch(str(v)) for v in templates.values()):
         out.append(finding("TEMPLATE_PROVENANCE_MISSING", "framework_snapshot.template_digests", "Template digests must be complete SHA-256 values."))
+    contracts = snapshot.get("command_contracts", {})
+    if {f"speckit.{command}" for command in REQUIRED_COMMANDS} - set(contracts):
+        out.append(finding("COMMAND_CONTRACT_MISSING", "framework_snapshot.command_contracts", "Every required workflow command needs a pinned semantic contract."))
+    elif any(not HEX_64.fullmatch(str(contract.get("digest", ""))) for contract in contracts.values()):
+        out.append(finding("COMMAND_CONTRACT_DIGEST_INVALID", "framework_snapshot.command_contracts", "Command contracts require full SHA-256 digests."))
+    if any(not contract.get("expected_semantics") for contract in contracts.values()):
+        out.append(finding("COMMAND_SEMANTICS_MISSING", "framework_snapshot.command_contracts", "Command presence alone does not prove expected behavior."))
+    if any(not expected.issubset(set(contracts.get(command, {}).get("expected_semantics", []))) for command, expected in EXPECTED_COMMAND_SEMANTICS.items()):
+        out.append(finding("COMMAND_SEMANTIC_DRIFT", "framework_snapshot.command_contracts", "Critical command semantics changed from the tested enterprise contract."))
     return out
 
 
@@ -86,6 +104,15 @@ def validate_context(source: dict[str, Any], package: dict[str, Any]) -> list[Fi
     refs = context.get("policy_references", [])
     if not refs or any("@" not in ref for ref in refs):
         out.append(finding("POLICY_PROVENANCE_MISSING", "context.policy_references", "Policies require revisioned references."))
+    if context.get("source_manifest_digest") != file_digest(ROOT / "source" / "source-manifest.json"):
+        out.append(finding("SOURCE_MANIFEST_DIGEST_INVALID", "context.source_manifest_digest", "Bind the package to the exact source manifest bytes."))
+    requirement_sources = {
+        str(requirement.get("source", "")).split("@", maxsplit=1)[0]
+        for requirement in package.get("specification", {}).get("requirements", [])
+        if requirement.get("source")
+    }
+    if not requirement_sources.issubset(set(context.get("source_ids", []))):
+        out.append(finding("REQUIREMENT_SOURCE_OUTSIDE_CONTEXT", "specification.requirements", "Every requirement source must be visible in the effective context."))
     return out
 
 
@@ -129,12 +156,31 @@ def validate_specification(package: dict[str, Any]) -> list[Finding]:
     return out
 
 
+def assess_repository_freshness(source: dict[str, Any], plan: dict[str, Any]) -> str:
+    freshness = plan.get("repository_freshness", {})
+    observed = freshness.get("observed_revision", plan.get("repository_revision"))
+    current = freshness.get("current_revision", source.get("repository_revision"))
+    if observed == current == source.get("repository_revision"):
+        return "CURRENT"
+    changed_paths = freshness.get("changed_paths", [])
+    if not changed_paths:
+        return "FULL_REDISCOVERY_REQUIRED"
+    if paths_intersect(changed_paths, freshness.get("discovery_scope", [])):
+        return "TARGETED_REDISCOVERY_REQUIRED"
+    return "DRIFT_OUTSIDE_DISCOVERY_SCOPE_RECORDED"
+
+
 def validate_plan(source: dict[str, Any], package: dict[str, Any]) -> list[Finding]:
     out: list[Finding] = []
     plan = package.get("plan", {})
     ids = requirement_ids(package)
-    if plan.get("repository_revision") != source.get("repository_revision"):
-        out.append(finding("PLAN_REVALIDATION_REQUIRED", "plan.repository_revision", "Repository truth changed after planning."))
+    freshness = assess_repository_freshness(source, plan)
+    if plan.get("repository_freshness", {}).get("decision") != freshness:
+        out.append(finding("REPOSITORY_FRESHNESS_DECISION_INVALID", "plan.repository_freshness.decision", "Stored freshness decisions must match revision and path evidence."))
+    if freshness == "TARGETED_REDISCOVERY_REQUIRED":
+        out.append(finding("TARGETED_REDISCOVERY_REQUIRED", "plan.repository_freshness", "Repository changes intersect the discovery scope; refresh affected facts."))
+    elif freshness == "FULL_REDISCOVERY_REQUIRED":
+        out.append(finding("FULL_REDISCOVERY_REQUIRED", "plan.repository_freshness", "Repository drift lacks path evidence; refresh repository discovery."))
     disposed = {d.get("requirement_id") for d in plan.get("requirement_dispositions", [])}
     if disposed != ids:
         out.append(finding("UNPLANNED_REQUIREMENT", "plan.requirement_dispositions", "Every requirement needs an explicit disposition."))
@@ -170,6 +216,8 @@ def validate_tasks(package: dict[str, Any]) -> list[Finding]:
             out.append(finding("UNKNOWN_REQUIREMENT_REFERENCE", path + ".basis", "Task references an unknown requirement."))
         if task.get("requires_awu") and not task.get("work_unit_id"):
             out.append(finding("AWU_ENRICHMENT_REQUIRED", path + ".work_unit_id", "Consequential tasks require an agent work unit."))
+        if task.get("requires_awu") and not task.get("required_evidence"):
+            out.append(finding("TASK_EVIDENCE_MISSING", path + ".required_evidence", "Each work unit needs claim-specific evidence, not a global blanket."))
         if paths_intersect(task.get("writable_paths", []), task.get("protected_paths", [])):
             out.append(finding("TASK_PROTECTED_PATH", path + ".writable_paths", "Writable scope crosses a protected path."))
         if task.get("new_dependency") and not task.get("dependency_proposal_id"):
@@ -188,7 +236,8 @@ def adapt_tasks_to_work_units(package: dict[str, Any]) -> list[dict[str, Any]]:
             "protected_paths": task["protected_paths"],
             "may_not_decide": policy.get("may_not_decide", []),
             "stop_conditions": policy.get("stop_conditions", []),
-            "required_evidence": policy.get("required_evidence", []),
+            "required_evidence": task.get("required_evidence", []),
+            "evidence_role": task.get("evidence_role"),
         }
         for task in package.get("tasks", [])
         if task.get("requires_awu") and task.get("work_unit_id")
@@ -207,9 +256,16 @@ def validate_work_units(package: dict[str, Any]) -> list[Finding]:
         path = f"work_units[{i}]"
         if not unit.get("stop_conditions"):
             out.append(finding("WORK_UNIT_STOP_CONDITIONS_MISSING", path + ".stop_conditions", "Work units must define when the agent stops."))
+        if not unit.get("required_evidence"):
+            out.append(finding("WORK_UNIT_EVIDENCE_MISSING", path + ".required_evidence", "Evidence obligations must support this unit's claims."))
+        if unit.get("evidence_role") not in {"produce_test_inputs_not_attest_results", "author_harness_and_manifest_schema_never_self_attest"}:
+            out.append(finding("WORK_UNIT_SELF_ATTESTATION_AMBIGUOUS", path + ".evidence_role", "State that implementation work cannot attest its own conformance."))
         forbidden = set(unit.get("may_not_decide", []))
         if not {"authorization_semantics", "release"}.issubset(forbidden):
             out.append(finding("WORK_UNIT_AUTHORITY_TOO_BROAD", path + ".may_not_decide", "Keep protected decisions outside agent authority."))
+    evidence_sets = [tuple(unit.get("required_evidence", [])) for unit in package.get("work_units", []) if unit.get("required_evidence")]
+    if len(evidence_sets) > 1 and len(set(evidence_sets)) == 1:
+        out.append(finding("BLANKET_EVIDENCE_INHERITANCE", "work_units", "Assign evidence to the claim each work unit changes."))
     return out
 
 
@@ -224,14 +280,22 @@ def validate_evidence(package: dict[str, Any]) -> list[Finding]:
         out.append(finding("EVIDENCE_SUBJECT_STALE", "evidence_manifest.records", "Evidence must bind to the implementation under review."))
     if evidence.get("release_authority") in {"implementation_agent", "spec_kit", "framework"} or evidence.get("production_ready") is True:
         out.append(finding("RELEASE_AUTHORITY_BYPASSED", "evidence_manifest.release_authority", "Release remains external to the implementation workflow."))
+    required_kinds = {kind for unit in package.get("work_units", []) for kind in unit.get("required_evidence", [])}
+    independent_kinds = {record.get("kind") for record in records if record.get("independent") and record.get("result") in {"pass", "fixture_population_pass"}}
+    if not required_kinds.issubset(independent_kinds):
+        out.append(finding("CLAIM_EVIDENCE_MISSING", "evidence_manifest.records", "Independent evidence must cover every claim-specific work-unit obligation."))
     return out
 
 
 def validate_convergence(package: dict[str, Any]) -> list[Finding]:
     convergence = package.get("convergence", {})
-    if convergence.get("mode") != "append_only_tasks" or convergence.get("spec_mutations") or convergence.get("plan_mutations"):
-        return [finding("CONVERGENCE_MUTATES_INTENT", "convergence", "Convergence may append repair work, not rewrite approved intent.")]
-    return []
+    out: list[Finding] = []
+    if convergence.get("command_scope") != "speckit.converge" or convergence.get("mode") != "append_only_tasks" or convergence.get("spec_mutations") or convergence.get("plan_mutations"):
+        out.append(finding("CONVERGENCE_MUTATES_INTENT", "convergence", "The speckit.converge command may append repair tasks; it does not rewrite spec or plan."))
+    evolution = convergence.get("broader_specification_evolution", {})
+    if evolution.get("model") != "controlled_flow_back" or not evolution.get("condition"):
+        out.append(finding("SPEC_EVOLUTION_ROUTE_MISSING", "convergence.broader_specification_evolution", "Legitimate semantic discoveries need a separate owner-authorized specification evolution route."))
+    return out
 
 
 def validate_multi_repository(package: dict[str, Any]) -> list[Finding]:
@@ -262,8 +326,13 @@ def validate_extension_trust(package: dict[str, Any]) -> list[Finding]:
 
 def validate_risk_route(package: dict[str, Any]) -> list[Finding]:
     route = package.get("risk_route", {})
-    if route.get("determined_by") != "trusted_policy_engine" or not route.get("basis"):
+    valid_depth = route.get("governance_depth") in {"routine", "controlled", "consequential"}
+    valid_topology = route.get("execution_topology") in {"single_agent", "multi_agent"}
+    if route.get("determined_by") != "trusted_policy_engine" or not route.get("basis") or not valid_depth or not valid_topology:
         return [finding("AGENT_SELF_CLASSIFIES_RISK", "risk_route", "A trusted policy engine must select the operating mode.")]
+    declared = {key: route.get(key) for key in ("governance_depth", "sdd_mode", "execution_topology")}
+    if declared != route_operating_model(route.get("signals", [])):
+        return [finding("RISK_ROUTE_INCONSISTENT", "risk_route", "Declared governance and execution axes must match trusted routing signals.")]
     return []
 
 
@@ -298,13 +367,19 @@ def selection_state(findings: list[Finding]) -> str:
     return "BLOCKED" if findings else "READY_FOR_OWNER_REVIEW"
 
 
-def route_operating_mode(signals: list[str]) -> str:
+def route_operating_model(signals: list[str]) -> dict[str, str]:
     signal_set = set(signals)
-    if signal_set & {"regulated_data", "security_boundary", "cross_repository", "ai_behavior_change"}:
-        return "governed_orchestrated"
-    if signal_set & {"shared_contract", "persistent_data", "public_api"}:
-        return "standard_spec_driven"
-    return "lightweight_change"
+    consequential = bool(signal_set & {"regulated_data", "security_boundary", "ai_behavior_change"})
+    controlled = bool(signal_set & {"shared_contract", "persistent_data", "public_api", "cross_repository"})
+    governance_depth = "consequential" if consequential else "controlled" if controlled else "routine"
+    sdd_mode = "governed" if consequential else "standard" if controlled else "lightweight"
+    execution_topology = "multi_agent" if signal_set & {"cross_repository", "parallel_contracts"} else "single_agent"
+    return {"governance_depth": governance_depth, "sdd_mode": sdd_mode, "execution_topology": execution_topology}
+
+
+def route_operating_mode(signals: list[str]) -> str:
+    """Compatibility helper; prefer route_operating_model for separate control axes."""
+    return route_operating_model(signals)["sdd_mode"]
 
 
 def execute_scenario(case: dict[str, Any]) -> str:
@@ -314,10 +389,10 @@ def execute_scenario(case: dict[str, Any]) -> str:
         "policy_conflict": lambda d: "route_accountable_owner" if d["normative_conflict"] else "continue",
         "architecture_invention": lambda d: "architecture_proposal_required" if not d["approved_architecture_basis"] else "continue",
         "task_boundary": lambda d: "awu_enrichment_required" if not d["agent_work_unit_present"] else "continue",
-        "repository_drift": lambda d: "targeted_rediscovery_required" if d["planned_revision"] != d["current_revision"] else "continue",
+        "repository_drift": lambda d: "targeted_rediscovery_required" if d["planned_revision"] != d["current_revision"] and d["affected_scope"] else "drift_outside_scope_recorded" if d["planned_revision"] != d["current_revision"] else "continue",
         "nfr_change": lambda d: "protected_target_change" if d["approved_target"] != d["generated_target"] else "continue",
         "evidence_laundering": lambda d: "completion_report_not_conformance" if not d["independent_evidence"] else "continue",
-        "template_drift": lambda d: "template_semantic_regression_stop_rollout" if d["baseline_digest"] != d["candidate_digest"] else "continue",
+        "template_drift": lambda d: "template_semantic_regression_stop_rollout" if d["baseline_digest"] != d["candidate_digest"] or d["baseline_semantics"] != d["candidate_semantics"] else "continue",
     }
     return rules[name](data)
 
@@ -338,7 +413,7 @@ def apply_mutation(name: str, package: dict[str, Any], snapshot: dict[str, Any])
         "wrong_context": lambda: package["context"].__setitem__("context_id", "CTX-OLD"),
         "drop_source": lambda: package["context"].__setitem__("source_ids", package["context"]["source_ids"][:-1]),
         "unversion_policy": lambda: package["context"].__setitem__("policy_references", ["AI-030"]),
-        "stale_plan_revision": lambda: plan.__setitem__("repository_revision", "repo-docs@old"),
+        "stale_plan_revision": lambda: plan["repository_freshness"].update({"observed_revision": "repo-docs@old", "current_revision": "repo-docs@a17-training", "changed_paths": ["src/documents/models.py"], "decision": "TARGETED_REDISCOVERY_REQUIRED"}),
         "constitution_launders_policy": lambda: package["constitution_principles"][2].__setitem__("kind", "PROJECT_OWNED"),
         "framework_owner": lambda: package["constitution_principles"][0].__setitem__("owner", "Spec Kit"),
         "invalid_req_id": lambda: spec["requirements"][0].__setitem__("id", "Requirement 1"),

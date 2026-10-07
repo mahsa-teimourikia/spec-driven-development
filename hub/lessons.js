@@ -615,9 +615,10 @@ const course13 = {
     'Keep inherited enterprise constraints distinct from project-owned constitution principles.',
     'Preserve unresolved owner decisions and block only the affected capability.',
     'Separate brownfield current truth from proposed design and disposition every requirement.',
-    'Enrich consequential tasks into bounded agent work units with stop conditions and protected paths.',
+    'Enrich consequential tasks into bounded agent work units with stop conditions, protected paths, and claim-specific evidence.',
     'Preserve canonical parent requirements across repository-local child specs.',
-    'Separate implementation completion from independent evidence and release authority.',
+    'Separate implementation completion from independent evidence and release authority, including evidence-harness work that cannot self-attest.',
+    'Keep speckit.converge append-only while routing legitimate semantic discoveries through controlled specification evolution.',
     'Test workflow behavior with eight golden scenarios and 36 control mutations.'
   ],
   readme: `${REPO}/blob/main/curriculum/intermediate/03-github-spec-kit-enterprise-sdd/README.md`,

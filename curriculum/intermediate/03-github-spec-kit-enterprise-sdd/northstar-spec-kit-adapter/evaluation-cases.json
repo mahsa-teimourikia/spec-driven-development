@@ -9,7 +9,7 @@
     {"id":"E05","mutation":"wrong_context","expected":"SOURCE_CONTEXT_DRIFT"},
     {"id":"E06","mutation":"drop_source","expected":"EFFECTIVE_CONTEXT_INCOMPLETE"},
     {"id":"E07","mutation":"unversion_policy","expected":"POLICY_PROVENANCE_MISSING"},
-    {"id":"E08","mutation":"stale_plan_revision","expected":"PLAN_REVALIDATION_REQUIRED"},
+    {"id":"E08","mutation":"stale_plan_revision","expected":"TARGETED_REDISCOVERY_REQUIRED"},
     {"id":"E09","mutation":"constitution_launders_policy","expected":"CONSTITUTION_AUTHORITY_LAUNDERING"},
     {"id":"E10","mutation":"framework_owner","expected":"FRAMEWORK_ACCOUNTABILITY_CLAIM"},
     {"id":"E11","mutation":"invalid_req_id","expected":"REQUIREMENT_ID_INVALID"},

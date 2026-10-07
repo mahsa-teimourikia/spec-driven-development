@@ -2,7 +2,7 @@
 
 **Specification:** `SPEC-AI-2310@3-training`
 **Source intent:** `TICKET-AI-2310@1-training`
-**Effective context:** `CTX-AI-2310@2-training`
+**Effective context:** `CTX-AI-2310@3-training`
 **Constitution:** `CONSTITUTION-DOCS@4-training`
 
 ## Supported population

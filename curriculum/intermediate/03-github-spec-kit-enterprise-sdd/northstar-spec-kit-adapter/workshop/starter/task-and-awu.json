@@ -11,6 +11,7 @@
     "id": "TODO",
     "may_not_decide": ["TODO: protected decisions"],
     "stop_conditions": ["TODO"],
-    "required_evidence": ["TODO: independent evidence"]
+    "required_evidence": ["TODO: claim-specific independent evidence"],
+    "evidence_role": "TODO: state that the work unit cannot self-attest"
   }
 }

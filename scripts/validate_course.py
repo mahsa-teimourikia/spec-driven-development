@@ -2078,6 +2078,9 @@ def check_course_13_spec_kit() -> list[str]:
         "source/domain-rules.md",
         "source/architecture.md",
         "source/repository-discovery.json",
+        "source/project-quality.md",
+        "source/security-standard.md",
+        "source/performance-target.md",
         "source/source-manifest.json",
         "spec-kit-snapshot/manifest.json",
         "spec-kit-snapshot/README.md",
@@ -2158,7 +2161,7 @@ def check_course_13_spec_kit() -> list[str]:
     snapshot = json.loads((scenario / "spec-kit-snapshot" / "manifest.json").read_text(encoding="utf-8"))
     if snapshot.get("release") != "v1.1.0" or snapshot.get("observed_at") != "2026-10-04":
         errors.append("Course 13 must retain its dated pinned Spec Kit snapshot")
-    if len(snapshot.get("core_commands", [])) != 9 or len(snapshot.get("template_digests", {})) != 5:
+    if len(snapshot.get("core_commands", [])) != 9 or len(snapshot.get("template_digests", {})) != 5 or len(snapshot.get("command_contracts", {})) != 9:
         errors.append("Course 13 snapshot must retain the workflow and template provenance surface")
 
     package = json.loads((scenario / "reference" / "control-package.json").read_text(encoding="utf-8"))
@@ -2166,6 +2169,11 @@ def check_course_13_spec_kit() -> list[str]:
         errors.append("Course 13 reference must retain six typed requirements")
     if len(package.get("work_units", [])) != 5:
         errors.append("Course 13 reference must retain five bounded agent work units")
+    evidence_sets = {tuple(item.get("required_evidence", [])) for item in package.get("work_units", [])}
+    if len(evidence_sets) != 5:
+        errors.append("Course 13 work units must retain claim-specific evidence obligations")
+    if len(package.get("context", {}).get("source_ids", [])) != 8:
+        errors.append("Course 13 effective context must retain all eight direct requirement sources")
     if package.get("evidence_manifest", {}).get("production_ready") is not False:
         errors.append("Course 13 synthetic evidence must not claim production readiness")
 

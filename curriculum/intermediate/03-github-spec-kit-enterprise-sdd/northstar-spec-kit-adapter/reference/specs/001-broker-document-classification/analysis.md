@@ -4,7 +4,7 @@
 
 | Dimension | Result | Evidence |
 |---|---|---|
-| Source coverage | PASS | All five source IDs in `CTX-AI-2310@2-training` are present |
+| Source coverage | PASS | All eight source IDs in `CTX-AI-2310@3-training` are present |
 | Requirement identity | PASS | Six stable typed IDs |
 | Plan coverage | PASS | Six explicit requirement dispositions |
 | Work ancestry | PASS | Every plan item and task has requirement basis |

@@ -55,7 +55,7 @@ Spec Kit also exposes presets, workflows, bundles, catalogs, and extensions. Tha
 
 ## 2. Dated and reproducible framework snapshot
 
-This course observed official release **v1.1.0**, published **2026-10-02**, on **2026-10-04**. The lab ran the official CLI from the release tag and recorded the resolved commit, CLI version, scaffold paths, workflow surface, and SHA-256 template digests. The release record is available from the official [v1.1.0 release](https://github.com/github/spec-kit/releases/tag/v1.1.0).
+This course observed official release **v1.1.0**, published **2026-10-02**, on **2026-10-04**. The lab ran the official CLI from the release tag and recorded the resolved commit, CLI version, scaffold paths, workflow surface, SHA-256 template digests, command-artifact digests, and expected command semantics. The release record is available from the official [v1.1.0 release](https://github.com/github/spec-kit/releases/tag/v1.1.0).
 
 The command shape was:
 
@@ -65,7 +65,9 @@ uvx --from 'git+https://github.com/github/spec-kit.git@v1.1.0' specify init \
   --integration-options='--skills' --ignore-agent-tools
 ```
 
-Do not silently replace `v1.1.0` with `latest`. A framework upgrade changes executable process inputs. Re-observe the CLI, diff templates and manifests, run golden scenarios, and approve rollout through the organization-owned change path.
+Do not silently replace `v1.1.0` with `latest`. A framework upgrade changes executable process inputs. Re-observe the CLI, diff templates and command artifacts, run golden scenarios against their expected semantics, and approve rollout through the organization-owned change path. A command name still existing does not prove that its behavior remains compatible.
+
+The nine `core_commands` are required by this course's enterprise SDD workflow, not an inventory of every command shipped by Spec Kit. `speckit.taskstoissues` is recorded separately because issue export is useful but not required for SDD conformance.
 
 ## 3. Enterprise Spec Kit architecture
 
@@ -73,8 +75,8 @@ Do not silently replace `v1.1.0` with `latest`. A framework upgrade changes exec
 flowchart TB
     SRC[Authoritative sources<br/>intent · policy · domain · architecture] --> RES[Effective-context resolver]
     REPO[Revision-bound repository discovery] --> RES
-    RES --> SK[Spec Kit project workflow]
-    SK --> ADP[Enterprise adapter<br/>provenance · authority · AWUs]
+    RES --> SK[Spec Kit project workflow<br/>supported extensions and hooks]
+    SK --> ADP[External enterprise adapter<br/>provenance · authority · AWUs]
     ADP --> EXE[Agent execution control plane]
     EXE --> EVD[Independent evidence]
     EVD --> REL[Human and delivery gates]
@@ -89,6 +91,8 @@ The safe composition has three planes:
 | Spec Kit workflow | Generate and refine project artifacts | Policy owner, architect, release authority |
 | Enterprise adapter | Bind sources, validate structure, create execution envelopes | Approval or exception authority |
 | Trusted control plane | Authorize, execute, produce evidence, merge, release | Unauthenticated generated claims |
+
+Use supported Spec Kit extension points where they fit. A vetted `before_specify` hook can call effective-context validation, `before_plan` can check repository freshness, and `before_tasks` can check requirement traceability. Keep the enterprise policy registry, approval receipts, execution credentials, and release authority external. A hook can invoke a trusted control; it does not become the authority it invokes. The reference package records these as architectural options rather than pretending the credential-free fixture installed them. See the official [extension hook reference](https://github.com/github/spec-kit/blob/main/extensions/EXTENSION-API-REFERENCE.md).
 
 ## 4. Constitution is not enterprise policy
 
@@ -113,13 +117,13 @@ An agent should not discover policy opportunistically while writing the spec. Fi
 
 ```json
 {
-  "context_id": "CTX-AI-2310@2-training",
+  "context_id": "CTX-AI-2310@3-training",
   "policy_references": ["AI-030@7-training"],
   "repository_revision": "repo-docs@a17-training"
 }
 ```
 
-The context manifest lists every source, revision, authority, and repository observation. The generated spec then points back to that manifest. Missing or stale inputs block progress; they do not become agent discretion.
+The context manifest lists all eight direct sources, their revisions and authorities, and the repository observation. This includes the quality, security, and performance sources cited by `REQ-DOC-004`, `SEC-DOC-001`, and `PERF-DOC-001`. The generated spec then points back to the byte-bound manifest. Missing, transitive-but-unresolved, or stale inputs block progress; they do not become agent discretion.
 
 ## 6. Specify outcomes, boundaries, and populations
 
@@ -155,7 +159,7 @@ automatic_requirement_satisfaction = BLOCKED
 owner = Underwriting Risk
 ```
 
-Clarification may identify the question, assemble options, and record the owner. It may not infer a consequential threshold from similar systems. An unresolved decision is executable information because it prevents unsafe work.
+Clarification has two valid outcomes. If an authenticated accountable owner answers, `/speckit.clarify` encodes the answer and its provenance back into `spec.md`, then downstream artifacts are revalidated. If the question remains unanswered—or the available respondent lacks authority—the workflow preserves `OPEN` and blocks only the affected capability. Clarification may identify the question and assemble options; it may not infer a consequential threshold from similar systems. An unresolved decision is executable information because it prevents unsafe work.
 
 ## 8. Brownfield planning separates current and proposed truth
 
@@ -178,7 +182,7 @@ Proposed truth
 
 This prevents architecture invention, duplicate OCR, and accidental changes to authorization semantics. Each requirement has an explicit disposition: implement, reuse, external control, deferred with owner approval, or out of scope with rationale.
 
-If repository revision changes after planning, the correct response is targeted rediscovery and revalidation—not optimistic implementation against stale assumptions. The official [existing-project guidance](https://github.github.com/spec-kit/guides/existing-projects.html) is a useful starting point; the enterprise layer adds revision binding and authority checks.
+If repository revision changes after planning, compare changed paths with the discovery scope. Changes to `src/documents/**`, `contracts/**`, or the protected submission boundary require targeted rediscovery and revalidation. Proven changes outside that scope are recorded without forcing a full rescan. If path evidence is unavailable, fail closed to full rediscovery. The official [existing-project guidance](https://github.github.com/spec-kit/guides/existing-projects.html) is a useful starting point; this enterprise check belongs outside `/speckit.converge`, which is not a Git-history analyzer.
 
 ## 9. A Spec Kit task is not automatically an agent work unit
 
@@ -202,6 +206,8 @@ bounded implementation
 ```
 
 Release, policy exceptions, authorization semantics, architecture approval, and automatic requirement satisfaction remain outside every AWU.
+
+Evidence obligations are assigned per claim, not inherited as one global list. The contract unit requires contract and provenance-schema checks; classification requires population evaluation and provenance; validation requires domain and injection checks; review integration requires contract and ambiguity-routing checks. `AWU-DOC-EVIDENCE` may author evaluation cases, harness configuration, and manifest schemas, but trusted CI and the quality-evaluation service—not that work unit—attest results.
 
 ## 10. Analyze before implementation
 
@@ -234,11 +240,11 @@ injection test         producer: trusted CI         independent: true
 provenance test        producer: trusted CI         independent: true
 ```
 
-Every evidence record binds to the exact implementation revision. Synthetic fixture results remain synthetic; the manifest explicitly says `production_ready: false`.
+Every evidence record binds to the exact implementation revision, and every work-unit evidence obligation has a matching independent record. Synthetic fixture results remain synthetic; the manifest explicitly says `production_ready: false`.
 
 ## 12. Convergence repairs gaps without rewriting intent
 
-Spec Kit's current convergence command is designed to reconcile implementation against the specification and plan. The enterprise boundary is essential: convergence may append repair tasks, but it must not silently weaken approved intent to match code. See the official [convergence command](https://github.com/github/spec-kit/blob/main/templates/commands/converge.md).
+The current `/speckit.converge` command is designed to reconcile implementation against the specification and plan by appending repair tasks. It does not rewrite `spec.md`, `plan.md`, existing tasks, or application code. The enterprise boundary is essential: this command must not silently weaken approved intent to match code. See the official [convergence command](https://github.com/github/spec-kit/blob/main/templates/commands/converge.md).
 
 Allowed:
 
@@ -252,7 +258,7 @@ Blocked:
 implementation differs → rewrite requirement → declare convergence
 ```
 
-Semantic changes return to the accountable owner through a formal change request.
+This is command semantics, not a claim that specifications can never evolve. Spec Kit also documents a broader [flow-back persistence model](https://github.github.com/spec-kit/concepts/spec-persistence.html) in which discoveries can inform `spec.md`, `plan.md`, `tasks.md`, and implementation. Northstar routes legitimate semantic discoveries through a separate, accountable-owner change workflow and revalidates downstream artifacts. `/speckit.converge` itself remains append-only.
 
 ## 13. Multi-repository change model
 
@@ -289,17 +295,17 @@ Spec Kit's extension architecture is powerful. Enterprise use should control:
 
 An unvetted community catalog can be visible for discovery while installation remains disabled. “Officially supported extension mechanism” does not mean “every extension is trusted.”
 
-## 16. Progressive operating modes
+## 16. Progressive operating modes and execution topology
 
 Do not run the maximum workflow for every typo.
 
-| Mode | Appropriate signals | Typical controls |
+| Governance mode | Appropriate signals | Typical controls |
 |---|---|---|
 | Lightweight change | Docs, cosmetic UI, isolated low-risk fix | Local intent, focused test, review |
 | Standard spec-driven | Shared contract, persistent data, public API | Spec, plan, tasks, analysis, evidence |
-| Governed orchestrated | Regulated data, security boundary, AI behavior, cross-repo | Resolved context, AWUs, independent evidence, approval gates, convergence |
+| Governed | Regulated data, security boundary, consequential AI behavior | Resolved context, AWUs, independent evidence, approval gates, convergence |
 
-The coding agent must not choose its own risk tier. A trusted policy engine makes the route from observable signals and a revisioned policy basis.
+Governance depth is separate from execution topology. A consequential prompt correction may use one agent under strict controls; a low-consequence cross-repository mechanical migration may justify multiple agents for coordination. The router therefore returns both `governance_depth` and `execution_topology`. The coding agent chooses neither: a trusted policy engine makes both decisions from observable signals and a revisioned policy basis.
 
 ## 17. CI control boundary
 
@@ -316,7 +322,7 @@ No green check should imply more than the check actually proves.
 
 ## 18. Configuration is executable behavior
 
-Templates, prompts, presets, workflows, catalogs, extension manifests, agent adapters, and CI rules shape agent behavior. Treat them like code:
+Templates, command artifacts, prompts, presets, workflows, catalogs, extension manifests, agent adapters, and CI rules shape agent behavior. Treat them like code:
 
 - version them;
 - record provenance and digests;
@@ -364,6 +370,14 @@ Expected outcome:
 8. Add one multi-repository child without weakening parent semantics.
 9. Evaluate one hypothetical template upgrade with the golden suite.
 10. Write a short decision explaining whether a low-risk change should use lightweight, standard, or governed mode.
+
+### Advanced judgment exercises
+
+**Checklist green, authority red.** The Spec Kit requirements checklist is 10/10, but `Q-DOC-001` remains open and automatic satisfaction remains blocked. Can `/speckit.implement` safely implement automatic satisfaction? **No.** Checklist completion establishes specification-quality coverage, not an authenticated owner decision.
+
+**Analyze clean, enterprise conflict.** `spec.md`, `plan.md`, and `tasks.md` consistently select external model provider X, so `/speckit.analyze` reports no internal contradiction. Enterprise policy prohibits X. The enterprise validator must still return `ENTERPRISE_POLICY_CONFLICT`: internal artifact consistency is not enterprise conformance.
+
+**Unrequested Redis cache.** Convergence discovers a Redis cache that the spec and plan never requested. Do not blindly keep or remove it. First classify whether it is local, reversible implementation freedom or a protected architecture/data decision. Local implementation detail can be dispositioned with evidence; an unapproved architecture change stops and routes to the architecture owner. `/speckit.converge` may append the resulting repair task, but it does not approve the decision.
 
 ## 22. Definition of done
 

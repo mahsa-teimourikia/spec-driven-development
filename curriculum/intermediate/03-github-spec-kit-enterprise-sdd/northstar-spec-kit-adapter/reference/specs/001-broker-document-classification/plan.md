@@ -12,6 +12,8 @@
 - `SubmissionService` owns authoritative requirement state.
 - The document agent has no authoritative mutation tool.
 
+Repository freshness is assessed against the discovery scope, not raw commit inequality alone. The current and observed revisions are both `repo-docs@a17-training`. If a later revision changes `src/documents/**`, `contracts/**`, or the protected submission boundary, targeted rediscovery is required. Changes proven outside that scope are recorded without forcing full rediscovery.
+
 ## Proposed change
 
 1. Extend the document model with a non-authoritative classification proposal.

@@ -1219,10 +1219,10 @@ const QUESTIONS = [
   },
   {
     category: 'Agent work units',
-    question: 'A generated task names files and tests but has no authority boundary or stop conditions. Is it ready for autonomous dispatch?',
-    options: ['No; enrich it into an agent work unit with ancestry, scope, protected decisions, stops, and evidence', 'Yes; task generation grants execution authority', 'Yes, if the agent is confident', 'Only if the task is written in Markdown'],
+    question: 'Five work units inherit the same contract, classification, injection, and provenance evidence list. What should change?',
+    options: ['Assign each unit evidence that supports its particular claims, while retaining system-level aggregation separately', 'Keep the blanket list because more evidence names always means stronger proof', 'Let each implementation agent self-attest every result', 'Remove evidence from the work units entirely'],
     answer: 0,
-    explanation: 'A task describes work. An AWU is the bounded execution contract needed for controlled autonomy.'
+    explanation: 'Evidence should support a particular claim. Blanket inheritance obscures the oracle, ownership, and independent producer needed for each unit.'
   },
   {
     category: 'Independent evidence',
@@ -1233,10 +1233,10 @@ const QUESTIONS = [
   },
   {
     category: 'Convergence',
-    question: 'Convergence finds code that contradicts an approved review requirement. Which response preserves authority?',
-    options: ['Append repair work or route a formal semantic change to the owner', 'Rewrite the requirement to match code', 'Mark the divergence accepted automatically', 'Delete the evidence case'],
+    question: 'How should Course 13 distinguish /speckit.converge from broader flow-back specification evolution?',
+    options: ['Converge appends repair tasks; legitimate semantic changes use a separate owner-authorized evolution workflow', 'Converge silently rewrites spec and plan whenever code differs', 'Flow-back means implementation is always authoritative', 'There is no distinction'],
     answer: 0,
-    explanation: 'Implementation is not an authoritative source for silently redefining intent.'
+    explanation: 'The converge command is append-only. A controlled living-spec model can still incorporate discoveries without granting implementation authority.'
   },
   {
     category: 'Multi-repository SDD',
@@ -1254,10 +1254,10 @@ const QUESTIONS = [
   },
   {
     category: 'Extension trust',
-    question: 'Spec Kit supports extension catalogs. What does that imply about an unvetted catalog?',
-    options: ['The mechanism is supported, but installation still requires source trust, digests, permissions, and approval', 'Every listed extension is automatically enterprise-approved', 'Extensions are not supply-chain inputs', 'The coding agent may install anything'],
+    question: 'Which control is suitable for a vetted Spec Kit before_plan hook rather than becoming framework-owned authority?',
+    options: ['Call a trusted repository-freshness gate and stop when it reports affected drift', 'Issue production release credentials', 'Become the enterprise policy registry', 'Self-approve architecture exceptions'],
     answer: 0,
-    explanation: 'Extensibility is a capability, not a trust decision.'
+    explanation: 'Supported hooks can invoke organization-owned controls. They do not become policy, credential, approval, or release authorities.'
   },
   {
     category: 'Framework upgrades',

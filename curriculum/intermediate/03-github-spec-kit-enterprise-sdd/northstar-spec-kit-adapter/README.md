@@ -34,9 +34,9 @@ The reference package should be `READY_FOR_OWNER_REVIEW`; this is deliberately n
 2. Compare the reference constitution, spec, plan, and tasks with the unsafe candidate.
 3. Copy the starter JSON files into a scratch location.
 4. Correct source binding and authority classification.
-5. Preserve the unresolved confidence decision.
+5. Preserve the unresolved confidence decision unless an authenticated accountable owner answers; authorized answers return to the spec.
 6. add full requirement dispositions and remove orphan work.
-7. Add AWU boundaries and independent evidence.
+7. Add AWU boundaries and claim-specific independent evidence; do not copy one evidence list onto every unit.
 8. Run the validators and explain every remaining finding.
 
 ## Important boundaries
@@ -45,5 +45,6 @@ The reference package should be `READY_FOR_OWNER_REVIEW`; this is deliberately n
 - A project constitution does not supersede enterprise policy.
 - A task is not an autonomous execution boundary until it is enriched.
 - A completion report is not independent conformance evidence.
-- Convergence may add repair work; it may not rewrite intent to fit code.
+- `/speckit.converge` may add repair work; it may not rewrite intent to fit code. Broader controlled specification evolution is a separate owner-authorized workflow.
+- Governance depth and single-agent versus multi-agent topology are separate decisions.
 - Synthetic evidence proves no production claim.
