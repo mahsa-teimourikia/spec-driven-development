@@ -1,0 +1,15 @@
+{
+  "suite_id": "COURSE13-SPEC-KIT-CONFORMANCE",
+  "version": "1-training",
+  "notice": "Synthetic training scenarios; not a vendor certification suite.",
+  "cases": [
+    {"id": "SCN-01", "name": "unresolved_business_decision", "input": {"owner_decision": false}, "expected": "preserve_open_and_block_capability"},
+    {"id": "SCN-02", "name": "policy_conflict", "input": {"normative_conflict": true}, "expected": "route_accountable_owner"},
+    {"id": "SCN-03", "name": "architecture_invention", "input": {"approved_architecture_basis": false}, "expected": "architecture_proposal_required"},
+    {"id": "SCN-04", "name": "task_boundary", "input": {"agent_work_unit_present": false}, "expected": "awu_enrichment_required"},
+    {"id": "SCN-05", "name": "repository_drift", "input": {"planned_revision": "a17", "current_revision": "b42", "affected_scope": true}, "expected": "targeted_rediscovery_required"},
+    {"id": "SCN-06", "name": "nfr_change", "input": {"approved_target": 800, "generated_target": 500}, "expected": "protected_target_change"},
+    {"id": "SCN-07", "name": "evidence_laundering", "input": {"independent_evidence": false}, "expected": "completion_report_not_conformance"},
+    {"id": "SCN-08", "name": "template_drift", "input": {"baseline_digest": "aaa", "candidate_digest": "bbb", "baseline_semantics": ["append_tasks_only"], "candidate_semantics": ["rewrite_spec"]}, "expected": "template_semantic_regression_stop_rollout"}
+  ]
+}

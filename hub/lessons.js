@@ -605,6 +605,60 @@ const course12 = {
   }
 };
 
+const course13 = {
+  id: 'c13', course: 13, level: 'intermediate', part: 'III · Agentic execution & SDD frameworks', status: 'available',
+  title: 'GitHub Spec Kit for Enterprise Spec-Driven Development',
+  summary: 'Run the full Spec Kit lifecycle inside revision-bound enterprise context, bounded agent work units, independent evidence, and organization-owned authority.',
+  outcomes: [
+    'Reproduce a dated, pinned Spec Kit CLI and template snapshot.',
+    'Resolve authoritative policy, domain, architecture, and repository context before specification.',
+    'Keep inherited enterprise constraints distinct from project-owned constitution principles.',
+    'Preserve unresolved owner decisions and block only the affected capability.',
+    'Separate brownfield current truth from proposed design and disposition every requirement.',
+    'Enrich consequential tasks into bounded agent work units with stop conditions, protected paths, and claim-specific evidence.',
+    'Preserve canonical parent requirements across repository-local child specs.',
+    'Separate implementation completion from independent evidence and release authority, including evidence-harness work that cannot self-attest.',
+    'Keep speckit.converge append-only while routing legitimate semantic discoveries through controlled specification evolution.',
+    'Test workflow behavior with eight golden scenarios and 36 control mutations.'
+  ],
+  readme: `${REPO}/blob/main/curriculum/intermediate/03-github-spec-kit-enterprise-sdd/README.md`,
+  notebook: `${REPO}/blob/main/curriculum/intermediate/03-github-spec-kit-enterprise-sdd/northstar-spec-kit-adapter/spec_kit_enterprise_adapter.ipynb`,
+  lab: `${REPO}/blob/main/curriculum/intermediate/03-github-spec-kit-enterprise-sdd/northstar-spec-kit-adapter/lab.py`,
+  repoFixture: `${REPO}/tree/main/curriculum/intermediate/03-github-spec-kit-enterprise-sdd/northstar-spec-kit-adapter`,
+  run: 'python3 curriculum/intermediate/03-github-spec-kit-enterprise-sdd/northstar-spec-kit-adapter/lab.py',
+  labs: [
+    {
+      title: 'Lab A — Validate the enterprise adapter',
+      description: 'Inspect the observed Spec Kit snapshot, validate the reference and unsafe packages, transform tasks into AWUs, route risk, and exercise the conformance and mutation suites.',
+      command: 'python3 curriculum/intermediate/03-github-spec-kit-enterprise-sdd/northstar-spec-kit-adapter/lab.py',
+      links: [['View the adapter', `${REPO}/blob/main/curriculum/intermediate/03-github-spec-kit-enterprise-sdd/northstar-spec-kit-adapter/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/intermediate/03-github-spec-kit-enterprise-sdd/northstar-spec-kit-adapter/spec_kit_enterprise_adapter.ipynb`]]
+    },
+    {
+      title: 'Lab B — Govern AI-2310 with Spec Kit',
+      description: 'Resolve source context, repair the specification, preserve the open decision, plan from brownfield truth, and convert consequential tasks into reviewable work units.',
+      command: 'Open the source package and starter workspace; run Lab A before consulting the reference.',
+      links: [['Open the workshop', `${REPO}/tree/main/curriculum/intermediate/03-github-spec-kit-enterprise-sdd/northstar-spec-kit-adapter`], ['Complete the starter artifacts', `${REPO}/tree/main/curriculum/intermediate/03-github-spec-kit-enterprise-sdd/northstar-spec-kit-adapter/workshop/starter`], ['Inspect the reference package', `${REPO}/tree/main/curriculum/intermediate/03-github-spec-kit-enterprise-sdd/northstar-spec-kit-adapter/reference`]]
+    }
+  ],
+  references: [
+    ['GitHub Spec Kit', 'https://github.github.com/spec-kit/'],
+    ['Spec Kit installation', 'https://github.github.com/spec-kit/installation.html'],
+    ['Existing-project guidance', 'https://github.github.com/spec-kit/guides/existing-projects.html'],
+    ['Extensions reference', 'https://github.github.com/spec-kit/reference/extensions.html'],
+    ['Bundles reference', 'https://github.github.com/spec-kit/reference/bundles.html']
+  ],
+  checkpoint: {
+    question: 'Spec Kit convergence finds that the code bypasses the required human-review state. What should the enterprise workflow do?',
+    options: [
+      'Append traceable repair work and keep the requirement authoritative; route any semantic change to its accountable owner.',
+      'Rewrite the specification to match the implementation and declare convergence.',
+      'Let the implementation agent approve an exception.'
+    ],
+    answer: 0,
+    explanation: 'Convergence repairs implementation gaps. It does not grant generated code the authority to redefine approved intent.'
+  }
+};
+
 function planned(course, level, part, title, summary) {
   return {
     id: `c${String(course).padStart(2, '0')}`, course, level, part,
@@ -628,7 +682,7 @@ const LESSONS = [
   course10,
   course11,
   course12,
-  planned(13, 'intermediate', 'III · Agentic execution & SDD frameworks', 'GitHub Spec Kit', 'Run one Northstar change through the full Spec Kit lifecycle under the enterprise authority boundary.'),
+  course13,
   planned(14, 'intermediate', 'III · Agentic execution & SDD frameworks', 'OpenSpec', 'Manage current specifications and explicit change deltas for brownfield work.'),
   planned(15, 'intermediate', 'III · Agentic execution & SDD frameworks', 'Kiro Specs', 'Apply feature, bug-fix, and quick-spec workflows with appropriate approval depth.'),
   planned(16, 'intermediate', 'III · Agentic execution & SDD frameworks', 'Agent instructions & custom enterprise adapters', 'Combine scoped cross-agent guidance with versioned context, evidence, conformance, and upgrade adapters.'),

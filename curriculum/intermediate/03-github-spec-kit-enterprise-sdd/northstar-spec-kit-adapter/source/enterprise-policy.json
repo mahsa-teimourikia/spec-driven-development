@@ -1,0 +1,9 @@
+{
+  "id": "AI-030",
+  "revision": "7-training",
+  "authority": "AI Governance",
+  "scope": "consequential_ai_recommendations",
+  "rule": "Authorized human review is required before a consequential AI recommendation changes authoritative underwriting state.",
+  "source_locator": "governance-registry:ai/AI-030@7-training",
+  "fixture_status": "synthetic_policy_record_not_authenticated_enterprise_policy"
+}

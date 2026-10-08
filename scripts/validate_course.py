@@ -2052,10 +2052,10 @@ def check_course_12_framework_landscape() -> list[str]:
         errors.append("Course 12 selection ADR must disposition every enterprise requirement")
 
     quiz_source = (ROOT / "quiz" / "questions.js").read_text(encoding="utf-8")
-    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 170:
-        errors.append("Course 12 cumulative quiz must contain 170 questions")
-    if "Courses 01–12" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
-        errors.append("Course 12 cumulative quiz must identify Courses 01–12")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) < 170:
+        errors.append("Course 12 cumulative quiz must retain at least 170 questions")
+    if "Courses 01–" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
+        errors.append("Course 12 cumulative quiz must retain its course-range label")
     hub_source = (ROOT / "hub" / "lessons.js").read_text(encoding="utf-8")
     expected_hub_fragments = [
         "const course12 = {",
@@ -2065,6 +2065,132 @@ def check_course_12_framework_landscape() -> list[str]:
     ]
     if any(fragment not in hub_source for fragment in expected_hub_fragments):
         errors.append("Course 12 Learning Hub entry is incomplete or points outside the workshop package")
+    return errors
+
+
+def check_course_13_spec_kit() -> list[str]:
+    lesson = ROOT / "curriculum" / "intermediate" / "03-github-spec-kit-enterprise-sdd"
+    scenario = lesson / "northstar-spec-kit-adapter"
+    required = [
+        "README.md",
+        "source/ticket.md",
+        "source/enterprise-policy.json",
+        "source/domain-rules.md",
+        "source/architecture.md",
+        "source/repository-discovery.json",
+        "source/project-quality.md",
+        "source/security-standard.md",
+        "source/performance-target.md",
+        "source/source-manifest.json",
+        "spec-kit-snapshot/manifest.json",
+        "spec-kit-snapshot/README.md",
+        "reference/.specify/memory/constitution.md",
+        "reference/specs/001-broker-document-classification/spec.md",
+        "reference/specs/001-broker-document-classification/clarifications.md",
+        "reference/specs/001-broker-document-classification/plan.md",
+        "reference/specs/001-broker-document-classification/checklists/requirements.md",
+        "reference/specs/001-broker-document-classification/tasks.md",
+        "reference/specs/001-broker-document-classification/analysis.md",
+        "reference/specs/001-broker-document-classification/implementation-report.md",
+        "reference/specs/001-broker-document-classification/convergence.md",
+        "reference/control-package.json",
+        "candidate/control-package.json",
+        "workshop/starter/context.json",
+        "workshop/starter/specification.json",
+        "workshop/starter/task-and-awu.json",
+        "conformance-suite.json",
+        "evaluation-cases.json",
+        "lab.py",
+        "spec_kit_enterprise_adapter.ipynb",
+    ]
+    errors = [
+        f"missing Course 13 Spec Kit artifact: {item}"
+        for item in required
+        if not (scenario / item).exists()
+    ]
+    if errors:
+        return errors
+
+    if "TODO" in (scenario / "reference" / "control-package.json").read_text(encoding="utf-8"):
+        errors.append("Course 13 reference package must not contain unresolved TODOs")
+    starters = list((scenario / "workshop" / "starter").glob("*.json"))
+    if len(starters) != 3 or not all("TODO" in item.read_text(encoding="utf-8") for item in starters):
+        errors.append("Course 13 starter workspace must retain three editable TODO artifacts")
+
+    result = subprocess.run(
+        [sys.executable, str(scenario / "lab.py")],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    try:
+        report = json.loads(result.stdout) if result.returncode == 0 else {}
+    except json.JSONDecodeError:
+        report = {}
+    if not report:
+        errors.append("Course 13 lab did not produce its JSON adapter report")
+        return errors
+
+    reference = report.get("reference", {})
+    if reference.get("state") != "READY_FOR_OWNER_REVIEW" or reference.get("findings") != []:
+        errors.append("Course 13 reference must be finding-free and ready only for owner review")
+    candidate = report.get("candidate", {})
+    if candidate.get("state") != "BLOCKED" or candidate.get("finding_count", 0) < 25:
+        errors.append("Course 13 unsafe candidate must retain its intended control failures")
+    required_codes = {
+        "CONSTITUTION_AUTHORITY_LAUNDERING",
+        "OPEN_QUESTION_COLLAPSED",
+        "ARCHITECTURE_SELF_APPROVED",
+        "AWU_ENRICHMENT_REQUIRED",
+        "SELF_REPORTED_CONFORMANCE",
+        "CONVERGENCE_MUTATES_INTENT",
+        "CHILD_SPEC_CONTRADICTS_PARENT",
+        "UNVETTED_EXTENSION_SOURCE",
+        "FRAMEWORK_AS_RELEASE_AUTHORITY",
+    }
+    if not required_codes <= set(candidate.get("findings", [])):
+        errors.append("Course 13 candidate no longer exposes the required enterprise failures")
+    if report.get("conformance") != {"passed": 8, "total": 8}:
+        errors.append("Course 13 golden conformance suite must retain eight passing scenarios")
+    if report.get("evaluation") != {"passed": 36, "total": 36}:
+        errors.append("Course 13 mutation evaluation must retain 36 detected cases")
+    if "trusted controls" not in report.get("authority_boundary", ""):
+        errors.append("Course 13 must preserve the proposal-validation-authorization boundary")
+
+    snapshot = json.loads((scenario / "spec-kit-snapshot" / "manifest.json").read_text(encoding="utf-8"))
+    if snapshot.get("release") != "v1.1.0" or snapshot.get("observed_at") != "2026-10-04":
+        errors.append("Course 13 must retain its dated pinned Spec Kit snapshot")
+    if len(snapshot.get("core_commands", [])) != 9 or len(snapshot.get("template_digests", {})) != 5 or len(snapshot.get("command_contracts", {})) != 9:
+        errors.append("Course 13 snapshot must retain the workflow and template provenance surface")
+
+    package = json.loads((scenario / "reference" / "control-package.json").read_text(encoding="utf-8"))
+    if len(package.get("specification", {}).get("requirements", [])) != 6:
+        errors.append("Course 13 reference must retain six typed requirements")
+    if len(package.get("work_units", [])) != 5:
+        errors.append("Course 13 reference must retain five bounded agent work units")
+    evidence_sets = {tuple(item.get("required_evidence", [])) for item in package.get("work_units", [])}
+    if len(evidence_sets) != 5:
+        errors.append("Course 13 work units must retain claim-specific evidence obligations")
+    if len(package.get("context", {}).get("source_ids", [])) != 8:
+        errors.append("Course 13 effective context must retain all eight direct requirement sources")
+    if package.get("evidence_manifest", {}).get("production_ready") is not False:
+        errors.append("Course 13 synthetic evidence must not claim production readiness")
+
+    quiz_source = (ROOT / "quiz" / "questions.js").read_text(encoding="utf-8")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 182:
+        errors.append("Course 13 cumulative quiz must contain 182 questions")
+    if "Courses 01–13" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
+        errors.append("Course 13 cumulative quiz must identify Courses 01–13")
+    hub_source = (ROOT / "hub" / "lessons.js").read_text(encoding="utf-8")
+    expected_hub_fragments = [
+        "const course13 = {",
+        "03-github-spec-kit-enterprise-sdd/northstar-spec-kit-adapter/spec_kit_enterprise_adapter.ipynb",
+        "03-github-spec-kit-enterprise-sdd/northstar-spec-kit-adapter/workshop/starter",
+        "03-github-spec-kit-enterprise-sdd/northstar-spec-kit-adapter/reference",
+    ]
+    if any(fragment not in hub_source for fragment in expected_hub_fragments):
+        errors.append("Course 13 Learning Hub entry is incomplete or points outside the workshop package")
     return errors
 
 
@@ -2086,6 +2212,7 @@ def main() -> None:
         "Course 10 implementation planning": check_course_10_implementation_planning,
         "Course 11 multi-agent coordination": check_course_11_multi_agent_coordination,
         "Course 12 framework landscape": check_course_12_framework_landscape,
+        "Course 13 Spec Kit": check_course_13_spec_kit,
         "diagrams": render_and_validate_diagrams,
         "labs": run_labs,
         "repository labs": run_repository_labs,

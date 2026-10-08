@@ -1,0 +1,13 @@
+{
+  "id": "DISCOVERY-AI-2310",
+  "repository": "northstar/document-processing",
+  "revision": "repo-docs@a17-training",
+  "observed": {
+    "existing_ocr": "src/documents/extraction.py",
+    "document_types": "src/documents/models.py",
+    "authoritative_submission_state": "src/underwriting/submission.py",
+    "document_agent": "src/agents/document_agent.py"
+  },
+  "protected_paths": ["src/auth/**", "src/underwriting/submission.py"],
+  "boundary": "Synthetic brownfield discovery; paths model repository facts but are not production evidence."
+}

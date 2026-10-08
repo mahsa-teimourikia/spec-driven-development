@@ -1,0 +1,25 @@
+{
+  "id": "SPEC-AI-2310",
+  "revision": "TODO",
+  "supported_population": ["TODO"],
+  "manual_review_population": ["TODO"],
+  "requirements": [
+    {
+      "id": "TODO: stable typed ID",
+      "owner": "TODO",
+      "source": "TODO: revisioned source",
+      "revision": 1,
+      "implementation_choices": []
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q-DOC-001",
+      "status": "TODO: preserve the real source state",
+      "owner": "TODO",
+      "blocks": ["automatic_requirement_satisfaction"]
+    }
+  ],
+  "capability_gates": {"automatic_requirement_satisfaction": "TODO"},
+  "acceptance_criteria": []
+}

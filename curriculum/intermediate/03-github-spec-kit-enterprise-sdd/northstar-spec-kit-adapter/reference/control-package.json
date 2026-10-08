@@ -1,0 +1,190 @@
+{
+  "id": "NORTHSTAR-SPEC-KIT-ADAPTER-001",
+  "observed_at": "2026-10-04",
+  "fixture_status": "synthetic_enterprise_adapter_around_observed_spec_kit_v1_1_0",
+  "framework_snapshot_id": "SPEC-KIT-SNAPSHOT-2026-10-04",
+  "context": {
+    "context_id": "CTX-AI-2310@3-training",
+    "source_ids": ["TICKET-AI-2310", "AI-030", "DOMAIN-DOC-11", "ADR-058", "DISCOVERY-AI-2310", "PROJECT-QUALITY-004", "SEC-DOC-009", "PERF-TARGET-003"],
+    "policy_references": ["AI-030@7-training"],
+    "repository_revision": "repo-docs@a17-training",
+    "source_manifest_digest": "sha256:cca6e96473a0cc69dc099fa8097cec37f5cf3b86a6c1c1cf643c2dd3b26f5dab"
+  },
+  "constitution_principles": [
+    {"id": "PRINCIPLE-001", "kind": "PROJECT_OWNED", "statement": "Preserve established service boundaries.", "owner": "Architecture Council", "source": "ADR-058@3-training", "authority": "project_architecture"},
+    {"id": "PRINCIPLE-002", "kind": "PROJECT_OWNED", "statement": "Verify changed behavior independently.", "owner": "Quality Engineering", "source": "PROJECT-QUALITY-004@2-training", "authority": "project_quality"},
+    {"id": "AI-030", "kind": "INHERITED_CONSTRAINT", "statement": "Human review precedes consequential authoritative mutation.", "owner": "AI Governance", "source": "governance-registry:ai/AI-030@7-training", "authority": "enterprise_policy"},
+    {"id": "CTX-AI-2310", "kind": "GENERATED_CONTEXT", "statement": "The active feature uses the resolved AI-2310 context.", "owner": "Governance Platform", "source": "CTX-AI-2310@3-training", "authority": "effective_context"}
+  ],
+  "specification": {
+    "id": "SPEC-AI-2310",
+    "revision": "3-training",
+    "template_version": "enterprise-spec-kit-spec@3-training",
+    "template_digest": "sha256:3945437fc35cd30a5b2bf7beea680337c3516826d3efa5a6b92c4a7eca1ba28e",
+    "content_digest": "sha256:502854696a356036851b353840e4e1d4e71a273c971ade5130b3e39082b55479",
+    "supported_population": ["english_machine_readable_pdf"],
+    "manual_review_population": ["images", "handwritten_forms", "french_documents", "unrecognized_types"],
+    "requirements": [
+      {"id": "REQ-DOC-001", "owner": "Underwriting Operations", "source": "DOMAIN-DOC-11@2-training", "revision": 1, "implementation_choices": []},
+      {"id": "REQ-DOC-002", "owner": "Underwriting Operations", "source": "DOMAIN-DOC-11@2-training", "revision": 1, "implementation_choices": []},
+      {"id": "REQ-DOC-003", "owner": "Underwriting Risk", "source": "AI-030@7-training", "revision": 1, "implementation_choices": []},
+      {"id": "REQ-DOC-004", "owner": "Quality Engineering", "source": "PROJECT-QUALITY-004@2-training", "revision": 1, "implementation_choices": []},
+      {"id": "SEC-DOC-001", "owner": "Product Security", "source": "SEC-DOC-009@4-training", "revision": 1, "implementation_choices": []},
+      {"id": "PERF-DOC-001", "owner": "Service Reliability", "source": "PERF-TARGET-003@1-training", "revision": 1, "implementation_choices": []}
+    ],
+    "open_questions": [
+      {"id": "Q-DOC-001", "status": "OPEN", "owner": "Underwriting Risk and AI Governance", "blocks": ["automatic_requirement_satisfaction"], "decision_receipt": null}
+    ],
+    "capability_gates": {
+      "classification_proposal": "READY",
+      "manual_review_routing": "READY",
+      "automatic_requirement_satisfaction": "BLOCKED"
+    },
+    "acceptance_criteria": [
+      {"id": "AC-DOC-001", "requirement_ids": ["REQ-DOC-001", "REQ-DOC-004"], "oracle": "proposal_contract_and_provenance"},
+      {"id": "AC-DOC-002", "requirement_ids": ["REQ-DOC-002"], "oracle": "unsupported_retained_without_mutation"},
+      {"id": "AC-DOC-003", "requirement_ids": ["REQ-DOC-003"], "oracle": "ambiguous_candidates_and_zero_auto_satisfaction"},
+      {"id": "AC-DOC-004", "requirement_ids": ["SEC-DOC-001"], "oracle": "content_cannot_change_control_plane"},
+      {"id": "AC-DOC-005", "requirement_ids": ["PERF-DOC-001"], "oracle": "protected_target_reference_preserved"}
+    ]
+  },
+  "clarification_policy": {
+    "authorized_answer": "encode_answer_and_provenance_back_into_spec",
+    "unresolved_or_unauthorized": "preserve_open_question_and_block_affected_capability",
+    "agent_may_invent_answer": false
+  },
+  "plan": {
+    "id": "PLAN-AI-2310",
+    "revision": "2-training",
+    "specification_revision": "SPEC-AI-2310@3-training",
+    "repository_revision": "repo-docs@a17-training",
+    "repository_freshness": {
+      "observed_revision": "repo-docs@a17-training",
+      "current_revision": "repo-docs@a17-training",
+      "discovery_scope": ["src/documents/**", "contracts/**", "src/underwriting/submission.py"],
+      "changed_paths": [],
+      "decision": "CURRENT"
+    },
+    "current_truth": ["existing_ocr", "document_type_enum", "submission_service_authority", "document_agent_without_mutation_tool"],
+    "proposed_truth": ["classification_proposal", "supported_type_validation", "ambiguity_state", "review_contract", "independent_evidence"],
+    "requirement_dispositions": [
+      {"requirement_id": "REQ-DOC-001", "disposition": "implement", "work_item_ids": ["P001", "P002"]},
+      {"requirement_id": "REQ-DOC-002", "disposition": "implement", "work_item_ids": ["P002", "P003"]},
+      {"requirement_id": "REQ-DOC-003", "disposition": "implement", "work_item_ids": ["P003", "P004"]},
+      {"requirement_id": "REQ-DOC-004", "disposition": "implement", "work_item_ids": ["P001", "P002", "P005"]},
+      {"requirement_id": "SEC-DOC-001", "disposition": "implement", "work_item_ids": ["P003", "P005"]},
+      {"requirement_id": "PERF-DOC-001", "disposition": "external_control", "work_item_ids": ["P005"]}
+    ],
+    "work_items": [
+      {"id": "P001", "basis": ["REQ-DOC-001", "REQ-DOC-004"], "capability": "classification_contract", "justified": true},
+      {"id": "P002", "basis": ["REQ-DOC-001", "REQ-DOC-002", "REQ-DOC-004"], "capability": "classifier_adapter", "justified": true},
+      {"id": "P003", "basis": ["REQ-DOC-002", "REQ-DOC-003", "SEC-DOC-001"], "capability": "deterministic_validation", "justified": true},
+      {"id": "P004", "basis": ["REQ-DOC-003"], "capability": "review_contract", "justified": true},
+      {"id": "P005", "basis": ["REQ-DOC-001", "REQ-DOC-002", "REQ-DOC-003", "REQ-DOC-004", "SEC-DOC-001", "PERF-DOC-001"], "capability": "independent_evidence", "justified": true}
+    ],
+    "architecture_changes": [{"id": "CONTRACT-DOC-REVIEW", "status": "PROPOSED", "approved_by": null}],
+    "duplicate_capabilities": [],
+    "protected_decision_changes": []
+  },
+  "tasks": [
+    {"id": "T001", "basis": ["REQ-DOC-001", "REQ-DOC-004"], "requires_awu": true, "work_unit_id": "AWU-DOC-CONTRACT", "risk": "shared_contract", "writable_paths": ["src/documents/models.py", "tests/documents/test_models.py"], "protected_paths": ["src/auth/**", "src/underwriting/submission.py"], "required_evidence": ["contract_test", "provenance_schema_test"], "evidence_role": "produce_test_inputs_not_attest_results", "new_dependency": false, "dependency_proposal_id": null},
+    {"id": "T002", "basis": ["REQ-DOC-001", "REQ-DOC-002", "REQ-DOC-004"], "requires_awu": true, "work_unit_id": "AWU-DOC-CLASSIFICATION", "risk": "consequential_ai", "writable_paths": ["src/documents/classification/**", "tests/documents/classification/**"], "protected_paths": ["src/auth/**", "src/underwriting/submission.py"], "required_evidence": ["classification_evaluation", "provenance_test"], "evidence_role": "produce_test_inputs_not_attest_results", "new_dependency": false, "dependency_proposal_id": null},
+    {"id": "T003", "basis": ["REQ-DOC-002", "REQ-DOC-003", "SEC-DOC-001"], "requires_awu": true, "work_unit_id": "AWU-DOC-VALIDATION", "risk": "security_boundary", "writable_paths": ["src/documents/validation.py", "tests/documents/test_validation.py"], "protected_paths": ["src/auth/**", "src/underwriting/submission.py"], "required_evidence": ["domain_validation_test", "prompt_injection_test"], "evidence_role": "produce_test_inputs_not_attest_results", "new_dependency": false, "dependency_proposal_id": null},
+    {"id": "T004", "basis": ["REQ-DOC-003"], "requires_awu": true, "work_unit_id": "AWU-DOC-REVIEW", "risk": "cross_repository_contract", "writable_paths": ["src/documents/review_client.py", "contracts/review-request.schema.json", "tests/contracts/**"], "protected_paths": ["src/auth/**", "src/underwriting/submission.py"], "required_evidence": ["review_contract_test", "ambiguity_routing_test"], "evidence_role": "produce_test_inputs_not_attest_results", "new_dependency": false, "dependency_proposal_id": null},
+    {"id": "T005", "basis": ["REQ-DOC-001", "REQ-DOC-002", "REQ-DOC-003", "REQ-DOC-004", "SEC-DOC-001", "PERF-DOC-001"], "requires_awu": true, "work_unit_id": "AWU-DOC-EVIDENCE", "risk": "evidence", "writable_paths": ["tests/evaluation/**", "evidence/AI-2310/**"], "protected_paths": ["src/**"], "required_evidence": ["evidence_manifest_validation", "evidence_subject_binding_test"], "evidence_role": "author_harness_and_manifest_schema_never_self_attest", "new_dependency": false, "dependency_proposal_id": null},
+    {"id": "T006", "basis": ["REQ-DOC-002", "REQ-DOC-003"], "requires_awu": false, "work_unit_id": null, "risk": "documentation", "writable_paths": ["docs/runbooks/document-triage.md"], "protected_paths": ["src/**"], "new_dependency": false, "dependency_proposal_id": null}
+  ],
+  "awu_policy": {
+    "may_decide": ["internal_structure", "helper_functions", "test_organization"],
+    "may_propose": ["model_provider_change", "contract_change", "new_dependency"],
+    "may_not_decide": ["automatic_requirement_satisfaction", "authorization_semantics", "policy_exception", "architecture_approval", "release"],
+    "stop_conditions": ["requirement_conflict", "contract_change_required", "architecture_change_required", "authorization_change_required", "unsupported_population_discovered", "new_external_dependency_required"],
+    "evidence_assignment": "claim_specific_per_task",
+    "self_attestation_allowed": false
+  },
+  "work_units": [
+    {"id": "AWU-DOC-CONTRACT", "task_ids": ["T001"], "requirements": ["REQ-DOC-001", "REQ-DOC-004"], "writable_paths": ["src/documents/models.py", "tests/documents/test_models.py"], "protected_paths": ["src/auth/**", "src/underwriting/submission.py"], "may_not_decide": ["automatic_requirement_satisfaction", "authorization_semantics", "policy_exception", "architecture_approval", "release"], "stop_conditions": ["requirement_conflict", "contract_change_required", "architecture_change_required", "authorization_change_required", "unsupported_population_discovered", "new_external_dependency_required"], "required_evidence": ["contract_test", "provenance_schema_test"], "evidence_role": "produce_test_inputs_not_attest_results"},
+    {"id": "AWU-DOC-CLASSIFICATION", "task_ids": ["T002"], "requirements": ["REQ-DOC-001", "REQ-DOC-002", "REQ-DOC-004"], "writable_paths": ["src/documents/classification/**", "tests/documents/classification/**"], "protected_paths": ["src/auth/**", "src/underwriting/submission.py"], "may_not_decide": ["automatic_requirement_satisfaction", "authorization_semantics", "policy_exception", "architecture_approval", "release"], "stop_conditions": ["requirement_conflict", "contract_change_required", "architecture_change_required", "authorization_change_required", "unsupported_population_discovered", "new_external_dependency_required"], "required_evidence": ["classification_evaluation", "provenance_test"], "evidence_role": "produce_test_inputs_not_attest_results"},
+    {"id": "AWU-DOC-VALIDATION", "task_ids": ["T003"], "requirements": ["REQ-DOC-002", "REQ-DOC-003", "SEC-DOC-001"], "writable_paths": ["src/documents/validation.py", "tests/documents/test_validation.py"], "protected_paths": ["src/auth/**", "src/underwriting/submission.py"], "may_not_decide": ["automatic_requirement_satisfaction", "authorization_semantics", "policy_exception", "architecture_approval", "release"], "stop_conditions": ["requirement_conflict", "contract_change_required", "architecture_change_required", "authorization_change_required", "unsupported_population_discovered", "new_external_dependency_required"], "required_evidence": ["domain_validation_test", "prompt_injection_test"], "evidence_role": "produce_test_inputs_not_attest_results"},
+    {"id": "AWU-DOC-REVIEW", "task_ids": ["T004"], "requirements": ["REQ-DOC-003"], "writable_paths": ["src/documents/review_client.py", "contracts/review-request.schema.json", "tests/contracts/**"], "protected_paths": ["src/auth/**", "src/underwriting/submission.py"], "may_not_decide": ["automatic_requirement_satisfaction", "authorization_semantics", "policy_exception", "architecture_approval", "release"], "stop_conditions": ["requirement_conflict", "contract_change_required", "architecture_change_required", "authorization_change_required", "unsupported_population_discovered", "new_external_dependency_required"], "required_evidence": ["review_contract_test", "ambiguity_routing_test"], "evidence_role": "produce_test_inputs_not_attest_results"},
+    {"id": "AWU-DOC-EVIDENCE", "task_ids": ["T005"], "requirements": ["REQ-DOC-001", "REQ-DOC-002", "REQ-DOC-003", "REQ-DOC-004", "SEC-DOC-001", "PERF-DOC-001"], "writable_paths": ["tests/evaluation/**", "evidence/AI-2310/**"], "protected_paths": ["src/**"], "may_not_decide": ["automatic_requirement_satisfaction", "authorization_semantics", "policy_exception", "architecture_approval", "release"], "stop_conditions": ["requirement_conflict", "contract_change_required", "architecture_change_required", "authorization_change_required", "unsupported_population_discovered", "new_external_dependency_required"], "required_evidence": ["evidence_manifest_validation", "evidence_subject_binding_test"], "evidence_role": "author_harness_and_manifest_schema_never_self_attest"}
+  ],
+  "evidence_manifest": {
+    "implementation_revision": "impl-docs@c21-training",
+    "release_authority": "delivery_control_plane",
+    "production_ready": false,
+    "records": [
+      {"id": "REPORT-AGENT-001", "kind": "completion_report", "producer": "coding-agent", "subject_revision": "impl-docs@c21-training", "result": "tasks_complete", "independent": false},
+      {"id": "EVID-CONTRACT-001", "kind": "contract_test", "producer": "trusted-ci", "subject_revision": "impl-docs@c21-training", "result": "pass", "independent": true},
+      {"id": "EVID-PROVENANCE-SCHEMA-001", "kind": "provenance_schema_test", "producer": "trusted-ci", "subject_revision": "impl-docs@c21-training", "result": "pass", "independent": true},
+      {"id": "EVID-EVAL-001", "kind": "classification_evaluation", "producer": "quality-evaluation-service", "subject_revision": "impl-docs@c21-training", "result": "fixture_population_pass", "independent": true},
+      {"id": "EVID-DOMAIN-001", "kind": "domain_validation_test", "producer": "trusted-ci", "subject_revision": "impl-docs@c21-training", "result": "pass", "independent": true},
+      {"id": "EVID-INJECTION-001", "kind": "prompt_injection_test", "producer": "trusted-ci", "subject_revision": "impl-docs@c21-training", "result": "pass", "independent": true},
+      {"id": "EVID-PROVENANCE-001", "kind": "provenance_test", "producer": "trusted-ci", "subject_revision": "impl-docs@c21-training", "result": "pass", "independent": true},
+      {"id": "EVID-REVIEW-CONTRACT-001", "kind": "review_contract_test", "producer": "trusted-ci", "subject_revision": "impl-docs@c21-training", "result": "pass", "independent": true},
+      {"id": "EVID-AMBIGUITY-001", "kind": "ambiguity_routing_test", "producer": "quality-evaluation-service", "subject_revision": "impl-docs@c21-training", "result": "fixture_population_pass", "independent": true},
+      {"id": "EVID-MANIFEST-001", "kind": "evidence_manifest_validation", "producer": "trusted-ci", "subject_revision": "impl-docs@c21-training", "result": "pass", "independent": true},
+      {"id": "EVID-SUBJECT-001", "kind": "evidence_subject_binding_test", "producer": "trusted-ci", "subject_revision": "impl-docs@c21-training", "result": "pass", "independent": true}
+    ],
+    "claim": "synthetic_fixture_evidence_not_production_release_evidence"
+  },
+  "convergence": {
+    "command_scope": "speckit.converge",
+    "mode": "append_only_tasks",
+    "spec_mutations": [],
+    "plan_mutations": [],
+    "remaining_gaps": [{"id": "GAP-001", "source_ref": "REQ-DOC-003", "action": "append_task", "task_id": "T007"}],
+    "semantic_change_route": "formal_change_request_to_accountable_owner",
+    "broader_specification_evolution": {
+      "model": "controlled_flow_back",
+      "may_update": ["spec.md", "plan.md", "tasks.md", "implementation"],
+      "condition": "separate_change_workflow_with_accountable_owner_and_revalidation"
+    },
+    "state": "READY_FOR_OWNER_REVIEW"
+  },
+  "multi_repository": {
+    "parent_change_id": "AI-2310",
+    "canonical_requirement_ids": ["REQ-DOC-001", "REQ-DOC-002", "REQ-DOC-003", "REQ-DOC-004", "SEC-DOC-001", "PERF-DOC-001"],
+    "contract": {"id": "CONTRACT-DOC-REVIEW", "revision": "1-training", "status": "PROPOSED"},
+    "children": [
+      {"repository": "northstar/document-processing", "requirement_ids": ["REQ-DOC-001", "REQ-DOC-002", "REQ-DOC-004", "SEC-DOC-001", "PERF-DOC-001"], "semantic_overrides": [], "spec_kit_change": "001-broker-document-classification"},
+      {"repository": "northstar/underwriting-review", "requirement_ids": ["REQ-DOC-003"], "semantic_overrides": [], "spec_kit_change": "014-ambiguous-document-review"}
+    ],
+    "integration_evidence_required": true
+  },
+  "agent_instruction_adapters": {
+    "canonical_rule_id": "AGENT-SEC-004",
+    "canonical_revision": "3-training",
+    "feature_semantics_in_instructions": false,
+    "generated": [
+      {"target": "AGENTS.md", "source_revision": "3-training"},
+      {"target": "CLAUDE.md", "source_revision": "3-training"}
+    ]
+  },
+  "extension_trust": {
+    "catalogs": [
+      {"id": "builtin-default", "owner_vetted": true, "install_allowed": true, "artifact_digest_required": true},
+      {"id": "builtin-community", "owner_vetted": false, "install_allowed": false, "artifact_digest_required": true}
+    ],
+    "supported_hook_options": [
+      {"event": "before_specify", "control": "effective_context_validation", "status": "architectural_option_not_installed_in_fixture"},
+      {"event": "before_plan", "control": "repository_context_freshness", "status": "architectural_option_not_installed_in_fixture"},
+      {"event": "before_tasks", "control": "requirement_traceability", "status": "architectural_option_not_installed_in_fixture"}
+    ],
+    "external_controls": ["enterprise_policy_registry", "execution_credentials", "approval_receipts", "release_authority"],
+    "boundary": "Hooks may call trusted controls but do not become the authority they invoke."
+  },
+  "risk_route": {
+    "determined_by": "trusted_policy_engine",
+    "governance_depth": "consequential",
+    "sdd_mode": "governed",
+    "execution_topology": "multi_agent",
+    "signals": ["ai_behavior_change", "regulated_data", "cross_repository"],
+    "basis": "RISK-POLICY-004@5-training"
+  },
+  "authority_boundary": {
+    "framework_may_generate": ["constitution_proposal", "specification", "clarifications", "plan", "checklists", "tasks", "analysis_findings", "code", "convergence_tasks"],
+    "framework_may_not_approve": ["enterprise_policy", "architecture_change", "policy_exception", "execution_permission", "merge", "release", "automatic_requirement_satisfaction"],
+    "framework_release_authority": false
+  }
+}
