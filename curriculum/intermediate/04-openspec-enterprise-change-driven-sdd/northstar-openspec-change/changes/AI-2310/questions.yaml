@@ -1,0 +1,11 @@
+questions:
+  - id: Q-AI2310-004
+    question: May high-confidence classifications bypass review?
+    owners:
+      - enterprise_ai_governance
+      - underwriting_risk
+    status: OPEN
+    blocks:
+      - automatic_classification_persistence
+    safe_default: KEEP_BLOCKED
+

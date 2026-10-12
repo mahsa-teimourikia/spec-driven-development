@@ -1,0 +1,20 @@
+{
+  "fixture_status": "intentionally_unsafe_candidate_generated_from_reference",
+  "base": "../reference/change-portfolio.json",
+  "mutations": [
+    "protected_authority_mutation",
+    "stale_baseline_revision",
+    "from_state_mismatch",
+    "concurrent_conflict_hidden",
+    "architecture_self_approved",
+    "task_change_ancestry_missing",
+    "delta_evidence_missing",
+    "regression_evidence_missing",
+    "archive_before_owner_review",
+    "child_weakens_parent",
+    "open_question_collapsed",
+    "agent_self_transitions_archived",
+    "evidence_subject_mismatch",
+    "baseline_mutated_early"
+  ]
+}

@@ -659,6 +659,60 @@ const course13 = {
   }
 };
 
+const course14 = {
+  id: 'c14', course: 14, level: 'intermediate', part: 'III · Agentic execution & SDD frameworks', status: 'available',
+  title: 'OpenSpec for Enterprise Change-Driven Spec-Driven Development',
+  summary: 'Govern brownfield evolution as exact baseline truth plus concurrent semantic deltas, bounded work, independent evidence, and externally authorized integration.',
+  outcomes: [
+    'Pin OpenSpec v1.14.1 artifact, delta, sync, and archive semantics to official-source digests.',
+    'Distinguish approved baseline, repository reality, proposed target, and verified target truth.',
+    'Validate ADDED, MODIFIED, REMOVED, and RENAMED operations against exact baseline state.',
+    'Detect semantic conflicts between concurrent changes even when Git has no text conflict.',
+    'Preserve enterprise policy through effective context rather than copied requirement text.',
+    'Route architecture proposals and open questions to accountable owners.',
+    'Enrich OpenSpec tasks into bounded AWUs with exact change ancestry and claim-specific evidence.',
+    'Cover changed claims and affected baseline invariants with independent evidence.',
+    'Keep sync, baseline integration, archive, and production release as distinct governed events.',
+    'Test the adapter with ten golden scenarios and 53 labelled control mutations.'
+  ],
+  readme: `${REPO}/blob/main/curriculum/intermediate/04-openspec-enterprise-change-driven-sdd/README.md`,
+  notebook: `${REPO}/blob/main/curriculum/intermediate/04-openspec-enterprise-change-driven-sdd/northstar-openspec-change/openspec_enterprise_change.ipynb`,
+  lab: `${REPO}/blob/main/curriculum/intermediate/04-openspec-enterprise-change-driven-sdd/northstar-openspec-change/lab.py`,
+  repoFixture: `${REPO}/tree/main/curriculum/intermediate/04-openspec-enterprise-change-driven-sdd/northstar-openspec-change`,
+  run: 'python3 curriculum/intermediate/04-openspec-enterprise-change-driven-sdd/northstar-openspec-change/lab.py',
+  labs: [
+    {
+      title: 'Lab A — Validate baseline-relative change packages',
+      description: 'Apply AI-2310 to a candidate target without mutating baseline truth, inspect concurrent conflicts, validate AWUs and evidence, and exercise the conformance and mutation suites.',
+      command: 'python3 curriculum/intermediate/04-openspec-enterprise-change-driven-sdd/northstar-openspec-change/lab.py',
+      links: [['View the validator', `${REPO}/blob/main/curriculum/intermediate/04-openspec-enterprise-change-driven-sdd/northstar-openspec-change/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/intermediate/04-openspec-enterprise-change-driven-sdd/northstar-openspec-change/openspec_enterprise_change.ipynb`]]
+    },
+    {
+      title: 'Lab B — Resolve concurrent Northstar changes',
+      description: 'Compare AI-2310 and AI-2331 against the same baseline, record the semantic conflict, block unsafe work, and preserve external integration authority.',
+      command: 'Complete the starter portfolio, run Lab A, then compare with the reference package.',
+      links: [['Open the workshop', `${REPO}/tree/main/curriculum/intermediate/04-openspec-enterprise-change-driven-sdd/northstar-openspec-change`], ['Complete the starter package', `${REPO}/tree/main/curriculum/intermediate/04-openspec-enterprise-change-driven-sdd/northstar-openspec-change/workshop/starter`], ['Inspect the reference package', `${REPO}/tree/main/curriculum/intermediate/04-openspec-enterprise-change-driven-sdd/northstar-openspec-change/reference`]]
+    }
+  ],
+  references: [
+    ['OpenSpec repository', 'https://github.com/Fission-AI/OpenSpec'],
+    ['OpenSpec concepts', 'https://github.com/Fission-AI/OpenSpec/blob/v1.14.1/docs/concepts.md'],
+    ['OpenSpec workflows', 'https://github.com/Fission-AI/OpenSpec/blob/v1.14.1/docs/workflows.md'],
+    ['OpenSpec commands', 'https://github.com/Fission-AI/OpenSpec/blob/v1.14.1/docs/commands.md'],
+    ['OpenSpec spec-driven schema', 'https://github.com/Fission-AI/OpenSpec/blob/v1.14.1/schemas/spec-driven/schema.yaml']
+  ],
+  checkpoint: {
+    question: 'AI-2310 and AI-2331 both validly modify REQ-DOC-014@3 in separate change directories. Git reports no conflict. What should happen?',
+    options: [
+      'Record a semantic conflict, route an accountable disposition, and block the affected change until ordering or rebase is complete.',
+      'Apply both because their files differ.',
+      'Let the implementation agent choose which requirement wins.'
+    ],
+    answer: 0,
+    explanation: 'Baseline validity is not joint compatibility. Shared behavior needs semantic conflict analysis and an accountable ordering, merge, split, redesign, or rejection decision.'
+  }
+};
+
 function planned(course, level, part, title, summary) {
   return {
     id: `c${String(course).padStart(2, '0')}`, course, level, part,
@@ -683,7 +737,7 @@ const LESSONS = [
   course11,
   course12,
   course13,
-  planned(14, 'intermediate', 'III · Agentic execution & SDD frameworks', 'OpenSpec', 'Manage current specifications and explicit change deltas for brownfield work.'),
+  course14,
   planned(15, 'intermediate', 'III · Agentic execution & SDD frameworks', 'Kiro Specs', 'Apply feature, bug-fix, and quick-spec workflows with appropriate approval depth.'),
   planned(16, 'intermediate', 'III · Agentic execution & SDD frameworks', 'Agent instructions & custom enterprise adapters', 'Combine scoped cross-agent guidance with versioned context, evidence, conformance, and upgrade adapters.'),
   planned(17, 'intermediate', 'IV · Agentic PDLC', 'Idea → discovery → spec → design → implementation', 'Build an end-to-end flow with explicit state, owners, gates, and handoffs.'),

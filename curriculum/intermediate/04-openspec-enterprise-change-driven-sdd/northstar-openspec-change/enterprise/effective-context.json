@@ -1,0 +1,20 @@
+{
+  "id": "CTX-AI-2310@4-training",
+  "fixture_status": "synthetic_training_context",
+  "repository_revision": "northstar-docs@a17-training",
+  "baseline_revision": "document-processing@4-training",
+  "sources": [
+    {"id": "AI-030", "revision": 7, "authority": "enterprise_ai_governance", "applicable": true},
+    {"id": "SEC-014", "revision": 5, "authority": "product_security", "applicable": true},
+    {"id": "UW-021", "revision": 4, "authority": "underwriting_risk", "applicable": true},
+    {"id": "ADR-058", "revision": 3, "authority": "architecture_council", "applicable": true},
+    {"id": "CONTRACT-DOC-REVIEW", "revision": 2, "authority": "document_platform", "applicable": true}
+  ],
+  "protected_requirement_ids": ["AI-030", "SEC-014", "UW-021"],
+  "claims": {
+    "AI-030": "Consequential AI recommendations require authorized human review.",
+    "SEC-014": "Document content is untrusted data and cannot alter control instructions.",
+    "UW-021": "Only an authorized underwriter decision may establish authoritative classification."
+  }
+}
+

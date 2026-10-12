@@ -4,7 +4,7 @@
 
 ## Start here
 
-Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through [Course 12: SDD Framework Landscape & Choosing an Enterprise Operating Model](curriculum/intermediate/02-sdd-framework-landscape-enterprise-operating-model/README.md), then complete [Course 13: GitHub Spec Kit for Enterprise Spec-Driven Development](curriculum/intermediate/03-github-spec-kit-enterprise-sdd/README.md) with its guided [notebook](curriculum/intermediate/03-github-spec-kit-enterprise-sdd/northstar-spec-kit-adapter/spec_kit_enterprise_adapter.ipynb), deterministic [adapter lab](curriculum/intermediate/03-github-spec-kit-enterprise-sdd/northstar-spec-kit-adapter/lab.py), realistic [AI-2310 workshop](curriculum/intermediate/03-github-spec-kit-enterprise-sdd/northstar-spec-kit-adapter/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
+Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through [Course 13: GitHub Spec Kit for Enterprise Spec-Driven Development](curriculum/intermediate/03-github-spec-kit-enterprise-sdd/README.md), then complete [Course 14: OpenSpec for Enterprise Change-Driven Spec-Driven Development](curriculum/intermediate/04-openspec-enterprise-change-driven-sdd/README.md) with its guided [notebook](curriculum/intermediate/04-openspec-enterprise-change-driven-sdd/northstar-openspec-change/openspec_enterprise_change.ipynb), deterministic [change-governance lab](curriculum/intermediate/04-openspec-enterprise-change-driven-sdd/northstar-openspec-change/lab.py), concurrent-change [workshop](curriculum/intermediate/04-openspec-enterprise-change-driven-sdd/northstar-openspec-change/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
 
 This is not simply a tutorial for one specification framework. The central skill is turning organizational intent, architecture rules, product requirements, and engineering constraints into a hierarchy of durable specifications that agents can execute—and humans can govern.
 
@@ -201,9 +201,24 @@ Course 13 composes GitHub Spec Kit with enterprise authority and delivery contro
 - constrain convergence to append repair work rather than rewrite approved intent; and
 - test template and workflow behavior with eight golden scenarios and 36 control mutations.
 
+## Course 14 outcome
+
+Course 14 applies OpenSpec's change-oriented model to concurrent brownfield work. You will:
+
+- distinguish approved baseline, repository reality, proposed target, and verified target truth;
+- pin the official OpenSpec v1.14.1 schema and lifecycle semantics to exact source digests;
+- validate `ADDED`, `MODIFIED`, `REMOVED`, and `RENAMED` deltas against exact baseline revisions;
+- detect shared-requirement and cross-artifact semantic conflicts between concurrent changes;
+- preserve company policy through revision-bound effective context rather than copied text;
+- keep architecture proposals, open questions, tasks, AWUs, evidence, integration, archive, and release under their correct authorities;
+- scope evidence to changed claims plus affected baseline invariants;
+- produce candidate target truth without mutating the approved baseline;
+- block child-repository weakening and agent self-approval; and
+- evaluate the training adapter with ten golden scenarios and 53 labelled control mutations.
+
 ## Run locally
 
-Everything in Courses 01–13 is credential-free and uses the Python standard library.
+Everything in Courses 01–14 is credential-free and uses the Python standard library.
 
 ```bash
 python3 curriculum/beginner/01-why-agentic-coding-changes-pdlc/lab.py
@@ -220,6 +235,7 @@ python3 curriculum/beginner/10-specification-to-implementation-plan/lab.py
 python3 curriculum/intermediate/01-multi-agent-coding-workflows-coordination/lab.py
 python3 curriculum/intermediate/02-sdd-framework-landscape-enterprise-operating-model/lab.py
 python3 curriculum/intermediate/03-github-spec-kit-enterprise-sdd/northstar-spec-kit-adapter/lab.py
+python3 curriculum/intermediate/04-openspec-enterprise-change-driven-sdd/northstar-openspec-change/lab.py
 python3 -m unittest discover -s tests -v
 python3 scripts/validate_course.py
 ```

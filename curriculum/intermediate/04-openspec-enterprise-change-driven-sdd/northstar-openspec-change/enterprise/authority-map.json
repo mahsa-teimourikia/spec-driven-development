@@ -1,0 +1,28 @@
+{
+  "artifact_authorities": {
+    "enterprise_policy": "enterprise_ai_governance",
+    "security_standard": "product_security",
+    "domain_rule": "underwriting_risk",
+    "project_baseline": "document_platform",
+    "change_proposal": "change_owners",
+    "architecture_decision": "architecture_council",
+    "integration": "baseline_owner",
+    "release": "delivery_control_plane"
+  },
+  "decision_owners": {
+    "business_scope": ["underwriting_operations"],
+    "architecture": ["architecture_council"],
+    "prompt_injection_controls": ["product_security"],
+    "automatic_authoritative_classification": ["enterprise_ai_governance", "underwriting_risk"],
+    "baseline_integration": ["document_platform"],
+    "release": ["release_owner"]
+  },
+  "agent_may_not_decide": [
+    "policy_exception",
+    "architecture_approval",
+    "requirement_approval",
+    "baseline_integration",
+    "archive_authorization",
+    "production_release"
+  ]
+}
