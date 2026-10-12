@@ -2274,7 +2274,7 @@ def check_course_14_openspec() -> list[str]:
         errors.append("Course 14 unsafe candidate must retain its intended change-control failures")
     if report.get("conformance") != {"passed": 10, "total": 10}:
         errors.append("Course 14 golden conformance suite must retain ten passing scenarios")
-    if report.get("evaluation") != {"passed": 53, "total": 53}:
+    if report.get("evaluation") != {"passed": 61, "total": 61}:
         errors.append("Course 14 mutation evaluation must retain 53 detected cases")
     if report.get("integration") != "OWNER_REVIEW_REQUIRED":
         errors.append("Course 14 must keep baseline integration under external owner authority")

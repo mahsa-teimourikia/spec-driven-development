@@ -673,7 +673,7 @@ const course14 = {
     'Enrich OpenSpec tasks into bounded AWUs with exact change ancestry and claim-specific evidence.',
     'Cover changed claims and affected baseline invariants with independent evidence.',
     'Keep sync, baseline integration, archive, and production release as distinct governed events.',
-    'Test the adapter with ten golden scenarios and 53 labelled control mutations.'
+    'Test the adapter with ten golden scenarios and 61 labelled control mutations.'
   ],
   readme: `${REPO}/blob/main/curriculum/intermediate/04-openspec-enterprise-change-driven-sdd/README.md`,
   notebook: `${REPO}/blob/main/curriculum/intermediate/04-openspec-enterprise-change-driven-sdd/northstar-openspec-change/openspec_enterprise_change.ipynb`,

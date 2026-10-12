@@ -13,7 +13,7 @@ changes/
   AI-2331 conflicting automated-triage proposal
 
 enterprise/
-  revision-bound effective context and authority map
+  revision-bound effective context, authority registry, and trusted receipt registry
 
 reference/
   conflict-aware portfolio, AWUs, evidence, and integration state
@@ -39,7 +39,7 @@ Expected summary:
 reference: READY_FOR_OWNER_REVIEW
 unsafe candidate: BLOCKED
 golden scenarios: 10/10
-control mutations: 53/53
+control mutations: 61/61
 ```
 
 `READY_FOR_OWNER_REVIEW` is deliberately weaker than approved, integrated, archived, or released.
@@ -53,7 +53,9 @@ control mutations: 53/53
 5. Remove the conflict records and observe `CONCURRENT_CHANGE_CONFLICT_UNRECORDED`.
 6. Remove `manual_fallback_regression` and observe that delta success is insufficient.
 7. Request archive without authorization and confirm the baseline remains unchanged.
-8. Complete the three TODOs in `workshop/starter/change-portfolio.json`.
+8. Change an evidence record's claim while keeping its evidence kind and observe exact subject-binding failure.
+9. Make `src/**` writable while keeping `src/auth/**` protected and observe pattern-overlap failure.
+10. Complete the three TODOs in `workshop/starter/change-portfolio.json`.
 
 ## Safety boundary
 
@@ -68,7 +70,7 @@ trusted application → validates, authorizes, integrates, archives, and release
 
 ## Interpreting the scores
 
-The 10/10 and 53/53 results measure exact outcomes on labelled training cases. They do not establish general semantic-conflict recall, production reliability, security certification, or OpenSpec vendor conformance.
+The 10/10 and 61/61 results measure exact outcomes on labelled training cases. They do not establish general semantic-conflict recall, production reliability, security certification, or OpenSpec vendor conformance.
 
 ## Optional real OpenSpec comparison
 
@@ -82,4 +84,3 @@ openspec status --change AI-2310
 ```
 
 Do not run archive against a real repository merely for the exercise. Archive mutates current specs and change history.
-

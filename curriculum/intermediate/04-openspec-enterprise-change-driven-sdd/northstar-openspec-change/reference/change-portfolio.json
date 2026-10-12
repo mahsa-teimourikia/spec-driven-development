@@ -24,7 +24,7 @@
       "base_digest": "sha256:de69589de34c575b23e0b9f05ca9d959b4be18d5373599beac669bc3df870b14",
       "context_id": "CTX-AI-2310@4-training",
       "state": "READY_FOR_OWNER_REVIEW",
-      "state_actor": "deterministic_training_adapter",
+      "state_actor": "adapter-course14",
       "proposal": {
         "digest": "sha256:3d694fddefd48ac1275a00d4ad9523f1e9f5acaf6d90a492489d187267115e31",
         "modified_capabilities": ["document-processing"],
@@ -103,7 +103,7 @@
       "base_digest": "sha256:de69589de34c575b23e0b9f05ca9d959b4be18d5373599beac669bc3df870b14",
       "context_id": "CTX-AI-2310@4-training",
       "state": "BLOCKED_PENDING_REBASE",
-      "state_actor": "deterministic_training_adapter",
+      "state_actor": "adapter-course14",
       "proposal": {"modified_capabilities": ["document-processing"], "new_capabilities": [], "out_of_scope": []},
       "deltas": [
         {
@@ -127,22 +127,28 @@
     {
       "id": "CONFLICT-AI-2310-AI-2331-01",
       "type": "SHARED_REQUIREMENT_MODIFICATION",
-      "changes": ["AI-2310@2-training", "AI-2331@1-training"],
-      "subjects": ["REQ-DOC-014@3", "INV-DOC-004", "INV-DOC-007"],
+      "changes": [
+        {"id": "AI-2310", "revision": "AI-2310@2-training"},
+        {"id": "AI-2331", "revision": "AI-2331@1-training"}
+      ],
+      "subjects": [{"id": "REQ-DOC-014", "revision": 3}],
       "status": "RECORDED",
       "disposition": "ORDER_AI_2310_THEN_REBASE_AI_2331",
-      "blocked_change": "AI-2331@1-training",
+      "blocked_change": {"id": "AI-2331", "revision": "AI-2331@1-training"},
       "owner": "document_platform",
       "agent_resolved": false
     },
     {
       "id": "CONFLICT-AI-2310-AI-2331-02",
       "type": "AUTHORITY_CONFLICT",
-      "changes": ["AI-2310@2-training", "AI-2331@1-training"],
+      "changes": [
+        {"id": "AI-2310", "revision": "AI-2310@2-training"},
+        {"id": "AI-2331", "revision": "AI-2331@1-training"}
+      ],
       "subjects": ["AI-030@7", "UW-021@4", "CONTRACT-DOC-REVIEW@2"],
       "status": "RECORDED",
       "disposition": "KEEP_AUTOMATIC_AUTHORITATIVE_PATH_BLOCKED",
-      "blocked_change": "AI-2331@1-training",
+      "blocked_change": {"id": "AI-2331", "revision": "AI-2331@1-training"},
       "owner": "enterprise_ai_governance",
       "agent_resolved": false
     }
@@ -152,30 +158,84 @@
     "AI-2331@1-training": ["INV-DOC-004", "INV-DOC-007", "CONTRACT-DOC-REVIEW@2"]
   },
   "work_units": [
-    {"id": "AWU-AI2310-CONTRACT", "task_ids": ["T001"], "change": "AI-2310@2-training", "requirements": ["REQ-DOC-014", "REQ-DOC-021"], "writable_paths": ["src/documents/models.py", "tests/documents/test_models.py"], "protected_paths": ["src/auth/**"], "stop_conditions": ["contract_change_required", "authority_conflict"], "required_evidence": ["contract_test", "provenance_schema_test"], "evidence_role": "produce_inputs_not_attest_results"},
-    {"id": "AWU-AI2310-CLASSIFIER", "task_ids": ["T002"], "change": "AI-2310@2-training", "requirements": ["REQ-DOC-014"], "writable_paths": ["src/documents/classification/**", "tests/documents/classification/test_evaluation.py"], "protected_paths": ["src/auth/**", "src/underwriting/**"], "stop_conditions": ["unsupported_population_discovered", "new_dependency_required"], "required_evidence": ["classification_evaluation", "supported_slice_test"], "evidence_role": "produce_candidate_and_inputs_not_attest_results"},
-    {"id": "AWU-AI2310-AMBIGUITY", "task_ids": ["T003"], "change": "AI-2310@2-training", "requirements": ["REQ-DOC-014", "REQ-DOC-016"], "writable_paths": ["src/documents/validation.py", "tests/documents/test_ambiguity.py"], "protected_paths": ["src/underwriting/submission.py"], "stop_conditions": ["requirement_conflict", "manual_fallback_unavailable"], "required_evidence": ["ambiguity_routing_test", "manual_fallback_regression"], "evidence_role": "produce_test_inputs_not_attest_results"},
-    {"id": "AWU-AI2310-SECURITY", "task_ids": ["T004"], "change": "AI-2310@2-training", "requirements": ["SEC-DOC-022"], "writable_paths": ["src/documents/prompt_boundary.py", "tests/security/test_document_injection.py"], "protected_paths": ["src/agent/control/**", "src/auth/**"], "stop_conditions": ["control_state_mutation_observed", "security_standard_unclear"], "required_evidence": ["prompt_injection_test", "control_state_integrity_test"], "evidence_role": "author_harness_never_self_attest"},
-    {"id": "AWU-AI2310-REVIEW", "task_ids": ["T005"], "change": "AI-2310@2-training", "requirements": ["REQ-DOC-014", "REQ-DOC-015", "INV-DOC-004"], "writable_paths": ["src/documents/review_adapter.py", "tests/documents/test_review_contract.py"], "protected_paths": ["src/auth/**", "src/underwriting/submission.py"], "stop_conditions": ["authorization_change_required", "contract_revision_changed"], "required_evidence": ["review_contract_test", "unauthorized_persistence_negative_test"], "evidence_role": "produce_adapter_and_tests_not_approval"},
-    {"id": "AWU-AI2310-EVIDENCE", "task_ids": ["T006"], "change": "AI-2310@2-training", "requirements": ["REQ-DOC-014", "REQ-DOC-021", "SEC-DOC-022", "INV-DOC-007"], "writable_paths": ["evals/document_classification/**", "evidence/schema/**"], "protected_paths": ["evidence/attestations/**", ".github/workflows/release.yml"], "stop_conditions": ["evidence_subject_mismatch", "independence_unavailable"], "required_evidence": ["evidence_manifest_validation", "subject_binding_test"], "evidence_role": "author_manifest_schema_never_issue_attestation"}
+    {
+      "id": "AWU-AI2310-CONTRACT", "task_ids": ["T001"], "change": "AI-2310@2-training", "requirements": ["REQ-DOC-014", "REQ-DOC-021"],
+      "writable_paths": ["src/documents/models.py", "tests/documents/test_models.py"], "protected_paths": ["src/auth/**"],
+      "observed_changed_paths": ["src/documents/models.py", "tests/documents/test_models.py"],
+      "stop_conditions": ["contract_change_required", "authority_conflict"], "required_evidence": ["contract_test", "provenance_schema_test"],
+      "evidence_obligations": [
+        {"kind": "contract_test", "requirement_id": "REQ-DOC-014", "acceptance_criterion_id": "AC-AUTHORIZED-REVIEW", "population": "synthetic_contract_cases", "environment": "ci-training"},
+        {"kind": "provenance_schema_test", "requirement_id": "REQ-DOC-021", "acceptance_criterion_id": "AC-PROVENANCE-RESOLVABLE", "population": "synthetic_proposals", "environment": "ci-training"}
+      ], "evidence_role": "produce_inputs_not_attest_results"
+    },
+    {
+      "id": "AWU-AI2310-CLASSIFIER", "task_ids": ["T002"], "change": "AI-2310@2-training", "requirements": ["REQ-DOC-014"],
+      "writable_paths": ["src/documents/classification/**", "tests/documents/classification/test_evaluation.py"], "protected_paths": ["src/auth/**", "src/underwriting/**"],
+      "observed_changed_paths": ["src/documents/classification/model.py", "tests/documents/classification/test_evaluation.py"],
+      "stop_conditions": ["unsupported_population_discovered", "new_dependency_required"], "required_evidence": ["classification_evaluation", "supported_slice_test"],
+      "evidence_obligations": [
+        {"kind": "classification_evaluation", "requirement_id": "REQ-DOC-014", "acceptance_criterion_id": "AC-SUPPORTED-PROPOSAL", "population": "supported_broker_documents", "environment": "offline-eval-training"},
+        {"kind": "supported_slice_test", "requirement_id": "REQ-DOC-014", "acceptance_criterion_id": "AC-SUPPORTED-SLICE", "population": "supported_broker_documents", "environment": "ci-training"}
+      ], "evidence_role": "produce_candidate_and_inputs_not_attest_results"
+    },
+    {
+      "id": "AWU-AI2310-AMBIGUITY", "task_ids": ["T003"], "change": "AI-2310@2-training", "requirements": ["REQ-DOC-014", "REQ-DOC-016"],
+      "writable_paths": ["src/documents/validation.py", "tests/documents/test_ambiguity.py"], "protected_paths": ["src/underwriting/submission.py"],
+      "observed_changed_paths": ["src/documents/validation.py", "tests/documents/test_ambiguity.py"],
+      "stop_conditions": ["requirement_conflict", "manual_fallback_unavailable"], "required_evidence": ["ambiguity_routing_test", "manual_fallback_regression"],
+      "evidence_obligations": [
+        {"kind": "ambiguity_routing_test", "requirement_id": "REQ-DOC-014", "acceptance_criterion_id": "AC-AMBIGUOUS-MANUAL", "population": "ambiguous_broker_documents", "environment": "ci-training"},
+        {"kind": "manual_fallback_regression", "requirement_id": "REQ-DOC-016", "acceptance_criterion_id": "AC-MANUAL-RECOVERY", "population": "unsupported_and_ambiguous_documents", "environment": "ci-training"}
+      ], "evidence_role": "produce_test_inputs_not_attest_results"
+    },
+    {
+      "id": "AWU-AI2310-SECURITY", "task_ids": ["T004"], "change": "AI-2310@2-training", "requirements": ["SEC-DOC-022"],
+      "writable_paths": ["src/documents/prompt_boundary.py", "tests/security/test_document_injection.py"], "protected_paths": ["src/agent/control/**", "src/auth/**"],
+      "observed_changed_paths": ["src/documents/prompt_boundary.py", "tests/security/test_document_injection.py"],
+      "stop_conditions": ["control_state_mutation_observed", "security_standard_unclear"], "required_evidence": ["prompt_injection_test", "control_state_integrity_test"],
+      "evidence_obligations": [
+        {"kind": "prompt_injection_test", "requirement_id": "SEC-DOC-022", "acceptance_criterion_id": "AC-DOCUMENT-IS-DATA", "population": "adversarial_document_content", "environment": "security-harness-training"},
+        {"kind": "control_state_integrity_test", "requirement_id": "SEC-DOC-022", "acceptance_criterion_id": "AC-CONTROL-STATE-IMMUTABLE", "population": "adversarial_document_content", "environment": "security-harness-training"}
+      ], "evidence_role": "author_harness_never_self_attest"
+    },
+    {
+      "id": "AWU-AI2310-REVIEW", "task_ids": ["T005"], "change": "AI-2310@2-training", "requirements": ["REQ-DOC-014", "REQ-DOC-015", "INV-DOC-004"],
+      "writable_paths": ["src/documents/review_adapter.py", "tests/documents/test_review_contract.py"], "protected_paths": ["src/auth/**", "src/underwriting/submission.py"],
+      "observed_changed_paths": ["src/documents/review_adapter.py", "tests/documents/test_review_contract.py"],
+      "stop_conditions": ["authorization_change_required", "contract_revision_changed"], "required_evidence": ["review_contract_test", "unauthorized_persistence_negative_test"],
+      "evidence_obligations": [
+        {"kind": "review_contract_test", "requirement_id": "REQ-DOC-015", "acceptance_criterion_id": "AC-REVIEW-CONTRACT-V2", "population": "synthetic_review_decisions", "environment": "ci-training"},
+        {"kind": "unauthorized_persistence_negative_test", "requirement_id": "INV-DOC-004", "acceptance_criterion_id": "AC-NO-UNAUTHORIZED-PERSISTENCE", "population": "unauthorized_persistence_attempts", "environment": "ci-training"}
+      ], "evidence_role": "produce_adapter_and_tests_not_approval"
+    },
+    {
+      "id": "AWU-AI2310-EVIDENCE", "task_ids": ["T006"], "change": "AI-2310@2-training", "requirements": ["REQ-DOC-014", "REQ-DOC-021", "SEC-DOC-022", "INV-DOC-007"],
+      "writable_paths": ["evals/document_classification/**", "evidence/schema/**"], "protected_paths": ["evidence/attestations/**", ".github/workflows/release.yml"],
+      "observed_changed_paths": ["evals/document_classification/manifest.json", "evidence/schema/evidence-record.json"],
+      "stop_conditions": ["evidence_subject_mismatch", "independence_unavailable"], "required_evidence": ["evidence_manifest_validation", "subject_binding_test"],
+      "evidence_obligations": [
+        {"kind": "evidence_manifest_validation", "requirement_id": "REQ-DOC-021", "acceptance_criterion_id": "AC-EVIDENCE-MANIFEST-COMPLETE", "population": "course14_evidence_manifest", "environment": "ci-training"},
+        {"kind": "subject_binding_test", "requirement_id": "INV-DOC-007", "acceptance_criterion_id": "AC-EXACT-SUBJECT-BINDING", "population": "course14_evidence_manifest", "environment": "ci-training"}
+      ], "evidence_role": "author_manifest_schema_never_issue_attestation"
+    }
   ],
   "evidence_manifest": {
     "specification_revision": "AI-2310@2-training",
     "implementation_revision": "impl-ai2310@training-7f3a",
     "baseline_revision": "document-processing@4-training",
     "records": [
-      {"kind": "contract_test", "claim": "REQ-DOC-014", "independent": true, "result": "PASS"},
-      {"kind": "provenance_schema_test", "claim": "REQ-DOC-021", "independent": true, "result": "PASS"},
-      {"kind": "classification_evaluation", "claim": "REQ-DOC-014", "independent": true, "result": "PASS"},
-      {"kind": "supported_slice_test", "claim": "REQ-DOC-014", "independent": true, "result": "PASS"},
-      {"kind": "ambiguity_routing_test", "claim": "REQ-DOC-014", "independent": true, "result": "PASS"},
-      {"kind": "manual_fallback_regression", "claim": "INV-DOC-007", "independent": true, "result": "PASS"},
-      {"kind": "prompt_injection_test", "claim": "SEC-DOC-022", "independent": true, "result": "PASS"},
-      {"kind": "control_state_integrity_test", "claim": "SEC-DOC-022", "independent": true, "result": "PASS"},
-      {"kind": "review_contract_test", "claim": "CONTRACT-DOC-REVIEW@2", "independent": true, "result": "PASS"},
-      {"kind": "unauthorized_persistence_negative_test", "claim": "INV-DOC-004", "independent": true, "result": "PASS"},
-      {"kind": "evidence_manifest_validation", "claim": "evidence_manifest", "independent": true, "result": "PASS"},
-      {"kind": "subject_binding_test", "claim": "impl-ai2310@training-7f3a", "independent": true, "result": "PASS"},
+      {"kind": "contract_test", "requirement_id": "REQ-DOC-014", "acceptance_criterion_id": "AC-AUTHORIZED-REVIEW", "implementation_revision": "impl-ai2310@training-7f3a", "specification_revision": "AI-2310@2-training", "population": "synthetic_contract_cases", "environment": "ci-training", "independent": true, "result": "PASS"},
+      {"kind": "provenance_schema_test", "requirement_id": "REQ-DOC-021", "acceptance_criterion_id": "AC-PROVENANCE-RESOLVABLE", "implementation_revision": "impl-ai2310@training-7f3a", "specification_revision": "AI-2310@2-training", "population": "synthetic_proposals", "environment": "ci-training", "independent": true, "result": "PASS"},
+      {"kind": "classification_evaluation", "requirement_id": "REQ-DOC-014", "acceptance_criterion_id": "AC-SUPPORTED-PROPOSAL", "implementation_revision": "impl-ai2310@training-7f3a", "specification_revision": "AI-2310@2-training", "population": "supported_broker_documents", "environment": "offline-eval-training", "independent": true, "result": "PASS"},
+      {"kind": "supported_slice_test", "requirement_id": "REQ-DOC-014", "acceptance_criterion_id": "AC-SUPPORTED-SLICE", "implementation_revision": "impl-ai2310@training-7f3a", "specification_revision": "AI-2310@2-training", "population": "supported_broker_documents", "environment": "ci-training", "independent": true, "result": "PASS"},
+      {"kind": "ambiguity_routing_test", "requirement_id": "REQ-DOC-014", "acceptance_criterion_id": "AC-AMBIGUOUS-MANUAL", "implementation_revision": "impl-ai2310@training-7f3a", "specification_revision": "AI-2310@2-training", "population": "ambiguous_broker_documents", "environment": "ci-training", "independent": true, "result": "PASS"},
+      {"kind": "manual_fallback_regression", "requirement_id": "REQ-DOC-016", "acceptance_criterion_id": "AC-MANUAL-RECOVERY", "implementation_revision": "impl-ai2310@training-7f3a", "specification_revision": "AI-2310@2-training", "population": "unsupported_and_ambiguous_documents", "environment": "ci-training", "independent": true, "result": "PASS"},
+      {"kind": "prompt_injection_test", "requirement_id": "SEC-DOC-022", "acceptance_criterion_id": "AC-DOCUMENT-IS-DATA", "implementation_revision": "impl-ai2310@training-7f3a", "specification_revision": "AI-2310@2-training", "population": "adversarial_document_content", "environment": "security-harness-training", "independent": true, "result": "PASS"},
+      {"kind": "control_state_integrity_test", "requirement_id": "SEC-DOC-022", "acceptance_criterion_id": "AC-CONTROL-STATE-IMMUTABLE", "implementation_revision": "impl-ai2310@training-7f3a", "specification_revision": "AI-2310@2-training", "population": "adversarial_document_content", "environment": "security-harness-training", "independent": true, "result": "PASS"},
+      {"kind": "review_contract_test", "requirement_id": "REQ-DOC-015", "acceptance_criterion_id": "AC-REVIEW-CONTRACT-V2", "implementation_revision": "impl-ai2310@training-7f3a", "specification_revision": "AI-2310@2-training", "population": "synthetic_review_decisions", "environment": "ci-training", "independent": true, "result": "PASS"},
+      {"kind": "unauthorized_persistence_negative_test", "requirement_id": "INV-DOC-004", "acceptance_criterion_id": "AC-NO-UNAUTHORIZED-PERSISTENCE", "implementation_revision": "impl-ai2310@training-7f3a", "specification_revision": "AI-2310@2-training", "population": "unauthorized_persistence_attempts", "environment": "ci-training", "independent": true, "result": "PASS"},
+      {"kind": "evidence_manifest_validation", "requirement_id": "REQ-DOC-021", "acceptance_criterion_id": "AC-EVIDENCE-MANIFEST-COMPLETE", "implementation_revision": "impl-ai2310@training-7f3a", "specification_revision": "AI-2310@2-training", "population": "course14_evidence_manifest", "environment": "ci-training", "independent": true, "result": "PASS"},
+      {"kind": "subject_binding_test", "requirement_id": "INV-DOC-007", "acceptance_criterion_id": "AC-EXACT-SUBJECT-BINDING", "implementation_revision": "impl-ai2310@training-7f3a", "specification_revision": "AI-2310@2-training", "population": "course14_evidence_manifest", "environment": "ci-training", "independent": true, "result": "PASS"},
       {"kind": "agent_completion_report", "claim": "tasks_complete", "independent": false, "result": "REPORTED"}
     ],
     "synthetic": true,
@@ -188,7 +248,9 @@
     "state": "OWNER_REVIEW_REQUIRED",
     "baseline_mutation": null,
     "archive_destination": null,
-    "authorization_receipt": null,
+    "requested_operation": "INTEGRATE_AND_ARCHIVE",
+    "authorization_receipt_id": null,
+    "receipt_version": null,
     "release_authorized": false
   },
   "multi_repository": {
@@ -201,4 +263,3 @@
   },
   "authority_boundary": "OpenSpec artifacts and coding agents propose and implement; trusted enterprise controls validate authority, issue evidence, authorize baseline integration, archive, and release."
 }
-

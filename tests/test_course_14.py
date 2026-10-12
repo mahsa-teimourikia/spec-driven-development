@@ -2,6 +2,7 @@
 
 import copy
 import importlib.util
+import itertools
 import json
 import sys
 import unittest
@@ -26,13 +27,17 @@ class Course14Tests(unittest.TestCase):
         self.context = lab.load_context()
         self.snapshot = lab.load_snapshot()
         self.reference = lab.load_reference()
+        self.authority_map = lab.load_authority_map()
+        self.control_plane = lab.load_control_plane()
 
-    def review(self, package=None, snapshot=None):
+    def review(self, package=None, snapshot=None, control_plane=None):
         return lab.review_bundle(
             self.baseline,
             self.context,
             snapshot or self.snapshot,
             package or self.reference,
+            authority_map=self.authority_map,
+            control_plane=control_plane or self.control_plane,
         )
 
     def test_reference_is_ready_only_for_owner_review(self):
@@ -116,10 +121,11 @@ class Course14Tests(unittest.TestCase):
         self.assertEqual(len(mapped), len(set(mapped)))
         self.assertTrue(all(unit["writable_paths"] and unit["protected_paths"] and unit["stop_conditions"] for unit in self.reference["work_units"]))
 
-    def test_work_units_have_claim_specific_evidence_and_no_self_attestation(self):
-        evidence_sets = {tuple(unit["required_evidence"]) for unit in self.reference["work_units"]}
-        self.assertEqual(len(evidence_sets), len(self.reference["work_units"]))
-        self.assertTrue(all("not_attest" in unit["evidence_role"] or "never" in unit["evidence_role"] or "not_approval" in unit["evidence_role"] for unit in self.reference["work_units"]))
+    def test_work_units_justify_evidence_by_claim_ancestry_and_forbid_self_attestation(self):
+        for unit in self.reference["work_units"]:
+            self.assertEqual({item["kind"] for item in unit["evidence_obligations"]}, set(unit["required_evidence"]))
+            self.assertTrue(all(item["requirement_id"] in unit["requirements"] for item in unit["evidence_obligations"]))
+            self.assertTrue("not_attest" in unit["evidence_role"] or "never" in unit["evidence_role"] or "not_approval" in unit["evidence_role"])
 
     def test_evidence_covers_delta_and_regression_claims(self):
         independent = {item["kind"] for item in self.reference["evidence_manifest"]["records"] if item["independent"] and item["result"] == "PASS"}
@@ -161,8 +167,108 @@ class Course14Tests(unittest.TestCase):
     def test_mutation_suite_exceeds_course_13_depth(self):
         result = lab.run_evaluation()
         self.assertEqual(result["passed"], result["total"])
-        self.assertEqual(result["total"], 53)
+        self.assertEqual(result["total"], 61)
         self.assertIn("not_production_assurance", result["claim"])
+
+    def test_each_evidence_obligation_matches_exact_claim_and_execution_subject(self):
+        manifest = self.reference["evidence_manifest"]
+        expected = {
+            lab.evidence_key({
+                **obligation,
+                "implementation_revision": manifest["implementation_revision"],
+                "specification_revision": manifest["specification_revision"],
+            })
+            for unit in self.reference["work_units"]
+            for obligation in unit["evidence_obligations"]
+        }
+        observed = {
+            lab.evidence_key(record)
+            for record in manifest["records"]
+            if record.get("independent") and record.get("result") == "PASS"
+        }
+        self.assertTrue(expected.issubset(observed))
+
+    def test_same_evidence_kind_for_wrong_claim_does_not_satisfy_obligation(self):
+        self.assertIn("EVIDENCE_SUBJECT_MISMATCH", lab.mutation_findings("evidence_wrong_claim_same_kind"))
+        self.assertIn("DELTA_EVIDENCE_MISSING", lab.mutation_findings("evidence_wrong_claim_same_kind"))
+
+    def test_receipt_verifier_checks_values_and_atomic_single_use(self):
+        package = copy.deepcopy(self.reference)
+        control_plane = copy.deepcopy(self.control_plane)
+        package["integration"].update({
+            "requested": True,
+            "authorization_receipt_id": "RCP-AI2310-001",
+            "receipt_version": 1,
+        })
+        self.assertEqual(lab.verify_integration_receipt(package, self.authority_map, control_plane), [])
+        consumed = lab.consume_integration_receipt(package, self.authority_map, control_plane)
+        self.assertEqual(consumed["state"], "USED")
+        self.assertEqual(consumed["version"], 2)
+        with self.assertRaisesRegex(ValueError, "INTEGRATION_RECEIPT_REPLAYED"):
+            lab.consume_integration_receipt(package, self.authority_map, control_plane)
+
+    def test_receipt_wrong_binding_expiry_and_replay_are_independent_failures(self):
+        self.assertIn("INTEGRATION_RECEIPT_BINDING_MISMATCH", lab.mutation_findings("integration_receipt_unbound"))
+        self.assertIn("INTEGRATION_RECEIPT_EXPIRED", lab.mutation_findings("integration_receipt_expired"))
+        self.assertIn("INTEGRATION_RECEIPT_REPLAYED", lab.mutation_findings("integration_receipt_replayed"))
+
+    def test_conflict_records_use_stable_change_identity_even_when_revision_labels_collide(self):
+        package = copy.deepcopy(self.reference)
+        for change in package["changes"]:
+            change["revision"] = "revision-1"
+        shared = package["conflicts"][0]
+        for item in shared["changes"]:
+            item["revision"] = "revision-1"
+        shared["blocked_change"]["revision"] = "revision-1"
+        findings = lab.validate_concurrency(package, self.baseline)
+        self.assertNotIn("CONCURRENT_CHANGE_CONFLICT_UNRECORDED", codes(findings))
+        shared["changes"][0]["id"] = "AI-OTHER"
+        self.assertIn("CONCURRENT_CHANGE_CONFLICT_UNRECORDED", codes(lab.validate_concurrency(package, self.baseline)))
+
+    def test_different_but_related_requirement_changes_create_review_candidate(self):
+        findings = lab.mutation_findings("cross_requirement_semantic_candidate")
+        self.assertIn("POTENTIAL_CROSS_REQUIREMENT_CONFLICT", findings)
+
+    def test_registry_identity_prevents_actor_name_bypass(self):
+        self.assertIn("AGENT_SELF_TRANSITION", lab.mutation_findings("actor_name_bypass_attempt"))
+
+    def test_path_scope_uses_pattern_overlap_and_authoritative_changed_paths(self):
+        self.assertTrue(lab.path_patterns_overlap("src/**", "src/auth/**"))
+        self.assertFalse(lab.path_patterns_overlap("src/documents/**", "src/auth/**"))
+        findings = lab.mutation_findings("awu_changed_path_outside_scope")
+        self.assertIn("AWU_CHANGED_PATH_NOT_AUTHORIZED", findings)
+        self.assertIn("AWU_PROTECTED_PATH_CHANGED", findings)
+
+    def test_planning_validation_covers_non_primary_changes(self):
+        findings = lab.mutation_findings("second_change_task_invalid")
+        self.assertIn("TASK_CHANGE_ANCESTRY_MISSING", findings)
+        self.assertIn("TASK_DELTA_UNKNOWN", findings)
+        self.assertIn("TASK_REQUIREMENT_UNKNOWN", findings)
+
+    def test_generated_delta_orders_preserve_baseline_and_candidate_meaning(self):
+        change = copy.deepcopy(lab.primary_change(self.reference))
+        original = copy.deepcopy(self.baseline)
+        expected = lab.requirement_index(lab.apply_change(self.baseline, change))
+        for ordering in itertools.permutations(change["deltas"]):
+            candidate = copy.deepcopy(change)
+            candidate["deltas"] = list(ordering)
+            with self.subTest(order=[item["id"] for item in ordering]):
+                self.assertEqual(lab.requirement_index(lab.apply_change(self.baseline, candidate)), expected)
+                self.assertEqual(self.baseline, original)
+
+    def test_generated_duplicate_delta_id_positions_are_rejected(self):
+        for index in range(1, len(lab.primary_change(self.reference)["deltas"])):
+            package = copy.deepcopy(self.reference)
+            change = lab.primary_change(package)
+            change["deltas"][index]["id"] = change["deltas"][0]["id"]
+            with self.subTest(index=index):
+                self.assertIn("DELTA_ID_DUPLICATE", codes(self.review(package)))
+
+    def test_duplicate_portfolio_change_identity_is_rejected(self):
+        package = copy.deepcopy(self.reference)
+        package["changes"][1]["id"] = package["changes"][0]["id"]
+        package["changes"][1]["revision"] = package["changes"][0]["revision"]
+        self.assertIn("PORTFOLIO_CHANGE_IDENTITY_DUPLICATE", codes(lab.validate_concurrency(package, self.baseline)))
 
     def test_protected_enterprise_requirement_mutation_blocks(self):
         package = copy.deepcopy(self.reference)

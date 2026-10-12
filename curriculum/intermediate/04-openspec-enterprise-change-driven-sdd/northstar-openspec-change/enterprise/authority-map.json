@@ -17,6 +17,32 @@
     "baseline_integration": ["document_platform"],
     "release": ["release_owner"]
   },
+  "principals": {
+    "adapter-course14": {
+      "type": "deterministic_adapter",
+      "capabilities": ["report_state"]
+    },
+    "agent-course14": {
+      "type": "coding_agent",
+      "capabilities": ["propose_change", "report_state"]
+    },
+    "automation-service": {
+      "type": "coding_agent",
+      "capabilities": ["propose_change", "report_state"]
+    },
+    "architecture-council-01": {
+      "type": "human_group",
+      "capabilities": ["approve_architecture"]
+    },
+    "baseline-owner-01": {
+      "type": "human_owner",
+      "capabilities": ["approve_change", "authorize_integration", "authorize_archive"]
+    },
+    "delivery-control-plane": {
+      "type": "trusted_service",
+      "capabilities": ["issue_integration_receipt", "authorize_release"]
+    }
+  },
   "agent_may_not_decide": [
     "policy_exception",
     "architecture_approval",

@@ -214,7 +214,7 @@ Course 14 applies OpenSpec's change-oriented model to concurrent brownfield work
 - scope evidence to changed claims plus affected baseline invariants;
 - produce candidate target truth without mutating the approved baseline;
 - block child-repository weakening and agent self-approval; and
-- evaluate the training adapter with ten golden scenarios and 53 labelled control mutations.
+- evaluate the training adapter with ten golden scenarios and 61 labelled control mutations.
 
 ## Run locally
 

@@ -264,6 +264,8 @@ AI-2331: high-confidence triage may bypass manual review
 
 There may be no overlapping lines. The authority and outcome conflict remains real.
 
+The lab therefore performs two different checks. Shared `(requirement_id, baseline_revision)` targets produce a deterministic conflict. Changes to different requirements that participate in the same invariant produce a `POTENTIAL_CROSS_REQUIREMENT_CONFLICT` candidate. The second result is not automatic proof of contradiction: it is a review packet for the recorded domain owner. Arbitrary semantic-conflict detection remains outside the deterministic fixture.
+
 ## 11. Conflict classes
 
 The lab recognizes:
@@ -277,6 +279,8 @@ The lab recognizes:
 - `MIGRATION_ORDER_CONFLICT`.
 
 Classification is the start of review, not automatic resolution. A recorded conflict needs an accountable disposition: order, rebase, merge, split, redesign, or reject.
+
+Conflict records bind each participant as `(change_id, change_revision)` and each shared target as `(requirement_id, baseline_revision)`. Revision labels alone are not identities, and a disposition becomes stale when either participant or target revision changes.
 
 ## 12. Change graph versus task graph
 
@@ -347,6 +351,9 @@ writable_paths:
 protected_paths:
   - src/auth/**
   - src/underwriting/submission.py
+observed_changed_paths:
+  - src/documents/classification/model.py
+  - tests/documents/classification/test_evaluation.py
 stop_conditions:
   - contract_change_required
   - architecture_change_required
@@ -354,9 +361,17 @@ stop_conditions:
 required_evidence:
   - classification_evaluation
   - provenance_test
+evidence_obligations:
+  - kind: classification_evaluation
+    requirement_id: REQ-DOC-014
+    acceptance_criterion_id: AC-SUPPORTED-PROPOSAL
+    population: supported_broker_documents
+    environment: offline-eval-training
 ```
 
-The AWU preserves change ancestry and narrows authority. The implementation agent may produce code and candidate tests; it may not issue its own independent conformance receipt.
+The AWU preserves change ancestry and narrows authority. Pattern scopes are normalized and checked for overlap (`src/**` intersects `src/auth/**`). Declared paths are only intent; enforcement compares the authoritative changed-file observation with both writable and protected patterns. The implementation agent may produce code and candidate tests; it may not issue its own independent conformance receipt.
+
+Two work units may legitimately need the same evidence kind. The validator rejects inheritance only when an obligation lacks requirement and acceptance-criterion ancestry in that work unit. It does not mistake duplicate evidence categories for blanket inheritance.
 
 AWUs, authority maps, evidence manifests, and integration receipts are enterprise composition artifacts in this course. They complement OpenSpec; they are not represented as native default-schema capabilities.
 
@@ -379,15 +394,21 @@ Passing only the first is not change conformance.
 
 ## 17. Evidence independence and subject binding
 
-Every evidence record identifies:
+Every required evidence record is matched by the composite identity:
 
-- the specific claim or invariant;
-- producer and independence class;
-- implementation and specification revisions;
-- execution time and result; and
-- limitations.
+```text
+(requirement_id,
+ acceptance_criterion_id,
+ implementation_revision,
+ specification_revision,
+ evidence_kind,
+ population,
+ environment)
+```
 
-A coding agent’s “all tasks complete” message is useful completion provenance, not independent evidence or release authority.
+The fixture records implement that identity plus independence and result. A production record should additionally identify the producer, execution time, limitations, tool or evaluator version, and immutable artifact locator.
+
+A passing evidence kind for a different claim, population, environment, or implementation revision does not satisfy the obligation. A coding agent’s “all tasks complete” message is useful completion provenance, not independent evidence or release authority.
 
 ## 18. Sync, archive, and enterprise integration
 
@@ -407,6 +428,8 @@ code merged
 ```
 
 OpenSpec v1.14.1’s CLI archive path validates by default and uses recovery behavior around spec mutation and final movement. An enterprise wrapper should still verify organization-specific evidence, authority, concurrency, and release state before invoking it.
+
+The deterministic workshop models that wrapper with trusted registries. Principal type and capabilities—not a convenient actor name—control approval and lifecycle authority. A receipt reference resolves to a trusted record whose baseline digest, change revision, implementation revision, policy context, operation, issuer, approver, expiry, revocation, state, and version are verified at a fixed evaluation time. Consumption uses a compare-and-set version under one lock so a second attempt is rejected as replay. Production requires a transactional durable store rather than this in-memory teaching simulation.
 
 ## 19. Archive is not deletion
 
@@ -611,6 +634,7 @@ They do not measure general OpenSpec correctness, model quality, production safe
 | Training fixture | Production upgrade |
 | --- | --- |
 | JSON authority map | authenticated policy/ownership service |
+| fixed-time trusted receipt registry | transactional, durable single-use authorization service |
 | local digests | signed provenance and immutable artifact storage |
 | synthetic evidence records | CI, evaluation, security, and runtime attestations |
 | deterministic conflict rules | graph index plus owner-reviewed semantic analysis |

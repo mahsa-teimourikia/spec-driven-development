@@ -35,7 +35,7 @@
     {"id": "OS-MUT-032", "mutation": "awu_stop_conditions_missing", "expected": "AWU_STOP_CONDITIONS_MISSING"},
     {"id": "OS-MUT-033", "mutation": "awu_evidence_missing", "expected": "AWU_EVIDENCE_MISSING"},
     {"id": "OS-MUT-034", "mutation": "awu_self_attests", "expected": "AWU_SELF_ATTESTATION"},
-    {"id": "OS-MUT-035", "mutation": "blanket_evidence", "expected": "BLANKET_EVIDENCE_INHERITANCE"},
+    {"id": "OS-MUT-035", "mutation": "blanket_evidence", "expected": "UNJUSTIFIED_EVIDENCE_INHERITANCE"},
     {"id": "OS-MUT-036", "mutation": "evidence_not_independent", "expected": "EVIDENCE_NOT_INDEPENDENT"},
     {"id": "OS-MUT-037", "mutation": "evidence_fail", "expected": "EVIDENCE_FAILED"},
     {"id": "OS-MUT-038", "mutation": "conflict_agent_resolved", "expected": "CONFLICT_AGENT_RESOLVED"},
@@ -43,7 +43,7 @@
     {"id": "OS-MUT-040", "mutation": "blocked_change_not_blocked", "expected": "CONFLICTED_CHANGE_NOT_BLOCKED"},
     {"id": "OS-MUT-041", "mutation": "production_ready_claim", "expected": "SYNTHETIC_PRODUCTION_CLAIM"},
     {"id": "OS-MUT-042", "mutation": "release_self_authorized", "expected": "RELEASE_SELF_AUTHORIZED"},
-    {"id": "OS-MUT-043", "mutation": "integration_receipt_unbound", "expected": "INTEGRATION_RECEIPT_UNBOUND"},
+    {"id": "OS-MUT-043", "mutation": "integration_receipt_unbound", "expected": "INTEGRATION_RECEIPT_BINDING_MISMATCH"},
     {"id": "OS-MUT-044", "mutation": "archived_with_active_question", "expected": "ARCHIVED_WITH_BLOCKING_QUESTION"},
     {"id": "OS-MUT-045", "mutation": "archive_destination_missing", "expected": "ARCHIVE_DESTINATION_MISSING"},
     {"id": "OS-MUT-046", "mutation": "child_unknown_requirement", "expected": "CHILD_REQUIREMENT_UNKNOWN"},
@@ -53,6 +53,14 @@
     {"id": "OS-MUT-050", "mutation": "state_unknown", "expected": "CHANGE_STATE_UNKNOWN"},
     {"id": "OS-MUT-051", "mutation": "awu_scope_overlap", "expected": "AWU_SCOPE_OVERLAP"},
     {"id": "OS-MUT-052", "mutation": "context_source_missing", "expected": "CONTEXT_SOURCE_MISSING"},
-    {"id": "OS-MUT-053", "mutation": "change_context_drift", "expected": "CHANGE_CONTEXT_DRIFT"}
+    {"id": "OS-MUT-053", "mutation": "change_context_drift", "expected": "CHANGE_CONTEXT_DRIFT"},
+    {"id": "OS-MUT-054", "mutation": "evidence_wrong_claim_same_kind", "expected": "EVIDENCE_SUBJECT_MISMATCH"},
+    {"id": "OS-MUT-055", "mutation": "conflict_change_identity_mismatch", "expected": "CONCURRENT_CHANGE_CONFLICT_UNRECORDED"},
+    {"id": "OS-MUT-056", "mutation": "cross_requirement_semantic_candidate", "expected": "POTENTIAL_CROSS_REQUIREMENT_CONFLICT"},
+    {"id": "OS-MUT-057", "mutation": "actor_name_bypass_attempt", "expected": "AGENT_SELF_TRANSITION"},
+    {"id": "OS-MUT-058", "mutation": "awu_changed_path_outside_scope", "expected": "AWU_CHANGED_PATH_NOT_AUTHORIZED"},
+    {"id": "OS-MUT-059", "mutation": "second_change_task_invalid", "expected": "TASK_CHANGE_ANCESTRY_MISSING"},
+    {"id": "OS-MUT-060", "mutation": "integration_receipt_expired", "expected": "INTEGRATION_RECEIPT_EXPIRED"},
+    {"id": "OS-MUT-061", "mutation": "integration_receipt_replayed", "expected": "INTEGRATION_RECEIPT_REPLAYED"}
   ]
 }
