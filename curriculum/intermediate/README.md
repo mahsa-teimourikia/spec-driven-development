@@ -6,7 +6,7 @@ This path turns specification skills into repeatable delivery flows.
 12. [SDD Framework Landscape & Choosing an Enterprise Operating Model](02-sdd-framework-landscape-enterprise-operating-model/README.md) — available
 13. [GitHub Spec Kit for Enterprise Spec-Driven Development](03-github-spec-kit-enterprise-sdd/README.md) — available
 14. [OpenSpec for Enterprise Change-Driven Spec-Driven Development](04-openspec-enterprise-change-driven-sdd/README.md) — available
-15. Kiro Specs
+15. [Integrating SDD into Enterprise PDLC and CI/CD](05-enterprise-pdlc-ci-cd-integration/README.md) — available
 16. Agent instructions & custom enterprise adapters
 17. Idea → discovery → spec → design → implementation
 18. Brownfield development
@@ -16,4 +16,4 @@ This path turns specification skills into repeatable delivery flows.
 22. PR and review strategy
 23. Human approval gates
 
-Courses 11–14 are available. The remaining courses will be published as complete vertical slices; see the [course plan](../../COURSE_PLAN.md).
+Courses 11–15 are available. The remaining courses will be published as complete vertical slices; see the [course plan](../../COURSE_PLAN.md).

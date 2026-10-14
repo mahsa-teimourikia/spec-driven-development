@@ -713,6 +713,61 @@ const course14 = {
   }
 };
 
+const course15 = {
+  id: 'c15', course: 15, level: 'intermediate', part: 'III · Agentic execution & SDD frameworks', status: 'available',
+  title: 'Integrating SDD into Enterprise PDLC and CI/CD',
+  summary: 'Connect exact specification identity, trusted CI, claim-specific evidence, merge queues, build provenance, deployment authorization, and runtime conformance.',
+  outcomes: [
+    'Map specifications through PR, merge, build, deployment, and production acceptance without collapsing distinct states.',
+    'Bind delivery decisions to exact specification, context, commit, effective AI-system, and artifact revisions.',
+    'Run nine explicit risk-adaptive gates with PASS, REVIEW, BLOCK, and NOT_APPLICABLE outcomes.',
+    'Keep PR-controlled code, tests, metadata, and workflows outside the trusted validation boundary.',
+    'Reject self-attested, stale, expired, and wrong-subject evidence.',
+    'Detect protected requirement changes even when ordinary technical tests pass.',
+    'Revalidate semantic composition on the exact merge-queue candidate.',
+    'Verify trusted build provenance and prevent deployment artifact substitution.',
+    'Use exact-subject, short-lived, atomic single-use authorization receipts.',
+    'Interpret runtime invariants only with healthy instrumentation and an applicable-population denominator.',
+    'Test the control plane with ten golden scenarios and 64 labelled mutations.'
+  ],
+  readme: `${REPO}/blob/main/curriculum/intermediate/05-enterprise-pdlc-ci-cd-integration/README.md`,
+  notebook: `${REPO}/blob/main/curriculum/intermediate/05-enterprise-pdlc-ci-cd-integration/northstar-sdd-delivery/enterprise_pdlc_delivery.ipynb`,
+  lab: `${REPO}/blob/main/curriculum/intermediate/05-enterprise-pdlc-ci-cd-integration/northstar-sdd-delivery/lab.py`,
+  repoFixture: `${REPO}/tree/main/curriculum/intermediate/05-enterprise-pdlc-ci-cd-integration/northstar-sdd-delivery`,
+  run: 'python3 curriculum/intermediate/05-enterprise-pdlc-ci-cd-integration/northstar-sdd-delivery/lab.py',
+  labs: [
+    {
+      title: 'Lab A — Evaluate the delivery control plane',
+      description: 'Compare a review-eligible reference with an unsafe but technically green PR, inspect every gate, and exercise conformance and mutation suites.',
+      command: 'python3 curriculum/intermediate/05-enterprise-pdlc-ci-cd-integration/northstar-sdd-delivery/lab.py',
+      links: [['View the gate engine', `${REPO}/blob/main/curriculum/intermediate/05-enterprise-pdlc-ci-cd-integration/northstar-sdd-delivery/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/intermediate/05-enterprise-pdlc-ci-cd-integration/northstar-sdd-delivery/enterprise_pdlc_delivery.ipynb`]]
+    },
+    {
+      title: 'Lab B — Govern AI-2310 from PR to runtime',
+      description: 'Repair the starter, validate exact-subject evidence, consume an integration receipt, prevent artifact substitution, and interpret runtime coverage.',
+      command: 'Complete the starter decisions, run Lab A, then compare with the reference package.',
+      links: [['Open the workshop', `${REPO}/tree/main/curriculum/intermediate/05-enterprise-pdlc-ci-cd-integration/northstar-sdd-delivery`], ['Complete the starter package', `${REPO}/tree/main/curriculum/intermediate/05-enterprise-pdlc-ci-cd-integration/northstar-sdd-delivery/workshop/starter`], ['Inspect the reference package', `${REPO}/tree/main/curriculum/intermediate/05-enterprise-pdlc-ci-cd-integration/northstar-sdd-delivery/reference`]]
+    }
+  ],
+  references: [
+    ['GitHub Actions secure use', 'https://docs.github.com/en/actions/reference/security/secure-use'],
+    ['GitHub rulesets', 'https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets'],
+    ['GitHub merge queues', 'https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-a-merge-queue'],
+    ['SLSA v1.2', 'https://slsa.dev/spec/v1.2/'],
+    ['NIST AI RMF', 'https://www.nist.gov/itl/ai-risk-management-framework']
+  ],
+  checkpoint: {
+    question: 'The PR is technically green, but changes its validator, uses evidence from an old prompt bundle, and conflicts semantically with a queued PR. What should happen?',
+    options: [
+      'Block eligibility, run protected controls and fresh evidence on the exact candidate, and route the semantic conflict to its owner.',
+      'Merge because the unit tests pass.',
+      'Let the coding agent approve an exception.'
+    ],
+    answer: 0,
+    explanation: 'Technical quality cannot establish control provenance, evidence identity, semantic compatibility, or decision authority.'
+  }
+};
+
 function planned(course, level, part, title, summary) {
   return {
     id: `c${String(course).padStart(2, '0')}`, course, level, part,
@@ -738,7 +793,7 @@ const LESSONS = [
   course12,
   course13,
   course14,
-  planned(15, 'intermediate', 'III · Agentic execution & SDD frameworks', 'Kiro Specs', 'Apply feature, bug-fix, and quick-spec workflows with appropriate approval depth.'),
+  course15,
   planned(16, 'intermediate', 'III · Agentic execution & SDD frameworks', 'Agent instructions & custom enterprise adapters', 'Combine scoped cross-agent guidance with versioned context, evidence, conformance, and upgrade adapters.'),
   planned(17, 'intermediate', 'IV · Agentic PDLC', 'Idea → discovery → spec → design → implementation', 'Build an end-to-end flow with explicit state, owners, gates, and handoffs.'),
   planned(18, 'intermediate', 'IV · Agentic PDLC', 'Brownfield development', 'Recover system truth before changing code with incomplete or stale specifications.'),

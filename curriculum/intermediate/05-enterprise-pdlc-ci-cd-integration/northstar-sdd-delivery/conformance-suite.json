@@ -1,0 +1,65 @@
+{
+  "claim": "Ten narrow fixtures exercise named failure modes; they do not certify a production control plane.",
+  "cases": [
+    {
+      "id": "stale-specification",
+      "patches": [{"path": "/change_manifest/specification_revision", "value": "AI-2310-spec@6"}],
+      "expected": "SPEC_REVISION_STALE"
+    },
+    {
+      "id": "protected-auth-code",
+      "patches": [{"path": "/pull_request/changed_paths", "op": "append", "value": "src/auth/authorization.py"}],
+      "expected": "AWU_SCOPE_VIOLATION"
+    },
+    {
+      "id": "new-policy-applicability",
+      "patches": [{"path": "/change_manifest/context_digest", "value": "sha256:context-before-new-policy"}],
+      "expected": "CONTEXT_REVALIDATION_REQUIRED"
+    },
+    {
+      "id": "tests-green-requirement-weakened",
+      "patches": [{"path": "/requirements/semantic_hashes/REQ-AI-2310-01", "value": "sha256:weakened"}],
+      "expected": "UNAUTHORIZED_REQUIREMENT_CHANGE"
+    },
+    {
+      "id": "evidence-wrong-commit",
+      "patches": [{"path": "/evidence_manifest/records/0/subject/commit", "value": "another-commit"}],
+      "expected": "EVIDENCE_SUBJECT_MISMATCH"
+    },
+    {
+      "id": "self-attested-evidence",
+      "patches": [
+        {"path": "/evidence_manifest/records/0/producer", "value": "coding-agent/awu-2310-03"},
+        {"path": "/evidence_manifest/records/0/independent", "value": false}
+      ],
+      "expected": "UNTRUSTED_EVIDENCE_PRODUCER"
+    },
+    {
+      "id": "pr-controls-validator",
+      "patches": [{"path": "/control_provenance/source", "value": "pull-request-head"}],
+      "expected": "CONTROL_PROVENANCE_INVALID"
+    },
+    {
+      "id": "semantic-merge-conflict",
+      "patches": [{"path": "/merge_queue/semantic_conflicts", "op": "append", "value": "AI-2322 changes INV-AI-2310-02"}],
+      "expected": "SEMANTIC_MERGE_CONFLICT"
+    },
+    {
+      "id": "reused-integration-receipt",
+      "patches": [
+        {"path": "/integration/requested", "value": true},
+        {"path": "/integration/receipt_id", "value": "already-used"}
+      ],
+      "expected": "INVALID_INTEGRATION_AUTHORIZATION"
+    },
+    {
+      "id": "deployment-artifact-substitution",
+      "patches": [
+        {"path": "/deployment/requested", "value": true},
+        {"path": "/deployment/receipt_id", "value": "DEP-AI2310-001"},
+        {"path": "/deployment/artifact_digest", "value": "sha256:different-artifact"}
+      ],
+      "expected": "DEPLOYMENT_ARTIFACT_MISMATCH"
+    }
+  ]
+}

@@ -4,7 +4,7 @@
 
 ## Start here
 
-Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through [Course 13: GitHub Spec Kit for Enterprise Spec-Driven Development](curriculum/intermediate/03-github-spec-kit-enterprise-sdd/README.md), then complete [Course 14: OpenSpec for Enterprise Change-Driven Spec-Driven Development](curriculum/intermediate/04-openspec-enterprise-change-driven-sdd/README.md) with its guided [notebook](curriculum/intermediate/04-openspec-enterprise-change-driven-sdd/northstar-openspec-change/openspec_enterprise_change.ipynb), deterministic [change-governance lab](curriculum/intermediate/04-openspec-enterprise-change-driven-sdd/northstar-openspec-change/lab.py), concurrent-change [workshop](curriculum/intermediate/04-openspec-enterprise-change-driven-sdd/northstar-openspec-change/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
+Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through [Course 14: OpenSpec for Enterprise Change-Driven Spec-Driven Development](curriculum/intermediate/04-openspec-enterprise-change-driven-sdd/README.md), then complete [Course 15: Integrating SDD into Enterprise PDLC and CI/CD](curriculum/intermediate/05-enterprise-pdlc-ci-cd-integration/README.md) with its guided [notebook](curriculum/intermediate/05-enterprise-pdlc-ci-cd-integration/northstar-sdd-delivery/enterprise_pdlc_delivery.ipynb), deterministic [delivery-control lab](curriculum/intermediate/05-enterprise-pdlc-ci-cd-integration/northstar-sdd-delivery/lab.py), [AI-2310 workshop](curriculum/intermediate/05-enterprise-pdlc-ci-cd-integration/northstar-sdd-delivery/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
 
 This is not simply a tutorial for one specification framework. The central skill is turning organizational intent, architecture rules, product requirements, and engineering constraints into a hierarchy of durable specifications that agents can execute—and humans can govern.
 
@@ -14,7 +14,7 @@ This is not simply a tutorial for one specification framework. The central skill
 | --- | ---: | --- |
 | I · SDD foundations | 01–04 | Why the PDLC changes and how specifications form a hierarchy |
 | II · Executable specifications | 05–10 | Requirements, scenarios, invariants, NFRs, specification review, and traceability |
-| III · Agentic execution & SDD frameworks | 11–16 | Multi-agent coordination, framework selection, Spec Kit, OpenSpec, Kiro, agent instructions, and adapters |
+| III · Agentic execution & SDD frameworks | 11–16 | Multi-agent coordination, framework selection, Spec Kit, OpenSpec, enterprise delivery integration, agent instructions, and adapters |
 | IV · Agentic PDLC | 17–23 | Delivery flows, brownfield work, parallel agents, reviews, and approvals |
 | V · Enterprise controls | 24–31 | Security, AI governance, architecture, quality, compliance, and CI/CD |
 | VI · Advanced agentic SDD | 32–38 | Context engineering, orchestration, drift, continuous specs, and evaluation |
@@ -216,9 +216,24 @@ Course 14 applies OpenSpec's change-oriented model to concurrent brownfield work
 - block child-repository weakening and agent self-approval; and
 - evaluate the training adapter with ten golden scenarios and 61 labelled control mutations.
 
+## Course 15 outcome
+
+Course 15 connects durable specifications to trusted enterprise delivery controls. You will:
+
+- bind change proposals to exact specification, context, base, policy, commit, AI-system, and artifact identities;
+- separate implementation completion, verification, integration eligibility, merge authorization, deployment authorization, and production acceptance;
+- run nine explicit risk-adaptive gates without allowing PR-controlled code to judge itself;
+- reject stale, self-attested, expired, and wrong-subject evidence;
+- detect protected requirement weakening even when conventional tests remain green;
+- revalidate semantic composition on the exact merge-queue candidate;
+- verify build provenance and prevent deployment artifact substitution;
+- use short-lived, exact-subject, single-use authorization receipts;
+- require healthy instrumentation and a denominator for runtime-conformance claims; and
+- evaluate the teaching control plane with ten golden scenarios and 64 labelled mutations.
+
 ## Run locally
 
-Everything in Courses 01–14 is credential-free and uses the Python standard library.
+Everything in Courses 01–15 is credential-free and uses the Python standard library.
 
 ```bash
 python3 curriculum/beginner/01-why-agentic-coding-changes-pdlc/lab.py
@@ -236,6 +251,7 @@ python3 curriculum/intermediate/01-multi-agent-coding-workflows-coordination/lab
 python3 curriculum/intermediate/02-sdd-framework-landscape-enterprise-operating-model/lab.py
 python3 curriculum/intermediate/03-github-spec-kit-enterprise-sdd/northstar-spec-kit-adapter/lab.py
 python3 curriculum/intermediate/04-openspec-enterprise-change-driven-sdd/northstar-openspec-change/lab.py
+python3 curriculum/intermediate/05-enterprise-pdlc-ci-cd-integration/northstar-sdd-delivery/lab.py
 python3 -m unittest discover -s tests -v
 python3 scripts/validate_course.py
 ```

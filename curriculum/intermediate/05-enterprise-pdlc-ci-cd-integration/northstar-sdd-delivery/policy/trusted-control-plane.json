@@ -1,0 +1,64 @@
+{
+  "evaluation_time": "2026-10-13T12:00:00Z",
+  "current": {
+    "specification_revision": "AI-2310-spec@7",
+    "context_digest": "sha256:context-2310-r12",
+    "base_revision": "8f58f25",
+    "integration_base_sha": "main-8f58f25",
+    "policy_revisions": ["AI-GOV@12", "ARCH@9", "SEC@31", "QUALITY@18"]
+  },
+  "risk_profiles": {
+    "high": {
+      "required_gates": ["specification_readiness", "implementation_conformance", "technical_quality", "evidence_integrity", "control_provenance", "integration_readiness"]
+    }
+  },
+  "protected_paths": [
+    ".github/workflows/release.yml",
+    "delivery-control/policy.json",
+    "src/auth/authorization.py"
+  ],
+  "protected_requirement_hashes": {
+    "REQ-AI-2310-01": "sha256:req-01-approved",
+    "INV-AI-2310-02": "sha256:inv-02-approved"
+  },
+  "trusted_evidence_producers": [
+    "northstar/independent-test-runner@4",
+    "northstar/evaluation-service@8",
+    "northstar/security-verifier@5"
+  ],
+  "validator": {
+    "repository": "northstar/delivery-control",
+    "revision": "9b6127d",
+    "source": "protected-default-branch"
+  },
+  "trusted_builder_ids": ["https://build.northstar.example/hosted/v3"],
+  "approved_rollback_artifacts": ["sha256:underwriter-v42-approved"],
+  "receipts": {
+    "INT-AI2310-001": {
+      "kind": "INTEGRATION",
+      "state": "AVAILABLE",
+      "version": 1,
+      "expires_at": "2026-10-14T12:00:00Z",
+      "subject": {
+        "change_id": "AI-2310",
+        "commit": "pr-head-b91c6d2",
+        "specification_revision": "AI-2310-spec@7",
+        "system_revision": "sha256:system-app43-model17-prompt12-retrieval8-tools6-policy12"
+      }
+    },
+    "DEP-AI2310-001": {
+      "kind": "DEPLOYMENT",
+      "state": "AVAILABLE",
+      "version": 1,
+      "expires_at": "2026-10-14T12:00:00Z",
+      "subject": {
+        "change_id": "AI-2310",
+        "commit": "pr-head-b91c6d2",
+        "specification_revision": "AI-2310-spec@7",
+        "system_revision": "sha256:system-app43-model17-prompt12-retrieval8-tools6-policy12",
+        "artifact_digest": "sha256:underwriter-v43-tested",
+        "environment": "production"
+      }
+    }
+  }
+}

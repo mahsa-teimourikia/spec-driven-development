@@ -1,0 +1,18 @@
+{
+  "fixture_status": "UNSAFE_BUT_TECHNICALLY_GREEN",
+  "patches": [
+    {"path": "/change_manifest/specification_revision", "value": "AI-2310-spec@6"},
+    {"path": "/pull_request/changed_paths", "op": "append", "value": "src/auth/authorization.py"},
+    {"path": "/requirements/semantic_hashes/REQ-AI-2310-01", "value": "sha256:req-01-weakened"},
+    {"path": "/evidence_manifest/records/0/subject/commit", "value": "old-commit-772"},
+    {"path": "/evidence_manifest/records/1/producer", "value": "coding-agent/awu-2310-03"},
+    {"path": "/evidence_manifest/records/1/independent", "value": false},
+    {"path": "/control_provenance/revision", "value": "pr-controlled-validator"},
+    {"path": "/merge_queue/semantic_conflicts", "op": "append", "value": "AI-2322 changes the same review invariant"},
+    {"path": "/integration/requested", "value": true},
+    {"path": "/integration/receipt_id", "value": "REUSED-RECEIPT"},
+    {"path": "/deployment/requested", "value": true},
+    {"path": "/deployment/receipt_id", "value": "DEP-AI2310-001"},
+    {"path": "/deployment/artifact_digest", "value": "sha256:untested-rebuild"}
+  ]
+}

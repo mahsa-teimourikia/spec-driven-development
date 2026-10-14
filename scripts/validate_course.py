@@ -2275,7 +2275,7 @@ def check_course_14_openspec() -> list[str]:
     if report.get("conformance") != {"passed": 10, "total": 10}:
         errors.append("Course 14 golden conformance suite must retain ten passing scenarios")
     if report.get("evaluation") != {"passed": 61, "total": 61}:
-        errors.append("Course 14 mutation evaluation must retain 53 detected cases")
+        errors.append("Course 14 mutation evaluation must retain 61 detected cases")
     if report.get("integration") != "OWNER_REVIEW_REQUIRED":
         errors.append("Course 14 must keep baseline integration under external owner authority")
     if report.get("candidate_target") != "candidate-target-not-integrated":
@@ -2299,10 +2299,10 @@ def check_course_14_openspec() -> list[str]:
         errors.append("Course 14 reference must not claim baseline integration or release")
 
     quiz_source = (ROOT / "quiz" / "questions.js").read_text(encoding="utf-8")
-    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 194:
-        errors.append("Course 14 cumulative quiz must contain 194 questions")
-    if "Courses 01–14" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
-        errors.append("Course 14 cumulative quiz must identify Courses 01–14")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) < 194:
+        errors.append("Course 14 cumulative quiz questions must remain present")
+    if "Courses 01–" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
+        errors.append("The cumulative quiz must identify its course range")
     hub_source = (ROOT / "hub" / "lessons.js").read_text(encoding="utf-8")
     expected_hub_fragments = [
         "const course14 = {",
@@ -2312,6 +2312,119 @@ def check_course_14_openspec() -> list[str]:
     ]
     if any(fragment not in hub_source for fragment in expected_hub_fragments):
         errors.append("Course 14 Learning Hub entry is incomplete or points outside the workshop package")
+    return errors
+
+
+def check_course_15_enterprise_delivery() -> list[str]:
+    lesson = ROOT / "curriculum" / "intermediate" / "05-enterprise-pdlc-ci-cd-integration"
+    scenario = lesson / "northstar-sdd-delivery"
+    required = [
+        "README.md",
+        "policy/trusted-control-plane.json",
+        "reference/delivery-package.json",
+        "candidate/delivery-package.json",
+        "workshop/starter/README.md",
+        "workshop/starter/delivery-package.json",
+        "conformance-suite.json",
+        "evaluation-cases.json",
+        "lab.py",
+        "enterprise_pdlc_delivery.ipynb",
+    ]
+    errors = [
+        f"missing Course 15 delivery-control artifact: {item}"
+        for item in required
+        if not (scenario / item).exists()
+    ]
+    if not (lesson / "README.md").exists():
+        errors.append("missing Course 15 chapter")
+    if errors:
+        return errors
+
+    starter = (scenario / "workshop" / "starter" / "delivery-package.json").read_text(encoding="utf-8")
+    if starter.count("TODO") != 3:
+        errors.append("Course 15 starter must retain exactly three learner decisions")
+    reference_text = (scenario / "reference" / "delivery-package.json").read_text(encoding="utf-8")
+    if "TODO" in reference_text:
+        errors.append("Course 15 reference package must not contain unresolved TODOs")
+
+    result = subprocess.run(
+        [sys.executable, str(scenario / "lab.py")],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    try:
+        report = json.loads(result.stdout) if result.returncode == 0 else {}
+    except json.JSONDecodeError:
+        report = {}
+    if not report:
+        errors.append("Course 15 lab did not produce its JSON delivery-control report")
+        return errors
+
+    if report.get("reference", {}).get("decision") != "ELIGIBLE_FOR_INTEGRATION_REVIEW":
+        errors.append("Course 15 reference must stop at integration-review eligibility")
+    reference_gates = report.get("reference", {}).get("gates", [])
+    if len(reference_gates) != 9 or {item.get("gate") for item in reference_gates} != {
+        "specification_readiness",
+        "implementation_conformance",
+        "technical_quality",
+        "evidence_integrity",
+        "control_provenance",
+        "integration_readiness",
+        "integration_authorization",
+        "deployment_authorization",
+        "runtime_conformance",
+    }:
+        errors.append("Course 15 must retain nine explicit delivery gates")
+    unsafe = report.get("unsafe_candidate", {})
+    required_codes = {
+        "SPEC_REVISION_STALE",
+        "AWU_SCOPE_VIOLATION",
+        "UNAUTHORIZED_REQUIREMENT_CHANGE",
+        "EVIDENCE_SUBJECT_MISMATCH",
+        "UNTRUSTED_EVIDENCE_PRODUCER",
+        "CONTROL_PROVENANCE_INVALID",
+        "SEMANTIC_MERGE_CONFLICT",
+        "INVALID_INTEGRATION_AUTHORIZATION",
+        "DEPLOYMENT_ARTIFACT_MISMATCH",
+    }
+    if unsafe.get("decision") != "BLOCKED" or unsafe.get("technical_quality") != "PASS":
+        errors.append("Course 15 unsafe candidate must be blocked while ordinary technical quality passes")
+    if not required_codes.issubset(set(unsafe.get("findings", []))):
+        errors.append("Course 15 unsafe candidate no longer exposes the required delivery failures")
+    conformance = report.get("conformance", {})
+    evaluation = report.get("evaluation", {})
+    if (conformance.get("passed"), conformance.get("total")) != (10, 10):
+        errors.append("Course 15 golden conformance suite must retain ten passing scenarios")
+    if (evaluation.get("passed"), evaluation.get("total")) != (64, 64):
+        errors.append("Course 15 mutation evaluation must retain 64 detected cases")
+    if "trusted controls" not in report.get("authority_boundary", ""):
+        errors.append("Course 15 must preserve the proposal-validation-authorization boundary")
+
+    package = json.loads(reference_text)
+    if len(package.get("traceability", [])) != 2 or len(package.get("evidence_manifest", {}).get("records", [])) != 3:
+        errors.append("Course 15 reference must retain requirement-to-claim traceability and three evidence records")
+    components = set(package.get("effective_ai_system_revision", {}).get("components", {}))
+    if components != {"application", "model", "prompt", "retrieval", "tools", "policy", "runtime_config"}:
+        errors.append("Course 15 must retain the complete effective AI-system revision")
+    if package.get("integration", {}).get("requested") is not False or package.get("deployment", {}).get("requested") is not False:
+        errors.append("Course 15 reference must not self-authorize integration or deployment")
+
+    quiz_source = (ROOT / "quiz" / "questions.js").read_text(encoding="utf-8")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 206:
+        errors.append("Course 15 cumulative quiz must contain 206 questions")
+    if "Courses 01–15" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
+        errors.append("Course 15 cumulative quiz must identify Courses 01–15")
+    hub_source = (ROOT / "hub" / "lessons.js").read_text(encoding="utf-8")
+    expected_hub_fragments = [
+        "const course15 = {",
+        "05-enterprise-pdlc-ci-cd-integration/northstar-sdd-delivery/enterprise_pdlc_delivery.ipynb",
+        "05-enterprise-pdlc-ci-cd-integration/northstar-sdd-delivery/workshop/starter",
+        "05-enterprise-pdlc-ci-cd-integration/northstar-sdd-delivery/reference",
+    ]
+    if any(fragment not in hub_source for fragment in expected_hub_fragments):
+        errors.append("Course 15 Learning Hub entry is incomplete or points outside the workshop package")
     return errors
 
 
@@ -2335,6 +2448,7 @@ def main() -> None:
         "Course 12 framework landscape": check_course_12_framework_landscape,
         "Course 13 Spec Kit": check_course_13_spec_kit,
         "Course 14 OpenSpec": check_course_14_openspec,
+        "Course 15 enterprise delivery": check_course_15_enterprise_delivery,
         "diagrams": render_and_validate_diagrams,
         "labs": run_labs,
         "repository labs": run_repository_labs,

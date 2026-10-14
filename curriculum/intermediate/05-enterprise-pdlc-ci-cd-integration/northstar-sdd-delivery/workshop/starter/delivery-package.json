@@ -1,0 +1,12 @@
+{
+  "change_id": "AI-2310",
+  "specification_revision": "TODO",
+  "missing_evidence_claim_id": "TODO",
+  "next_decision": "TODO",
+  "allowed_next_decisions": [
+    "BLOCKED",
+    "REQUIRES_REVIEW",
+    "ELIGIBLE_FOR_INTEGRATION_REVIEW"
+  ],
+  "note": "This starter records learner decisions; use the reference package as the full executable shape only after completing the exercise."
+}

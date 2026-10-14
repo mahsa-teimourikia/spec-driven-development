@@ -1352,9 +1352,93 @@ const QUESTIONS = [
   },
   {
     category: 'Course 14 evidence',
-    question: 'The Course 14 reference passes all deterministic checks, 10 golden scenarios, and 53 mutations. What is the strongest justified state?',
+    question: 'The Course 14 reference passes all deterministic checks, 10 golden scenarios, and 61 mutations. What is the strongest justified state?',
     options: ['Ready for accountable owner review', 'OpenSpec vendor-certified', 'Baseline integrated and archived', 'Production released'],
     answer: 0,
     explanation: 'The evidence supports only the labelled synthetic training claims. Authenticated approval, integration, archive, and release remain external decisions.'
+  },
+  {
+    category: 'Course 15 CI trust',
+    question: 'A PR updates the workflow and validator that produce its required conformance check. What is the safest decision?',
+    options: ['Run the gate from a protected trusted revision and review the control change separately', 'Trust the PR validator because CI is automated', 'Let the coding agent approve the workflow', 'Skip validation when tests pass'],
+    answer: 0,
+    explanation: 'A change cannot safely control the judge of that same change. Control provenance must remain outside the PR trust boundary.'
+  },
+  {
+    category: 'Course 15 evidence identity',
+    question: 'An evaluation passes for the correct commit but yesterday\'s prompt bundle. Can it support the current AI-system claim?',
+    options: ['No; behavioral evidence must bind the complete effective AI-system revision', 'Yes; source commit is the only relevant identity', 'Yes if the model name is unchanged', 'Yes if the agent explains the difference'],
+    answer: 0,
+    explanation: 'Application, model, prompt, retrieval, tools, policy, and runtime configuration can all change behavior.'
+  },
+  {
+    category: 'Course 15 authorization',
+    question: 'All required validation gates pass. What is the strongest automatic conclusion?',
+    options: ['The change is eligible for an accountable integration decision', 'The PR is authorized to merge', 'The artifact is authorized for production', 'Production acceptance is complete'],
+    answer: 0,
+    explanation: 'Validation establishes eligibility. Merge and deployment are separate exact-subject authorization transitions.'
+  },
+  {
+    category: 'Course 15 evidence',
+    question: 'A coding agent reports that its implementation and tests are complete. How should CI treat the report?',
+    options: ['As useful completion provenance, not independent proof of conformance', 'As sufficient production evidence', 'As an integration receipt', 'As policy-owner approval'],
+    answer: 0,
+    explanation: 'The producer under evaluation cannot independently certify the claims required to authorize its output.'
+  },
+  {
+    category: 'Course 15 invalidation',
+    question: 'A newly effective policy becomes applicable during implementation. What should happen?',
+    options: ['Re-resolve context and selectively invalidate affected work, evidence, and decisions', 'Ignore it until the next release', 'Restart every project artifact unconditionally', 'Let the implementation agent declare it irrelevant'],
+    answer: 0,
+    explanation: 'Dependency-aware invalidation prevents unsafe reuse without discarding unaffected evidence.'
+  },
+  {
+    category: 'Course 15 merge queue',
+    question: 'Two PRs touch different files but change the same human-review invariant. Git reports no conflict. What is missing?',
+    options: ['Semantic conflict analysis on the exact queued merge candidate', 'A larger unit-test suite in either PR', 'A later deployment window', 'A shared coding agent'],
+    answer: 0,
+    explanation: 'Textual mergeability does not establish joint behavioral compatibility.'
+  },
+  {
+    category: 'Course 15 provenance',
+    question: 'A trusted build generated provenance, but its subject digest differs from the deployment artifact. What should the deployment gate do?',
+    options: ['Block because the authorized and deployed subjects differ', 'Deploy because the builder is trusted', 'Recalculate the digest in the PR', 'Accept a matching image tag'],
+    answer: 0,
+    explanation: 'Trusted production does not repair subject mismatch. Provenance, receipt, build record, and deployment request must bind the same immutable digest.'
+  },
+  {
+    category: 'Course 15 receipts',
+    question: 'Why should a deployment authorization receipt be short-lived and single-use?',
+    options: ['To constrain replay and bind one consequential transition to current state', 'To make audit records smaller', 'To let agents regenerate authority', 'To avoid artifact digests'],
+    answer: 0,
+    explanation: 'Expiry and atomic consumption narrow the opportunity to replay an authorization after its assumptions change.'
+  },
+  {
+    category: 'Course 15 runtime evidence',
+    question: 'Production reports zero invariant violations, but instrumentation health is unknown and the applicable population is zero. What can be concluded?',
+    options: ['No conformance conclusion; coverage and denominator are missing', 'The invariant is proven', 'The feature should automatically scale up', 'The specification is wrong'],
+    answer: 0,
+    explanation: 'An empty or blind observation channel can produce a misleading zero.'
+  },
+  {
+    category: 'Course 15 risk profiles',
+    question: 'How should risk-adaptive delivery gates differ between a typo and a high-risk AI behavior change?',
+    options: ['Increase evidence and approval depth while preserving identity and truthfulness for both', 'Skip all controls for the typo', 'Use identical heavy workflows for every change', 'Let agents select their own risk tier'],
+    answer: 0,
+    explanation: 'Proportionality changes control depth, not whether evidence and identity must be truthful.'
+  },
+  {
+    category: 'Course 15 platform design',
+    question: 'Why centralize reusable SDD delivery controls instead of copying policy logic into every repository?',
+    options: ['To preserve one versioned interpretation, trust boundary, and upgrade path while repositories provide facts', 'To make repositories unable to test locally', 'To transfer policy ownership to CI', 'To eliminate product-team responsibility'],
+    answer: 0,
+    explanation: 'A control plane can distribute versioned policy and evidence contracts without duplicating or laundering authority.'
+  },
+  {
+    category: 'Course 15 completion',
+    question: 'The lab detects all ten golden scenarios and 64 labelled mutations. What does that establish?',
+    options: ['Reproducibility for the declared fixture, not production assurance', 'The platform is SLSA-certified', 'All enterprise policies are complete', 'Deployment is authorized'],
+    answer: 0,
+    explanation: 'Synthetic tests support bounded teaching claims. Real identity, isolation, signing, operations, and accountable authority remain outside the fixture.'
   }
 ];
