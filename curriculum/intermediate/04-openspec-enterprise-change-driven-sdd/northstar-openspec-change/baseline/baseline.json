@@ -1,0 +1,51 @@
+{
+  "id": "document-processing",
+  "revision": "document-processing@4-training",
+  "repository_revision": "northstar-docs@a17-training",
+  "fixture_status": "synthetic_training_baseline",
+  "requirements": [
+    {
+      "id": "REQ-DOC-010",
+      "revision": 2,
+      "authority": "project",
+      "text": "PDF documents SHALL be extracted through the approved extraction service.",
+      "scenarios": ["supported_pdf_uses_approved_extraction"]
+    },
+    {
+      "id": "REQ-DOC-014",
+      "revision": 3,
+      "authority": "project",
+      "text": "Broker documents SHALL be manually classified before underwriting processing.",
+      "scenarios": ["classification_enters_manual_queue", "authorized_underwriter_confirms_authority"]
+    },
+    {
+      "id": "REQ-DOC-015",
+      "revision": 2,
+      "authority": "project",
+      "text": "Classification SHALL be persisted only after authorized underwriter confirmation.",
+      "scenarios": ["unconfirmed_value_is_not_authoritative"]
+    },
+    {
+      "id": "REQ-DOC-016",
+      "revision": 1,
+      "authority": "project",
+      "text": "Unsupported documents SHALL remain available for manual processing.",
+      "scenarios": ["unsupported_input_remains_recoverable"]
+    }
+  ],
+  "invariants": [
+    {
+      "id": "INV-DOC-004",
+      "text": "No generated value becomes authoritative without an authorized review decision.",
+      "affected_by": ["REQ-DOC-014", "REQ-DOC-015"]
+    },
+    {
+      "id": "INV-DOC-007",
+      "text": "Unsupported or ambiguous documents remain recoverable through manual processing.",
+      "affected_by": ["REQ-DOC-014", "REQ-DOC-016"]
+    }
+  ],
+  "contracts": ["CONTRACT-DOC-REVIEW@2-training"],
+  "architecture": ["ADR-058@3-training"]
+}
+

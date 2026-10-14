@@ -1,0 +1,9 @@
+{
+  "baseline": "document-processing@4-training",
+  "changes": ["AI-2310@2-training", "AI-2331@1-training"],
+  "shared_subject": "REQ-DOC-014@3",
+  "conflict_disposition": "TODO: choose order, rebase, merge, split, redesign, or reject with an accountable owner",
+  "first_work_unit_change": "TODO: bind to the exact change revision",
+  "integration_state": "TODO: keep unavailable until exact-revision evidence and external owner authorization exist"
+}
+

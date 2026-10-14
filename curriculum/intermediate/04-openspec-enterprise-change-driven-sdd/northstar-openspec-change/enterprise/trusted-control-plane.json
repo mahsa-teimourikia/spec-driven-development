@@ -1,0 +1,22 @@
+{
+  "fixture_status": "synthetic_trusted_control_plane",
+  "evaluation_time": "2026-10-12T12:00:00Z",
+  "trusted_issuers": ["delivery-control-plane"],
+  "integration_receipts": {
+    "RCP-AI2310-001": {
+      "id": "RCP-AI2310-001",
+      "issuer": "delivery-control-plane",
+      "approver_id": "baseline-owner-01",
+      "baseline_digest": "sha256:de69589de34c575b23e0b9f05ca9d959b4be18d5373599beac669bc3df870b14",
+      "change_revision": "AI-2310@2-training",
+      "implementation_revision": "impl-ai2310@training-7f3a",
+      "policy_context": "CTX-AI-2310@4-training",
+      "operation": "INTEGRATE_AND_ARCHIVE",
+      "issued_at": "2026-10-12T10:00:00Z",
+      "expires_at": "2026-10-12T18:00:00Z",
+      "revoked": false,
+      "state": "UNUSED",
+      "version": 1
+    }
+  }
+}

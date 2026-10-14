@@ -1,0 +1,16 @@
+{
+  "claim": "labelled_training_scenarios_not_general_semantic_conflict_accuracy",
+  "cases": [
+    {"id": "OS-GOLDEN-001", "name": "protected enterprise policy mutation", "signals": ["protected_authority_mutation"], "expected": "BLOCK_PROTECTED_AUTHORITY"},
+    {"id": "OS-GOLDEN-002", "name": "stale baseline revision", "signals": ["stale_baseline"], "expected": "REBASE_REQUIRED"},
+    {"id": "OS-GOLDEN-003", "name": "concurrent shared requirement", "signals": ["shared_requirement"], "expected": "CONFLICT_REVIEW"},
+    {"id": "OS-GOLDEN-004", "name": "semantic conflict across different requirements", "signals": ["semantic_contradiction"], "expected": "SEMANTIC_CONFLICT"},
+    {"id": "OS-GOLDEN-005", "name": "unapproved architecture invention", "signals": ["unapproved_architecture"], "expected": "ARCHITECTURE_REVIEW"},
+    {"id": "OS-GOLDEN-006", "name": "task lacks change ancestry", "signals": ["missing_change_ancestry"], "expected": "BLOCK_UNTRACEABLE_WORK"},
+    {"id": "OS-GOLDEN-007", "name": "delta passes but baseline invariant fails", "signals": ["delta_pass_regression_fail"], "expected": "BLOCK_REGRESSION_FAILURE"},
+    {"id": "OS-GOLDEN-008", "name": "archive before evidence and authority", "signals": ["archive_before_evidence"], "expected": "BLOCK_ARCHIVE"},
+    {"id": "OS-GOLDEN-009", "name": "child repository weakens parent", "signals": ["child_weakens_parent"], "expected": "BLOCK_CHILD_OVERRIDE"},
+    {"id": "OS-GOLDEN-010", "name": "open question silently becomes assumption", "signals": ["question_assumed"], "expected": "BLOCK_UNAUTHORIZED_ASSUMPTION"}
+  ]
+}
+

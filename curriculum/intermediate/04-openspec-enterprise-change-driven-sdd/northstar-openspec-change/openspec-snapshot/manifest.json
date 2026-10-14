@@ -1,0 +1,36 @@
+{
+  "release": "v1.14.1",
+  "release_date": "2026-10-06",
+  "observed_at": "2026-10-12",
+  "resolved_commit": "87c3595ace6a2e22957f39ebe5b74c2f2316e0cb",
+  "package": "@fission-ai/openspec@1.14.1",
+  "node_requirement": ">=20.19.0",
+  "default_schema": {
+    "name": "spec-driven",
+    "version": 1,
+    "artifact_order": ["proposal", "specs", "design", "tasks"],
+    "design_optional": true,
+    "delta_operations": ["ADDED", "MODIFIED", "REMOVED", "RENAMED"],
+    "schema_digest": "sha256:b6f28f305ab7f33b061949251bba82c79de66c82424cfed60582327db3f888f2"
+  },
+  "core_profile_actions": ["propose", "explore", "apply", "update", "sync", "archive"],
+  "expanded_actions": ["new", "continue", "ff", "verify", "bulk-archive"],
+  "cli_controls": ["init", "update", "doctor", "context", "list", "view", "show", "validate", "status", "instructions", "archive"],
+  "semantic_contracts": {
+    "proposal": ["why_and_what", "capability_inventory", "impact"],
+    "specs": ["behavior_not_implementation", "capability_path_identity", "full_modified_requirement", "scenario_per_requirement"],
+    "design": ["technical_choices", "architecture_proposals_are_not_approval", "material_questions_resolved_before_tasks"],
+    "tasks": ["dependency_ordered_checkboxes", "verification_per_task", "not_autonomous_execution_authority"],
+    "sync": ["merge_delta_into_current_specs", "change_remains_active", "not_release_authority"],
+    "archive": ["validate_by_default", "merge_or_confirm_synced_deltas", "preserve_dated_history", "not_enterprise_release_authority"]
+  },
+  "source_digests": {
+    "docs/concepts.md": "sha256:633cd98c457b59f4a14dc4e92e2ded89eccf5cbf858237e4e8bf0a801b468dcd",
+    "docs/workflows.md": "sha256:c5947da5d67e0dcd86e9881acee15966008e0f92dc598952d69d57afee64fc14",
+    "docs/commands.md": "sha256:cae2992ccc2d2d6dad450e4f6f194bfd36581de40fff13abc09ade7c47ea8046",
+    "docs/cli.md": "sha256:44b0302315f5aff23f3bcfb9d9390d81627e3842ca2f5c0ab0f9022d9b0a0c1e",
+    "schemas/spec-driven/schema.yaml": "sha256:b6f28f305ab7f33b061949251bba82c79de66c82424cfed60582327db3f888f2"
+  },
+  "claim": "dated_observation_of_official_release_not_vendor_certification_or_production_approval"
+}
+

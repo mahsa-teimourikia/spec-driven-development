@@ -2178,10 +2178,10 @@ def check_course_13_spec_kit() -> list[str]:
         errors.append("Course 13 synthetic evidence must not claim production readiness")
 
     quiz_source = (ROOT / "quiz" / "questions.js").read_text(encoding="utf-8")
-    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 182:
-        errors.append("Course 13 cumulative quiz must contain 182 questions")
-    if "Courses 01–13" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
-        errors.append("Course 13 cumulative quiz must identify Courses 01–13")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) < 182:
+        errors.append("Course 13 cumulative quiz questions must remain present")
+    if "Course 13 evidence" not in quiz_source:
+        errors.append("Course 13 cumulative quiz checkpoint is missing")
     hub_source = (ROOT / "hub" / "lessons.js").read_text(encoding="utf-8")
     expected_hub_fragments = [
         "const course13 = {",
@@ -2191,6 +2191,127 @@ def check_course_13_spec_kit() -> list[str]:
     ]
     if any(fragment not in hub_source for fragment in expected_hub_fragments):
         errors.append("Course 13 Learning Hub entry is incomplete or points outside the workshop package")
+    return errors
+
+
+def check_course_14_openspec() -> list[str]:
+    lesson = ROOT / "curriculum" / "intermediate" / "04-openspec-enterprise-change-driven-sdd"
+    scenario = lesson / "northstar-openspec-change"
+    required = [
+        "README.md",
+        "baseline/document-processing.md",
+        "baseline/baseline.json",
+        "baseline/architecture.md",
+        "baseline/contracts/review-contract.md",
+        "enterprise/effective-context.json",
+        "enterprise/authority-map.json",
+        "changes/AI-2310/proposal.md",
+        "changes/AI-2310/specs/document-processing/spec.md",
+        "changes/AI-2310/design.md",
+        "changes/AI-2310/tasks.md",
+        "changes/AI-2310/questions.yaml",
+        "changes/AI-2331/proposal.md",
+        "changes/AI-2331/specs/document-processing/spec.md",
+        "changes/AI-2331/design.md",
+        "changes/AI-2331/tasks.md",
+        "reference/change-portfolio.json",
+        "candidate/change-portfolio.json",
+        "openspec-snapshot/manifest.json",
+        "openspec-snapshot/README.md",
+        "workshop/starter/README.md",
+        "workshop/starter/change-portfolio.json",
+        "conformance-suite.json",
+        "evaluation-cases.json",
+        "lab.py",
+        "openspec_enterprise_change.ipynb",
+    ]
+    errors = [
+        f"missing Course 14 OpenSpec artifact: {item}"
+        for item in required
+        if not (scenario / item).exists()
+    ]
+    if errors:
+        return errors
+
+    reference_text = (scenario / "reference" / "change-portfolio.json").read_text(encoding="utf-8")
+    if "TODO" in reference_text:
+        errors.append("Course 14 reference portfolio must not contain unresolved TODOs")
+    starter_text = (scenario / "workshop" / "starter" / "change-portfolio.json").read_text(encoding="utf-8")
+    if starter_text.count("TODO") != 3:
+        errors.append("Course 14 starter portfolio must retain exactly three editable TODOs")
+
+    result = subprocess.run(
+        [sys.executable, str(scenario / "lab.py")],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    try:
+        report = json.loads(result.stdout) if result.returncode == 0 else {}
+    except json.JSONDecodeError:
+        report = {}
+    if not report:
+        errors.append("Course 14 lab did not produce its JSON change-governance report")
+        return errors
+
+    if report.get("reference") != {"state": "READY_FOR_OWNER_REVIEW", "findings": []}:
+        errors.append("Course 14 reference must be finding-free and ready only for owner review")
+    unsafe = report.get("unsafe_candidate", {})
+    required_codes = {
+        "PROTECTED_AUTHORITY_MUTATION",
+        "STALE_BASELINE_REVISION",
+        "CONCURRENT_CHANGE_CONFLICT_UNRECORDED",
+        "ARCHITECTURE_SELF_APPROVED",
+        "DELTA_EVIDENCE_MISSING",
+        "REGRESSION_EVIDENCE_MISSING",
+        "ARCHIVE_BEFORE_AUTHORIZATION",
+        "CHILD_WEAKENS_PARENT",
+        "OPEN_QUESTION_COLLAPSED",
+        "AGENT_SELF_TRANSITION",
+    }
+    if unsafe.get("state") != "BLOCKED" or not required_codes.issubset(set(unsafe.get("findings", []))):
+        errors.append("Course 14 unsafe candidate must retain its intended change-control failures")
+    if report.get("conformance") != {"passed": 10, "total": 10}:
+        errors.append("Course 14 golden conformance suite must retain ten passing scenarios")
+    if report.get("evaluation") != {"passed": 61, "total": 61}:
+        errors.append("Course 14 mutation evaluation must retain 53 detected cases")
+    if report.get("integration") != "OWNER_REVIEW_REQUIRED":
+        errors.append("Course 14 must keep baseline integration under external owner authority")
+    if report.get("candidate_target") != "candidate-target-not-integrated":
+        errors.append("Course 14 must distinguish a candidate target from integrated baseline truth")
+
+    snapshot = json.loads((scenario / "openspec-snapshot" / "manifest.json").read_text(encoding="utf-8"))
+    if snapshot.get("release") != "v1.14.1" or snapshot.get("resolved_commit") != "87c3595ace6a2e22957f39ebe5b74c2f2316e0cb":
+        errors.append("Course 14 must retain its dated pinned OpenSpec snapshot")
+    if len(snapshot.get("source_digests", {})) != 5 or set(snapshot.get("default_schema", {}).get("delta_operations", [])) != {"ADDED", "MODIFIED", "REMOVED", "RENAMED"}:
+        errors.append("Course 14 snapshot must retain official source provenance and delta semantics")
+
+    package = json.loads(reference_text)
+    if len(package.get("changes", [])) != 2 or len(package.get("conflicts", [])) != 2:
+        errors.append("Course 14 reference must retain two concurrent changes and two recorded conflicts")
+    if len(package.get("work_units", [])) != 6:
+        errors.append("Course 14 reference must retain six bounded agent work units")
+    evidence_sets = {tuple(item.get("required_evidence", [])) for item in package.get("work_units", [])}
+    if len(evidence_sets) != 6:
+        errors.append("Course 14 work units must retain claim-specific evidence obligations")
+    if package.get("baseline", {}).get("mutated") is not False or package.get("integration", {}).get("release_authorized") is not False:
+        errors.append("Course 14 reference must not claim baseline integration or release")
+
+    quiz_source = (ROOT / "quiz" / "questions.js").read_text(encoding="utf-8")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 194:
+        errors.append("Course 14 cumulative quiz must contain 194 questions")
+    if "Courses 01–14" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
+        errors.append("Course 14 cumulative quiz must identify Courses 01–14")
+    hub_source = (ROOT / "hub" / "lessons.js").read_text(encoding="utf-8")
+    expected_hub_fragments = [
+        "const course14 = {",
+        "04-openspec-enterprise-change-driven-sdd/northstar-openspec-change/openspec_enterprise_change.ipynb",
+        "04-openspec-enterprise-change-driven-sdd/northstar-openspec-change/workshop/starter",
+        "04-openspec-enterprise-change-driven-sdd/northstar-openspec-change/reference",
+    ]
+    if any(fragment not in hub_source for fragment in expected_hub_fragments):
+        errors.append("Course 14 Learning Hub entry is incomplete or points outside the workshop package")
     return errors
 
 
@@ -2213,6 +2334,7 @@ def main() -> None:
         "Course 11 multi-agent coordination": check_course_11_multi_agent_coordination,
         "Course 12 framework landscape": check_course_12_framework_landscape,
         "Course 13 Spec Kit": check_course_13_spec_kit,
+        "Course 14 OpenSpec": check_course_14_openspec,
         "diagrams": render_and_validate_diagrams,
         "labs": run_labs,
         "repository labs": run_repository_labs,

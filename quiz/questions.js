@@ -1272,5 +1272,89 @@ const QUESTIONS = [
     options: ['Ready for accountable owner review', 'Production approved', 'GitHub Spec Kit vendor-certified', 'Released to customers'],
     answer: 0,
     explanation: 'Deterministic synthetic evidence supports the declared training claims only; approval and release remain external authority decisions.'
+  },
+  {
+    category: 'Course 14 change semantics',
+    question: 'What does baseline plus delta produce before accountable integration approval?',
+    options: ['A candidate target specification', 'Automatically approved current truth', 'A production release receipt', 'An enterprise policy exception'],
+    answer: 0,
+    explanation: 'A valid delta can derive proposed target behavior. Authority, evidence, concurrency, and integration gates still decide whether it becomes approved baseline truth.'
+  },
+  {
+    category: 'Course 14 authority',
+    question: 'A project OpenSpec change modifies an enterprise-owned human-review requirement. What should happen?',
+    options: ['Block the protected-authority mutation and route a policy-change or exception request', 'Accept it because MODIFIED is valid syntax', 'Accept it after the coding agent adds tests', 'Copy it into a local requirement that overrides policy'],
+    answer: 0,
+    explanation: 'Delta syntax does not transfer decision rights. Project changes can propose or request an exception; they cannot approve enterprise policy changes.'
+  },
+  {
+    category: 'Course 14 concurrency',
+    question: 'Two active changes modify the same baseline requirement in different folders and Git reports no conflict. What is the correct control?',
+    options: ['Record a semantic conflict and require ordering, rebase, merge, split, redesign, or rejection', 'Apply both alphabetically', 'Trust the newest ticket', 'Let the implementation agent select a winner'],
+    answer: 0,
+    explanation: 'Source-control compatibility does not establish behavioral compatibility. The shared requirement and affected invariants need accountable conflict disposition.'
+  },
+  {
+    category: 'Course 14 deltas',
+    question: 'Why must an OpenSpec MODIFIED delta include the complete prior requirement block and its scenarios?',
+    options: ['Partial replacement can erase unmentioned behavior when the delta is integrated', 'It makes the Markdown longer', 'It grants architecture approval', 'It eliminates the need for baseline revision checks'],
+    answer: 0,
+    explanation: 'A modified requirement replaces behavior. Full prior-state comparison both detects staleness and prevents accidental loss of scenarios.'
+  },
+  {
+    category: 'Course 14 evidence',
+    question: 'The new classification evaluation passes, but the existing manual fallback regression fails. Is the change conformant?',
+    options: ['No; change conformance needs delta evidence and affected-baseline regression evidence', 'Yes; only new behavior matters', 'Yes if all tasks are checked', 'Yes if the agent reports completion'],
+    answer: 0,
+    explanation: 'A change must prove its new claims and preserve unchanged affected obligations. Delta-only evidence can hide a regression.'
+  },
+  {
+    category: 'Course 14 archive',
+    question: 'What is wrong with automatically archiving a change as soon as its pull request merges?',
+    options: ['Code merge does not prove exact-revision evidence, owner integration authority, baseline update, or release state', 'Nothing; Git merge is semantic approval', 'Archive should happen before tests', 'Archive is only a folder rename'],
+    answer: 0,
+    explanation: 'Repository merge, evidence completion, spec integration, archive, and production release are distinct governed events.'
+  },
+  {
+    category: 'Course 14 lifecycle',
+    question: 'How does OpenSpec sync differ from archive?',
+    options: ['Sync merges deltas into current specs while the change remains active; archive completes and preserves the change in history', 'Sync releases production while archive runs tests', 'Archive deletes all change history', 'There is no difference'],
+    answer: 0,
+    explanation: 'Sync supports long-running change evolution. Archive completes the change lifecycle and preserves its artifact history.'
+  },
+  {
+    category: 'Course 14 agent work units',
+    question: 'An OpenSpec task says “implement the classification adapter.” What is still needed before autonomous dispatch?',
+    options: ['Exact change ancestry, requirements, writable and protected paths, stop conditions, permissions, and claim-specific evidence', 'Only a checked box', 'An agent-chosen architecture', 'Production credentials'],
+    answer: 0,
+    explanation: 'Tasks track implementation work. AWUs constrain autonomous execution and preserve traceability to the semantic change.'
+  },
+  {
+    category: 'Course 14 partial readiness',
+    question: 'An open owner question blocks automatic persistence but not proposal generation. What is the best state?',
+    options: ['Keep persistence blocked while allowing independently safe proposal work to proceed', 'Invent a confidence threshold', 'Block every project task indefinitely', 'Mark the question answered by the coding agent'],
+    answer: 0,
+    explanation: 'Typed capability-level readiness preserves safety without turning one unresolved decision into a portfolio-wide stop.'
+  },
+  {
+    category: 'Course 14 multi-repository',
+    question: 'What may a child repository change do with a parent OpenSpec change requirement?',
+    options: ['Specialize local implementation and evidence without weakening canonical semantics', 'Replace the parent meaning with local policy', 'Remove human review if its code is isolated', 'Approve the parent change'],
+    answer: 0,
+    explanation: 'Canonical IDs and parent semantics preserve cross-repository meaning. Children own local realization, not silent override.'
+  },
+  {
+    category: 'Course 14 artifact boundaries',
+    question: 'Which statement correctly distinguishes a change from a task?',
+    options: ['A change alters meaningful approved system behavior; a task is work performed to realize it', 'A change is always one code file and a task is one requirement', 'They are synonyms', 'Tasks own business approval'],
+    answer: 0,
+    explanation: 'Microscopic implementation steps should not become semantic change packages, and meaningful behavior changes should not be hidden as tasks.'
+  },
+  {
+    category: 'Course 14 evidence',
+    question: 'The Course 14 reference passes all deterministic checks, 10 golden scenarios, and 53 mutations. What is the strongest justified state?',
+    options: ['Ready for accountable owner review', 'OpenSpec vendor-certified', 'Baseline integrated and archived', 'Production released'],
+    answer: 0,
+    explanation: 'The evidence supports only the labelled synthetic training claims. Authenticated approval, integration, archive, and release remain external decisions.'
   }
 ];
