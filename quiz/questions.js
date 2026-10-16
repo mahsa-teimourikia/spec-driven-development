@@ -1373,17 +1373,17 @@ const QUESTIONS = [
   },
   {
     category: 'Course 15 authorization',
-    question: 'All required validation gates pass. What is the strongest automatic conclusion?',
-    options: ['The change is eligible for an accountable integration decision', 'The PR is authorized to merge', 'The artifact is authorized for production', 'Production acceptance is complete'],
+    question: 'A valid deployment receipt is presented, but integration authorization did not complete for the exact source subject. What should happen?',
+    options: ['Block deployment because a receipt cannot bypass a failed prerequisite transition', 'Deploy because the receipt is valid', 'Let the coding agent mark integration complete', 'Ignore integration when build provenance passes'],
     answer: 0,
-    explanation: 'Validation establishes eligibility. Merge and deployment are separate exact-subject authorization transitions.'
+    explanation: 'Every consequential transition requires both its own exact-subject authorization and successful upstream gates; receipt possession alone is insufficient.'
   },
   {
     category: 'Course 15 evidence',
-    question: 'A coding agent reports that its implementation and tests are complete. How should CI treat the report?',
-    options: ['As useful completion provenance, not independent proof of conformance', 'As sufficient production evidence', 'As an integration receipt', 'As policy-owner approval'],
+    question: 'A PR claims PASS and names an allowlisted evidence producer, but the trusted registry has no authenticated record for the evidence ID. How should CI treat it?',
+    options: ['Block because a producer name and result inside the PR do not authenticate evidence', 'Accept it because the producer name is allowlisted', 'Accept it when unit tests pass', 'Convert the claim into an integration receipt'],
     answer: 0,
-    explanation: 'The producer under evaluation cannot independently certify the claims required to authorize its output.'
+    explanation: 'The PR may reference evidence, but trusted producer identity, attestation, result, and exact subject must come from a protected registry.'
   },
   {
     category: 'Course 15 invalidation',
@@ -1415,10 +1415,10 @@ const QUESTIONS = [
   },
   {
     category: 'Course 15 runtime evidence',
-    question: 'Production reports zero invariant violations, but instrumentation health is unknown and the applicable population is zero. What can be concluded?',
-    options: ['No conformance conclusion; coverage and denominator are missing', 'The invariant is proven', 'The feature should automatically scale up', 'The specification is wrong'],
+    question: 'Production reports zero violations across 500 English PDFs, but the approved rollout also includes scanned images and no scanned-image events arrived. What can be concluded?',
+    options: ['No rollout-wide conformance conclusion; one required population slice and its delivery evidence are missing', 'The invariant is proven for the whole rollout', 'The scanned-image slice can be removed automatically', 'The source specification must be wrong'],
     answer: 0,
-    explanation: 'An empty or blind observation channel can produce a misleading zero.'
+    explanation: 'A healthy aggregate denominator cannot hide a missing required slice; runtime evidence needs the approved window, complete event delivery, and population coverage.'
   },
   {
     category: 'Course 15 risk profiles',
@@ -1436,7 +1436,7 @@ const QUESTIONS = [
   },
   {
     category: 'Course 15 completion',
-    question: 'The lab detects all ten golden scenarios and 64 labelled mutations. What does that establish?',
+    question: 'The lab detects all eleven golden scenarios and 68 labelled mutations. What does that establish?',
     options: ['Reproducibility for the declared fixture, not production assurance', 'The platform is SLSA-certified', 'All enterprise policies are complete', 'Deployment is authorized'],
     answer: 0,
     explanation: 'Synthetic tests support bounded teaching claims. Real identity, isolation, signing, operations, and accountable authority remain outside the fixture.'

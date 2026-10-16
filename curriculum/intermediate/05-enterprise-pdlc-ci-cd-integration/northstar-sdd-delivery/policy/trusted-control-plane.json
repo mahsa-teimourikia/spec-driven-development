@@ -7,58 +7,84 @@
     "integration_base_sha": "main-8f58f25",
     "policy_revisions": ["AI-GOV@12", "ARCH@9", "SEC@31", "QUALITY@18"]
   },
+  "source_control": {
+    "provider": "github",
+    "repository": "northstar/underwriter-assistant",
+    "base_revision": "8f58f25",
+    "head_sha": "pr-head-b91c6d2",
+    "changed_paths": ["src/document_classifier.py", "tests/test_document_classifier.py", "evals/classifier_cases.json"],
+    "attestation_verified": true
+  },
   "risk_profiles": {
     "high": {
       "required_gates": ["specification_readiness", "implementation_conformance", "technical_quality", "evidence_integrity", "control_provenance", "integration_readiness"]
     }
   },
-  "protected_paths": [
-    ".github/workflows/release.yml",
-    "delivery-control/policy.json",
-    "src/auth/authorization.py"
-  ],
+  "protected_paths": [".github/workflows/release.yml", "delivery-control/policy.json", "src/auth/authorization.py"],
   "protected_requirement_hashes": {
     "REQ-AI-2310-01": "sha256:req-01-approved",
     "INV-AI-2310-02": "sha256:inv-02-approved"
   },
-  "trusted_evidence_producers": [
-    "northstar/independent-test-runner@4",
-    "northstar/evaluation-service@8",
-    "northstar/security-verifier@5"
-  ],
-  "validator": {
-    "repository": "northstar/delivery-control",
-    "revision": "9b6127d",
-    "source": "protected-default-branch"
+  "component_registry": {
+    "application": "app@43",
+    "model": "model-registry@17",
+    "prompt": "prompt-bundle@12",
+    "retrieval": "index@8",
+    "tools": "tool-registry@6",
+    "policy": "AI-GOV@12",
+    "runtime_config": "runtime@21"
+  },
+  "system_revision_algorithm": "sha256-canonical-json-v1",
+  "trusted_evidence_producers": ["northstar/independent-test-runner@4", "northstar/evaluation-service@8", "northstar/security-verifier@5"],
+  "evidence_registry": {
+    "EVID-CLASS-001": {
+      "claim_id": "CLM-CLASS-QUALITY", "result": "PASS", "producer": "northstar/evaluation-service@8",
+      "producer_identity_verified": true, "attestation_verified": true, "independent": true,
+      "dataset_revision": "classifier-gold@9", "expires_at": "2026-10-20T00:00:00Z",
+      "subject": {"change_id": "AI-2310", "commit": "pr-head-b91c6d2", "specification_revision": "AI-2310-spec@7", "system_revision": "sha256:1bd0fe1d6bbdf1fb7fa2af2d2c6f7571b597dfd13d1910f0b48a09d094681391"}
+    },
+    "EVID-INJECT-001": {
+      "claim_id": "CLM-PROMPT-INJECTION", "result": "PASS", "producer": "northstar/security-verifier@5",
+      "producer_identity_verified": true, "attestation_verified": true, "independent": true,
+      "dataset_revision": "injection-suite@12", "expires_at": "2026-10-20T00:00:00Z",
+      "subject": {"change_id": "AI-2310", "commit": "pr-head-b91c6d2", "specification_revision": "AI-2310-spec@7", "system_revision": "sha256:1bd0fe1d6bbdf1fb7fa2af2d2c6f7571b597dfd13d1910f0b48a09d094681391"}
+    },
+    "EVID-REVIEW-001": {
+      "claim_id": "CLM-REVIEW-INVARIANT", "result": "PASS", "producer": "northstar/independent-test-runner@4",
+      "producer_identity_verified": true, "attestation_verified": true, "independent": true,
+      "dataset_revision": "review-contract@5", "expires_at": "2026-10-20T00:00:00Z",
+      "subject": {"change_id": "AI-2310", "commit": "pr-head-b91c6d2", "specification_revision": "AI-2310-spec@7", "system_revision": "sha256:1bd0fe1d6bbdf1fb7fa2af2d2c6f7571b597dfd13d1910f0b48a09d094681391"}
+    }
+  },
+  "validator": {"repository": "northstar/delivery-control", "revision": "9b6127d", "source": "protected-default-branch"},
+  "execution_attestation": {
+    "workload_identity": "northstar-ci/delivery-validator@prod",
+    "validator_repository": "northstar/delivery-control",
+    "validator_revision": "9b6127d",
+    "protected_workflow": true,
+    "attestation_verified": true
   },
   "trusted_builder_ids": ["https://build.northstar.example/hosted/v3"],
   "approved_rollback_artifacts": ["sha256:underwriter-v42-approved"],
+  "receipt_store": {
+    "durability": "PROCESS_LOCAL_TRAINING_ONLY",
+    "production_requirement": "transactional compare-and-swap with durable replay records"
+  },
+  "completed_integrations": [],
+  "runtime_contract": {
+    "monitoring_window_id": "rollout-ai2310-window-1",
+    "approved_population_slices": ["english_pdf", "scanned_image"],
+    "minimum_applicable_population": 1,
+    "event_delivery_required": "COMPLETE"
+  },
   "receipts": {
     "INT-AI2310-001": {
-      "kind": "INTEGRATION",
-      "state": "AVAILABLE",
-      "version": 1,
-      "expires_at": "2026-10-14T12:00:00Z",
-      "subject": {
-        "change_id": "AI-2310",
-        "commit": "pr-head-b91c6d2",
-        "specification_revision": "AI-2310-spec@7",
-        "system_revision": "sha256:system-app43-model17-prompt12-retrieval8-tools6-policy12"
-      }
+      "kind": "INTEGRATION", "state": "AVAILABLE", "version": 1, "expires_at": "2026-10-14T12:00:00Z",
+      "subject": {"change_id": "AI-2310", "commit": "pr-head-b91c6d2", "specification_revision": "AI-2310-spec@7", "system_revision": "sha256:1bd0fe1d6bbdf1fb7fa2af2d2c6f7571b597dfd13d1910f0b48a09d094681391"}
     },
     "DEP-AI2310-001": {
-      "kind": "DEPLOYMENT",
-      "state": "AVAILABLE",
-      "version": 1,
-      "expires_at": "2026-10-14T12:00:00Z",
-      "subject": {
-        "change_id": "AI-2310",
-        "commit": "pr-head-b91c6d2",
-        "specification_revision": "AI-2310-spec@7",
-        "system_revision": "sha256:system-app43-model17-prompt12-retrieval8-tools6-policy12",
-        "artifact_digest": "sha256:underwriter-v43-tested",
-        "environment": "production"
-      }
+      "kind": "DEPLOYMENT", "state": "AVAILABLE", "version": 1, "expires_at": "2026-10-14T12:00:00Z",
+      "subject": {"change_id": "AI-2310", "commit": "pr-head-b91c6d2", "specification_revision": "AI-2310-spec@7", "system_revision": "sha256:1bd0fe1d6bbdf1fb7fa2af2d2c6f7571b597dfd13d1910f0b48a09d094681391", "artifact_digest": "sha256:underwriter-v43-tested", "environment": "production"}
     }
   }
 }

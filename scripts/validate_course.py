@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 import os
 import re
@@ -2323,6 +2324,7 @@ def check_course_15_enterprise_delivery() -> list[str]:
         "policy/trusted-control-plane.json",
         "reference/delivery-package.json",
         "candidate/delivery-package.json",
+        "candidate/trusted-observations.json",
         "workshop/starter/README.md",
         "workshop/starter/delivery-package.json",
         "conformance-suite.json",
@@ -2381,12 +2383,17 @@ def check_course_15_enterprise_delivery() -> list[str]:
     required_codes = {
         "SPEC_REVISION_STALE",
         "AWU_SCOPE_VIOLATION",
+        "PR_DIFF_CLAIM_MISMATCH",
         "UNAUTHORIZED_REQUIREMENT_CHANGE",
-        "EVIDENCE_SUBJECT_MISMATCH",
-        "UNTRUSTED_EVIDENCE_PRODUCER",
-        "CONTROL_PROVENANCE_INVALID",
+        "EVIDENCE_RECORD_NOT_FOUND",
+        "UNTRUSTED_EVIDENCE_ASSERTION",
+        "SYSTEM_REVISION_DIGEST_INVALID",
+        "SYSTEM_COMPONENT_IDENTITY_UNVERIFIED",
+        "CONTROL_PROVENANCE_CLAIM_MISMATCH",
         "SEMANTIC_MERGE_CONFLICT",
+        "INTEGRATION_PREREQUISITE_FAILED",
         "INVALID_INTEGRATION_AUTHORIZATION",
+        "DEPLOYMENT_PREREQUISITE_FAILED",
         "DEPLOYMENT_ARTIFACT_MISMATCH",
     }
     if unsafe.get("decision") != "BLOCKED" or unsafe.get("technical_quality") != "PASS":
@@ -2395,19 +2402,73 @@ def check_course_15_enterprise_delivery() -> list[str]:
         errors.append("Course 15 unsafe candidate no longer exposes the required delivery failures")
     conformance = report.get("conformance", {})
     evaluation = report.get("evaluation", {})
-    if (conformance.get("passed"), conformance.get("total")) != (10, 10):
-        errors.append("Course 15 golden conformance suite must retain ten passing scenarios")
-    if (evaluation.get("passed"), evaluation.get("total")) != (64, 64):
-        errors.append("Course 15 mutation evaluation must retain 64 detected cases")
+    if (conformance.get("passed"), conformance.get("total")) != (11, 11):
+        errors.append("Course 15 golden conformance suite must retain eleven passing scenarios")
+    if (evaluation.get("passed"), evaluation.get("total")) != (68, 68):
+        errors.append("Course 15 mutation evaluation must retain 68 detected cases")
     if "trusted controls" not in report.get("authority_boundary", ""):
         errors.append("Course 15 must preserve the proposal-validation-authorization boundary")
 
     package = json.loads(reference_text)
+    control = json.loads((scenario / "policy" / "trusted-control-plane.json").read_text(encoding="utf-8"))
     if len(package.get("traceability", [])) != 2 or len(package.get("evidence_manifest", {}).get("records", [])) != 3:
         errors.append("Course 15 reference must retain requirement-to-claim traceability and three evidence records")
-    components = set(package.get("effective_ai_system_revision", {}).get("components", {}))
-    if components != {"application", "model", "prompt", "retrieval", "tools", "policy", "runtime_config"}:
+    component_map = package.get("effective_ai_system_revision", {}).get("components", {})
+    components = set(component_map)
+    required_components = {"application", "model", "prompt", "retrieval", "tools", "policy", "runtime_config"}
+    if components != required_components or component_map != control.get("component_registry"):
         errors.append("Course 15 must retain the complete effective AI-system revision")
+    canonical_components = json.dumps(component_map, sort_keys=True, separators=(",", ":"))
+    expected_system_digest = f"sha256:{hashlib.sha256(canonical_components.encode('utf-8')).hexdigest()}"
+    if (
+        control.get("system_revision_algorithm") != "sha256-canonical-json-v1"
+        or package.get("effective_ai_system_revision", {}).get("digest") != expected_system_digest
+    ):
+        errors.append("Course 15 effective AI-system identity must be derived from canonical component data")
+
+    source_control = control.get("source_control", {})
+    if (
+        source_control.get("attestation_verified") is not True
+        or source_control.get("base_revision") != control.get("current", {}).get("base_revision")
+        or source_control.get("head_sha") != package.get("pull_request", {}).get("head_sha")
+        or source_control.get("changed_paths") != package.get("pull_request", {}).get("changed_paths")
+    ):
+        errors.append("Course 15 must bind scope enforcement to attested source-control facts")
+
+    evidence_registry = control.get("evidence_registry", {})
+    evidence_references = package.get("evidence_manifest", {}).get("records", [])
+    referenced_ids = {item.get("evidence_id") for item in evidence_references}
+    if len(evidence_registry) != 3 or referenced_ids != set(evidence_registry):
+        errors.append("Course 15 evidence manifest must resolve exactly three trusted registry records")
+    for evidence_id, record in evidence_registry.items():
+        if (
+            record.get("producer") not in control.get("trusted_evidence_producers", [])
+            or record.get("producer_identity_verified") is not True
+            or record.get("attestation_verified") is not True
+            or record.get("independent") is not True
+            or record.get("result") != "PASS"
+            or record.get("subject", {}).get("system_revision") != expected_system_digest
+        ):
+            errors.append(f"Course 15 trusted evidence record is not independently attested: {evidence_id}")
+
+    validator = control.get("validator", {})
+    execution = control.get("execution_attestation", {})
+    if (
+        execution.get("attestation_verified") is not True
+        or execution.get("protected_workflow") is not True
+        or execution.get("validator_repository") != validator.get("repository")
+        or execution.get("validator_revision") != validator.get("revision")
+    ):
+        errors.append("Course 15 control provenance must come from a trusted execution attestation")
+    if control.get("receipt_store", {}).get("durability") != "PROCESS_LOCAL_TRAINING_ONLY":
+        errors.append("Course 15 must label its receipt lock as a process-local training mechanism")
+    runtime_contract = control.get("runtime_contract", {})
+    if (
+        set(runtime_contract.get("approved_population_slices", [])) != {"english_pdf", "scanned_image"}
+        or runtime_contract.get("event_delivery_required") != "COMPLETE"
+        or not runtime_contract.get("monitoring_window_id")
+    ):
+        errors.append("Course 15 runtime contract must require a complete window across both rollout slices")
     if package.get("integration", {}).get("requested") is not False or package.get("deployment", {}).get("requested") is not False:
         errors.append("Course 15 reference must not self-authorize integration or deployment")
 

@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import copy
+import fnmatch
+import hashlib
 import json
 import threading
 from dataclasses import asdict, dataclass
@@ -71,6 +73,35 @@ def load_candidate() -> dict[str, Any]:
     return package
 
 
+def load_candidate_control() -> dict[str, Any]:
+    control = load_control_plane()
+    observations = read_json(ROOT / "candidate" / "trusted-observations.json")
+    for patch in observations["control_patches"]:
+        apply_patch(control, patch)
+    return control
+
+
+def canonical_system_digest(components: dict[str, Any]) -> str:
+    payload = json.dumps(components, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return "sha256:" + hashlib.sha256(payload).hexdigest()
+
+
+def exact_transition_subject(package: dict[str, Any], *, deployment: bool = False) -> dict[str, Any]:
+    components = package.get("effective_ai_system_revision", {}).get("components", {})
+    subject = {
+        "change_id": package["change_manifest"]["change_id"],
+        "commit": package["pull_request"]["head_sha"],
+        "specification_revision": package["change_manifest"]["specification_revision"],
+        "system_revision": canonical_system_digest(components),
+    }
+    if deployment:
+        subject.update({
+            "artifact_digest": package.get("build", {}).get("artifact_digest"),
+            "environment": package.get("deployment", {}).get("environment"),
+        })
+    return subject
+
+
 def _parse_time(value: str) -> datetime:
     parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
     return parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
@@ -129,16 +160,34 @@ def validate_specification(package: dict[str, Any], control: dict[str, Any]) -> 
         results.append(finding("RISK_PROFILE_UNKNOWN", "change-manifest", "No governed gate profile exists for this risk tier."))
     if manifest.get("open_decisions"):
         results.append(finding("OPEN_DECISION_UNRESOLVED", "change-manifest", "An accountable decision remains open.", "REVIEW"))
+    system = package.get("effective_ai_system_revision", {})
+    components = system.get("components", {})
+    computed = canonical_system_digest(components) if isinstance(components, dict) else ""
+    if computed != system.get("digest"):
+        results.append(finding("SYSTEM_REVISION_DIGEST_INVALID", "effective-ai-system", "The declared system digest does not match its canonical component identities."))
+    if components != control.get("component_registry"):
+        results.append(finding("SYSTEM_COMPONENT_IDENTITY_UNVERIFIED", "effective-ai-system", "The package component identities do not match the trusted component registry."))
     return results
 
 
 def validate_implementation(package: dict[str, Any], control: dict[str, Any]) -> list[Finding]:
     results: list[Finding] = []
     manifest = package.get("change_manifest", {})
-    changed_paths = set(package.get("pull_request", {}).get("changed_paths", []))
-    allowed = set(manifest.get("authorized_paths", []))
-    protected = set(control["protected_paths"])
-    if changed_paths - allowed or changed_paths & protected:
+    pull_request = package.get("pull_request", {})
+    source = control.get("source_control", {})
+    if not source.get("attestation_verified"):
+        results.append(finding("SOURCE_CONTROL_ATTESTATION_INVALID", "source-control", "The authoritative base, head, and diff were not verified by the Git provider."))
+    if pull_request.get("head_sha") != source.get("head_sha") or manifest.get("base_revision") != source.get("base_revision"):
+        results.append(finding("SOURCE_REVISION_SUBJECT_MISMATCH", "pull-request", "The package is not bound to the trusted provider's exact base and head revisions."))
+    changed_paths = set(source.get("changed_paths", []))
+    declared_paths = set(pull_request.get("changed_paths", []))
+    if declared_paths != changed_paths:
+        results.append(finding("PR_DIFF_CLAIM_MISMATCH", "pull-request", "The package path summary differs from the authoritative Git-provider diff."))
+    allowed = list(manifest.get("authorized_paths", []))
+    protected = list(control["protected_paths"])
+    outside_scope = {path for path in changed_paths if not any(fnmatch.fnmatchcase(path, pattern) for pattern in allowed)}
+    protected_changes = {path for path in changed_paths if any(fnmatch.fnmatchcase(path, pattern) for pattern in protected)}
+    if outside_scope or protected_changes:
         results.append(finding("AWU_SCOPE_VIOLATION", "pull-request", "The authoritative diff crosses the approved work-unit path boundary."))
 
     expected = control["protected_requirement_hashes"]
@@ -181,16 +230,33 @@ def validate_evidence(package: dict[str, Any], control: dict[str, Any]) -> list[
     required = required_claims(package)
     valid: set[str] = set()
     trusted = set(control["trusted_evidence_producers"])
-    for record in package.get("evidence_manifest", {}).get("records", []):
-        claim_id = record.get("claim_id", "unknown")
-        if record.get("producer") not in trusted or not record.get("independent"):
-            results.append(finding("UNTRUSTED_EVIDENCE_PRODUCER", claim_id, "The evidence was not produced by an approved independent verifier."))
+    registry = control.get("evidence_registry", {})
+    assertion_fields = {"producer", "independent", "result", "subject", "expires_at", "attestation_verified"}
+    for claim in package.get("evidence_manifest", {}).get("records", []):
+        claim_id = claim.get("claim_id", "unknown")
+        if assertion_fields & set(claim):
+            results.append(finding("UNTRUSTED_EVIDENCE_ASSERTION", claim_id, "PR-controlled evidence metadata cannot establish producer, result, independence, or subject."))
+        evidence_id = claim.get("evidence_id")
+        record = registry.get(evidence_id)
+        if not record:
+            results.append(finding("EVIDENCE_RECORD_NOT_FOUND", str(evidence_id), "The referenced evidence ID was not found in the trusted verifier registry."))
+            continue
+        if record.get("claim_id") != claim_id:
+            results.append(finding("EVIDENCE_CLAIM_MISMATCH", str(evidence_id), "The trusted evidence record supports a different claim."))
+            continue
+        if (
+            record.get("producer") not in trusted
+            or not record.get("producer_identity_verified")
+            or not record.get("attestation_verified")
+            or not record.get("independent")
+        ):
+            results.append(finding("UNTRUSTED_EVIDENCE_PRODUCER", claim_id, "The trusted registry did not authenticate an approved independent verifier and attestation."))
             continue
         expected_subject = {
             "change_id": manifest.get("change_id"),
             "commit": package.get("pull_request", {}).get("head_sha"),
             "specification_revision": manifest.get("specification_revision"),
-            "system_revision": package.get("effective_ai_system_revision", {}).get("digest"),
+            "system_revision": canonical_system_digest(package.get("effective_ai_system_revision", {}).get("components", {})),
         }
         if record.get("subject") != expected_subject:
             results.append(finding("EVIDENCE_SUBJECT_MISMATCH", claim_id, "Evidence is bound to a different change, commit, specification, or AI-system revision."))
@@ -208,13 +274,23 @@ def validate_evidence(package: dict[str, Any], control: dict[str, Any]) -> list[
 
 
 def validate_control_provenance(package: dict[str, Any], control: dict[str, Any]) -> list[Finding]:
+    results: list[Finding] = []
     observed = package.get("control_provenance", {})
     expected = control["validator"]
     if observed != expected:
-        return [finding("CONTROL_PROVENANCE_INVALID", "validator", "The decision was not produced by the trusted default-branch validator revision.")]
-    if any(path.startswith(".github/workflows/") or path.startswith("delivery-control/") for path in package.get("pull_request", {}).get("changed_paths", [])):
-        return [finding("CONTROL_PROVENANCE_INVALID", "pull-request", "A PR cannot alter the controls that judge that same PR.")]
-    return []
+        results.append(finding("CONTROL_PROVENANCE_CLAIM_MISMATCH", "validator", "The package's validator claim differs from the trusted control-plane configuration."))
+    execution = control.get("execution_attestation", {})
+    if (
+        not execution.get("attestation_verified")
+        or not execution.get("protected_workflow")
+        or execution.get("validator_repository") != expected.get("repository")
+        or execution.get("validator_revision") != expected.get("revision")
+    ):
+        results.append(finding("CONTROL_PROVENANCE_INVALID", "validator", "Trusted execution did not authenticate the protected validator workload and revision."))
+    authoritative_paths = control.get("source_control", {}).get("changed_paths", [])
+    if any(path.startswith(".github/workflows/") or path.startswith("delivery-control/") for path in authoritative_paths):
+        results.append(finding("CONTROL_PROVENANCE_INVALID", "pull-request", "The authoritative diff changes controls that judge the same PR."))
+    return results
 
 
 def validate_integration_readiness(package: dict[str, Any], control: dict[str, Any]) -> list[Finding]:
@@ -242,34 +318,47 @@ def verify_receipt(
         results.append(finding(f"INVALID_{kind}_AUTHORIZATION", receipt_id, "The receipt is revoked, consumed, or otherwise unavailable."))
     if _parse_time(receipt["expires_at"]) <= _parse_time(control["evaluation_time"]):
         results.append(finding(f"INVALID_{kind}_AUTHORIZATION", receipt_id, "The authorization receipt expired."))
-    expected = {
-        "change_id": package["change_manifest"]["change_id"],
-        "commit": package["pull_request"]["head_sha"],
-        "specification_revision": package["change_manifest"]["specification_revision"],
-        "system_revision": package["effective_ai_system_revision"]["digest"],
-    }
-    if kind == "DEPLOYMENT":
-        expected.update({
-            "artifact_digest": package.get("build", {}).get("artifact_digest"),
-            "environment": package.get("deployment", {}).get("environment"),
-        })
+    expected = exact_transition_subject(package, deployment=kind == "DEPLOYMENT")
     if receipt.get("subject") != expected:
         results.append(finding(f"INVALID_{kind}_AUTHORIZATION", receipt_id, "The receipt is not bound to the exact transition subject."))
     return results
 
 
-def validate_integration_authorization(package: dict[str, Any], control: dict[str, Any]) -> tuple[list[Finding], bool]:
+def base_gate_results(package: dict[str, Any], control: dict[str, Any]) -> list[GateResult]:
+    return [
+        _gate("specification_readiness", validate_specification(package, control)),
+        _gate("implementation_conformance", validate_implementation(package, control)),
+        _gate("technical_quality", validate_technical_quality(package, control)),
+        _gate("evidence_integrity", validate_evidence(package, control)),
+        _gate("control_provenance", validate_control_provenance(package, control)),
+        _gate("integration_readiness", validate_integration_readiness(package, control)),
+    ]
+
+
+def integration_completed(package: dict[str, Any], control: dict[str, Any]) -> bool:
+    subject = exact_transition_subject(package)
+    return subject in control.get("completed_integrations", [])
+
+
+def validate_integration_authorization(
+    package: dict[str, Any], control: dict[str, Any], prerequisites: list[GateResult]
+) -> tuple[list[Finding], bool]:
     request = package.get("integration", {})
-    if not request.get("requested"):
+    completed = integration_completed(package, control)
+    if not request.get("requested") and not completed:
         return [], False
-    return verify_receipt(package, control, request.get("receipt_id"), kind="INTEGRATION"), True
+    results: list[Finding] = []
+    failed = [gate.gate for gate in prerequisites if gate.status != "PASS"]
+    if failed:
+        results.append(finding("INTEGRATION_PREREQUISITE_FAILED", "integration", "Integration authorization requires every upstream gate to pass: " + ", ".join(failed)))
+    if not completed:
+        results.extend(verify_receipt(package, control, request.get("receipt_id"), kind="INTEGRATION"))
+    return results, True
 
 
-def validate_deployment(package: dict[str, Any], control: dict[str, Any]) -> tuple[list[Finding], bool]:
+def validate_deployment_artifacts(package: dict[str, Any], control: dict[str, Any]) -> list[Finding]:
+    results: list[Finding] = []
     deployment = package.get("deployment", {})
-    if not deployment.get("requested"):
-        return [], False
-    results = verify_receipt(package, control, deployment.get("receipt_id"), kind="DEPLOYMENT")
     build = package.get("build", {})
     provenance = build.get("provenance", {})
     trusted_builders = set(control["trusted_builder_ids"])
@@ -281,39 +370,60 @@ def validate_deployment(package: dict[str, Any], control: dict[str, Any]) -> tup
         results.append(finding("DEPLOYMENT_ARTIFACT_MISMATCH", "deployment", "The deployment request points to a different artifact than the authorized build."))
     if deployment.get("rollback_artifact_digest") not in control["approved_rollback_artifacts"]:
         results.append(finding("ROLLBACK_ARTIFACT_UNAPPROVED", "deployment", "The rollback target is not a known approved artifact."))
+    return results
+
+
+def validate_deployment(
+    package: dict[str, Any], control: dict[str, Any], integration_gate: GateResult
+) -> tuple[list[Finding], bool]:
+    deployment = package.get("deployment", {})
+    if not deployment.get("requested"):
+        return [], False
+    results = verify_receipt(package, control, deployment.get("receipt_id"), kind="DEPLOYMENT")
+    if integration_gate.status != "PASS" or not integration_completed(package, control):
+        results.append(finding("DEPLOYMENT_PREREQUISITE_FAILED", "deployment", "Deployment requires a successfully consumed integration authorization for the exact source subject."))
+    results.extend(validate_deployment_artifacts(package, control))
     return results, True
 
 
-def validate_runtime(package: dict[str, Any], _control: dict[str, Any]) -> tuple[list[Finding], bool]:
+def validate_runtime(package: dict[str, Any], control: dict[str, Any]) -> tuple[list[Finding], bool]:
     runtime = package.get("runtime", {})
     if not runtime.get("observed"):
         return [], False
     results: list[Finding] = []
     if runtime.get("instrumentation_health") != "HEALTHY" or runtime.get("applicable_population", 0) <= 0:
         results.append(finding("RUNTIME_EVIDENCE_INCOMPLETE", "runtime", "Zero violations are uninterpretable without healthy instrumentation and a denominator."))
+    contract = control.get("runtime_contract", {})
+    if runtime.get("monitoring_window_id") != contract.get("monitoring_window_id"):
+        results.append(finding("RUNTIME_WINDOW_STALE", "runtime", "Telemetry is not bound to the approved monitoring window."))
+    expected_slices = set(contract.get("approved_population_slices", []))
+    covered_slices = set(runtime.get("covered_population_slices", []))
+    if (
+        covered_slices != expected_slices
+        or runtime.get("event_delivery") != contract.get("event_delivery_required")
+        or runtime.get("applicable_population", 0) < contract.get("minimum_applicable_population", 1)
+    ):
+        results.append(finding("RUNTIME_COVERAGE_INCOMPLETE", "runtime", "Runtime evidence does not cover the approved rollout population with complete event delivery."))
     if runtime.get("invariant_violations", 0) > 0:
         results.append(finding("RUNTIME_INVARIANT_VIOLATION", "runtime", "A production invariant was violated."))
-    if runtime.get("system_revision") != package.get("effective_ai_system_revision", {}).get("digest"):
+    computed_system_revision = canonical_system_digest(package.get("effective_ai_system_revision", {}).get("components", {}))
+    if runtime.get("system_revision") != computed_system_revision:
         results.append(finding("RUNTIME_SUBJECT_MISMATCH", "runtime", "Telemetry describes a different effective AI system revision."))
     return results, True
 
 
 def evaluate_delivery(package: dict[str, Any], control: dict[str, Any] | None = None) -> list[GateResult]:
     trusted = control or load_control_plane()
-    integration_findings, integration_applicable = validate_integration_authorization(package, trusted)
-    deployment_findings, deployment_applicable = validate_deployment(package, trusted)
+    gates = base_gate_results(package, trusted)
+    integration_findings, integration_applicable = validate_integration_authorization(package, trusted, gates)
+    integration_gate = _gate("integration_authorization", integration_findings, applicable=integration_applicable)
+    deployment_findings, deployment_applicable = validate_deployment(package, trusted, integration_gate)
     runtime_findings, runtime_applicable = validate_runtime(package, trusted)
-    gates = [
-        _gate("specification_readiness", validate_specification(package, trusted)),
-        _gate("implementation_conformance", validate_implementation(package, trusted)),
-        _gate("technical_quality", validate_technical_quality(package, trusted)),
-        _gate("evidence_integrity", validate_evidence(package, trusted)),
-        _gate("control_provenance", validate_control_provenance(package, trusted)),
-        _gate("integration_readiness", validate_integration_readiness(package, trusted)),
-        _gate("integration_authorization", integration_findings, applicable=integration_applicable),
+    gates.extend([
+        integration_gate,
         _gate("deployment_authorization", deployment_findings, applicable=deployment_applicable),
         _gate("runtime_conformance", runtime_findings, applicable=runtime_applicable),
-    ]
+    ])
     if tuple(item.gate for item in gates) != REQUIRED_GATES:
         raise AssertionError("gate inventory changed")
     return gates
@@ -335,12 +445,23 @@ def finding_codes(gates: list[GateResult]) -> set[str]:
 
 def consume_receipt(package: dict[str, Any], control: dict[str, Any], receipt_id: str, *, kind: str) -> dict[str, Any]:
     with _RECEIPT_LOCK:
-        failures = verify_receipt(package, control, receipt_id, kind=kind)
+        failures: list[Finding] = []
+        prerequisites = base_gate_results(package, control)
+        failed_gates = [gate.gate for gate in prerequisites if gate.status != "PASS"]
+        if kind == "INTEGRATION" and failed_gates:
+            failures.append(finding("INTEGRATION_PREREQUISITE_FAILED", "integration", "Receipt consumption requires passing upstream gates: " + ", ".join(failed_gates)))
+        if kind == "DEPLOYMENT":
+            if failed_gates or not integration_completed(package, control):
+                failures.append(finding("DEPLOYMENT_PREREQUISITE_FAILED", "deployment", "Receipt consumption requires passing upstream gates and a durable exact-subject integration record."))
+            failures.extend(validate_deployment_artifacts(package, control))
+        failures.extend(verify_receipt(package, control, receipt_id, kind=kind))
         if failures:
             raise ValueError(failures[0].code)
         receipt = control["receipts"][receipt_id]
         receipt["state"] = "USED"
         receipt["version"] += 1
+        if kind == "INTEGRATION":
+            control.setdefault("completed_integrations", []).append(exact_transition_subject(package))
         return copy.deepcopy(receipt)
 
 
@@ -392,7 +513,7 @@ def serialize_gates(gates: list[GateResult]) -> list[dict[str, Any]]:
 def main() -> None:
     control = load_control_plane()
     reference = evaluate_delivery(load_reference(), control)
-    unsafe = evaluate_delivery(load_candidate(), control)
+    unsafe = evaluate_delivery(load_candidate(), load_candidate_control())
     report = {
         "reference": {"decision": aggregate(reference), "gates": serialize_gates(reference)},
         "unsafe_candidate": {

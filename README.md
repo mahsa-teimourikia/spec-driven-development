@@ -229,7 +229,7 @@ Course 15 connects durable specifications to trusted enterprise delivery control
 - verify build provenance and prevent deployment artifact substitution;
 - use short-lived, exact-subject, single-use authorization receipts;
 - require healthy instrumentation and a denominator for runtime-conformance claims; and
-- evaluate the teaching control plane with ten golden scenarios and 64 labelled mutations.
+- evaluate the teaching control plane with eleven golden scenarios and 68 labelled mutations.
 
 ## Run locally
 

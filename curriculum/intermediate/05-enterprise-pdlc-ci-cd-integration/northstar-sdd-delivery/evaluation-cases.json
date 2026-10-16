@@ -35,10 +35,10 @@
       "id": "scope-crossing",
       "expected": "AWU_SCOPE_VIOLATION",
       "patches": [
-        {"path": "/pull_request/changed_paths", "op": "append", "value": "src/auth/authorization.py"},
-        {"path": "/pull_request/changed_paths", "op": "append", "value": ".github/workflows/release.yml"},
-        {"path": "/pull_request/changed_paths", "op": "append", "value": "delivery-control/policy.json"},
-        {"path": "/pull_request/changed_paths", "op": "append", "value": "src/payments/ledger.py"}
+        {"target": "control", "path": "/source_control/changed_paths", "op": "append", "value": "src/auth/authorization.py"},
+        {"target": "control", "path": "/source_control/changed_paths", "op": "append", "value": ".github/workflows/release.yml"},
+        {"target": "control", "path": "/source_control/changed_paths", "op": "append", "value": "delivery-control/policy.json"},
+        {"target": "control", "path": "/source_control/changed_paths", "op": "append", "value": "src/payments/ledger.py"}
       ]
     },
     {
@@ -75,30 +75,30 @@
       "id": "evidence-subject",
       "expected": "EVIDENCE_SUBJECT_MISMATCH",
       "patches": [
-        {"path": "/evidence_manifest/records/0/subject/commit", "value": "wrong"},
-        {"path": "/evidence_manifest/records/1/subject/specification_revision", "value": "old"},
-        {"path": "/evidence_manifest/records/2/subject/system_revision", "value": "old"},
-        {"path": "/evidence_manifest/records/0/subject/change_id", "value": "AI-OTHER"}
+        {"target": "control", "path": "/evidence_registry/EVID-CLASS-001/subject/commit", "value": "wrong"},
+        {"target": "control", "path": "/evidence_registry/EVID-INJECT-001/subject/specification_revision", "value": "old"},
+        {"target": "control", "path": "/evidence_registry/EVID-REVIEW-001/subject/system_revision", "value": "old"},
+        {"target": "control", "path": "/evidence_registry/EVID-CLASS-001/subject/change_id", "value": "AI-OTHER"}
       ]
     },
     {
       "id": "evidence-producer",
       "expected": "UNTRUSTED_EVIDENCE_PRODUCER",
       "patches": [
-        {"path": "/evidence_manifest/records/0/producer", "value": "coding-agent"},
-        {"path": "/evidence_manifest/records/1/producer", "value": "unknown-runner"},
-        {"path": "/evidence_manifest/records/2/independent", "value": false},
-        {"path": "/evidence_manifest/records/0/independent", "value": false}
+        {"target": "control", "path": "/evidence_registry/EVID-CLASS-001/producer", "value": "coding-agent"},
+        {"target": "control", "path": "/evidence_registry/EVID-INJECT-001/producer_identity_verified", "value": false},
+        {"target": "control", "path": "/evidence_registry/EVID-REVIEW-001/independent", "value": false},
+        {"target": "control", "path": "/evidence_registry/EVID-CLASS-001/attestation_verified", "value": false}
       ]
     },
     {
       "id": "control-provenance",
       "expected": "CONTROL_PROVENANCE_INVALID",
       "patches": [
-        {"path": "/control_provenance/revision", "value": "pr-head"},
-        {"path": "/control_provenance/source", "value": "pull-request"},
-        {"path": "/control_provenance/repository", "value": "fork/control"},
-        {"path": "/control_provenance/revision", "value": ""}
+        {"target": "control", "path": "/execution_attestation/validator_revision", "value": "pr-head"},
+        {"target": "control", "path": "/execution_attestation/protected_workflow", "value": false},
+        {"target": "control", "path": "/execution_attestation/validator_repository", "value": "fork/control"},
+        {"target": "control", "path": "/execution_attestation/attestation_verified", "value": false}
       ]
     },
     {
@@ -149,6 +149,16 @@
         [{"path": "/deployment/requested", "value": true}, {"path": "/deployment/receipt_id", "value": "DEP-AI2310-001"}, {"path": "/build/provenance/subject_digest", "value": "different-2"}],
         [{"path": "/deployment/requested", "value": true}, {"path": "/deployment/receipt_id", "value": "DEP-AI2310-001"}, {"path": "/deployment/artifact_digest", "value": ""}],
         [{"path": "/deployment/requested", "value": true}, {"path": "/deployment/receipt_id", "value": "DEP-AI2310-001"}, {"path": "/build/provenance/subject_digest", "value": ""}]
+      ]
+    },
+    {
+      "id": "system-revision",
+      "expected": "SYSTEM_REVISION_DIGEST_INVALID",
+      "patches": [
+        {"path": "/effective_ai_system_revision/components/prompt", "value": "prompt-bundle@99"},
+        {"path": "/effective_ai_system_revision/components/model", "value": "model-registry@99"},
+        {"path": "/effective_ai_system_revision/components/retrieval", "value": "index@99"},
+        {"path": "/effective_ai_system_revision/digest", "value": "sha256:self-asserted"}
       ]
     },
     {

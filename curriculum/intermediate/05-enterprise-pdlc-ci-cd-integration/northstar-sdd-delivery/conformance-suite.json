@@ -1,5 +1,5 @@
 {
-  "claim": "Ten narrow fixtures exercise named failure modes; they do not certify a production control plane.",
+  "claim": "Eleven narrow fixtures exercise named failure modes; they do not certify a production control plane.",
   "cases": [
     {
       "id": "stale-specification",
@@ -8,7 +8,7 @@
     },
     {
       "id": "protected-auth-code",
-      "patches": [{"path": "/pull_request/changed_paths", "op": "append", "value": "src/auth/authorization.py"}],
+      "patches": [{"target": "control", "path": "/source_control/changed_paths", "op": "append", "value": "src/auth/authorization.py"}],
       "expected": "AWU_SCOPE_VIOLATION"
     },
     {
@@ -23,20 +23,29 @@
     },
     {
       "id": "evidence-wrong-commit",
-      "patches": [{"path": "/evidence_manifest/records/0/subject/commit", "value": "another-commit"}],
+      "patches": [{"target": "control", "path": "/evidence_registry/EVID-CLASS-001/subject/commit", "value": "another-commit"}],
       "expected": "EVIDENCE_SUBJECT_MISMATCH"
     },
     {
       "id": "self-attested-evidence",
       "patches": [
         {"path": "/evidence_manifest/records/0/producer", "value": "coding-agent/awu-2310-03"},
-        {"path": "/evidence_manifest/records/0/independent", "value": false}
+        {"path": "/evidence_manifest/records/0/result", "value": "PASS"}
       ],
-      "expected": "UNTRUSTED_EVIDENCE_PRODUCER"
+      "expected": "UNTRUSTED_EVIDENCE_ASSERTION"
+    },
+    {
+      "id": "forged-trusted-producer-name",
+      "patches": [
+        {"path": "/evidence_manifest/records/0/producer", "value": "northstar/evaluation-service@8"},
+        {"path": "/evidence_manifest/records/0/result", "value": "PASS"},
+        {"path": "/evidence_manifest/records/0/independent", "value": true}
+      ],
+      "expected": "UNTRUSTED_EVIDENCE_ASSERTION"
     },
     {
       "id": "pr-controls-validator",
-      "patches": [{"path": "/control_provenance/source", "value": "pull-request-head"}],
+      "patches": [{"target": "control", "path": "/execution_attestation/attestation_verified", "value": false}],
       "expected": "CONTROL_PROVENANCE_INVALID"
     },
     {

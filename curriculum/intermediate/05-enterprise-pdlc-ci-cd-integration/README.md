@@ -157,6 +157,8 @@ application + model + prompts + retrieval/index + tools + policy + runtime confi
 
 Changing a prompt or model alias can invalidate behavioral evidence even when the Git commit is unchanged.
 
+The lab serializes the seven verified component identities as canonical, key-sorted JSON and computes a SHA-256 digest. The package's declared digest must equal that recomputed value, and the components must match the trusted component registry. Evidence and receipts bind the recomputed identity, so changing any component invalidates earlier behavioral proof even if a package leaves its old digest untouched.
+
 ## 5. Pull requests as controlled proposals
 
 A PR should make review cheaper without pretending that metadata is authoritative. For `AI-2310`, its envelope provides:
@@ -221,6 +223,23 @@ Every required gate must report. A missing gate is not a pass. Aggregation remai
 
 The aggregate never says “merge” or “deploy.” Those are authorized transitions.
 
+### Transition prerequisites are part of authorization
+
+Gate display and transition enforcement use the same dependency policy:
+
+```text
+integration authorization requires
+  specification + implementation + technical quality + evidence
+  + control provenance + exact merge-candidate readiness
+
+deployment authorization requires
+  a durably recorded exact-subject integration
+  + trusted build provenance + artifact/environment receipt
+  + approved rollback target
+```
+
+A valid receipt cannot override a failed prerequisite. The receipt consumer rechecks the applicable prerequisites inside the same critical section before consuming authority. This prevents a caller from bypassing the aggregate decision and invoking `consume_receipt()` directly.
+
 ### Risk changes depth, not truth
 
 A documentation typo may need source checks and an owner review. A high-risk AI change may additionally require policy resolution, safety evaluation, protected-path ownership, independent security evidence, trusted build provenance, staged deployment, and runtime observation. Both still need correct identity and truthful evidence.
@@ -247,26 +266,38 @@ self-reported completion   ────────► independent runners and e
 requested transition       ────────► receipt issuer/consumer
 ```
 
-In GitHub Actions, treat PR content and event fields as untrusted input. Use least-privilege tokens, protect workflow files, pin dependencies, and do not combine privileged triggers with checkout/execution of untrusted PR code. The lab models control provenance as a protected repository and revision; it does not claim that a JSON value authenticates a real CI service.
+In GitHub Actions, treat PR content and event fields as untrusted input. Use least-privilege tokens, protect workflow files, pin dependencies, and do not combine privileged triggers with checkout/execution of untrusted PR code. The lab's trusted fixture supplies both a protected validator revision and a verified workload-execution attestation; package metadata is only a claim. In production, obtain those facts from a protected workflow or dedicated GitHub App and verify its workload identity and attestation.
+
+Likewise, the package's `changed_paths` is only a summary. The lab enforces exact and glob path scopes against a separately simulated Git-provider diff bound to exact base and head revisions. Omitting a protected file from the package cannot hide it from the scope gate.
 
 Required status checks and rulesets are enforcement surfaces, not the policy source. A check name without protected provenance is merely a label.
 
 ## 9. Evidence as a typed, claim-specific manifest
 
-An evidence record should say what it supports, who produced it, and which exact subject it observed:
+The PR manifest contains only claim and evidence references:
+
+```json
+{"claim_id": "CLM-PROMPT-INJECTION", "evidence_id": "EVID-INJECT-001"}
+```
+
+The trusted verifier registry—not the PR—supplies producer identity, attestation status, result, dataset revision, expiry, independence, and subject. A package that adds `producer: northstar/security-verifier@5` has only forged an allowlisted name; it has not authenticated that producer.
+
+A trusted evidence record should say what it supports, who produced it, and which exact subject it observed:
 
 ```json
 {
   "claim_id": "CLM-PROMPT-INJECTION",
   "result": "PASS",
   "producer": "northstar/security-verifier@5",
+  "producer_identity_verified": true,
+  "attestation_verified": true,
   "independent": true,
   "expires_at": "2026-10-20T00:00:00Z",
   "subject": {
     "change_id": "AI-2310",
     "commit": "pr-head-b91c6d2",
     "specification_revision": "AI-2310-spec@7",
-    "system_revision": "sha256:system-app43-model17-prompt12-retrieval8-tools6-policy12"
+    "system_revision": "sha256:1bd0fe1d6bbdf1fb7fa2af2d2c6f7571b597dfd13d1910f0b48a09d094681391"
   }
 }
 ```
@@ -335,7 +366,9 @@ A deployment receipt is short-lived, single-use, and exact-subject. It binds:
 - authorized actor/issuer;
 - expiry, revocation, state, and version.
 
-The receipt consumer must update state atomically. Without that property, two workers could both observe `AVAILABLE` and deploy twice. The lab uses a lock to make the teaching primitive explicit; a production system needs durable transactional or compare-and-swap semantics.
+The receipt consumer must update state atomically. Without that property, two workers could both observe `AVAILABLE` and deploy twice. The lab's `threading.Lock` protects only threads sharing one Python process and one mutable fixture. It deliberately labels its store `PROCESS_LOCAL_TRAINING_ONLY`; it is not a distributed single-use guarantee.
+
+A production registry needs transactional compare-and-swap or a database transaction, a durable consumption record, idempotency keys, and replay protection shared across processes, containers, regions, and restarts. A production-upgrade test should start two independent workers against the same durable receipt and prove that exactly one commits `AVAILABLE → USED` while the other observes the winning record.
 
 Rollback is another governed transition. Pre-authorize known-safe rollback artifacts and record the runtime conditions that trigger rollback. “Redeploy something old” is not a recovery design.
 
@@ -351,7 +384,7 @@ Runtime evidence needs both the numerator and the denominator:
 violation rate = invariant violations / applicable decisions observed
 ```
 
-Zero recorded violations is not reassuring if instrumentation is unhealthy, sampling excludes the risky population, correlation IDs are missing, or the deployed system revision is unknown. Runtime monitoring supports bounded operational claims; it cannot prove all unobserved behavior or repair a wrong requirement.
+Zero recorded violations is not reassuring if instrumentation is unhealthy, sampling excludes the risky population, correlation IDs are missing, event delivery is incomplete, the monitoring window is stale, or the deployed system revision is unknown. The lab requires the approved monitoring-window identity and full coverage of both `english_pdf` and `scanned_image` rollout slices; 500 observed English PDFs cannot hide zero observed scanned images. Runtime monitoring supports bounded operational claims; it cannot prove all unobserved behavior or repair a wrong requirement.
 
 NIST AI RMF describes governance as cross-cutting and risk management as continuous across the lifecycle. Course 15 applies that idea by carrying traceable obligations through delivery and back from production, without treating the framework as a checklist or certification.
 
@@ -377,8 +410,8 @@ Northstar's `AI-2310` adds document-classification behavior to the Underwriter A
 - a safe reference delivery package;
 - an unsafe candidate whose ordinary technical tests still pass;
 - nine deterministic gates;
-- ten golden scenarios; and
-- 64 labelled control mutations.
+- eleven golden scenarios; and
+- 68 labelled control mutations.
 
 Run the lab:
 
@@ -392,8 +425,8 @@ Expected high-level result:
 reference:        ELIGIBLE_FOR_INTEGRATION_REVIEW
 unsafe candidate: BLOCKED
 technical quality on unsafe candidate: PASS
-golden scenarios: 10 / 10
-control mutations: 64 / 64
+golden scenarios: 11 / 11
+control mutations: 68 / 68
 ```
 
 That contrast is the point: technically green is not delivery-safe.
@@ -458,8 +491,8 @@ Before integration eligibility, identify:
 You have completed Course 15 when you can:
 
 - explain every gate result in the reference and unsafe packages;
-- make all ten golden scenarios produce the expected failure code;
-- preserve 64/64 mutation detection;
+- make all eleven golden scenarios produce the expected failure code, including a forged allowlisted producer name;
+- preserve 68/68 mutation detection;
 - issue and atomically consume an exact-subject integration receipt;
 - demonstrate that an authorized source commit cannot authorize a substituted artifact;
 - distinguish synthetic fixture evidence from production assurance; and

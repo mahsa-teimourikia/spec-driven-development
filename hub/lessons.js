@@ -722,13 +722,13 @@ const course15 = {
     'Bind delivery decisions to exact specification, context, commit, effective AI-system, and artifact revisions.',
     'Run nine explicit risk-adaptive gates with PASS, REVIEW, BLOCK, and NOT_APPLICABLE outcomes.',
     'Keep PR-controlled code, tests, metadata, and workflows outside the trusted validation boundary.',
-    'Reject self-attested, stale, expired, and wrong-subject evidence.',
+    'Resolve evidence references through an authenticated-registry fixture and reject forged producer names, stale results, and wrong subjects.',
     'Detect protected requirement changes even when ordinary technical tests pass.',
     'Revalidate semantic composition on the exact merge-queue candidate.',
     'Verify trusted build provenance and prevent deployment artifact substitution.',
-    'Use exact-subject, short-lived, atomic single-use authorization receipts.',
-    'Interpret runtime invariants only with healthy instrumentation and an applicable-population denominator.',
-    'Test the control plane with ten golden scenarios and 64 labelled mutations.'
+    'Enforce upstream prerequisites when exact-subject, short-lived authorization receipts are consumed.',
+    'Interpret runtime invariants only with healthy instrumentation, complete rollout-slice coverage, a current window, and a denominator.',
+    'Test the control plane with eleven golden scenarios and 68 labelled mutations.'
   ],
   readme: `${REPO}/blob/main/curriculum/intermediate/05-enterprise-pdlc-ci-cd-integration/README.md`,
   notebook: `${REPO}/blob/main/curriculum/intermediate/05-enterprise-pdlc-ci-cd-integration/northstar-sdd-delivery/enterprise_pdlc_delivery.ipynb`,

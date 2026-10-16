@@ -6,12 +6,12 @@ This workshop turns `AI-2310` from a specification package into a governed enter
 
 | Path | Purpose | Trust position |
 | --- | --- | --- |
-| `policy/trusted-control-plane.json` | current revisions, protected paths, trusted producers/builders, receipts | trusted fixture |
+| `policy/trusted-control-plane.json` | Git diff, component/evidence registries, validator execution, producers/builders, runtime contract, receipts | trusted fixture |
 | `reference/delivery-package.json` | finding-free proposal eligible for integration review | safe teaching reference |
 | `candidate/delivery-package.json` | unsafe mutations layered on the reference | untrusted PR fixture |
 | `workshop/starter/delivery-package.json` | three incomplete learner decisions | learner workspace |
-| `conformance-suite.json` | ten named golden failure scenarios | expected test oracle |
-| `evaluation-cases.json` | 16 families × 4 labelled mutations | bounded robustness check |
+| `conformance-suite.json` | eleven named golden failure scenarios | expected test oracle |
+| `evaluation-cases.json` | 17 families × 4 labelled mutations | bounded robustness check |
 | `lab.py` | deterministic gate and receipt engine | teaching implementation |
 | `enterprise_pdlc_delivery.ipynb` | guided analysis | canonical notebook |
 
@@ -44,7 +44,7 @@ Replace the starter's three `TODO` values so that:
 
 ### Task 2 — Explain the unsafe green PR
 
-Create a table with one row per unsafe finding. For each, name:
+Create a table with one row per unsafe finding. Notice that the protected auth path exists only in `candidate/trusted-observations.json`; the package cannot hide the Git-provider observation by omitting that path. For each finding, name:
 
 - the changed subject;
 - the authoritative source used by the validator;
@@ -57,7 +57,7 @@ Copy the reference in memory, set `integration.requested` to `true`, and use rec
 
 ### Task 4 — Prevent artifact substitution
 
-Request deployment with `DEP-AI2310-001`, then change either the provenance subject or deployment artifact digest. Explain why source-level evidence remains true but no longer authorizes this deployment subject.
+First consume the integration receipt so the training control plane records the exact integrated subject. Then request deployment with `DEP-AI2310-001` and change either the provenance subject or deployment artifact digest. Explain why source-level evidence remains true but no longer authorizes this deployment subject, and why deployment is blocked before integration completion is recorded. In production, that completion record must be durable and shared across workers.
 
 ### Task 5 — Interpret runtime evidence
 
@@ -65,7 +65,8 @@ Set `runtime.observed` to `true`. Compare:
 
 - zero violations with healthy instrumentation and 500 applicable events;
 - zero violations with an unhealthy instrument; and
-- one violation with healthy instrumentation.
+- zero violations covering only `english_pdf` while `scanned_image` is in rollout scope; and
+- one violation with healthy, complete instrumentation.
 
 ## Stop conditions
 
@@ -73,4 +74,4 @@ Stop and route a decision when you encounter an unknown risk profile, unresolved
 
 ## Evidence limitations
 
-This fixture demonstrates decision structure, exact identity, invalidation, and fail-closed behavior. It does not authenticate JSON, execute GitHub Actions, sign SLSA provenance, contact Jira, evaluate a real model, deploy software, or prove production suitability. Those belong in a production platform with authenticated identities, protected storage, isolation, transactional state, and operational controls.
+This fixture demonstrates decision structure, exact identity, invalidation, and fail-closed behavior. Its Git-provider observations, evidence registry, workload attestation, and component registry are deterministic trusted fixtures—not authenticated external services. Its `threading.Lock` protects only one Python process. It does not execute GitHub Actions, sign SLSA provenance, contact Jira, evaluate a real model, deploy software, or prove production suitability. Production requires authenticated providers, protected storage, isolation, transactional compare-and-swap receipt state shared across workers, durable replay records, and operational controls.
