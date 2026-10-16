@@ -7,7 +7,7 @@ This curriculum develops one idea across 38 courses: an enterprise should conver
 | Level | Global courses | Program parts | Status |
 | --- | ---: | --- | --- |
 | [Beginner](beginner/README.md) | 01–10 | SDD foundations; executable specifications | Courses 01–10 available |
-| [Intermediate](intermediate/README.md) | 11–23 | Agentic execution; frameworks; Agentic PDLC | Courses 11–14 available |
+| [Intermediate](intermediate/README.md) | 11–23 | Agentic execution; frameworks; Agentic PDLC | Courses 11–15 available |
 | [Advanced](advanced/README.md) | 24–38 | Enterprise controls; advanced agentic SDD | Planned |
 | [Enterprise Agent](enterprise-agent/README.md) | Capstone | Design a real enterprise Agentic PDLC | Planned |
 
@@ -27,6 +27,7 @@ This curriculum develops one idea across 38 courses: an enterprise should conver
 12. [SDD Framework Landscape & Choosing an Enterprise Operating Model](intermediate/02-sdd-framework-landscape-enterprise-operating-model/README.md) — [notebook](intermediate/02-sdd-framework-landscape-enterprise-operating-model/framework_landscape.ipynb) · [selection lab](intermediate/02-sdd-framework-landscape-enterprise-operating-model/lab.py) · [AI-2310 framework-selection workshop](intermediate/02-sdd-framework-landscape-enterprise-operating-model/northstar-framework-selection/README.md)
 13. [GitHub Spec Kit for Enterprise Spec-Driven Development](intermediate/03-github-spec-kit-enterprise-sdd/README.md) — [notebook](intermediate/03-github-spec-kit-enterprise-sdd/northstar-spec-kit-adapter/spec_kit_enterprise_adapter.ipynb) · [adapter lab](intermediate/03-github-spec-kit-enterprise-sdd/northstar-spec-kit-adapter/lab.py) · [AI-2310 Spec Kit workshop](intermediate/03-github-spec-kit-enterprise-sdd/northstar-spec-kit-adapter/README.md)
 14. [OpenSpec for Enterprise Change-Driven Spec-Driven Development](intermediate/04-openspec-enterprise-change-driven-sdd/README.md) — [notebook](intermediate/04-openspec-enterprise-change-driven-sdd/northstar-openspec-change/openspec_enterprise_change.ipynb) · [change-governance lab](intermediate/04-openspec-enterprise-change-driven-sdd/northstar-openspec-change/lab.py) · [concurrent-change workshop](intermediate/04-openspec-enterprise-change-driven-sdd/northstar-openspec-change/README.md)
+15. [Integrating SDD into Enterprise PDLC and CI/CD](intermediate/05-enterprise-pdlc-ci-cd-integration/README.md) — [notebook](intermediate/05-enterprise-pdlc-ci-cd-integration/northstar-sdd-delivery/enterprise_pdlc_delivery.ipynb) · [delivery-control lab](intermediate/05-enterprise-pdlc-ci-cd-integration/northstar-sdd-delivery/lab.py) · [AI-2310 delivery workshop](intermediate/05-enterprise-pdlc-ci-cd-integration/northstar-sdd-delivery/README.md)
 
 Each completed course is a vertical slice: chapter, guided notebook, reusable lab, checkpoint, references, and automated validation. Planned cards remain visible in the [deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/) without presenting unfinished content as complete.
 

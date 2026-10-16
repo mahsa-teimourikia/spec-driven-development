@@ -1,0 +1,175 @@
+{
+  "claim": "Each family varies one governed condition four ways; results describe this fixture only.",
+  "families": [
+    {
+      "id": "stale-spec",
+      "expected": "SPEC_REVISION_STALE",
+      "patches": [
+        {"path": "/change_manifest/specification_revision", "value": "AI-2310-spec@1"},
+        {"path": "/change_manifest/specification_revision", "value": "AI-2310-spec@6"},
+        {"path": "/change_manifest/specification_revision", "value": "AI-2310-spec@8-draft"},
+        {"path": "/change_manifest/specification_revision", "value": ""}
+      ]
+    },
+    {
+      "id": "context-drift",
+      "expected": "CONTEXT_REVALIDATION_REQUIRED",
+      "patches": [
+        {"path": "/change_manifest/context_digest", "value": "sha256:old-context"},
+        {"path": "/change_manifest/context_digest", "value": "sha256:new-policy-unresolved"},
+        {"path": "/change_manifest/context_digest", "value": ""},
+        {"path": "/change_manifest/context_digest", "value": "self-attested"}
+      ]
+    },
+    {
+      "id": "stale-base",
+      "expected": "BASE_REVISION_STALE",
+      "patches": [
+        {"path": "/change_manifest/base_revision", "value": "old-1"},
+        {"path": "/change_manifest/base_revision", "value": "old-2"},
+        {"path": "/change_manifest/base_revision", "value": "branch-head"},
+        {"path": "/change_manifest/base_revision", "value": ""}
+      ]
+    },
+    {
+      "id": "scope-crossing",
+      "expected": "AWU_SCOPE_VIOLATION",
+      "patches": [
+        {"target": "control", "path": "/source_control/changed_paths", "op": "append", "value": "src/auth/authorization.py"},
+        {"target": "control", "path": "/source_control/changed_paths", "op": "append", "value": ".github/workflows/release.yml"},
+        {"target": "control", "path": "/source_control/changed_paths", "op": "append", "value": "delivery-control/policy.json"},
+        {"target": "control", "path": "/source_control/changed_paths", "op": "append", "value": "src/payments/ledger.py"}
+      ]
+    },
+    {
+      "id": "requirement-weakening",
+      "expected": "UNAUTHORIZED_REQUIREMENT_CHANGE",
+      "patches": [
+        {"path": "/requirements/semantic_hashes/REQ-AI-2310-01", "value": "weak-1"},
+        {"path": "/requirements/semantic_hashes/REQ-AI-2310-01", "value": "weak-2"},
+        {"path": "/requirements/semantic_hashes/INV-AI-2310-02", "value": "weak-3"},
+        {"path": "/requirements/semantic_hashes/INV-AI-2310-02", "value": ""}
+      ]
+    },
+    {
+      "id": "trace-gap",
+      "expected": "TRACEABILITY_GAP",
+      "patches": [
+        {"path": "/traceability/0/evidence_claim_ids", "value": []},
+        {"path": "/traceability/1/evidence_claim_ids", "value": []},
+        {"path": "/traceability/0/implementation", "value": []},
+        {"path": "/traceability/1/implementation", "value": []}
+      ]
+    },
+    {
+      "id": "technical-failure",
+      "expected": "TECHNICAL_GATE_FAILED",
+      "patches": [
+        {"path": "/technical_results/unit_tests", "value": "FAIL"},
+        {"path": "/technical_results/unit_tests", "value": "NOT_RUN"},
+        {"path": "/technical_results/static_analysis", "value": "FAIL"},
+        {"path": "/technical_results/static_analysis", "value": "UNKNOWN"}
+      ]
+    },
+    {
+      "id": "evidence-subject",
+      "expected": "EVIDENCE_SUBJECT_MISMATCH",
+      "patches": [
+        {"target": "control", "path": "/evidence_registry/EVID-CLASS-001/subject/commit", "value": "wrong"},
+        {"target": "control", "path": "/evidence_registry/EVID-INJECT-001/subject/specification_revision", "value": "old"},
+        {"target": "control", "path": "/evidence_registry/EVID-REVIEW-001/subject/system_revision", "value": "old"},
+        {"target": "control", "path": "/evidence_registry/EVID-CLASS-001/subject/change_id", "value": "AI-OTHER"}
+      ]
+    },
+    {
+      "id": "evidence-producer",
+      "expected": "UNTRUSTED_EVIDENCE_PRODUCER",
+      "patches": [
+        {"target": "control", "path": "/evidence_registry/EVID-CLASS-001/producer", "value": "coding-agent"},
+        {"target": "control", "path": "/evidence_registry/EVID-INJECT-001/producer_identity_verified", "value": false},
+        {"target": "control", "path": "/evidence_registry/EVID-REVIEW-001/independent", "value": false},
+        {"target": "control", "path": "/evidence_registry/EVID-CLASS-001/attestation_verified", "value": false}
+      ]
+    },
+    {
+      "id": "control-provenance",
+      "expected": "CONTROL_PROVENANCE_INVALID",
+      "patches": [
+        {"target": "control", "path": "/execution_attestation/validator_revision", "value": "pr-head"},
+        {"target": "control", "path": "/execution_attestation/protected_workflow", "value": false},
+        {"target": "control", "path": "/execution_attestation/validator_repository", "value": "fork/control"},
+        {"target": "control", "path": "/execution_attestation/attestation_verified", "value": false}
+      ]
+    },
+    {
+      "id": "merge-conflict",
+      "expected": "SEMANTIC_MERGE_CONFLICT",
+      "patches": [
+        {"path": "/merge_queue/semantic_conflicts", "op": "append", "value": "shared requirement"},
+        {"path": "/merge_queue/semantic_conflicts", "op": "append", "value": "shared schema"},
+        {"path": "/merge_queue/semantic_conflicts", "op": "append", "value": "shared rollout"},
+        {"path": "/merge_queue/semantic_conflicts", "op": "append", "value": "shared policy"}
+      ]
+    },
+    {
+      "id": "queue-revalidation",
+      "expected": "MERGE_QUEUE_REVALIDATION_MISSING",
+      "patches": [
+        {"path": "/merge_queue/revalidation_status", "value": "NOT_RUN"},
+        {"path": "/merge_queue/revalidation_status", "value": "STALE"},
+        {"path": "/merge_queue/revalidation_status", "value": "FAIL"},
+        {"path": "/merge_queue/revalidation_status", "value": ""}
+      ]
+    },
+    {
+      "id": "integration-receipt",
+      "expected": "INVALID_INTEGRATION_AUTHORIZATION",
+      "patches": [
+        [{"path": "/integration/requested", "value": true}, {"path": "/integration/receipt_id", "value": null}],
+        [{"path": "/integration/requested", "value": true}, {"path": "/integration/receipt_id", "value": "unknown"}],
+        [{"path": "/integration/requested", "value": true}, {"path": "/integration/receipt_id", "value": "DEP-AI2310-001"}],
+        [{"path": "/integration/requested", "value": true}, {"path": "/integration/receipt_id", "value": "replayed"}]
+      ]
+    },
+    {
+      "id": "build-provenance",
+      "expected": "BUILD_PROVENANCE_INVALID",
+      "patches": [
+        [{"path": "/deployment/requested", "value": true}, {"path": "/deployment/receipt_id", "value": "DEP-AI2310-001"}, {"path": "/build/provenance/builder_id", "value": "local-builder"}],
+        [{"path": "/deployment/requested", "value": true}, {"path": "/deployment/receipt_id", "value": "DEP-AI2310-001"}, {"path": "/build/provenance/signature_verified", "value": false}],
+        [{"path": "/deployment/requested", "value": true}, {"path": "/deployment/receipt_id", "value": "DEP-AI2310-001"}, {"path": "/build/provenance/builder_id", "value": "fork-runner"}],
+        [{"path": "/deployment/requested", "value": true}, {"path": "/deployment/receipt_id", "value": "DEP-AI2310-001"}, {"path": "/build/provenance/signature_verified", "value": null}]
+      ]
+    },
+    {
+      "id": "artifact-substitution",
+      "expected": "DEPLOYMENT_ARTIFACT_MISMATCH",
+      "patches": [
+        [{"path": "/deployment/requested", "value": true}, {"path": "/deployment/receipt_id", "value": "DEP-AI2310-001"}, {"path": "/deployment/artifact_digest", "value": "different-1"}],
+        [{"path": "/deployment/requested", "value": true}, {"path": "/deployment/receipt_id", "value": "DEP-AI2310-001"}, {"path": "/build/provenance/subject_digest", "value": "different-2"}],
+        [{"path": "/deployment/requested", "value": true}, {"path": "/deployment/receipt_id", "value": "DEP-AI2310-001"}, {"path": "/deployment/artifact_digest", "value": ""}],
+        [{"path": "/deployment/requested", "value": true}, {"path": "/deployment/receipt_id", "value": "DEP-AI2310-001"}, {"path": "/build/provenance/subject_digest", "value": ""}]
+      ]
+    },
+    {
+      "id": "system-revision",
+      "expected": "SYSTEM_REVISION_DIGEST_INVALID",
+      "patches": [
+        {"path": "/effective_ai_system_revision/components/prompt", "value": "prompt-bundle@99"},
+        {"path": "/effective_ai_system_revision/components/model", "value": "model-registry@99"},
+        {"path": "/effective_ai_system_revision/components/retrieval", "value": "index@99"},
+        {"path": "/effective_ai_system_revision/digest", "value": "sha256:self-asserted"}
+      ]
+    },
+    {
+      "id": "runtime-coverage",
+      "expected": "RUNTIME_EVIDENCE_INCOMPLETE",
+      "patches": [
+        [{"path": "/runtime/observed", "value": true}, {"path": "/runtime/instrumentation_health", "value": "UNHEALTHY"}],
+        [{"path": "/runtime/observed", "value": true}, {"path": "/runtime/instrumentation_health", "value": "UNKNOWN"}],
+        [{"path": "/runtime/observed", "value": true}, {"path": "/runtime/applicable_population", "value": 0}],
+        [{"path": "/runtime/observed", "value": true}, {"path": "/runtime/applicable_population", "value": -1}]
+      ]
+    }
+  ]
+}

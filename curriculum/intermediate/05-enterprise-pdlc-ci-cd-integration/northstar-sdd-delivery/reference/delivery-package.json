@@ -1,0 +1,100 @@
+{
+  "fixture_status": "SAFE_REFERENCE_NOT_PRODUCTION_PROOF",
+  "change_manifest": {
+    "change_id": "AI-2310",
+    "specification_revision": "AI-2310-spec@7",
+    "context_digest": "sha256:context-2310-r12",
+    "base_revision": "8f58f25",
+    "policy_revisions": ["AI-GOV@12", "ARCH@9", "SEC@31", "QUALITY@18"],
+    "risk_tier": "high",
+    "authorized_paths": ["src/document_classifier.py", "tests/test_document_classifier.py", "evals/classifier_cases.json"],
+    "open_decisions": []
+  },
+  "pull_request": {
+    "number": 431,
+    "author": "coding-agent/awu-2310-03",
+    "head_sha": "pr-head-b91c6d2",
+    "changed_paths": ["src/document_classifier.py", "tests/test_document_classifier.py", "evals/classifier_cases.json"]
+  },
+  "requirements": {
+    "applicable_ids": ["REQ-AI-2310-01", "INV-AI-2310-02"],
+    "semantic_hashes": {
+      "REQ-AI-2310-01": "sha256:req-01-approved",
+      "INV-AI-2310-02": "sha256:inv-02-approved"
+    }
+  },
+  "traceability": [
+    {
+      "change_id": "AI-2310",
+      "requirement_id": "REQ-AI-2310-01",
+      "implementation": ["src/document_classifier.py::classify"],
+      "evidence_claim_ids": ["CLM-CLASS-QUALITY", "CLM-PROMPT-INJECTION"]
+    },
+    {
+      "change_id": "AI-2310",
+      "requirement_id": "INV-AI-2310-02",
+      "implementation": ["src/document_classifier.py::persist"],
+      "evidence_claim_ids": ["CLM-REVIEW-INVARIANT"]
+    }
+  ],
+  "technical_results": {
+    "unit_tests": "PASS",
+    "static_analysis": "PASS",
+    "producer": "northstar/independent-test-runner@4"
+  },
+  "effective_ai_system_revision": {
+    "digest": "sha256:1bd0fe1d6bbdf1fb7fa2af2d2c6f7571b597dfd13d1910f0b48a09d094681391",
+    "components": {
+      "application": "app@43",
+      "model": "model-registry@17",
+      "prompt": "prompt-bundle@12",
+      "retrieval": "index@8",
+      "tools": "tool-registry@6",
+      "policy": "AI-GOV@12",
+      "runtime_config": "runtime@21"
+    }
+  },
+  "evidence_manifest": {
+    "records": [
+      {"claim_id": "CLM-CLASS-QUALITY", "evidence_id": "EVID-CLASS-001"},
+      {"claim_id": "CLM-PROMPT-INJECTION", "evidence_id": "EVID-INJECT-001"},
+      {"claim_id": "CLM-REVIEW-INVARIANT", "evidence_id": "EVID-REVIEW-001"}
+    ]
+  },
+  "control_provenance": {
+    "repository": "northstar/delivery-control",
+    "revision": "9b6127d",
+    "source": "protected-default-branch"
+  },
+  "merge_queue": {
+    "base_sha": "main-8f58f25",
+    "semantic_conflicts": [],
+    "revalidation_status": "PASS"
+  },
+  "integration": {"requested": false, "receipt_id": null},
+  "build": {
+    "artifact_digest": "sha256:underwriter-v43-tested",
+    "provenance": {
+      "builder_id": "https://build.northstar.example/hosted/v3",
+      "signature_verified": true,
+      "subject_digest": "sha256:underwriter-v43-tested"
+    }
+  },
+  "deployment": {
+    "requested": false,
+    "receipt_id": null,
+    "artifact_digest": "sha256:underwriter-v43-tested",
+    "environment": "production",
+    "rollback_artifact_digest": "sha256:underwriter-v42-approved"
+  },
+  "runtime": {
+    "observed": false,
+    "system_revision": "sha256:1bd0fe1d6bbdf1fb7fa2af2d2c6f7571b597dfd13d1910f0b48a09d094681391",
+    "monitoring_window_id": "rollout-ai2310-window-1",
+    "instrumentation_health": "HEALTHY",
+    "event_delivery": "COMPLETE",
+    "covered_population_slices": ["english_pdf", "scanned_image"],
+    "applicable_population": 500,
+    "invariant_violations": 0
+  }
+}

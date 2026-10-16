@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 import os
 import re
@@ -2275,7 +2276,7 @@ def check_course_14_openspec() -> list[str]:
     if report.get("conformance") != {"passed": 10, "total": 10}:
         errors.append("Course 14 golden conformance suite must retain ten passing scenarios")
     if report.get("evaluation") != {"passed": 61, "total": 61}:
-        errors.append("Course 14 mutation evaluation must retain 53 detected cases")
+        errors.append("Course 14 mutation evaluation must retain 61 detected cases")
     if report.get("integration") != "OWNER_REVIEW_REQUIRED":
         errors.append("Course 14 must keep baseline integration under external owner authority")
     if report.get("candidate_target") != "candidate-target-not-integrated":
@@ -2299,10 +2300,10 @@ def check_course_14_openspec() -> list[str]:
         errors.append("Course 14 reference must not claim baseline integration or release")
 
     quiz_source = (ROOT / "quiz" / "questions.js").read_text(encoding="utf-8")
-    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 194:
-        errors.append("Course 14 cumulative quiz must contain 194 questions")
-    if "Courses 01–14" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
-        errors.append("Course 14 cumulative quiz must identify Courses 01–14")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) < 194:
+        errors.append("Course 14 cumulative quiz questions must remain present")
+    if "Courses 01–" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
+        errors.append("The cumulative quiz must identify its course range")
     hub_source = (ROOT / "hub" / "lessons.js").read_text(encoding="utf-8")
     expected_hub_fragments = [
         "const course14 = {",
@@ -2312,6 +2313,179 @@ def check_course_14_openspec() -> list[str]:
     ]
     if any(fragment not in hub_source for fragment in expected_hub_fragments):
         errors.append("Course 14 Learning Hub entry is incomplete or points outside the workshop package")
+    return errors
+
+
+def check_course_15_enterprise_delivery() -> list[str]:
+    lesson = ROOT / "curriculum" / "intermediate" / "05-enterprise-pdlc-ci-cd-integration"
+    scenario = lesson / "northstar-sdd-delivery"
+    required = [
+        "README.md",
+        "policy/trusted-control-plane.json",
+        "reference/delivery-package.json",
+        "candidate/delivery-package.json",
+        "candidate/trusted-observations.json",
+        "workshop/starter/README.md",
+        "workshop/starter/delivery-package.json",
+        "conformance-suite.json",
+        "evaluation-cases.json",
+        "lab.py",
+        "enterprise_pdlc_delivery.ipynb",
+    ]
+    errors = [
+        f"missing Course 15 delivery-control artifact: {item}"
+        for item in required
+        if not (scenario / item).exists()
+    ]
+    if not (lesson / "README.md").exists():
+        errors.append("missing Course 15 chapter")
+    if errors:
+        return errors
+
+    starter = (scenario / "workshop" / "starter" / "delivery-package.json").read_text(encoding="utf-8")
+    if starter.count("TODO") != 3:
+        errors.append("Course 15 starter must retain exactly three learner decisions")
+    reference_text = (scenario / "reference" / "delivery-package.json").read_text(encoding="utf-8")
+    if "TODO" in reference_text:
+        errors.append("Course 15 reference package must not contain unresolved TODOs")
+
+    result = subprocess.run(
+        [sys.executable, str(scenario / "lab.py")],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    try:
+        report = json.loads(result.stdout) if result.returncode == 0 else {}
+    except json.JSONDecodeError:
+        report = {}
+    if not report:
+        errors.append("Course 15 lab did not produce its JSON delivery-control report")
+        return errors
+
+    if report.get("reference", {}).get("decision") != "ELIGIBLE_FOR_INTEGRATION_REVIEW":
+        errors.append("Course 15 reference must stop at integration-review eligibility")
+    reference_gates = report.get("reference", {}).get("gates", [])
+    if len(reference_gates) != 9 or {item.get("gate") for item in reference_gates} != {
+        "specification_readiness",
+        "implementation_conformance",
+        "technical_quality",
+        "evidence_integrity",
+        "control_provenance",
+        "integration_readiness",
+        "integration_authorization",
+        "deployment_authorization",
+        "runtime_conformance",
+    }:
+        errors.append("Course 15 must retain nine explicit delivery gates")
+    unsafe = report.get("unsafe_candidate", {})
+    required_codes = {
+        "SPEC_REVISION_STALE",
+        "AWU_SCOPE_VIOLATION",
+        "PR_DIFF_CLAIM_MISMATCH",
+        "UNAUTHORIZED_REQUIREMENT_CHANGE",
+        "EVIDENCE_RECORD_NOT_FOUND",
+        "UNTRUSTED_EVIDENCE_ASSERTION",
+        "SYSTEM_REVISION_DIGEST_INVALID",
+        "SYSTEM_COMPONENT_IDENTITY_UNVERIFIED",
+        "CONTROL_PROVENANCE_CLAIM_MISMATCH",
+        "SEMANTIC_MERGE_CONFLICT",
+        "INTEGRATION_PREREQUISITE_FAILED",
+        "INVALID_INTEGRATION_AUTHORIZATION",
+        "DEPLOYMENT_PREREQUISITE_FAILED",
+        "DEPLOYMENT_ARTIFACT_MISMATCH",
+    }
+    if unsafe.get("decision") != "BLOCKED" or unsafe.get("technical_quality") != "PASS":
+        errors.append("Course 15 unsafe candidate must be blocked while ordinary technical quality passes")
+    if not required_codes.issubset(set(unsafe.get("findings", []))):
+        errors.append("Course 15 unsafe candidate no longer exposes the required delivery failures")
+    conformance = report.get("conformance", {})
+    evaluation = report.get("evaluation", {})
+    if (conformance.get("passed"), conformance.get("total")) != (11, 11):
+        errors.append("Course 15 golden conformance suite must retain eleven passing scenarios")
+    if (evaluation.get("passed"), evaluation.get("total")) != (68, 68):
+        errors.append("Course 15 mutation evaluation must retain 68 detected cases")
+    if "trusted controls" not in report.get("authority_boundary", ""):
+        errors.append("Course 15 must preserve the proposal-validation-authorization boundary")
+
+    package = json.loads(reference_text)
+    control = json.loads((scenario / "policy" / "trusted-control-plane.json").read_text(encoding="utf-8"))
+    if len(package.get("traceability", [])) != 2 or len(package.get("evidence_manifest", {}).get("records", [])) != 3:
+        errors.append("Course 15 reference must retain requirement-to-claim traceability and three evidence records")
+    component_map = package.get("effective_ai_system_revision", {}).get("components", {})
+    components = set(component_map)
+    required_components = {"application", "model", "prompt", "retrieval", "tools", "policy", "runtime_config"}
+    if components != required_components or component_map != control.get("component_registry"):
+        errors.append("Course 15 must retain the complete effective AI-system revision")
+    canonical_components = json.dumps(component_map, sort_keys=True, separators=(",", ":"))
+    expected_system_digest = f"sha256:{hashlib.sha256(canonical_components.encode('utf-8')).hexdigest()}"
+    if (
+        control.get("system_revision_algorithm") != "sha256-canonical-json-v1"
+        or package.get("effective_ai_system_revision", {}).get("digest") != expected_system_digest
+    ):
+        errors.append("Course 15 effective AI-system identity must be derived from canonical component data")
+
+    source_control = control.get("source_control", {})
+    if (
+        source_control.get("attestation_verified") is not True
+        or source_control.get("base_revision") != control.get("current", {}).get("base_revision")
+        or source_control.get("head_sha") != package.get("pull_request", {}).get("head_sha")
+        or source_control.get("changed_paths") != package.get("pull_request", {}).get("changed_paths")
+    ):
+        errors.append("Course 15 must bind scope enforcement to attested source-control facts")
+
+    evidence_registry = control.get("evidence_registry", {})
+    evidence_references = package.get("evidence_manifest", {}).get("records", [])
+    referenced_ids = {item.get("evidence_id") for item in evidence_references}
+    if len(evidence_registry) != 3 or referenced_ids != set(evidence_registry):
+        errors.append("Course 15 evidence manifest must resolve exactly three trusted registry records")
+    for evidence_id, record in evidence_registry.items():
+        if (
+            record.get("producer") not in control.get("trusted_evidence_producers", [])
+            or record.get("producer_identity_verified") is not True
+            or record.get("attestation_verified") is not True
+            or record.get("independent") is not True
+            or record.get("result") != "PASS"
+            or record.get("subject", {}).get("system_revision") != expected_system_digest
+        ):
+            errors.append(f"Course 15 trusted evidence record is not independently attested: {evidence_id}")
+
+    validator = control.get("validator", {})
+    execution = control.get("execution_attestation", {})
+    if (
+        execution.get("attestation_verified") is not True
+        or execution.get("protected_workflow") is not True
+        or execution.get("validator_repository") != validator.get("repository")
+        or execution.get("validator_revision") != validator.get("revision")
+    ):
+        errors.append("Course 15 control provenance must come from a trusted execution attestation")
+    if control.get("receipt_store", {}).get("durability") != "PROCESS_LOCAL_TRAINING_ONLY":
+        errors.append("Course 15 must label its receipt lock as a process-local training mechanism")
+    runtime_contract = control.get("runtime_contract", {})
+    if (
+        set(runtime_contract.get("approved_population_slices", [])) != {"english_pdf", "scanned_image"}
+        or runtime_contract.get("event_delivery_required") != "COMPLETE"
+        or not runtime_contract.get("monitoring_window_id")
+    ):
+        errors.append("Course 15 runtime contract must require a complete window across both rollout slices")
+    if package.get("integration", {}).get("requested") is not False or package.get("deployment", {}).get("requested") is not False:
+        errors.append("Course 15 reference must not self-authorize integration or deployment")
+
+    quiz_source = (ROOT / "quiz" / "questions.js").read_text(encoding="utf-8")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 206:
+        errors.append("Course 15 cumulative quiz must contain 206 questions")
+    if "Courses 01–15" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
+        errors.append("Course 15 cumulative quiz must identify Courses 01–15")
+    hub_source = (ROOT / "hub" / "lessons.js").read_text(encoding="utf-8")
+    expected_hub_fragments = [
+        "const course15 = {",
+        "05-enterprise-pdlc-ci-cd-integration/northstar-sdd-delivery/enterprise_pdlc_delivery.ipynb",
+        "05-enterprise-pdlc-ci-cd-integration/northstar-sdd-delivery/workshop/starter",
+        "05-enterprise-pdlc-ci-cd-integration/northstar-sdd-delivery/reference",
+    ]
+    if any(fragment not in hub_source for fragment in expected_hub_fragments):
+        errors.append("Course 15 Learning Hub entry is incomplete or points outside the workshop package")
     return errors
 
 
@@ -2335,6 +2509,7 @@ def main() -> None:
         "Course 12 framework landscape": check_course_12_framework_landscape,
         "Course 13 Spec Kit": check_course_13_spec_kit,
         "Course 14 OpenSpec": check_course_14_openspec,
+        "Course 15 enterprise delivery": check_course_15_enterprise_delivery,
         "diagrams": render_and_validate_diagrams,
         "labs": run_labs,
         "repository labs": run_repository_labs,

@@ -1,0 +1,18 @@
+{
+  "fixture_status": "UNSAFE_BUT_TECHNICALLY_GREEN",
+  "patches": [
+    {"path": "/change_manifest/specification_revision", "value": "AI-2310-spec@6"},
+    {"path": "/requirements/semantic_hashes/REQ-AI-2310-01", "value": "sha256:req-01-weakened"},
+    {"path": "/evidence_manifest/records/0/evidence_id", "value": "EVID-UNKNOWN-FORGED"},
+    {"path": "/evidence_manifest/records/1/producer", "value": "northstar/security-verifier@5"},
+    {"path": "/evidence_manifest/records/1/result", "value": "PASS"},
+    {"path": "/effective_ai_system_revision/components/prompt", "value": "prompt-bundle@99"},
+    {"path": "/control_provenance/revision", "value": "pr-controlled-validator"},
+    {"path": "/merge_queue/semantic_conflicts", "op": "append", "value": "AI-2322 changes the same review invariant"},
+    {"path": "/integration/requested", "value": true},
+    {"path": "/integration/receipt_id", "value": "REUSED-RECEIPT"},
+    {"path": "/deployment/requested", "value": true},
+    {"path": "/deployment/receipt_id", "value": "DEP-AI2310-001"},
+    {"path": "/deployment/artifact_digest", "value": "sha256:untested-rebuild"}
+  ]
+}
