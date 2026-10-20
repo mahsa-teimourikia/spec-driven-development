@@ -1,0 +1,6 @@
+{
+  "fixture_status": "SIMULATED_TRUSTED_PROVIDER_OBSERVATIONS",
+  "control_patches": [
+    {"path": "/source_control/changed_paths", "op": "append", "value": "src/auth/authorization.py"}
+  ]
+}

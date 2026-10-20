@@ -1,0 +1,150 @@
+{
+  "claim": "Twenty-three mutation families probe the declared fixture rules; four variants per family are not a benchmark or vendor certification.",
+  "families": [
+    {
+      "id": "policy-registry-integrity",
+      "patch": {"target": "control", "path": "/policy_registry/0/owner"},
+      "variants": [{"value": "repo"}, {"value": "agent"}, {"value": "unknown"}, {"value": "AI Governance Copy"}],
+      "expected": "POLICY_REGISTRY_INTEGRITY_FAILURE"
+    },
+    {
+      "id": "canonical-rule-integrity",
+      "patch": {"target": "control", "path": "/canonical_agent_rules/0/text"},
+      "variants": [{"value": "skip"}, {"value": "optional"}, {"value": "copied"}, {"value": "agent decides"}],
+      "expected": "CANONICAL_RULE_REGISTRY_INTEGRITY_FAILURE"
+    },
+    {
+      "id": "unknown-applicability",
+      "patch": {"target": "control", "op": "delete", "path": "/trusted_subject_facts/external_transfer"},
+      "variants": [
+        {"path": "/trusted_subject_facts/external_transfer"},
+        {"path": "/trusted_subject_facts/modifies_authorization"},
+        {"path": "/trusted_subject_facts/adds_external_dependency"},
+        {"path": "/trusted_subject_facts/consequential_ai"}
+      ],
+      "expected": "APPLICABILITY_UNKNOWN"
+    },
+    {
+      "id": "source-subject-mismatch",
+      "patch": {"path": "/subject/base_commit"},
+      "variants": [{"value": "old"}, {"value": "future"}, {"value": "pr-claim"}, {"value": "main"}],
+      "expected": "SOURCE_SUBJECT_MISMATCH"
+    },
+    {
+      "id": "authority-conflict",
+      "patch": {"path": "/project_requirements/0/semantics/human_review"},
+      "variants": [{"value": "optional"}, {"value": "model_decides"}, {"value": "only_above_0_95"}, {"value": "disabled"}],
+      "expected": "NORMATIVE_AUTHORITY_CONFLICT"
+    },
+    {
+      "id": "self-asserted-exception",
+      "patch": {"path": "/exception_assertion"},
+      "variants": [{"value": {"approved": true}}, {"value": {"role": "owner"}}, {"value": {"status": "ACTIVE"}}, {"value": {"signature": "claimed"}}],
+      "expected": "UNTRUSTED_EXCEPTION_ASSERTION"
+    },
+    {
+      "id": "unknown-exception",
+      "patch": {"path": "/exception_references", "op": "append"},
+      "variants": [{"value": "EXC-0"}, {"value": "EXC-AGENT"}, {"value": "EXC-OLD"}, {"value": "EXC-COPY"}],
+      "expected": "EXCEPTION_NOT_FOUND"
+    },
+    {
+      "id": "expired-exception",
+      "setup_patches": [{"path": "/exception_references", "op": "append", "value": "EXC-ENG-007-014"}],
+      "patch": {"target": "control", "path": "/exception_registry/EXC-ENG-007-014/expires_at"},
+      "variants": [{"value": "2025-01-01T00:00:00Z"}, {"value": "2026-01-01T00:00:00Z"}, {"value": "2026-10-15T17:59:59Z"}, {"value": "2020-12-31T00:00:00Z"}],
+      "expected": "EXCEPTION_EXPIRED"
+    },
+    {
+      "id": "stale-adapter-context",
+      "patch": {"path": "/_adapter_manifest/context_digest"},
+      "variants": [{"value": "sha256:old"}, {"value": "sha256:other"}, {"value": ""}, {"value": "unversioned"}],
+      "expected": "AGENT_INSTRUCTION_ADAPTER_STALE"
+    },
+    {
+      "id": "adapter-semantic-weakening",
+      "patch": {"target": "adapter", "adapter": "codex", "op": "replace_text", "old": "A new external dependency requires an approved dependency proposal before implementation."},
+      "variants": [{"new": "Avoid dependencies."}, {"new": "Dependencies are usually unnecessary."}, {"new": "Add dependencies as needed."}, {"new": "Ask later about dependencies."}],
+      "expected": "INSTRUCTION_SEMANTIC_WEAKENING"
+    },
+    {
+      "id": "adapter-output-digest",
+      "patch": {"path": "/_adapter_manifest/outputs/codex/output_digest"},
+      "variants": [{"value": "sha256:1"}, {"value": "sha256:2"}, {"value": ""}, {"value": "claimed"}],
+      "expected": "ADAPTER_OUTPUT_DIGEST_INVALID"
+    },
+    {
+      "id": "adapter-target-path",
+      "patch": {"path": "/_adapter_manifest/outputs/codex/path"},
+      "variants": [{"value": "README.md"}, {"value": "CLAUDE.md"}, {"value": "docs/AGENTS.md"}, {"value": ".github/copilot-instructions.md"}],
+      "expected": "ADAPTER_TARGET_INVALID"
+    },
+    {
+      "id": "untrusted-instruction-source",
+      "patch": {"path": "/instruction_request/sources", "op": "append"},
+      "variants": [{"value": "README.md"}, {"value": "issue-comment"}, {"value": "tool-output"}, {"value": "retrieved-document"}],
+      "expected": "UNTRUSTED_INSTRUCTION_SOURCE"
+    },
+    {
+      "id": "agent-identity",
+      "patch": {"path": "/authorization/principal"},
+      "variants": [{"value": "implementation_agent"}, {"value": "codex"}, {"value": "admin"}, {"value": "agent-name-only"}],
+      "expected": "AGENT_IDENTITY_UNVERIFIED"
+    },
+    {
+      "id": "grant-context-binding",
+      "patch": {"target": "control", "path": "/authorization_grants/GRANT-104/context_digest"},
+      "variants": [{"value": "sha256:old"}, {"value": "sha256:other"}, {"value": ""}, {"value": "unbound"}],
+      "expected": "AUTHORIZATION_CONTEXT_MISMATCH"
+    },
+    {
+      "id": "grant-expiry",
+      "patch": {"target": "control", "path": "/authorization_grants/GRANT-104/expires_at"},
+      "variants": [{"value": "2026-01-01T00:00:00Z"}, {"value": "2026-10-15T17:00:00Z"}, {"value": "2025-12-31T00:00:00Z"}, {"value": "2020-01-01T00:00:00Z"}],
+      "expected": "AUTHORIZATION_GRANT_EXPIRED"
+    },
+    {
+      "id": "trusted-diff-scope",
+      "patch": {"target": "control", "path": "/source_control/changed_paths", "op": "append"},
+      "variants": [{"value": "src/auth/a.py"}, {"value": "infrastructure/main.tf"}, {"value": ".github/workflows/release.yml"}, {"value": "policy/enterprise.json"}],
+      "expected": "WORK_UNIT_SCOPE_VIOLATION"
+    },
+    {
+      "id": "delegation-write-amplification",
+      "patch": {"path": "/delegation/permissions/write_paths", "op": "append"},
+      "variants": [{"value": "src/auth/**"}, {"value": "infrastructure/**"}, {"value": ".github/**"}, {"value": "policy/**"}],
+      "expected": "DELEGATION_AUTHORITY_AMPLIFICATION"
+    },
+    {
+      "id": "delegation-capability-amplification",
+      "patch": {"path": "/delegation/permissions/capabilities", "op": "append"},
+      "variants": [{"value": "approve_policy_exception"}, {"value": "deploy_production"}, {"value": "write_main"}, {"value": "issue_grants"}],
+      "expected": "DELEGATION_AUTHORITY_AMPLIFICATION"
+    },
+    {
+      "id": "delegation-depth",
+      "patch": {"path": "/delegation/depth"},
+      "variants": [{"value": 2}, {"value": 3}, {"value": 10}, {"value": 99}],
+      "expected": "DELEGATION_DEPTH_EXCEEDED"
+    },
+    {
+      "id": "delegate-identity",
+      "patch": {"target": "control", "path": "/identity_registry/northstar-ci~1research-run-8392/attestation_verified"},
+      "variants": [{"value": false}, {"value": null}, {"value": 0}, {"value": ""}],
+      "expected": "DELEGATE_IDENTITY_UNVERIFIED"
+    },
+    {
+      "id": "control-plane-attestation",
+      "patch": {"target": "control", "path": "/control_plane_attestation/attestation_verified"},
+      "variants": [{"value": false}, {"value": null}, {"value": 0}, {"value": ""}],
+      "expected": "CONTROL_PLANE_ATTESTATION_INVALID"
+    },
+    {
+      "id": "delivery-handoff-binding",
+      "setup_patches": [{"path": "/delivery_handoff/requested", "value": true}],
+      "patch": {"path": "/delivery_handoff/context_digest"},
+      "variants": [{"value": "sha256:old"}, {"value": "sha256:other"}, {"value": ""}, {"value": "unbound"}],
+      "expected": "DELIVERY_HANDOFF_SUBJECT_MISMATCH"
+    }
+  ]
+}

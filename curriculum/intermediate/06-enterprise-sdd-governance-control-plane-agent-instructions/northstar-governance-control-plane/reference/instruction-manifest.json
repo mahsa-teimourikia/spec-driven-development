@@ -1,0 +1,26 @@
+{
+  "fixture_status": "GENERATED_REFERENCE_NOT_RUNTIME_ENFORCEMENT",
+  "context_id": "CTX-AI-2310@4-training",
+  "context_digest": "sha256:b31437cce84a5485c047ec3934462dfad72cbcd0566ab102efb4788619bac481",
+  "canonical_rules_digest": "sha256:d7c41bb114c47b1e068ad860f99eae51d9d7bd54711e6f52de4a30e9f69fe52f",
+  "compiler": {
+    "id": "northstar/agent-instruction-compiler",
+    "version": "5.0.0",
+    "source": "protected-default-branch"
+  },
+  "outputs": {
+    "codex": {
+      "path": "AGENTS.md",
+      "output_digest": "sha256:a6405573ecdab9f62fa08a83dc98110764bb4da28596cbaba7cebccd41503c4e"
+    },
+    "claude": {
+      "path": "CLAUDE.md",
+      "output_digest": "sha256:e87e1b96fa1c19643fed81a0beae2606e5483fbe4eaf05ef25de667ba0b1870c"
+    },
+    "copilot": {
+      "path": ".github/copilot-instructions.md",
+      "output_digest": "sha256:94a23d7c6625d7b30fdd4e02ed752305db7cac83eb294a3074caf3e844703a5d"
+    }
+  },
+  "manifest_digest": "sha256:3311f1070550eb26a41fea8874dd940a4963f31dfd1501d4e7522ee02797fafb"
+}

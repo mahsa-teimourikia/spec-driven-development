@@ -1,0 +1,73 @@
+{
+  "fixture_status": "SAFE_REFERENCE_NOT_PRODUCTION_AUTHORIZATION",
+  "subject": {
+    "repository": "northstar/document-service",
+    "change_id": "AI-2310",
+    "base_commit": "main-da0fb80"
+  },
+  "project_requirements": [
+    {
+      "id": "REQ-DOC-001",
+      "owner": "Underwriting Product",
+      "semantics": {"human_review": "required"},
+      "source": "changes/AI-2310/specification.json@4"
+    },
+    {
+      "id": "REQ-DOC-002",
+      "owner": "Data Architecture",
+      "semantics": {"regional_processing": "approved_canadian_regions"},
+      "source": "changes/AI-2310/specification.json@4"
+    }
+  ],
+  "exception_references": [],
+  "requested_policy_deviations": [],
+  "instruction_request": {
+    "targets": ["codex", "claude", "copilot"],
+    "sources": ["canonical_agent_rules", "effective_context"],
+    "manifest": "instruction-manifest.json"
+  },
+  "work_unit": {
+    "id": "AWU-DOC-CLASSIFICATION",
+    "requirement_ids": ["REQ-DOC-001", "REQ-DOC-002"],
+    "policy_dependencies": ["AI-030@7", "PRIV-018@4", "DATA-021@2"],
+    "stop_conditions": [
+      "applicability_unknown",
+      "authority_conflict",
+      "protected_path_required",
+      "context_stale",
+      "scope_expansion"
+    ]
+  },
+  "authorization": {
+    "grant_id": "GRANT-104",
+    "principal": "northstar-ci/codex-run-8391",
+    "requested_permissions": {
+      "capabilities": ["repository_read", "repository_write", "run_tests"],
+      "read_paths": [
+        "src/documents/classification/**",
+        "tests/documents/classification/**"
+      ],
+      "write_paths": [
+        "src/documents/classification/**",
+        "tests/documents/classification/**"
+      ]
+    }
+  },
+  "delegation": {
+    "parent_principal": "northstar-ci/codex-run-8391",
+    "child_principal": "northstar-ci/research-run-8392",
+    "purpose": "inspect_existing_classification_patterns",
+    "depth": 1,
+    "permissions": {
+      "read_paths": ["src/documents/classification/**"],
+      "write_paths": [],
+      "capabilities": ["repository_read"]
+    },
+    "expires_at": "2026-10-16T12:00:00Z"
+  },
+  "delivery_handoff": {
+    "requested": false,
+    "context_digest": null,
+    "adapter_manifest_digest": null
+  }
+}

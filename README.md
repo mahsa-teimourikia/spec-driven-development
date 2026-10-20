@@ -4,7 +4,7 @@
 
 ## Start here
 
-Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through [Course 14: OpenSpec for Enterprise Change-Driven Spec-Driven Development](curriculum/intermediate/04-openspec-enterprise-change-driven-sdd/README.md), then complete [Course 15: Integrating SDD into Enterprise PDLC and CI/CD](curriculum/intermediate/05-enterprise-pdlc-ci-cd-integration/README.md) with its guided [notebook](curriculum/intermediate/05-enterprise-pdlc-ci-cd-integration/northstar-sdd-delivery/enterprise_pdlc_delivery.ipynb), deterministic [delivery-control lab](curriculum/intermediate/05-enterprise-pdlc-ci-cd-integration/northstar-sdd-delivery/lab.py), [AI-2310 workshop](curriculum/intermediate/05-enterprise-pdlc-ci-cd-integration/northstar-sdd-delivery/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
+Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through [Course 15: Integrating SDD into Enterprise PDLC and CI/CD](curriculum/intermediate/05-enterprise-pdlc-ci-cd-integration/README.md), then complete [Course 16: Enterprise SDD Governance Control Plane & Agent Instruction Management](curriculum/intermediate/06-enterprise-sdd-governance-control-plane-agent-instructions/README.md) with its guided [notebook](curriculum/intermediate/06-enterprise-sdd-governance-control-plane-agent-instructions/northstar-governance-control-plane/enterprise_governance_control_plane.ipynb), deterministic [governance-control lab](curriculum/intermediate/06-enterprise-sdd-governance-control-plane-agent-instructions/northstar-governance-control-plane/lab.py), [AI-2310 workshop](curriculum/intermediate/06-enterprise-sdd-governance-control-plane-agent-instructions/northstar-governance-control-plane/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
 
 This is not simply a tutorial for one specification framework. The central skill is turning organizational intent, architecture rules, product requirements, and engineering constraints into a hierarchy of durable specifications that agents can execute—and humans can govern.
 
@@ -231,9 +231,24 @@ Course 15 connects durable specifications to trusted enterprise delivery control
 - require healthy instrumentation and a denominator for runtime-conformance claims; and
 - evaluate the teaching control plane with eleven golden scenarios and 68 labelled mutations.
 
+## Course 16 outcome
+
+Course 16 compiles enterprise authority into bounded agent execution context. You will:
+
+- separate enterprise decision authority, platform instruction precedence, execution authorization, and enforcement;
+- resolve policy applicability with explicit `APPLICABLE`, `NOT_APPLICABLE`, and `UNKNOWN` states;
+- compile exact, provenance-bearing effective context rather than concatenate documents;
+- generate semantically equivalent Codex, Claude, and Copilot instruction adapters from canonical rules;
+- reject stale adapters, semantic weakening, untrusted instruction sources, and self-asserted exceptions;
+- bind authenticated workload identities, declared dispatch permissions, and grants to an exact context, work unit, readable/writable scope, and lifetime;
+- require every sub-agent delegation to attenuate capabilities, readable and writable paths, expiry, and depth;
+- separate an OPA-style policy decision point from the trusted services that enforce its result;
+- route mid-flight policy changes to continue, pause-and-revalidate, or cancel; and
+- evaluate the teaching control plane with 16 golden scenarios and 92 labelled mutations.
+
 ## Run locally
 
-Everything in Courses 01–15 is credential-free and uses the Python standard library.
+Everything in Courses 01–16 is credential-free and uses the Python standard library.
 
 ```bash
 python3 curriculum/beginner/01-why-agentic-coding-changes-pdlc/lab.py
@@ -252,6 +267,7 @@ python3 curriculum/intermediate/02-sdd-framework-landscape-enterprise-operating-
 python3 curriculum/intermediate/03-github-spec-kit-enterprise-sdd/northstar-spec-kit-adapter/lab.py
 python3 curriculum/intermediate/04-openspec-enterprise-change-driven-sdd/northstar-openspec-change/lab.py
 python3 curriculum/intermediate/05-enterprise-pdlc-ci-cd-integration/northstar-sdd-delivery/lab.py
+python3 curriculum/intermediate/06-enterprise-sdd-governance-control-plane-agent-instructions/northstar-governance-control-plane/lab.py
 python3 -m unittest discover -s tests -v
 python3 scripts/validate_course.py
 ```

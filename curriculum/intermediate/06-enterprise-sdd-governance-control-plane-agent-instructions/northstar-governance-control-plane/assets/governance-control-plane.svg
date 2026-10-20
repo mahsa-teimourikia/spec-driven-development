@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Enterprise SDD governance control plane</title>
+  <desc id="desc">Authoritative policy, specification, identity, grant, and source-control facts flow into a protected resolver, effective-context compiler, instruction compiler, and policy decision point. Generated guidance reaches authenticated agents while trusted enforcement points apply scoped capabilities. A bounded decision then hands off to delivery review.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L10,5 L0,10 z" fill="#6f7c91"/></marker>
+    <style>
+      .title{font:700 32px Inter,Arial,sans-serif;fill:#142033}.subtitle{font:400 17px Inter,Arial,sans-serif;fill:#526176}
+      .group{stroke-width:2;rx:22}.group-label{font:700 18px Inter,Arial,sans-serif;fill:#26354a}
+      .node{fill:#fff;stroke:#9caac0;stroke-width:2;rx:14}.node-primary{fill:#f7f0ff;stroke:#7450a8}.node-enforce{fill:#edf8f5;stroke:#27856e}
+      .node-text{font:600 16px Inter,Arial,sans-serif;fill:#142033;text-anchor:middle}.node-sub{font:400 14px Inter,Arial,sans-serif;fill:#526176;text-anchor:middle}
+      .edge{fill:none;stroke:#6f7c91;stroke-width:2.5;marker-end:url(#arrow)}.edge-label{font:600 12px Inter,Arial,sans-serif;fill:#526176;text-anchor:middle;paint-order:stroke;stroke:#fbfcfe;stroke-width:5px;stroke-linejoin:round}
+      .rule{font:500 14px Inter,Arial,sans-serif;fill:#33445b}
+    </style>
+  </defs>
+  <rect width="1600" height="900" fill="#fbfcfe"/>
+  <text class="title" x="64" y="70">Enterprise SDD governance control plane</text>
+  <text class="subtitle" x="64" y="102">Compile authority into exact context; project guidance to tools; enforce permissions outside the model.</text>
+
+  <rect class="group" x="64" y="140" width="390" height="610" fill="#f5f8fc" stroke="#bdc8d8"/>
+  <rect class="group" x="500" y="140" width="600" height="610" fill="#f7f3fc" stroke="#bca8d7"/>
+  <rect class="group" x="1146" y="140" width="390" height="610" fill="#f2faf7" stroke="#a7d0c5"/>
+  <text class="group-label" x="88" y="178">1 · Authoritative sources</text>
+  <text class="group-label" x="524" y="178">2 · Protected governance control plane</text>
+  <text class="group-label" x="1170" y="178">3 · Execution and enforcement</text>
+
+  <rect class="node" x="104" y="220" width="310" height="100"/>
+  <text class="node-text" x="259" y="260"><tspan x="259">Policy, authority &amp; exception</tspan><tspan x="259" dy="23">registries</tspan></text>
+  <rect class="node" x="104" y="380" width="310" height="100"/>
+  <text class="node-text" x="259" y="420"><tspan x="259">Approved spec, ADRs &amp;</tspan><tspan x="259" dy="23">trusted subject facts</tspan></text>
+  <rect class="node" x="104" y="540" width="310" height="100"/>
+  <text class="node-text" x="259" y="580"><tspan x="259">Identity, grants &amp;</tspan><tspan x="259" dy="23">source-control facts</tspan></text>
+
+  <rect class="node node-primary" x="550" y="205" width="500" height="105"/>
+  <text class="node-text" x="800" y="245">Applicability &amp; authority resolver</text>
+  <text class="node-sub" x="800" y="274">APPLICABLE · NOT APPLICABLE · UNKNOWN</text>
+  <rect class="node node-primary" x="550" y="350" width="500" height="105"/>
+  <text class="node-text" x="800" y="390">Canonical effective-context compiler</text>
+  <text class="node-sub" x="800" y="419">exact revisions + provenance + digest</text>
+  <rect class="node node-primary" x="550" y="495" width="500" height="105"/>
+  <text class="node-text" x="800" y="535">Tool-specific instruction compiler</text>
+  <text class="node-sub" x="800" y="564">AGENTS.md · CLAUDE.md · Copilot</text>
+  <rect class="node node-primary" x="550" y="640" width="500" height="75"/>
+  <text class="node-text" x="800" y="671">Governance PDP + audit decision</text>
+  <text class="node-sub" x="800" y="697">seven fail-closed gates</text>
+
+  <rect class="node node-enforce" x="1186" y="250" width="310" height="110"/>
+  <text class="node-text" x="1341" y="293"><tspan x="1341">Authenticated agent +</tspan><tspan x="1341" dy="23">attenuated sub-agent</tspan></text>
+  <rect class="node node-enforce" x="1186" y="430" width="310" height="110"/>
+  <text class="node-text" x="1341" y="473"><tspan x="1341">PEPs: permission broker,</tspan><tspan x="1341" dy="23">sandbox, protected CI</tspan></text>
+  <rect class="node node-enforce" x="1186" y="610" width="310" height="90"/>
+  <text class="node-text" x="1341" y="647"><tspan x="1341">Bounded Course 15</tspan><tspan x="1341" dy="23">delivery-review handoff</tspan></text>
+
+  <path class="edge" d="M414 270 H480 V235 H550"/><text class="edge-label" x="480" y="224">owned revisions</text>
+  <path class="edge" d="M414 430 H470 V285 H550"/><text class="edge-label" x="475" y="347">subject + intent</text>
+  <path class="edge" d="M414 590 H480 V678 H550"/><text class="edge-label" x="480" y="631">authenticated facts</text>
+  <path class="edge" d="M800 310 V350"/><text class="edge-label" x="902" y="335">resolved obligations</text>
+  <path class="edge" d="M800 455 V495"/><text class="edge-label" x="886" y="480">canonical rules</text>
+  <path class="edge" d="M1050 548 H1120 V305 H1186"/><text class="edge-label" x="1120" y="420">guidance</text>
+  <path class="edge" d="M550 403 H520 V678 H550"/><text class="edge-label" x="520" y="542" transform="rotate(-90 520 542)">exact context</text>
+  <path class="edge" d="M1050 678 H1120 V485 H1186"/><text class="edge-label" x="1120" y="582" transform="rotate(-90 1120 582)">decision, not enforcement</text>
+  <path class="edge" d="M1341 430 V360"/><text class="edge-label" x="1435" y="401">scoped capability</text>
+  <path class="edge" d="M1050 690 H1128 V655 H1186"/><text class="edge-label" x="1118" y="720">eligible handoff</text>
+
+  <text class="rule" x="64" y="798">Safety invariants:</text>
+  <text class="rule" x="64" y="828">• Instruction precedence never changes enterprise authority.  • Unknown applicability blocks dispatch.</text>
+  <text class="rule" x="64" y="856">• Delegation only attenuates authority.  • A PDP decision is enforced only by a trusted PEP.</text>
+</svg>
