@@ -7,7 +7,7 @@ This path turns specification skills into repeatable delivery flows.
 13. [GitHub Spec Kit for Enterprise Spec-Driven Development](03-github-spec-kit-enterprise-sdd/README.md) — available
 14. [OpenSpec for Enterprise Change-Driven Spec-Driven Development](04-openspec-enterprise-change-driven-sdd/README.md) — available
 15. [Integrating SDD into Enterprise PDLC and CI/CD](05-enterprise-pdlc-ci-cd-integration/README.md) — available
-16. Agent instructions & custom enterprise adapters
+16. [Enterprise SDD Governance Control Plane & Agent Instruction Management](06-enterprise-sdd-governance-control-plane-agent-instructions/README.md) — available
 17. Idea → discovery → spec → design → implementation
 18. Brownfield development
 19. Bug fixes and small changes
@@ -16,4 +16,4 @@ This path turns specification skills into repeatable delivery flows.
 22. PR and review strategy
 23. Human approval gates
 
-Courses 11–15 are available. The remaining courses will be published as complete vertical slices; see the [course plan](../../COURSE_PLAN.md).
+Courses 11–16 are available. The remaining courses will be published as complete vertical slices; see the [course plan](../../COURSE_PLAN.md).

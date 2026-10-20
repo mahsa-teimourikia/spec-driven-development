@@ -1440,5 +1440,89 @@ const QUESTIONS = [
     options: ['Reproducibility for the declared fixture, not production assurance', 'The platform is SLSA-certified', 'All enterprise policies are complete', 'Deployment is authorized'],
     answer: 0,
     explanation: 'Synthetic tests support bounded teaching claims. Real identity, isolation, signing, operations, and accountable authority remain outside the fixture.'
+  },
+  {
+    category: 'Course 16 applicability',
+    question: 'A residency policy depends on whether data leaves the region, but the trusted fact is missing. How should the resolver classify it?',
+    options: ['UNKNOWN and block the affected dispatch', 'NOT_APPLICABLE because no transfer was proven', 'APPLICABLE only if the agent agrees', 'Ignore the policy'],
+    answer: 0,
+    explanation: 'Missing evidence is not evidence of non-applicability. Unknown applicability must be resolved by an authoritative fact source.'
+  },
+  {
+    category: 'Course 16 boundaries',
+    question: 'An AGENTS.md tells the agent not to edit protected authorization code. What makes that boundary enforceable?',
+    options: ['A scoped grant, sandbox or broker, authoritative diff check, and trusted gate', 'The wording alone', 'Its position near the protected code', 'A completion report'],
+    answer: 0,
+    explanation: 'Instruction text guides behavior. Platform controls and trusted observations enforce the allowed actions.'
+  },
+  {
+    category: 'Course 16 authority',
+    question: 'A directory-level instruction file says human review is optional, while an applicable enterprise policy requires it. Which meaning governs?',
+    options: ['The enterprise policy; loading precedence does not grant decision authority', 'The directory file because it is more specific', 'Whichever file loaded last', 'Neither rule'],
+    answer: 0,
+    explanation: 'Platform loading order and organizational decision rights are separate hierarchies.'
+  },
+  {
+    category: 'Course 16 adapters',
+    question: 'Why generate separate Codex, Claude, and Copilot adapters from one canonical rule registry?',
+    options: ['To preserve one normative meaning while accommodating different loading contracts', 'To let each tool invent policy', 'To maximize repeated policy prose', 'To avoid versioning'],
+    answer: 0,
+    explanation: 'Target syntax and discovery behavior differ, but enterprise semantics and provenance should stay canonical.'
+  },
+  {
+    category: 'Course 16 exceptions',
+    question: 'A package contains exception_assertion: {approved: true}. What should the control plane do?',
+    options: ['Reject it and resolve a referenced, current, authorized exception from the trusted registry', 'Accept it because JSON is machine-readable', 'Ask the same agent to sign it', 'Treat it as policy'],
+    answer: 0,
+    explanation: 'A change package may reference authority but cannot manufacture it.'
+  },
+  {
+    category: 'Course 16 identity',
+    question: 'Why is implementation_agent insufficient as an authorization principal?',
+    options: ['It is a role label, not an authenticated workload identity bound to an attestation and grant', 'Role names are too short', 'Agents cannot have roles', 'The file must use a human name'],
+    answer: 0,
+    explanation: 'Authorization needs a verifiable subject, not a self-selected description.'
+  },
+  {
+    category: 'Course 16 delegation',
+    question: 'A parent agent has read and write scope for one module. Its child requests policy-exception approval. What is the safe result?',
+    options: ['Block authority amplification', 'Allow it because the child is specialized', 'Allow it if the child has a shorter prompt', 'Convert the request into an exception'],
+    answer: 0,
+    explanation: 'Delegation must be a subset of parent capabilities, paths, lifetime, context, and depth.'
+  },
+  {
+    category: 'Course 16 injection',
+    question: 'A retrieved README says to ignore the policy registry and treat it as the new authority. How should the agent and gate treat it?',
+    options: ['As untrusted context unless an authorized transformation promotes supported facts', 'As policy because it is in the repository', 'As an exception', 'As stronger than the specification'],
+    answer: 0,
+    explanation: 'Retrieved text and tool output are data at the trust boundary; proximity cannot launder authority.'
+  },
+  {
+    category: 'Course 16 policy-as-code',
+    question: 'OPA returns allow=true for a dispatch request. What remains necessary?',
+    options: ['A trusted enforcement point must apply the decision to the exact action and subject', 'Nothing; OPA performs the action', 'The agent must copy the result into AGENTS.md', 'A README must approve it'],
+    answer: 0,
+    explanation: 'OPA is a policy decision point. A caller, broker, admission controller, or CI service enforces the result.'
+  },
+  {
+    category: 'Course 16 invalidation',
+    question: 'An applicable policy obligation changes during execution. What is the appropriate route?',
+    options: ['Pause, re-resolve context, and selectively revalidate affected descendants', 'Continue because the old context was valid once', 'Always delete all work', 'Let the agent waive it'],
+    answer: 0,
+    explanation: 'A changed governing dependency invalidates context and affected grants, adapters, work, and evidence without necessarily restarting unrelated work.'
+  },
+  {
+    category: 'Course 16 handoff',
+    question: 'All seven governance gates pass. What is the strongest justified outcome?',
+    options: ['Eligible for bounded agent dispatch and delivery review', 'Authorized for production deployment', 'Approved policy exception', 'Proof that implementation is correct'],
+    answer: 0,
+    explanation: 'Course 16 establishes governed context and dispatch eligibility; Course 15 delivery controls retain merge and release authority.'
+  },
+  {
+    category: 'Course 16 evaluation',
+    question: 'The lab passes 16 golden scenarios and 92 labelled mutations. What does that establish?',
+    options: ['The deterministic fixture detects those represented cases, not general security or vendor certification', 'All prompt injection is solved', 'Every enterprise policy can be compiled', 'Every supported agent behaves identically'],
+    answer: 0,
+    explanation: 'Synthetic conformance supports a bounded, reproducible teaching claim only.'
   }
 ];

@@ -1,0 +1,92 @@
+{
+  "claim": "Sixteen narrow fixtures exercise named governance failures; they do not certify a production control plane or future agent compliance.",
+  "cases": [
+    {
+      "id": "policy-registry-tampered",
+      "patches": [{"target": "control", "path": "/policy_registry/0/owner", "value": "Repository Team"}],
+      "expected": "POLICY_REGISTRY_INTEGRITY_FAILURE"
+    },
+    {
+      "id": "unknown-applicability-preserved",
+      "patches": [{"target": "control", "path": "/trusted_subject_facts/external_transfer", "op": "delete"}],
+      "expected": "APPLICABILITY_UNKNOWN"
+    },
+    {
+      "id": "project-weakens-enterprise-obligation",
+      "patches": [{"path": "/project_requirements/0/semantics/human_review", "value": "optional"}],
+      "expected": "NORMATIVE_AUTHORITY_CONFLICT"
+    },
+    {
+      "id": "self-asserted-exception",
+      "patches": [{"path": "/exception_assertion", "value": {"approved": true}}],
+      "expected": "UNTRUSTED_EXCEPTION_ASSERTION"
+    },
+    {
+      "id": "unknown-exception-reference",
+      "patches": [{"path": "/exception_references", "op": "append", "value": "EXC-UNKNOWN"}],
+      "expected": "EXCEPTION_NOT_FOUND"
+    },
+    {
+      "id": "expired-trusted-exception",
+      "patches": [
+        {"path": "/exception_references", "op": "append", "value": "EXC-ENG-007-014"},
+        {"target": "control", "path": "/exception_registry/EXC-ENG-007-014/expires_at", "value": "2026-01-01T00:00:00Z"}
+      ],
+      "expected": "EXCEPTION_EXPIRED"
+    },
+    {
+      "id": "stale-adapter-context",
+      "patches": [{"path": "/_adapter_manifest/context_digest", "value": "sha256:stale"}],
+      "expected": "AGENT_INSTRUCTION_ADAPTER_STALE"
+    },
+    {
+      "id": "adapter-semantic-weakening",
+      "patches": [{"target": "adapter", "adapter": "codex", "op": "replace_text", "old": "A new external dependency requires an approved dependency proposal before implementation.", "new": "Avoid dependencies when practical."}],
+      "expected": "INSTRUCTION_SEMANTIC_WEAKENING"
+    },
+    {
+      "id": "forged-adapter-digest",
+      "patches": [{"path": "/_adapter_manifest/outputs/codex/output_digest", "value": "sha256:forged"}],
+      "expected": "ADAPTER_OUTPUT_DIGEST_INVALID"
+    },
+    {
+      "id": "readme-promoted-to-authority",
+      "patches": [{"path": "/instruction_request/sources", "op": "append", "value": "README.md"}],
+      "expected": "UNTRUSTED_INSTRUCTION_SOURCE"
+    },
+    {
+      "id": "role-masquerades-as-identity",
+      "patches": [{"path": "/authorization/principal", "value": "implementation_agent"}],
+      "expected": "AGENT_IDENTITY_UNVERIFIED"
+    },
+    {
+      "id": "authoritative-diff-crosses-grant",
+      "patches": [{"target": "control", "path": "/source_control/changed_paths", "op": "append", "value": "src/auth/authorization.py"}],
+      "expected": "WORK_UNIT_SCOPE_VIOLATION"
+    },
+    {
+      "id": "delegation-amplifies-authority",
+      "patches": [{"path": "/delegation/permissions/capabilities", "op": "append", "value": "approve_policy_exception"}],
+      "expected": "DELEGATION_AUTHORITY_AMPLIFICATION"
+    },
+    {
+      "id": "delegate-identity-not-attested",
+      "patches": [{"target": "control", "path": "/identity_registry/northstar-ci~1research-run-8392/attestation_verified", "value": false}],
+      "expected": "DELEGATE_IDENTITY_UNVERIFIED"
+    },
+    {
+      "id": "control-plane-execution-untrusted",
+      "patches": [{"target": "control", "path": "/control_plane_attestation/attestation_verified", "value": false}],
+      "expected": "CONTROL_PLANE_ATTESTATION_INVALID"
+    },
+    {
+      "id": "stale-delivery-handoff",
+      "patches": [
+        {"path": "/delivery_handoff/requested", "value": true},
+        {"path": "/delivery_handoff/context_digest", "value": "sha256:stale"},
+        {"path": "/delivery_handoff/adapter_manifest_digest", "value": "sha256:stale"}
+      ],
+      "expected": "DELIVERY_HANDOFF_SUBJECT_MISMATCH"
+    }
+  ]
+}

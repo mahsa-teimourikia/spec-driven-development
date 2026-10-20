@@ -2473,10 +2473,8 @@ def check_course_15_enterprise_delivery() -> list[str]:
         errors.append("Course 15 reference must not self-authorize integration or deployment")
 
     quiz_source = (ROOT / "quiz" / "questions.js").read_text(encoding="utf-8")
-    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 206:
-        errors.append("Course 15 cumulative quiz must contain 206 questions")
-    if "Courses 01–15" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
-        errors.append("Course 15 cumulative quiz must identify Courses 01–15")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) < 206:
+        errors.append("The cumulative quiz must retain all 206 questions from Courses 01–15")
     hub_source = (ROOT / "hub" / "lessons.js").read_text(encoding="utf-8")
     expected_hub_fragments = [
         "const course15 = {",
@@ -2486,6 +2484,145 @@ def check_course_15_enterprise_delivery() -> list[str]:
     ]
     if any(fragment not in hub_source for fragment in expected_hub_fragments):
         errors.append("Course 15 Learning Hub entry is incomplete or points outside the workshop package")
+    return errors
+
+
+def check_course_16_governance_control_plane() -> list[str]:
+    errors: list[str] = []
+    lesson = ROOT / "curriculum" / "intermediate" / "06-enterprise-sdd-governance-control-plane-agent-instructions"
+    scenario = lesson / "northstar-governance-control-plane"
+    required = [
+        lesson / "README.md",
+        scenario / "README.md",
+        scenario / "lab.py",
+        scenario / "enterprise_governance_control_plane.ipynb",
+        scenario / "policy" / "trusted-governance-plane.json",
+        scenario / "policy" / "dispatch.rego",
+        scenario / "reference" / "governance-package.json",
+        scenario / "reference" / "instruction-manifest.json",
+        scenario / "reference" / "AGENTS.md",
+        scenario / "reference" / "CLAUDE.md",
+        scenario / "reference" / ".github" / "copilot-instructions.md",
+        scenario / "candidate" / "package-patches.json",
+        scenario / "candidate" / "trusted-observations.json",
+        scenario / "conformance-suite.json",
+        scenario / "evaluation-cases.json",
+        scenario / "workshop" / "starter" / "governance-package.json",
+        scenario / "assets" / "governance-control-plane-spec.json",
+        scenario / "assets" / "governance-control-plane.svg",
+    ]
+    for path in required:
+        if not path.exists():
+            errors.append(f"Course 16 missing required artifact: {path.relative_to(ROOT)}")
+    if errors:
+        return errors
+
+    result = subprocess.run(
+        [sys.executable, str(scenario / "lab.py")],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    try:
+        report = json.loads(result.stdout) if result.returncode == 0 else {}
+    except json.JSONDecodeError:
+        report = {}
+    if not report:
+        errors.append("Course 16 lab did not produce its JSON governance-control report")
+        return errors
+
+    reference = report.get("reference", {})
+    expected_gates = {
+        "registry_integrity",
+        "context_resolution",
+        "authority_compatibility",
+        "instruction_adapter_conformance",
+        "execution_authorization",
+        "delegation_attenuation",
+        "audit_handoff_integrity",
+    }
+    gates = reference.get("gates", [])
+    if reference.get("decision") != "ELIGIBLE_FOR_AGENT_DISPATCH":
+        errors.append("Course 16 reference must stop at agent-dispatch eligibility")
+    if len(gates) != 7 or {item.get("gate") for item in gates} != expected_gates or any(item.get("status") != "PASS" for item in gates):
+        errors.append("Course 16 must retain seven explicit passing governance gates")
+    required_unsafe = {
+        "NORMATIVE_AUTHORITY_CONFLICT",
+        "UNTRUSTED_EXCEPTION_ASSERTION",
+        "UNTRUSTED_INSTRUCTION_SOURCE",
+        "INSTRUCTION_SEMANTIC_WEAKENING",
+        "AGENT_IDENTITY_UNVERIFIED",
+        "WORK_UNIT_SCOPE_VIOLATION",
+        "DELEGATION_AUTHORITY_AMPLIFICATION",
+        "HANDOFF_PREREQUISITE_FAILED",
+    }
+    unsafe = report.get("unsafe_candidate", {})
+    if unsafe.get("decision") != "BLOCKED" or not required_unsafe.issubset(set(unsafe.get("findings", []))):
+        errors.append("Course 16 unsafe candidate no longer exposes the required independent failures")
+    if (report.get("conformance", {}).get("passed"), report.get("conformance", {}).get("total")) != (16, 16):
+        errors.append("Course 16 golden suite must retain 16 passing scenarios")
+    if (report.get("evaluation", {}).get("passed"), report.get("evaluation", {}).get("total")) != (92, 92):
+        errors.append("Course 16 mutation evaluation must retain 92 detected cases")
+    if report.get("policy_change", {}).get("decision") != "PAUSE_AND_REVALIDATE":
+        errors.append("Course 16 governing policy change must pause and revalidate")
+
+    control = json.loads((scenario / "policy" / "trusted-governance-plane.json").read_text(encoding="utf-8"))
+    package = json.loads((scenario / "reference" / "governance-package.json").read_text(encoding="utf-8"))
+    manifest = json.loads((scenario / "reference" / "instruction-manifest.json").read_text(encoding="utf-8"))
+
+    def digest(value: object) -> str:
+        canonical = json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+        return f"sha256:{hashlib.sha256(canonical.encode('utf-8')).hexdigest()}"
+
+    registry_payload = [
+        {key: policy[key] for key in ("id", "revision", "owner", "authority_domain", "status", "applicability", "obligations", "protected_decisions")}
+        for policy in control.get("policy_registry", [])
+    ]
+    if digest(registry_payload) != control.get("policy_registry_digest"):
+        errors.append("Course 16 policy registry digest is not canonical")
+    if digest(control.get("canonical_agent_rules", [])) != control.get("canonical_agent_rules_digest"):
+        errors.append("Course 16 canonical agent-rule digest is not canonical")
+    context = reference.get("context", {})
+    if context.get("digest") != manifest.get("context_digest"):
+        errors.append("Course 16 generated adapter manifest is not bound to the compiled context digest")
+    grant = control.get("authorization_grants", {}).get(package.get("authorization", {}).get("grant_id"), {})
+    if grant.get("context_digest") != context.get("digest") or grant.get("principal") != package.get("authorization", {}).get("principal"):
+        errors.append("Course 16 grant must bind the exact context and authenticated principal")
+
+    expected_paths = {"codex": "AGENTS.md", "claude": "CLAUDE.md", "copilot": ".github/copilot-instructions.md"}
+    outputs = manifest.get("outputs", {})
+    if set(outputs) != set(expected_paths):
+        errors.append("Course 16 must retain all three instruction adapter targets")
+    for target, relative in expected_paths.items():
+        adapter_path = scenario / "reference" / relative
+        if outputs.get(target, {}).get("path") != relative or outputs.get(target, {}).get("output_digest") != digest(adapter_path.read_text(encoding="utf-8")):
+            errors.append(f"Course 16 {target} adapter manifest binding is invalid")
+    snapshots = control.get("compatibility_snapshots", {})
+    if set(snapshots) != set(expected_paths) or any(item.get("verified_on") != "2026-10-15" for item in snapshots.values()):
+        errors.append("Course 16 tool compatibility snapshots must be complete and dated")
+
+    starter = (scenario / "workshop" / "starter" / "governance-package.json").read_text(encoding="utf-8")
+    if starter.count("TODO") != 3:
+        errors.append("Course 16 starter must retain exactly three learner decisions")
+    rego = (scenario / "policy" / "dispatch.rego").read_text(encoding="utf-8")
+    if "default allow := false" not in rego or "control_plane_attestation_verified" not in rego:
+        errors.append("Course 16 Rego example must remain fail-closed and attestation-aware")
+
+    quiz_source = (ROOT / "quiz" / "questions.js").read_text(encoding="utf-8")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 218:
+        errors.append("Course 16 cumulative quiz must contain 218 questions")
+    if "Courses 01–16" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
+        errors.append("Course 16 cumulative quiz must identify Courses 01–16")
+    hub = (ROOT / "hub" / "lessons.js").read_text(encoding="utf-8")
+    hub_fragments = [
+        "const course16 = {",
+        "06-enterprise-sdd-governance-control-plane-agent-instructions/northstar-governance-control-plane/enterprise_governance_control_plane.ipynb",
+        "06-enterprise-sdd-governance-control-plane-agent-instructions/northstar-governance-control-plane/workshop/starter",
+        "16 golden scenarios and 92 labelled mutations",
+    ]
+    if any(fragment not in hub for fragment in hub_fragments):
+        errors.append("Course 16 Learning Hub entry is incomplete or points outside the workshop package")
     return errors
 
 
@@ -2510,6 +2647,7 @@ def main() -> None:
         "Course 13 Spec Kit": check_course_13_spec_kit,
         "Course 14 OpenSpec": check_course_14_openspec,
         "Course 15 enterprise delivery": check_course_15_enterprise_delivery,
+        "Course 16 governance control plane": check_course_16_governance_control_plane,
         "diagrams": render_and_validate_diagrams,
         "labs": run_labs,
         "repository labs": run_repository_labs,

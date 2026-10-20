@@ -768,6 +768,60 @@ const course15 = {
   }
 };
 
+const course16 = {
+  id: 'c16', course: 16, level: 'intermediate', part: 'III · Agentic execution & SDD frameworks', status: 'available',
+  title: 'Enterprise SDD Governance Control Plane & Agent Instruction Management',
+  summary: 'Compile authoritative policy into exact execution context and tool-specific guidance while identity, grants, trusted gates, and enforcement remain outside the agent.',
+  outcomes: [
+    'Separate enterprise authority, platform instruction precedence, authorization, and enforcement.',
+    'Resolve applicable policy with APPLICABLE, NOT_APPLICABLE, and UNKNOWN states.',
+    'Compile revision-bound effective context with canonical provenance and digests.',
+    'Generate semantically equivalent Codex, Claude, and Copilot instruction adapters.',
+    'Reject semantic weakening, stale adapters, untrusted instruction sources, and self-asserted exceptions.',
+    'Bind authenticated workload identities and grants to exact context, work-unit scope, and time.',
+    'Attenuate sub-agent capabilities, writable paths, expiry, and delegation depth.',
+    'Separate an OPA-style policy decision point from trusted enforcement points.',
+    'Route mid-flight policy changes to continue, pause-and-revalidate, or cancel.',
+    'Test the teaching control plane with 16 golden scenarios and 92 labelled mutations.'
+  ],
+  readme: `${REPO}/blob/main/curriculum/intermediate/06-enterprise-sdd-governance-control-plane-agent-instructions/README.md`,
+  notebook: `${REPO}/blob/main/curriculum/intermediate/06-enterprise-sdd-governance-control-plane-agent-instructions/northstar-governance-control-plane/enterprise_governance_control_plane.ipynb`,
+  lab: `${REPO}/blob/main/curriculum/intermediate/06-enterprise-sdd-governance-control-plane-agent-instructions/northstar-governance-control-plane/lab.py`,
+  repoFixture: `${REPO}/tree/main/curriculum/intermediate/06-enterprise-sdd-governance-control-plane-agent-instructions/northstar-governance-control-plane`,
+  run: 'python3 curriculum/intermediate/06-enterprise-sdd-governance-control-plane-agent-instructions/northstar-governance-control-plane/lab.py',
+  labs: [
+    {
+      title: 'Lab A — Compile and validate governed agent context',
+      description: 'Resolve policy, compile exact context and three tool adapters, validate seven gates, and inject authority, identity, scope, delegation, and handoff failures.',
+      command: 'python3 curriculum/intermediate/06-enterprise-sdd-governance-control-plane-agent-instructions/northstar-governance-control-plane/lab.py',
+      links: [['View the control-plane lab', `${REPO}/blob/main/curriculum/intermediate/06-enterprise-sdd-governance-control-plane-agent-instructions/northstar-governance-control-plane/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/intermediate/06-enterprise-sdd-governance-control-plane-agent-instructions/northstar-governance-control-plane/enterprise_governance_control_plane.ipynb`]]
+    },
+    {
+      title: 'Lab B — Repair the AI-2310 governance package',
+      description: 'Derive three decisions from authoritative sources, compare generated adapters, and preserve the boundary between dispatch eligibility and delivery authority.',
+      command: 'Complete the starter package, run Lab A, then compare with the reference package.',
+      links: [['Open the workshop', `${REPO}/tree/main/curriculum/intermediate/06-enterprise-sdd-governance-control-plane-agent-instructions/northstar-governance-control-plane`], ['Complete the starter package', `${REPO}/tree/main/curriculum/intermediate/06-enterprise-sdd-governance-control-plane-agent-instructions/northstar-governance-control-plane/workshop/starter`], ['Inspect generated adapters', `${REPO}/tree/main/curriculum/intermediate/06-enterprise-sdd-governance-control-plane-agent-instructions/northstar-governance-control-plane/reference`]]
+    }
+  ],
+  references: [
+    ['OpenAI Codex prompting guide', 'https://developers.openai.com/cookbook/examples/gpt-5/codex_prompting_guide'],
+    ['Claude Code memory', 'https://code.claude.com/docs/en/memory'],
+    ['GitHub Copilot custom-instruction support', 'https://docs.github.com/en/copilot/reference/custom-instructions-support'],
+    ['Open Policy Agent documentation', 'https://www.openpolicyagent.org/docs'],
+    ['OPA deployment patterns', 'https://www.openpolicyagent.org/docs/deploy']
+  ],
+  checkpoint: {
+    question: 'A generated AGENTS.md says an external dependency needs approval, but the authenticated grant lacks that capability. What may the agent do?',
+    options: [
+      'Stop and request the governed approval; instruction text cannot expand the grant.',
+      'Install the dependency because AGENTS.md has repository precedence.',
+      'Add approved: true to its package.'
+    ],
+    answer: 0,
+    explanation: 'Instructions guide behavior; authenticated grants and trusted enforcement define authority. Neither proximity nor wording can mint a capability.'
+  }
+};
+
 function planned(course, level, part, title, summary) {
   return {
     id: `c${String(course).padStart(2, '0')}`, course, level, part,
@@ -794,7 +848,7 @@ const LESSONS = [
   course13,
   course14,
   course15,
-  planned(16, 'intermediate', 'III · Agentic execution & SDD frameworks', 'Agent instructions & custom enterprise adapters', 'Combine scoped cross-agent guidance with versioned context, evidence, conformance, and upgrade adapters.'),
+  course16,
   planned(17, 'intermediate', 'IV · Agentic PDLC', 'Idea → discovery → spec → design → implementation', 'Build an end-to-end flow with explicit state, owners, gates, and handoffs.'),
   planned(18, 'intermediate', 'IV · Agentic PDLC', 'Brownfield development', 'Recover system truth before changing code with incomplete or stale specifications.'),
   planned(19, 'intermediate', 'IV · Agentic PDLC', 'Bug fixes and small changes', 'Use a proportional workflow that preserves evidence without process theatre.'),
