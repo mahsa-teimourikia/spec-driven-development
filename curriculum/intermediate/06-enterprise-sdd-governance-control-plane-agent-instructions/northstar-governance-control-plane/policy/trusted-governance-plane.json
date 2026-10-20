@@ -155,6 +155,7 @@
       "enforcement_boundary": "custom instructions guide behavior; repository permissions, rulesets, and trusted validation enforce actions"
     }
   },
+  "required_instruction_targets": ["codex", "claude", "copilot"],
   "authority_registry": {
     "exception_approvers": {
       "AI_GOVERNANCE": ["northstar/ai-governance-board"],
@@ -175,8 +176,34 @@
         {"principal": "northstar/developer-platform", "identity_verified": true, "attestation_verified": true}
       ],
       "conditions": ["dependency_scan_passed", "license_review_passed"],
+      "authorized_deviations": [
+        {
+          "policy_ref": "ENG-007@5",
+          "semantic_key": "dependency_approval",
+          "from": "required",
+          "to": "approved_pdf_parser_only"
+        }
+      ],
       "expires_at": "2026-12-31T00:00:00Z",
       "state": "ACTIVE"
+    }
+  },
+  "exception_condition_evidence": {
+    "dependency_scan_passed": {
+      "exception_id": "EXC-ENG-007-014",
+      "result": "PASS",
+      "producer": "northstar-security/dependency-scanner@prod",
+      "producer_identity_verified": true,
+      "attestation_verified": true,
+      "valid_until": "2026-11-15T18:00:00Z"
+    },
+    "license_review_passed": {
+      "exception_id": "EXC-ENG-007-014",
+      "result": "PASS",
+      "producer": "northstar-legal/license-review@prod",
+      "producer_identity_verified": true,
+      "attestation_verified": true,
+      "valid_until": "2026-11-15T18:00:00Z"
     }
   },
   "identity_registry": {
@@ -201,6 +228,10 @@
       "work_unit_id": "AWU-DOC-CLASSIFICATION",
       "context_digest": "sha256:b31437cce84a5485c047ec3934462dfad72cbcd0566ab102efb4788619bac481",
       "base_commit": "main-da0fb80",
+      "readable_paths": [
+        "src/documents/classification/**",
+        "tests/documents/classification/**"
+      ],
       "writable_paths": [
         "src/documents/classification/**",
         "tests/documents/classification/**"

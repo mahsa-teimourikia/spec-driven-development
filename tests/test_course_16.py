@@ -84,6 +84,29 @@ class Course16GovernanceControlPlaneTests(unittest.TestCase):
     def test_compatible_project_semantics_pass(self):
         self.assertNotIn("NORMATIVE_AUTHORITY_CONFLICT", self.codes())
 
+    def test_conflicting_project_requirements_cannot_hide_behind_last_value(self):
+        package = copy.deepcopy(self.package)
+        package["project_requirements"][0]["semantics"]["human_review"] = "prohibited"
+        package["project_requirements"].append({
+            "id": "REQ-DOC-003",
+            "owner": "Underwriting Product",
+            "semantics": {"human_review": "required"},
+            "source": "changes/AI-2310/specification.json@4",
+        })
+        codes = self.codes(package)
+        self.assertIn("PROJECT_REQUIREMENT_CONFLICT", codes)
+        self.assertIn("NORMATIVE_AUTHORITY_CONFLICT", codes)
+
+    def test_compatible_duplicate_project_semantics_do_not_conflict(self):
+        package = copy.deepcopy(self.package)
+        package["project_requirements"].append({
+            "id": "REQ-DOC-003",
+            "owner": "Underwriting Product",
+            "semantics": {"human_review": "required"},
+            "source": "changes/AI-2310/specification.json@4",
+        })
+        self.assertNotIn("PROJECT_REQUIREMENT_CONFLICT", self.codes(package))
+
     def test_package_cannot_self_assert_exception_approval(self):
         package = copy.deepcopy(self.package)
         package["exception_assertion"] = {"id": "EXC-X", "approved": True}
@@ -112,6 +135,70 @@ class Course16GovernanceControlPlaneTests(unittest.TestCase):
         control["exception_registry"]["EXC-ENG-007-014"]["expires_at"] = "2026-01-01T00:00:00Z"
         self.assertIn("EXCEPTION_EXPIRED", self.codes(package, control))
 
+    def test_exception_conditions_require_current_trusted_evidence(self):
+        package = copy.deepcopy(self.package)
+        package["exception_references"] = ["EXC-ENG-007-014"]
+        control = copy.deepcopy(self.control)
+        control["exception_condition_evidence"]["dependency_scan_passed"]["result"] = "FAIL"
+        self.assertIn("EXCEPTION_CONDITION_UNSATISFIED", self.codes(package, control))
+
+    def test_missing_exception_condition_evidence_blocks(self):
+        package = copy.deepcopy(self.package)
+        package["exception_references"] = ["EXC-ENG-007-014"]
+        control = copy.deepcopy(self.control)
+        del control["exception_condition_evidence"]["license_review_passed"]
+        self.assertIn("EXCEPTION_CONDITION_UNSATISFIED", self.codes(package, control))
+
+    def test_expired_exception_condition_evidence_blocks(self):
+        package = copy.deepcopy(self.package)
+        package["exception_references"] = ["EXC-ENG-007-014"]
+        control = copy.deepcopy(self.control)
+        control["exception_condition_evidence"]["license_review_passed"]["valid_until"] = control["evaluation_time"]
+        self.assertIn("EXCEPTION_CONDITION_UNSATISFIED", self.codes(package, control))
+
+    def test_valid_exception_reference_does_not_waive_unrelated_obligation(self):
+        package = copy.deepcopy(self.package)
+        package["exception_references"] = ["EXC-ENG-007-014"]
+        package["project_requirements"][0]["semantics"]["human_review"] = "optional"
+        self.assertIn("NORMATIVE_AUTHORITY_CONFLICT", self.codes(package))
+
+    def test_undeclared_exception_deviation_is_rejected(self):
+        package = copy.deepcopy(self.package)
+        package["exception_references"] = ["EXC-ENG-007-014"]
+        package["requested_policy_deviations"] = [{
+            "exception_id": "EXC-ENG-007-014",
+            "requirement_id": "REQ-DOC-001",
+            "policy_ref": "AI-030@7",
+            "semantic_key": "human_review",
+            "from": "required",
+            "to": "optional",
+        }]
+        self.assertIn("EXCEPTION_DEVIATION_NOT_AUTHORIZED", self.codes(package))
+
+    def test_exact_trusted_exception_deviation_is_authorized(self):
+        package = copy.deepcopy(self.package)
+        package["exception_references"] = ["EXC-ENG-007-014"]
+        package["requested_policy_deviations"] = [{
+            "exception_id": "EXC-ENG-007-014",
+            "requirement_id": "REQ-DEP-001",
+            "policy_ref": "ENG-007@5",
+            "semantic_key": "dependency_approval",
+            "from": "required",
+            "to": "approved_pdf_parser_only",
+        }]
+        valid, findings = lab._valid_exception_ids(package, self.control)
+        self.assertEqual(findings, [])
+        self.assertTrue(lab._authorized_deviation(
+            "REQ-DEP-001",
+            "dependency_approval",
+            "approved_pdf_parser_only",
+            "ENG-007@5",
+            "required",
+            package,
+            self.control,
+            valid,
+        ))
+
     def test_compiler_emits_exact_tool_specific_targets(self):
         _, context = self.evaluate()
         expected = lab.compile_all_adapters(context, self.control, ["codex", "claude", "copilot"])
@@ -120,6 +207,13 @@ class Course16GovernanceControlPlaneTests(unittest.TestCase):
         self.assertEqual(outputs["codex"]["path"], "AGENTS.md")
         self.assertEqual(outputs["claude"]["path"], "CLAUDE.md")
         self.assertEqual(outputs["copilot"]["path"], ".github/copilot-instructions.md")
+
+    def test_trusted_required_adapter_target_cannot_be_omitted(self):
+        package = copy.deepcopy(self.package)
+        package["instruction_request"]["targets"].remove("copilot")
+        codes = self.codes(package)
+        self.assertIn("REQUIRED_INSTRUCTION_TARGET_MISSING", codes)
+        self.assertIn("ADAPTER_TARGET_SET_MISMATCH", codes)
 
     def test_tool_compatibility_snapshots_are_dated(self):
         snapshots = self.control["compatibility_snapshots"]
@@ -175,6 +269,38 @@ class Course16GovernanceControlPlaneTests(unittest.TestCase):
         control["source_control"]["changed_paths"].append("src/auth/authorization.py")
         self.assertIn("WORK_UNIT_SCOPE_VIOLATION", self.codes(control=control))
 
+    def test_dispatch_capabilities_must_be_subset_of_grant(self):
+        package = copy.deepcopy(self.package)
+        package["authorization"]["requested_permissions"]["capabilities"].append("external_network")
+        self.assertIn("REQUESTED_AUTHORITY_EXCEEDS_GRANT", self.codes(package))
+
+    def test_dispatch_read_scope_must_be_subset_of_grant(self):
+        package = copy.deepcopy(self.package)
+        package["authorization"]["requested_permissions"]["read_paths"] = ["src/**"]
+        self.assertIn("REQUESTED_AUTHORITY_EXCEEDS_GRANT", self.codes(package))
+
+    def test_dispatch_must_declare_requested_permissions(self):
+        package = copy.deepcopy(self.package)
+        del package["authorization"]["requested_permissions"]
+        codes = self.codes(package)
+        self.assertIn("EXECUTION_PERMISSION_REQUEST_MISSING", codes)
+        self.assertIn("REQUESTED_WRITE_SCOPE_MISMATCH", codes)
+
+    def test_dispatch_path_traversal_is_invalid(self):
+        package = copy.deepcopy(self.package)
+        package["authorization"]["requested_permissions"]["read_paths"] = ["src/documents/../auth/**"]
+        self.assertIn("EXECUTION_PATH_SCOPE_INVALID", self.codes(package))
+
+    def test_ambiguous_grant_path_scope_is_invalid(self):
+        control = copy.deepcopy(self.control)
+        control["authorization_grants"]["GRANT-104"]["readable_paths"] = ["src/*/classification/**"]
+        self.assertIn("AUTHORIZATION_PATH_SCOPE_INVALID", self.codes(control=control))
+
+    def test_authoritative_diff_must_fit_declared_dispatch_scope(self):
+        package = copy.deepcopy(self.package)
+        package["authorization"]["requested_permissions"]["write_paths"] = ["tests/documents/classification/**"]
+        self.assertIn("REQUESTED_WRITE_SCOPE_MISMATCH", self.codes(package))
+
     def test_delegation_capabilities_must_be_subset(self):
         package = copy.deepcopy(self.package)
         package["delegation"]["permissions"]["capabilities"].append("approve_policy_exception")
@@ -184,6 +310,35 @@ class Course16GovernanceControlPlaneTests(unittest.TestCase):
         package = copy.deepcopy(self.package)
         package["delegation"]["permissions"]["write_paths"].append("src/auth/**")
         self.assertIn("DELEGATION_AUTHORITY_AMPLIFICATION", self.codes(package))
+
+    def test_delegation_read_paths_must_be_subset(self):
+        package = copy.deepcopy(self.package)
+        package["delegation"]["permissions"]["read_paths"] = ["src/**"]
+        self.assertIn("DELEGATION_AUTHORITY_AMPLIFICATION", self.codes(package))
+
+    def test_delegation_accepts_canonical_narrower_subtree(self):
+        package = copy.deepcopy(self.package)
+        package["delegation"]["permissions"]["write_paths"] = ["src/documents/classification/generated/**"]
+        package["delegation"]["permissions"]["capabilities"].append("repository_write")
+        codes = self.codes(package)
+        self.assertNotIn("DELEGATION_AUTHORITY_AMPLIFICATION", codes)
+        self.assertNotIn("DELEGATION_PATH_SCOPE_INVALID", codes)
+
+    def test_delegation_rejects_directory_traversal_pattern(self):
+        package = copy.deepcopy(self.package)
+        package["delegation"]["permissions"]["read_paths"] = ["src/documents/../auth/**"]
+        self.assertIn("DELEGATION_PATH_SCOPE_INVALID", self.codes(package))
+
+    def test_delegation_rejects_ambiguous_wildcard_intersection(self):
+        package = copy.deepcopy(self.package)
+        package["delegation"]["permissions"]["read_paths"] = ["src/*/classification/**"]
+        self.assertIn("DELEGATION_PATH_SCOPE_INVALID", self.codes(package))
+
+    def test_path_scope_containment_is_directional(self):
+        self.assertTrue(lab.path_scope_contains("src/documents/**", "src/documents/classification/**"))
+        self.assertTrue(lab.path_scope_contains("src/documents/**", "src/documents/service.py"))
+        self.assertFalse(lab.path_scope_contains("src/documents/classification/**", "src/documents/**"))
+        self.assertFalse(lab.path_scope_contains("src/documents/**", "src/documents/../auth/**"))
 
     def test_delegation_depth_is_bounded(self):
         package = copy.deepcopy(self.package)
@@ -238,6 +393,69 @@ class Course16GovernanceControlPlaneTests(unittest.TestCase):
         retired["revision"] = 8
         retired["status"] = "RETIRED"
         self.assertEqual(lab.assess_policy_change(old, retired, self.package["work_unit"])["decision"], "CANCEL")
+
+    def test_protected_decision_change_pauses_and_revalidates(self):
+        old = copy.deepcopy(self.control["policy_registry"][0])
+        changed = copy.deepcopy(old)
+        changed["revision"] = 8
+        changed["protected_decisions"].append("model_selection")
+        result = lab.assess_policy_change(old, changed, self.package["work_unit"])
+        self.assertEqual(result["decision"], "PAUSE_AND_REVALIDATE")
+        self.assertIn("protected_decisions", result["changed_fields"])
+
+    def test_authority_domain_change_pauses_and_revalidates(self):
+        old = copy.deepcopy(self.control["policy_registry"][0])
+        changed = copy.deepcopy(old)
+        changed["revision"] = 8
+        changed["authority_domain"] = "SECURITY"
+        result = lab.assess_policy_change(old, changed, self.package["work_unit"])
+        self.assertEqual(result["decision"], "PAUSE_AND_REVALIDATE")
+        self.assertIn("authority_domain", result["changed_fields"])
+
+    def test_revision_only_governing_policy_change_pauses_active_grant(self):
+        old = copy.deepcopy(self.control["policy_registry"][0])
+        changed = copy.deepcopy(old)
+        changed["revision"] = 8
+        result = lab.assess_policy_change(old, changed, self.package["work_unit"])
+        self.assertEqual(result["decision"], "PAUSE_AND_REVALIDATE")
+        self.assertEqual(result["changed_fields"], ["revision"])
+
+    def test_withdrawn_policy_cannot_contribute_obligations(self):
+        control = copy.deepcopy(self.control)
+        control["policy_registry"][0]["status"] = "WITHDRAWN"
+        resolution = lab.resolve_policies(control)[0]
+        self.assertEqual(resolution["status"], "UNKNOWN")
+        self.assertEqual(resolution["obligations"], [])
+        codes = self.codes(control=control)
+        self.assertIn("POLICY_WITHDRAWN", codes)
+        self.assertIn("WORK_UNIT_POLICY_DEPENDENCY_INACTIVE", codes)
+
+    def test_unknown_policy_lifecycle_fails_closed(self):
+        control = copy.deepcopy(self.control)
+        control["policy_registry"][0]["status"] = "PAUSED_MAYBE"
+        self.assertIn("POLICY_LIFECYCLE_UNKNOWN", self.codes(control=control))
+
+    def test_superseded_policy_requires_active_authoritative_replacement(self):
+        control = copy.deepcopy(self.control)
+        control["policy_registry"][0]["status"] = "SUPERSEDED"
+        control["policy_registry"][0]["superseded_by"] = "AI-030@8"
+        codes = self.codes(control=control)
+        self.assertIn("POLICY_SUPERSESSION_INVALID", codes)
+        self.assertIn("WORK_UNIT_POLICY_DEPENDENCY_INACTIVE", codes)
+
+    def test_valid_supersession_removes_old_obligations_and_resolves_replacement(self):
+        control = copy.deepcopy(self.control)
+        old = control["policy_registry"][0]
+        replacement = copy.deepcopy(old)
+        replacement["revision"] = 8
+        old["status"] = "SUPERSEDED"
+        old["superseded_by"] = "AI-030@8"
+        control["policy_registry"].append(replacement)
+        resolutions = {item["policy_ref"]: item for item in lab.resolve_policies(control)}
+        self.assertEqual(resolutions["AI-030@7"]["status"], "NOT_APPLICABLE")
+        self.assertEqual(resolutions["AI-030@7"]["obligations"], [])
+        self.assertEqual(resolutions["AI-030@8"]["status"], "APPLICABLE")
+        self.assertTrue(resolutions["AI-030@8"]["obligations"])
 
     def test_unsafe_candidate_is_blocked_for_independent_reasons(self):
         gates, _ = lab.evaluate_governance(lab.load_candidate(), lab.load_candidate_control())

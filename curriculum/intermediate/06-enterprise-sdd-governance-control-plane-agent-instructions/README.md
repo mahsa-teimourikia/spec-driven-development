@@ -71,7 +71,11 @@ The Northstar resolver uses three applicability states:
 
 `UNKNOWN` is not `false`. The lab blocks dispatch when applicability remains unknown. This prevents a missing residency or transfer fact from silently deleting an obligation.
 
-The compiler then checks authority compatibility. A project requirement may specialize an enterprise rule, but specificity is not permission to weaken it. Exceptions are references to separately authenticated registry records; an agent cannot create authority by writing `approved: true` into its own package.
+The compiler then checks authority compatibility. A project requirement may specialize an enterprise rule, but specificity is not permission to weaken it. Every `(requirement ID, semantic key, value)` relationship is retained: duplicate keys with incompatible values are reported instead of being collapsed by last-write-wins map construction.
+
+Exceptions are references to separately authenticated registry records; an agent cannot create authority by writing `approved: true` into its own package. Approval and expiry are not enough: each exception condition must resolve to current, attested evidence. A valid exception reference is still distinct from an authorized deviation—the policy revision, semantic key, original value, proposed value, requirement, subject scope, and permitted deviation must all match.
+
+Policy lifecycle is resolved before obligations enter context. `ACTIVE` policy can contribute semantics; `SUPERSEDED` requires an authoritative active replacement; `WITHDRAWN` and unknown states block resolution. A work unit bound to an inactive revision must revalidate even if a replacement exists.
 
 ## Canonical rules and tool adapters
 
@@ -100,6 +104,8 @@ Different tools need different headers and loading notes, but the normative mean
 
 A valid digest proves only that bytes match a declared value. The trusted validator also regenerates the expected output and checks protected rule semantics, preventing an attacker from weakening a rule and recomputing its digest.
 
+The target set is itself trusted configuration. The package may request optional supported targets, but it cannot omit a target required by the repository or work unit. Requested targets, generated outputs, and manifest outputs must identify the same set.
+
 ## Threats at the instruction boundary
 
 ### Instruction laundering
@@ -120,23 +126,25 @@ If a change can edit its own instruction compiler, trusted policy bundle, or val
 
 - the exact repository, change, base revision, and work-unit identity;
 - the effective-context digest;
-- allowed capabilities and write paths;
+- allowed capabilities plus readable and writable paths;
 - issuance and expiry; and
 - an attested identity record.
 
-The validator compares authorized scope with the authoritative source-control diff, not the package’s self-reported file list. A passing governance decision means `ELIGIBLE_FOR_AGENT_DISPATCH`; it does not mean the agent has executed correctly, the PR may merge, or the artifact may deploy.
+The dispatch package separately declares the capabilities and resources it intends to use. Those requested permissions must be subsets of the grant, and the authoritative source-control diff must fit both the grant and the narrower dispatch request. The teaching validator checks the proposal; a production sandbox, permission broker, network policy, and source-control protection must enforce it. A passing governance decision means `ELIGIBLE_FOR_AGENT_DISPATCH`; it does not mean the agent has executed correctly, the PR may merge, or the artifact may deploy.
 
 ## Delegation must attenuate authority
 
 A parent agent may delegate research or bounded implementation only when the child:
 
 - has an authenticated workload identity;
-- receives a subset of the parent’s capabilities and writable paths;
+- receives a subset of the parent’s capabilities, readable paths, and writable paths;
 - has a shorter or equal lifetime;
 - remains within the allowed delegation depth; and
 - inherits the same exact context and work-unit boundaries.
 
 Delegation cannot create policy approval, protected-path access, or a longer-lived credential. Sub-agents return evidence and proposals; they do not inherit human accountability.
+
+This fixture deliberately supports only canonical repository-relative path scopes: an exact file or a subtree ending in `/**`. Containment is directional, so `src/documents/**` contains `src/documents/classification/**`, but the reverse is false. Absolute paths, traversal segments, backslashes, and ambiguous wildcard intersections are rejected instead of guessed. Production enforcement must use the execution platform’s native permission model; declared patterns alone are not a sandbox.
 
 ## Policy decision point versus enforcement point
 
@@ -180,6 +188,7 @@ Do not always restart everything, and do not always continue. Route by dependenc
 | --- | --- | --- |
 | unrelated, non-applicable policy revision | `CONTINUE` | no work-unit dependency changed |
 | applicable obligation changes | `PAUSE_AND_REVALIDATE` | context, adapter, grant, and affected work may be stale |
+| governing revision or protected decision changes | `PAUSE_AND_REVALIDATE` | even semantically similar source identity or decision authority changes invalidate an active context/grant |
 | governing policy is retired | `CANCEL` | the work unit no longer has a valid governing basis |
 
 Tool behavior, compiler revisions, exception state, grants, and identity attestations have similar invalidation consequences. Track their dependency edges instead of applying one global dirty flag.
@@ -221,8 +230,10 @@ Escalate toward the full model when work crosses authority domains, handles regu
 2. Remove `external_transfer` from trusted facts. Trace why `DATA-021@2` becomes unknown and why dispatch blocks.
 3. Add a path-specific Copilot adapter target without duplicating canonical rules. Define its compatibility snapshot and invalidation triggers.
 4. Attempt to delegate `approve_policy_exception`. Explain which attenuation rule fails and why no instruction wording can authorize it.
-5. Change an applicable policy obligation. List every descendant artifact that must be regenerated or reauthorized.
-6. Replace the in-process evaluator with OPA. Identify the PDP, every PEP, the trusted input sources, and each consumer’s failure mode.
+5. Try `src/**`, `src/documents/../auth/**`, and a narrower canonical subtree as child read scopes. Explain each containment result.
+6. Create two project requirements with opposing `human_review` values and verify that neither can hide the other.
+7. Change an applicable protected decision without changing its obligation. List every descendant artifact that must be regenerated or reauthorized.
+8. Replace the in-process evaluator with OPA. Identify the PDP, every PEP, the trusted input sources, and each consumer’s failure mode.
 
 ## Further reading
 

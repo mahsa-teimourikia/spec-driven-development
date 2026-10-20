@@ -14,6 +14,7 @@
     }
   ],
   "exception_references": [],
+  "requested_policy_deviations": [],
   "instruction_request": {
     "targets": ["codex", "claude", "copilot"],
     "sources": ["canonical_agent_rules", "effective_context"],
@@ -25,7 +26,15 @@
     "policy_dependencies": ["AI-030@7", "PRIV-018@4", "DATA-021@2"],
     "stop_conditions": ["applicability_unknown", "authority_conflict", "scope_expansion"]
   },
-  "authorization": {"grant_id": "GRANT-104", "principal": "northstar-ci/codex-run-8391"},
+  "authorization": {
+    "grant_id": "GRANT-104",
+    "principal": "northstar-ci/codex-run-8391",
+    "requested_permissions": {
+      "capabilities": ["repository_read", "repository_write", "run_tests"],
+      "read_paths": ["src/documents/classification/**", "tests/documents/classification/**"],
+      "write_paths": ["src/documents/classification/**", "tests/documents/classification/**"]
+    }
+  },
   "delegation": {
     "parent_principal": "northstar-ci/codex-run-8391",
     "child_principal": "northstar-ci/research-run-8392",

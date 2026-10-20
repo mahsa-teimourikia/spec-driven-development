@@ -240,8 +240,8 @@ Course 16 compiles enterprise authority into bounded agent execution context. Yo
 - compile exact, provenance-bearing effective context rather than concatenate documents;
 - generate semantically equivalent Codex, Claude, and Copilot instruction adapters from canonical rules;
 - reject stale adapters, semantic weakening, untrusted instruction sources, and self-asserted exceptions;
-- bind authenticated workload identities and grants to an exact context, work unit, scope, and lifetime;
-- require every sub-agent delegation to attenuate capabilities, writable paths, expiry, and depth;
+- bind authenticated workload identities, declared dispatch permissions, and grants to an exact context, work unit, readable/writable scope, and lifetime;
+- require every sub-agent delegation to attenuate capabilities, readable and writable paths, expiry, and depth;
 - separate an OPA-style policy decision point from the trusted services that enforce its result;
 - route mid-flight policy changes to continue, pause-and-revalidate, or cancel; and
 - evaluate the teaching control plane with 16 golden scenarios and 92 labelled mutations.

@@ -778,8 +778,8 @@ const course16 = {
     'Compile revision-bound effective context with canonical provenance and digests.',
     'Generate semantically equivalent Codex, Claude, and Copilot instruction adapters.',
     'Reject semantic weakening, stale adapters, untrusted instruction sources, and self-asserted exceptions.',
-    'Bind authenticated workload identities and grants to exact context, work-unit scope, and time.',
-    'Attenuate sub-agent capabilities, writable paths, expiry, and delegation depth.',
+    'Bind authenticated workload identities, declared dispatch capabilities, and read/write resources to exact context, work-unit scope, and time.',
+    'Attenuate sub-agent capabilities, readable and writable paths, expiry, and delegation depth with canonical containment rules.',
     'Separate an OPA-style policy decision point from trusted enforcement points.',
     'Route mid-flight policy changes to continue, pause-and-revalidate, or cancel.',
     'Test the teaching control plane with 16 golden scenarios and 92 labelled mutations.'

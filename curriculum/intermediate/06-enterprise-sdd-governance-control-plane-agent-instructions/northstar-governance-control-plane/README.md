@@ -52,10 +52,14 @@ Derive each value from an authoritative artifact. Do not copy the candidate’s 
 3. Edit generated adapter text and recompute only its digest; regeneration still exposes the mismatch.
 4. Change the authenticated principal to a role name and observe identity failure.
 5. Add an authoritative changed path outside the grant and observe scope failure.
-6. Give the child one parent capability it did not receive and observe delegation amplification.
+6. Request an external-network capability absent from the grant and observe dispatch authorization failure.
+7. Give the child `src/**`, a traversal path, or a capability its parent lacks and observe delegation failure.
+8. Add a second project requirement that hides a conflicting semantic in a last-write-wins map; the relationship-preserving validator still reports both the internal and enterprise conflict.
+9. Withdraw a governing policy or change only its protected decisions and observe lifecycle or revalidation routing.
+10. Remove trusted evidence for an exception condition and observe fail-closed exception validation.
 
 ## Limits
 
-The model uses static JSON fixtures, SHA-256 digests, simplified predicates, glob matching, and an in-process decision function. It does not implement signatures, secure time, revocation propagation, real workload attestation, hardened policy distribution, concurrent authorization consumption, or an actual filesystem/network sandbox. The Rego file demonstrates a decision boundary only; a trusted enforcement point must consume the decision.
+The model uses static JSON fixtures, SHA-256 digests, simplified predicates, a restricted exact-file/subtree path grammar, and an in-process decision function. Its path containment validates declared scope but does not enforce filesystem access. It does not implement signatures, secure time, revocation propagation, real workload attestation, hardened policy distribution, concurrent authorization consumption, or an actual filesystem/network sandbox. The Rego file demonstrates a decision boundary only; a trusted enforcement point must consume the decision.
 
 Return to the [Course 16 chapter](../README.md).

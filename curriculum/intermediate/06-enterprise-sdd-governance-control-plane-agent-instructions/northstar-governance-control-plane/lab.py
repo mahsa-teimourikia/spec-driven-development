@@ -7,7 +7,6 @@ do not authenticate real providers, enforce a sandbox, or authorize production.
 from __future__ import annotations
 
 import copy
-import fnmatch
 import hashlib
 import json
 from dataclasses import asdict, dataclass
@@ -202,17 +201,39 @@ def resolve_applicability(policy: dict[str, Any], facts: dict[str, Any]) -> Appl
 
 def resolve_policies(control: dict[str, Any]) -> list[dict[str, Any]]:
     facts = control.get("trusted_subject_facts", {})
-    return [
-        {
+    policies = control.get("policy_registry", [])
+    by_ref = {policy_ref(policy): policy for policy in policies}
+    resolutions: list[dict[str, Any]] = []
+    for policy in policies:
+        lifecycle = policy.get("status")
+        lifecycle_issue: str | None = None
+        if lifecycle == "ACTIVE":
+            applicability = resolve_applicability(policy, facts)
+        elif lifecycle == "SUPERSEDED":
+            replacement = by_ref.get(policy.get("superseded_by"))
+            if replacement and replacement.get("status") == "ACTIVE":
+                applicability = Applicability.NOT_APPLICABLE
+            else:
+                applicability = Applicability.UNKNOWN
+                lifecycle_issue = "POLICY_SUPERSESSION_INVALID"
+        elif lifecycle == "WITHDRAWN":
+            applicability = Applicability.UNKNOWN
+            lifecycle_issue = "POLICY_WITHDRAWN"
+        else:
+            applicability = Applicability.UNKNOWN
+            lifecycle_issue = "POLICY_LIFECYCLE_UNKNOWN"
+        resolutions.append({
             "policy_ref": policy_ref(policy),
-            "status": resolve_applicability(policy, facts).value,
+            "status": applicability.value,
+            "lifecycle_status": lifecycle,
+            "lifecycle_issue": lifecycle_issue,
+            "superseded_by": policy.get("superseded_by"),
             "digest": canonical_digest(policy_payload(policy)),
             "authority_domain": policy["authority_domain"],
-            "obligations": copy.deepcopy(policy.get("obligations", [])),
-            "protected_decisions": copy.deepcopy(policy.get("protected_decisions", [])),
-        }
-        for policy in control.get("policy_registry", [])
-    ]
+            "obligations": copy.deepcopy(policy.get("obligations", [])) if lifecycle == "ACTIVE" else [],
+            "protected_decisions": copy.deepcopy(policy.get("protected_decisions", [])) if lifecycle == "ACTIVE" else [],
+        })
+    return resolutions
 
 
 def validate_subject(package: dict[str, Any], control: dict[str, Any]) -> list[Finding]:
@@ -238,6 +259,7 @@ def _valid_exception_ids(package: dict[str, Any], control: dict[str, Any]) -> tu
     facts = control.get("trusted_subject_facts", {})
     policies = {policy_ref(policy): policy for policy in control.get("policy_registry", [])}
     registry = control.get("exception_registry", {})
+    condition_evidence = control.get("exception_condition_evidence", {})
     authority = control.get("authority_registry", {}).get("exception_approvers", {})
     for exception_id in package.get("exception_references", []):
         record = registry.get(exception_id)
@@ -265,26 +287,110 @@ def _valid_exception_ids(package: dict[str, Any], control: dict[str, Any]) -> tu
         ):
             findings.append(finding("EXCEPTION_APPROVAL_INVALID", exception_id, "The exception lacks authenticated approval from the governing authority."))
             continue
+        unmet_conditions = []
+        for condition in record.get("conditions", []):
+            evidence = condition_evidence.get(condition)
+            if (
+                not evidence
+                or evidence.get("exception_id") != exception_id
+                or evidence.get("result") != "PASS"
+                or not evidence.get("producer_identity_verified")
+                or not evidence.get("attestation_verified")
+                or _parse_time(evidence.get("valid_until", "1970-01-01T00:00:00Z")) <= _parse_time(control["evaluation_time"])
+            ):
+                unmet_conditions.append(condition)
+        if unmet_conditions:
+            findings.append(finding("EXCEPTION_CONDITION_UNSATISFIED", exception_id, "Trusted evidence does not establish current exception conditions: " + ", ".join(sorted(unmet_conditions))))
+            continue
         valid.add(exception_id)
     return valid, findings
+
+
+def _authorized_deviation(
+    requirement_id: str,
+    key: str,
+    project_value: Any,
+    policy_ref_value: str,
+    policy_value: Any,
+    package: dict[str, Any],
+    control: dict[str, Any],
+    valid_exception_ids: set[str],
+) -> bool:
+    requested = package.get("requested_policy_deviations", [])
+    registry = control.get("exception_registry", {})
+    for deviation in requested:
+        exception_id = deviation.get("exception_id")
+        if (
+            exception_id not in valid_exception_ids
+            or deviation.get("requirement_id") != requirement_id
+            or deviation.get("policy_ref") != policy_ref_value
+            or deviation.get("semantic_key") != key
+            or deviation.get("from") != policy_value
+            or deviation.get("to") != project_value
+        ):
+            continue
+        allowed = registry[exception_id].get("authorized_deviations", [])
+        if any(
+            item.get("policy_ref") == policy_ref_value
+            and item.get("semantic_key") == key
+            and item.get("from") == policy_value
+            and item.get("to") == project_value
+            for item in allowed
+        ):
+            return True
+    return False
 
 
 def validate_authority_compatibility(
     package: dict[str, Any], control: dict[str, Any], resolutions: list[dict[str, Any]]
 ) -> list[Finding]:
-    _, findings = _valid_exception_ids(package, control)
-    project_semantics = {
-        key: value
+    valid_exceptions, findings = _valid_exception_ids(package, control)
+    relationships = [
+        (requirement.get("id", "unknown-requirement"), key, value)
         for requirement in package.get("project_requirements", [])
         for key, value in requirement.get("semantics", {}).items()
-    }
+    ]
+    by_key: dict[str, list[tuple[str, Any]]] = {}
+    for requirement_id, key, value in relationships:
+        by_key.setdefault(key, []).append((requirement_id, value))
+    for key, entries in by_key.items():
+        distinct_values = {canonical_digest(value) for _, value in entries}
+        if len(distinct_values) > 1:
+            subjects = ", ".join(requirement_id for requirement_id, _ in entries)
+            findings.append(finding("PROJECT_REQUIREMENT_CONFLICT", key, f"Project requirements {subjects} assign incompatible values to the same semantic key."))
     for resolution in resolutions:
         if resolution["status"] != Applicability.APPLICABLE.value:
             continue
         for obligation in resolution["obligations"]:
             key = obligation["key"]
-            if key in project_semantics and project_semantics[key] != obligation["value"]:
-                findings.append(finding("NORMATIVE_AUTHORITY_CONFLICT", key, f"Project semantics weaken or contradict {resolution['policy_ref']} rather than specializing it compatibly."))
+            for requirement_id, project_key, project_value in relationships:
+                if project_key != key or project_value == obligation["value"]:
+                    continue
+                if not _authorized_deviation(
+                    requirement_id,
+                    key,
+                    project_value,
+                    resolution["policy_ref"],
+                    obligation["value"],
+                    package,
+                    control,
+                    valid_exceptions,
+                ):
+                    findings.append(finding("NORMATIVE_AUTHORITY_CONFLICT", requirement_id, f"Project semantic {key}={project_value!r} weakens or contradicts {resolution['policy_ref']} rather than specializing it compatibly."))
+    for deviation in package.get("requested_policy_deviations", []):
+        exception_id = deviation.get("exception_id")
+        matched = _authorized_deviation(
+            deviation.get("requirement_id", ""),
+            deviation.get("semantic_key", ""),
+            deviation.get("to"),
+            deviation.get("policy_ref", ""),
+            deviation.get("from"),
+            package,
+            control,
+            valid_exceptions,
+        )
+        if not matched:
+            findings.append(finding("EXCEPTION_DEVIATION_NOT_AUTHORIZED", str(exception_id), "A valid exception reference does not authorize an undeclared or mismatched policy deviation."))
     return findings
 
 
@@ -316,6 +422,17 @@ def validate_context_resolution(
     for unresolved in context.get("unresolved", []):
         findings.append(finding("APPLICABILITY_UNKNOWN", unresolved, "Required applicability facts are missing or unsupported; unknown cannot become not applicable."))
     work_unit = package.get("work_unit", {})
+    by_ref = {item["policy_ref"]: item for item in resolve_policies(control)}
+    for item in by_ref.values():
+        if item.get("lifecycle_issue"):
+            findings.append(finding(item["lifecycle_issue"], item["policy_ref"], "Policy lifecycle state cannot safely contribute to the effective context."))
+    inactive_dependencies = [
+        dependency
+        for dependency in work_unit.get("policy_dependencies", [])
+        if dependency in by_ref and by_ref[dependency].get("lifecycle_status") != "ACTIVE"
+    ]
+    if inactive_dependencies:
+        findings.append(finding("WORK_UNIT_POLICY_DEPENDENCY_INACTIVE", work_unit.get("id", "work-unit"), "The work unit depends on an inactive policy revision: " + ", ".join(sorted(inactive_dependencies))))
     resolved_refs = {source["policy_ref"] for source in context.get("sources", [])} | set(context.get("not_applicable", [])) | set(context.get("unresolved", []))
     missing = set(work_unit.get("policy_dependencies", [])) - resolved_refs
     if missing:
@@ -401,12 +518,20 @@ def validate_instruction_adapters(
         findings.append(finding("UNTRUSTED_INSTRUCTION_SOURCE", "instruction-request", "Repository content cannot be promoted into governance authority: " + ", ".join(sorted(unexpected_sources))))
     targets = request.get("targets", [])
     snapshots = control.get("compatibility_snapshots", {})
+    required_targets = set(control.get("required_instruction_targets", []))
+    missing_targets = required_targets - set(targets)
+    if missing_targets:
+        findings.append(finding("REQUIRED_INSTRUCTION_TARGET_MISSING", "instruction-request", "Trusted work-unit configuration requires adapters for: " + ", ".join(sorted(missing_targets))))
+    if len(targets) != len(set(targets)):
+        findings.append(finding("INSTRUCTION_TARGET_DUPLICATE", "instruction-request", "Instruction targets must be unique."))
     unknown_targets = set(targets) - set(snapshots)
     if unknown_targets:
         findings.append(finding("INSTRUCTION_TARGET_UNSUPPORTED", "instruction-request", "No tested adapter contract exists for: " + ", ".join(sorted(unknown_targets))))
         return findings
     actual_adapters = package.get("_adapters", {})
     manifest = package.get("_adapter_manifest", {})
+    if set(actual_adapters) != set(targets) or set(manifest.get("outputs", {})) != set(targets):
+        findings.append(finding("ADAPTER_TARGET_SET_MISMATCH", "instruction-request", "Requested targets, generated outputs, and manifest outputs must identify the same set."))
     expected_adapters = compile_all_adapters(context, control, targets)
     expected_manifest = expected_adapter_manifest(context, control, expected_adapters)
     if manifest.get("context_digest") != context.get("digest") or manifest.get("canonical_rules_digest") != control.get("canonical_agent_rules_digest"):
@@ -436,8 +561,41 @@ def validate_instruction_adapters(
     return findings
 
 
+def _parse_path_scope(pattern: Any) -> tuple[str, tuple[str, ...]] | None:
+    if not isinstance(pattern, str) or not pattern or pattern.startswith(("/", "\\")) or "\\" in pattern:
+        return None
+    kind = "tree" if pattern.endswith("/**") else "file"
+    raw = pattern[:-3] if kind == "tree" else pattern
+    if not raw or any(token in raw for token in ("*", "?", "[", "]")):
+        return None
+    parts = tuple(raw.split("/"))
+    if any(not part or part in {".", ".."} for part in parts):
+        return None
+    return kind, parts
+
+
+def path_scope_contains(parent: str, child: str) -> bool:
+    parent_scope = _parse_path_scope(parent)
+    child_scope = _parse_path_scope(child)
+    if not parent_scope or not child_scope:
+        return False
+    parent_kind, parent_parts = parent_scope
+    child_kind, child_parts = child_scope
+    if parent_kind == "file":
+        return child_kind == "file" and child_parts == parent_parts
+    return child_parts[:len(parent_parts)] == parent_parts
+
+
 def _path_allowed(path: str, patterns: list[str]) -> bool:
-    return any(fnmatch.fnmatchcase(path, pattern) for pattern in patterns)
+    return any(path_scope_contains(pattern, path) for pattern in patterns)
+
+
+def _invalid_path_scopes(patterns: list[Any]) -> list[str]:
+    return [str(pattern) for pattern in patterns if _parse_path_scope(pattern) is None]
+
+
+def _scopes_outside(child_patterns: list[str], parent_patterns: list[str]) -> list[str]:
+    return [child for child in child_patterns if not any(path_scope_contains(parent, child) for parent in parent_patterns)]
 
 
 def validate_execution_authorization(
@@ -468,12 +626,35 @@ def validate_execution_authorization(
         findings.append(finding("AUTHORIZATION_CONTEXT_MISMATCH", str(grant_id), "The grant is bound to a different effective governance context."))
     if _parse_time(grant["expires_at"]) <= _parse_time(control["evaluation_time"]):
         findings.append(finding("AUTHORIZATION_GRANT_EXPIRED", str(grant_id), "The work-unit grant expired before evaluation."))
+    grant_read_paths = grant.get("readable_paths", [])
+    grant_write_paths = grant.get("writable_paths", [])
+    invalid_grant_paths = _invalid_path_scopes(grant_read_paths + grant_write_paths)
+    if invalid_grant_paths:
+        findings.append(finding("AUTHORIZATION_PATH_SCOPE_INVALID", str(grant_id), "The trusted grant contains unsupported or ambiguous path scopes: " + ", ".join(invalid_grant_paths)))
+    requested = request.get("requested_permissions")
+    if not isinstance(requested, dict):
+        findings.append(finding("EXECUTION_PERMISSION_REQUEST_MISSING", str(grant_id), "Dispatch must declare requested capabilities plus read and write resource scopes."))
+        requested = {}
+    requested_capabilities = set(requested.get("capabilities", []))
+    requested_read_paths = requested.get("read_paths", [])
+    requested_write_paths = requested.get("write_paths", [])
+    invalid_requested_paths = _invalid_path_scopes(requested_read_paths + requested_write_paths)
+    if invalid_requested_paths:
+        findings.append(finding("EXECUTION_PATH_SCOPE_INVALID", str(grant_id), "The dispatch request contains unsupported or ambiguous path scopes: " + ", ".join(invalid_requested_paths)))
+    outside_capabilities = requested_capabilities - set(grant.get("capabilities", []))
+    outside_read = _scopes_outside(requested_read_paths, grant_read_paths)
+    outside_write = _scopes_outside(requested_write_paths, grant_write_paths)
+    if outside_capabilities or outside_read or outside_write:
+        findings.append(finding("REQUESTED_AUTHORITY_EXCEEDS_GRANT", str(grant_id), "Requested execution capabilities or resources exceed the trusted grant."))
     source = control.get("source_control", {})
     if not source.get("attestation_verified"):
         findings.append(finding("SOURCE_CONTROL_ATTESTATION_INVALID", "source-control", "Changed paths were not attested by the Git provider."))
-    outside = [path for path in source.get("changed_paths", []) if not _path_allowed(path, grant.get("writable_paths", []))]
+    outside = [path for path in source.get("changed_paths", []) if not _path_allowed(path, grant_write_paths)]
     if outside:
         findings.append(finding("WORK_UNIT_SCOPE_VIOLATION", str(grant_id), "The authoritative diff crosses the enforced work-unit boundary: " + ", ".join(outside)))
+    outside_request = [path for path in source.get("changed_paths", []) if not _path_allowed(path, requested_write_paths)]
+    if outside_request:
+        findings.append(finding("REQUESTED_WRITE_SCOPE_MISMATCH", str(grant_id), "The authoritative diff crosses the dispatch request's declared write scope: " + ", ".join(outside_request)))
     return findings
 
 
@@ -494,10 +675,17 @@ def validate_delegation(package: dict[str, Any], control: dict[str, Any]) -> lis
     permissions = delegation.get("permissions", {})
     parent_capabilities = set(grant.get("capabilities", []))
     child_capabilities = set(permissions.get("capabilities", []))
+    child_read_paths = permissions.get("read_paths", [])
     child_write_paths = permissions.get("write_paths", [])
-    expanded_paths = [path for path in child_write_paths if path not in grant.get("writable_paths", [])]
-    if not child_capabilities.issubset(parent_capabilities) or expanded_paths:
-        findings.append(finding("DELEGATION_AUTHORITY_AMPLIFICATION", str(child_principal), "Delegation may attenuate authority but cannot add capabilities or writable paths."))
+    parent_read_paths = grant.get("readable_paths", [])
+    parent_write_paths = grant.get("writable_paths", [])
+    invalid_paths = _invalid_path_scopes(parent_read_paths + parent_write_paths + child_read_paths + child_write_paths)
+    if invalid_paths:
+        findings.append(finding("DELEGATION_PATH_SCOPE_INVALID", str(child_principal), "Delegation uses unsupported or ambiguous path patterns: " + ", ".join(invalid_paths)))
+    expanded_read = _scopes_outside(child_read_paths, parent_read_paths)
+    expanded_write = _scopes_outside(child_write_paths, parent_write_paths)
+    if not child_capabilities.issubset(parent_capabilities) or expanded_read or expanded_write:
+        findings.append(finding("DELEGATION_AUTHORITY_AMPLIFICATION", str(child_principal), "Delegation may attenuate authority but cannot add capabilities, readable paths, or writable paths."))
     if delegation.get("depth", 0) > grant.get("max_delegation_depth", 0):
         findings.append(finding("DELEGATION_DEPTH_EXCEEDED", str(child_principal), "Delegation exceeds the authorized depth."))
     if _parse_time(delegation["expires_at"]) > _parse_time(grant["expires_at"]):
@@ -608,10 +796,21 @@ def assess_policy_change(
         return {"decision": "CONTINUE", "reason": "policy_not_in_work_unit_dependency_set"}
     if new_policy.get("status") != "ACTIVE":
         return {"decision": "CANCEL", "reason": "governing_policy_no_longer_authorizes_current_work"}
-    old_obligations = canonical_digest(old_policy.get("obligations", []))
-    new_obligations = canonical_digest(new_policy.get("obligations", []))
-    if old_obligations != new_obligations or old_policy.get("applicability") != new_policy.get("applicability"):
-        return {"decision": "PAUSE_AND_REVALIDATE", "reason": "applicable_obligation_or_scope_changed"}
+    authority_fields = (
+        "id",
+        "authority_domain",
+        "owner",
+        "applicability",
+        "obligations",
+        "protected_decisions",
+        "scope",
+        "exception_policy",
+    )
+    changed_fields = [field for field in authority_fields if old_policy.get(field) != new_policy.get(field)]
+    if changed_fields:
+        return {"decision": "PAUSE_AND_REVALIDATE", "reason": "authority_context_changed", "changed_fields": changed_fields}
+    if old_policy.get("revision") != new_policy.get("revision"):
+        return {"decision": "PAUSE_AND_REVALIDATE", "reason": "governing_policy_revision_changed", "changed_fields": ["revision"]}
     return {"decision": "CONTINUE", "reason": "revision_does_not_change_relevant_semantics"}
 
 

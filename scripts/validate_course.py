@@ -2589,10 +2589,28 @@ def check_course_16_governance_control_plane() -> list[str]:
     grant = control.get("authorization_grants", {}).get(package.get("authorization", {}).get("grant_id"), {})
     if grant.get("context_digest") != context.get("digest") or grant.get("principal") != package.get("authorization", {}).get("principal"):
         errors.append("Course 16 grant must bind the exact context and authenticated principal")
+    requested_permissions = package.get("authorization", {}).get("requested_permissions", {})
+    if (
+        not grant.get("readable_paths")
+        or not grant.get("writable_paths")
+        or not set(requested_permissions.get("capabilities", [])).issubset(set(grant.get("capabilities", [])))
+        or not requested_permissions.get("read_paths")
+        or not requested_permissions.get("write_paths")
+    ):
+        errors.append("Course 16 dispatch must declare capabilities and read/write resources bounded by the trusted grant")
+    condition_evidence = control.get("exception_condition_evidence", {})
+    required_conditions = set(control.get("exception_registry", {}).get("EXC-ENG-007-014", {}).get("conditions", []))
+    if set(condition_evidence) != required_conditions or any(
+        evidence.get("result") != "PASS"
+        or evidence.get("producer_identity_verified") is not True
+        or evidence.get("attestation_verified") is not True
+        for evidence in condition_evidence.values()
+    ):
+        errors.append("Course 16 exception conditions must resolve through current trusted evidence")
 
     expected_paths = {"codex": "AGENTS.md", "claude": "CLAUDE.md", "copilot": ".github/copilot-instructions.md"}
     outputs = manifest.get("outputs", {})
-    if set(outputs) != set(expected_paths):
+    if set(outputs) != set(expected_paths) or set(control.get("required_instruction_targets", [])) != set(expected_paths):
         errors.append("Course 16 must retain all three instruction adapter targets")
     for target, relative in expected_paths.items():
         adapter_path = scenario / "reference" / relative
