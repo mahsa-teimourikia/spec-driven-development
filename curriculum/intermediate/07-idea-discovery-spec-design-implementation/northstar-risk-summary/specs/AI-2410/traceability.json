@@ -1,0 +1,12 @@
+{
+  "change_id": "AI-2410",
+  "specification_revision": 3,
+  "links": [
+    {"requirement": "REQ-RISK-001", "design": "ADR-RISK-008@2/context-and-proposal", "work_units": ["AWU-RISK-GENERATION", "AWU-RISK-INTEGRATION"], "code": ["app/context_builder.py", "app/generator.py"], "tests": ["test_context_selects_only_authorized_submission_evidence", "test_reference_stops_at_integration_review"], "evidence": ["EVID-CONTRACT-001"]},
+    {"requirement": "REQ-RISK-002", "design": "ADR-RISK-008@2/independent-validation", "work_units": ["AWU-RISK-VALIDATION", "AWU-RISK-INTEGRATION"], "code": ["app/validator.py"], "tests": ["test_missing_source_blocks", "test_unsupported_claim_blocks"], "evidence": ["EVID-CITATION-001", "EVID-SUPPORT-001"]},
+    {"requirement": "REQ-RISK-003", "design": "ADR-RISK-008@2/fail-closed-validation", "work_units": ["AWU-RISK-GENERATION", "AWU-RISK-VALIDATION"], "code": ["app/generator.py", "app/validator.py"], "tests": ["test_unsupported_claim_blocks", "test_specification_change_preserves_authority_and_invalidates_context"], "evidence": ["EVID-SUPPORT-001", "EVID-STALE-001"]},
+    {"requirement": "REQ-RISK-004", "design": "ADR-RISK-008@2/protected-decisions", "work_units": ["AWU-RISK-CONTRACT", "AWU-RISK-INTEGRATION"], "code": ["app/contracts.py", "app/review.py"], "tests": ["test_model_cannot_mutate_underwriting_state", "test_reference_lifecycle_does_not_self_authorize_release"], "evidence": ["EVID-AUTHZ-001"]},
+    {"requirement": "SEC-RISK-001", "design": "ADR-RISK-008@2/protected-effects", "work_units": ["AWU-RISK-VALIDATION", "AWU-RISK-INTEGRATION"], "code": ["app/validator.py", "app/review.py"], "tests": ["test_model_cannot_send_broker_message", "test_instruction_shaped_evidence_cannot_add_capability", "test_review_receipt_is_single_use"], "evidence": ["EVID-AUTHZ-001", "EVID-INJECTION-001"]}
+  ],
+  "boundary": "Trace links and fixture evidence support integration review only; they do not authorize merge or release."
+}

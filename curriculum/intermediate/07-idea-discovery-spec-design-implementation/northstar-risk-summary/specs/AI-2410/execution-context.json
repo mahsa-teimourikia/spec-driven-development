@@ -1,0 +1,9 @@
+{
+  "change_id": "AI-2410",
+  "work_unit": "AWU-RISK-INTEGRATION",
+  "specification_revision": 3,
+  "architecture_revision": "ADR-RISK-008@2",
+  "repository_base": "northstar-training-base-2410",
+  "permissions": ["read_submission_evidence", "create_summary_proposal"],
+  "forbidden_capabilities": ["modify_underwriting_decision", "send_broker_email", "deploy_production"]
+}

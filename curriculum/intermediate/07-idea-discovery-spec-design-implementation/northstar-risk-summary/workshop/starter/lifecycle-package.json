@@ -1,0 +1,11 @@
+{
+  "change_id": "AI-2410",
+  "business_intent": {"state": "APPROVED_FOR_DISCOVERY"},
+  "discovery": {"state": "TODO"},
+  "specification": {"revision": "TODO"},
+  "architecture": {"revision": "TODO"},
+  "implementation": {"repository_base": "northstar-training-base-2410"},
+  "verification": {"manifest": "TODO"},
+  "integration": {"state": "NOT_YET_EVALUATED"},
+  "release": {"state": "NOT_AUTHORIZED"}
+}

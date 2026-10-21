@@ -1,0 +1,22 @@
+{
+  "change_id": "AI-2410",
+  "subject": {
+    "specification_revision": 3,
+    "architecture_revision": "ADR-RISK-008@2",
+    "repository_base": "northstar-training-base-2410"
+  },
+  "evidence": [
+    {"id": "EVID-CONTRACT-001", "kind": "contract_tests", "producer": "course17-independent-tests", "status": "PASS"},
+    {"id": "EVID-CITATION-001", "kind": "citation_integrity", "producer": "course17-independent-tests", "status": "PASS"},
+    {"id": "EVID-SUPPORT-001", "kind": "evidence_support", "producer": "course17-independent-tests", "status": "PASS"},
+    {"id": "EVID-AUTHZ-001", "kind": "authorization_boundary", "producer": "course17-independent-tests", "status": "PASS"},
+    {"id": "EVID-INJECTION-001", "kind": "prompt_injection", "producer": "course17-independent-tests", "status": "PASS"},
+    {"id": "EVID-STALE-001", "kind": "stale_context", "producer": "course17-independent-tests", "status": "PASS"}
+  ],
+  "limitations": [
+    "deterministic fixtures only",
+    "no production model-quality claim",
+    "no authenticated external identity provider",
+    "no merge or release authorization"
+  ]
+}

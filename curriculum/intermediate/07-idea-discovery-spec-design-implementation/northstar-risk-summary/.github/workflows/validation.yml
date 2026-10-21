@@ -1,0 +1,21 @@
+name: Course 17 illustrative independent validation
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run independent course checks
+        run: python3 -m unittest tests.test_course_17 -v
+
+# This nested workflow is a teaching artifact. The repository-level workflow is
+# the actual CI entry point and owns merge gating.

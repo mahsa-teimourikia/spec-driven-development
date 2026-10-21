@@ -1,0 +1,41 @@
+{
+  "change_id": "AI-2410",
+  "specification_revision": 3,
+  "acceptance": [
+    {
+      "id": "AC-RISK-001",
+      "requirements": ["REQ-RISK-001", "REQ-RISK-002"],
+      "given": "authorized evidence with an approved risk term",
+      "when": "a risk-summary proposal is generated and validated",
+      "then": ["proposal_is_non_authoritative", "citation_exists", "citation_supports_claim"]
+    },
+    {
+      "id": "AC-RISK-002",
+      "requirements": ["REQ-RISK-002"],
+      "given": "a claim cites a missing or unauthorized source",
+      "when": "citation validation runs",
+      "then": ["proposal_is_blocked", "CITATION_NOT_FOUND_is_recorded"]
+    },
+    {
+      "id": "AC-RISK-003",
+      "requirements": ["REQ-RISK-003"],
+      "given": "the cited evidence does not support the declared risk",
+      "when": "evidence-support validation runs",
+      "then": ["proposal_is_blocked", "EVIDENCE_DOES_NOT_SUPPORT_CLAIM_is_recorded"]
+    },
+    {
+      "id": "AC-RISK-004",
+      "requirements": ["REQ-RISK-004", "SEC-RISK-001"],
+      "given": "model output requests state mutation or broker delivery",
+      "when": "the trusted boundary validates the proposal",
+      "then": ["protected_action_is_not_executed", "UNAUTHORIZED_SIDE_EFFECT_is_recorded"]
+    },
+    {
+      "id": "AC-RISK-005",
+      "requirements": ["REQ-RISK-001", "REQ-RISK-002"],
+      "given": "the specification, architecture, context, or evidence revision changed",
+      "when": "old evidence is presented",
+      "then": ["affected_evidence_is_invalid", "revalidation_is_required"]
+    }
+  ]
+}

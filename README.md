@@ -4,7 +4,7 @@
 
 ## Start here
 
-Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through [Course 15: Integrating SDD into Enterprise PDLC and CI/CD](curriculum/intermediate/05-enterprise-pdlc-ci-cd-integration/README.md), then complete [Course 16: Enterprise SDD Governance Control Plane & Agent Instruction Management](curriculum/intermediate/06-enterprise-sdd-governance-control-plane-agent-instructions/README.md) with its guided [notebook](curriculum/intermediate/06-enterprise-sdd-governance-control-plane-agent-instructions/northstar-governance-control-plane/enterprise_governance_control_plane.ipynb), deterministic [governance-control lab](curriculum/intermediate/06-enterprise-sdd-governance-control-plane-agent-instructions/northstar-governance-control-plane/lab.py), [AI-2310 workshop](curriculum/intermediate/06-enterprise-sdd-governance-control-plane-agent-instructions/northstar-governance-control-plane/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
+Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through [Course 16: Enterprise SDD Governance Control Plane & Agent Instruction Management](curriculum/intermediate/06-enterprise-sdd-governance-control-plane-agent-instructions/README.md), then complete [Course 17: From Idea to Verified Implementation](curriculum/intermediate/07-idea-discovery-spec-design-implementation/README.md) with its guided [notebook](curriculum/intermediate/07-idea-discovery-spec-design-implementation/northstar-risk-summary/end_to_end_agentic_pdlc.ipynb), deterministic [vertical-slice lab](curriculum/intermediate/07-idea-discovery-spec-design-implementation/northstar-risk-summary/lab.py), [AI-2410 workshop](curriculum/intermediate/07-idea-discovery-spec-design-implementation/northstar-risk-summary/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
 
 This is not simply a tutorial for one specification framework. The central skill is turning organizational intent, architecture rules, product requirements, and engineering constraints into a hierarchy of durable specifications that agents can execute—and humans can govern.
 
@@ -246,9 +246,24 @@ Course 16 compiles enterprise authority into bounded agent execution context. Yo
 - route mid-flight policy changes to continue, pause-and-revalidate, or cancel; and
 - evaluate the teaching control plane with 16 golden scenarios and 92 labelled mutations.
 
+## Course 17 outcome
+
+Course 17 integrates the prior controls into one end-to-end Agentic PDLC. You will:
+
+- separate business-intent, discovery, specification, implementation, integration, and release readiness;
+- record confirmed facts, unknowns, conflicts, owners, and blockers in a discovery evidence register;
+- translate approved intent into revisioned behavior and independently owned acceptance evidence;
+- select a minimum-sufficient proposal-and-review architecture instead of granting model-facing code consequential authority;
+- decompose work into dependency-aware AWUs with explicit paths, decisions, stop conditions, and evidence;
+- execute against pinned specification, architecture, repository, evidence, permission, and context identities;
+- distinguish citation presence, citation correctness, and evidence support;
+- block stale context, unsupported claims, cross-submission evidence, instruction injection, and forbidden effects;
+- preserve specification authority during convergence and selectively revalidate affected descendants; and
+- compare direct coding with governed delivery across seven experiments, twelve golden scenarios, and 39 labelled mutations.
+
 ## Run locally
 
-Everything in Courses 01–16 is credential-free and uses the Python standard library.
+Everything in Courses 01–17 is credential-free and uses the Python standard library.
 
 ```bash
 python3 curriculum/beginner/01-why-agentic-coding-changes-pdlc/lab.py
@@ -268,6 +283,7 @@ python3 curriculum/intermediate/03-github-spec-kit-enterprise-sdd/northstar-spec
 python3 curriculum/intermediate/04-openspec-enterprise-change-driven-sdd/northstar-openspec-change/lab.py
 python3 curriculum/intermediate/05-enterprise-pdlc-ci-cd-integration/northstar-sdd-delivery/lab.py
 python3 curriculum/intermediate/06-enterprise-sdd-governance-control-plane-agent-instructions/northstar-governance-control-plane/lab.py
+python3 curriculum/intermediate/07-idea-discovery-spec-design-implementation/northstar-risk-summary/lab.py
 python3 -m unittest discover -s tests -v
 python3 scripts/validate_course.py
 ```
