@@ -2628,10 +2628,10 @@ def check_course_16_governance_control_plane() -> list[str]:
         errors.append("Course 16 Rego example must remain fail-closed and attestation-aware")
 
     quiz_source = (ROOT / "quiz" / "questions.js").read_text(encoding="utf-8")
-    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 218:
-        errors.append("Course 16 cumulative quiz must contain 218 questions")
-    if "Courses 01–16" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
-        errors.append("Course 16 cumulative quiz must identify Courses 01–16")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) < 218:
+        errors.append("Course 16 cumulative quiz must retain all 218 questions from Courses 01–16")
+    if "Courses 01–" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
+        errors.append("Course 16 cumulative quiz must identify the published course range")
     hub = (ROOT / "hub" / "lessons.js").read_text(encoding="utf-8")
     hub_fragments = [
         "const course16 = {",
@@ -2641,6 +2641,134 @@ def check_course_16_governance_control_plane() -> list[str]:
     ]
     if any(fragment not in hub for fragment in hub_fragments):
         errors.append("Course 16 Learning Hub entry is incomplete or points outside the workshop package")
+    return errors
+
+
+def check_course_17_end_to_end_agentic_pdlc() -> list[str]:
+    errors: list[str] = []
+    lesson = ROOT / "curriculum" / "intermediate" / "07-idea-discovery-spec-design-implementation"
+    scenario = lesson / "northstar-risk-summary"
+    required = [
+        lesson / "README.md",
+        scenario / "README.md",
+        scenario / "lab.py",
+        scenario / "end_to_end_agentic_pdlc.ipynb",
+        scenario / "app" / "contracts.py",
+        scenario / "app" / "context_builder.py",
+        scenario / "app" / "generator.py",
+        scenario / "app" / "validator.py",
+        scenario / "app" / "review.py",
+        scenario / "specs" / "AI-2410" / "discovery.md",
+        scenario / "specs" / "AI-2410" / "requirements.yaml",
+        scenario / "specs" / "AI-2410" / "acceptance.yaml",
+        scenario / "specs" / "AI-2410" / "design.md",
+        scenario / "specs" / "AI-2410" / "work-units.yaml",
+        scenario / "specs" / "AI-2410" / "execution-context.json",
+        scenario / "specs" / "AI-2410" / "pr-sequence.yaml",
+        scenario / "specs" / "AI-2410" / "traceability.json",
+        scenario / "fixtures" / "submissions.json",
+        scenario / "evidence" / "manifest.json",
+        scenario / "candidate" / "direct-coding-output.json",
+        scenario / "reference" / "lifecycle-package.json",
+        scenario / "workshop" / "starter" / "lifecycle-package.json",
+        scenario / "conformance-suite.json",
+        scenario / "evaluation-cases.json",
+        scenario / "assets" / "end-to-end-pdlc-spec.json",
+        scenario / "assets" / "render_diagram.py",
+        scenario / "assets" / "end-to-end-pdlc.svg",
+        scenario / ".github" / "workflows" / "validation.yml",
+    ]
+    for path in required:
+        if not path.exists():
+            errors.append(f"Course 17 missing required artifact: {path.relative_to(ROOT)}")
+    if errors:
+        return errors
+
+    result = subprocess.run(
+        [sys.executable, str(scenario / "lab.py")],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    try:
+        report = json.loads(result.stdout) if result.returncode == 0 else {}
+    except json.JSONDecodeError:
+        report = {}
+    if not report:
+        errors.append("Course 17 lab did not produce its JSON end-to-end report")
+        return errors
+
+    reference = report.get("reference", {})
+    if reference.get("state") != "READY_FOR_INTEGRATION_REVIEW":
+        errors.append("Course 17 reference must stop at integration-review eligibility")
+    if reference.get("release_authorized") is not False:
+        errors.append("Course 17 reference must not self-authorize release")
+    if (report.get("experiments", {}).get("passed"), report.get("experiments", {}).get("total")) != (7, 7):
+        errors.append("Course 17 must retain all seven required experiments")
+    if (report.get("conformance", {}).get("passed"), report.get("conformance", {}).get("total")) != (12, 12):
+        errors.append("Course 17 must retain twelve passing golden scenarios")
+    if (report.get("evaluation", {}).get("passed"), report.get("evaluation", {}).get("total")) != (39, 39):
+        errors.append("Course 17 must retain 39 detected labelled mutations")
+    comparison = report.get("baseline_comparison", {})
+    if comparison.get("population") != 7 or comparison.get("governed_correct") != 7 or comparison.get("direct_baseline_validated") != 0:
+        errors.append("Course 17 direct-versus-governed comparison is incomplete or overclaims the baseline")
+    release = report.get("release_boundary", {})
+    if (
+        release.get("integration_review_eligible") is not True
+        or release.get("merge_authorized") is not False
+        or release.get("deployment_authorized") is not False
+        or release.get("business_outcome_proven") is not False
+    ):
+        errors.append("Course 17 release boundary must keep integration, merge, deployment, and outcomes distinct")
+
+    requirements = json.loads((scenario / "specs" / "AI-2410" / "requirements.yaml").read_text(encoding="utf-8"))
+    acceptance = json.loads((scenario / "specs" / "AI-2410" / "acceptance.yaml").read_text(encoding="utf-8"))
+    work_units = json.loads((scenario / "specs" / "AI-2410" / "work-units.yaml").read_text(encoding="utf-8"))
+    if requirements.get("revision") != 3 or len(requirements.get("requirements", [])) != 5:
+        errors.append("Course 17 requirements must retain revision 3 and five explicit obligations")
+    if len(acceptance.get("acceptance", [])) != 5:
+        errors.append("Course 17 acceptance package must retain five independent evidence designs")
+    units = {item.get("id"): item for item in work_units.get("work_units", [])}
+    if set(units) != {"AWU-RISK-CONTRACT", "AWU-RISK-GENERATION", "AWU-RISK-VALIDATION", "AWU-RISK-INTEGRATION"}:
+        errors.append("Course 17 must retain the four-unit dependency graph")
+    elif set(units["AWU-RISK-INTEGRATION"].get("depends_on", [])) != {"AWU-RISK-GENERATION", "AWU-RISK-VALIDATION"}:
+        errors.append("Course 17 integration work must depend on generation and validation")
+    pr_sequence = json.loads((scenario / "specs" / "AI-2410" / "pr-sequence.yaml").read_text(encoding="utf-8")).get("sequence", [])
+    if [item.get("id") for item in pr_sequence] != ["PR-AI2410-01-CONTRACT", "PR-AI2410-02-IMPLEMENTATION", "PR-AI2410-03-INTEGRATION"]:
+        errors.append("Course 17 must retain the three-PR dependency sequence")
+    elif pr_sequence[1].get("depends_on") != [pr_sequence[0]["id"]] or pr_sequence[2].get("depends_on") != [pr_sequence[1]["id"]]:
+        errors.append("Course 17 later PRs must depend on their merged predecessors")
+    traceability = json.loads((scenario / "specs" / "AI-2410" / "traceability.json").read_text(encoding="utf-8"))
+    requirement_ids = {item.get("id") for item in requirements.get("requirements", [])}
+    trace_links = {item.get("requirement"): item for item in traceability.get("links", [])}
+    if set(trace_links) != requirement_ids or any(not all(item.get(field) for field in ("design", "work_units", "code", "tests", "evidence")) for item in trace_links.values()):
+        errors.append("Course 17 traceability must cover every requirement through code, tests, and evidence")
+
+    manifest = json.loads((scenario / "evidence" / "manifest.json").read_text(encoding="utf-8"))
+    if manifest.get("subject", {}).get("specification_revision") != 3 or len(manifest.get("evidence", [])) != 6:
+        errors.append("Course 17 evidence manifest must remain exact-subject and six-item")
+    reference_package = json.loads((scenario / "reference" / "lifecycle-package.json").read_text(encoding="utf-8"))
+    if reference_package.get("merge", {}).get("state") != "NOT_AUTHORIZED" or reference_package.get("release", {}).get("state") != "NOT_AUTHORIZED":
+        errors.append("Course 17 reference lifecycle package must not grant merge or release authority")
+    starter = (scenario / "workshop" / "starter" / "lifecycle-package.json").read_text(encoding="utf-8")
+    if starter.count("TODO") != 4:
+        errors.append("Course 17 starter must retain exactly four learner decisions")
+
+    quiz_source = (ROOT / "quiz" / "questions.js").read_text(encoding="utf-8")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 230:
+        errors.append("Course 17 cumulative quiz must contain 230 questions")
+    if "Courses 01–17" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
+        errors.append("Course 17 cumulative quiz must identify Courses 01–17")
+    hub = (ROOT / "hub" / "lessons.js").read_text(encoding="utf-8")
+    hub_fragments = [
+        "const course17 = {",
+        "07-idea-discovery-spec-design-implementation/northstar-risk-summary/end_to_end_agentic_pdlc.ipynb",
+        "07-idea-discovery-spec-design-implementation/northstar-risk-summary/workshop/starter",
+        "twelve golden scenarios and 39 labelled mutations",
+    ]
+    if any(fragment not in hub for fragment in hub_fragments):
+        errors.append("Course 17 Learning Hub entry is incomplete or points outside the vertical slice")
     return errors
 
 
@@ -2666,6 +2794,7 @@ def main() -> None:
         "Course 14 OpenSpec": check_course_14_openspec,
         "Course 15 enterprise delivery": check_course_15_enterprise_delivery,
         "Course 16 governance control plane": check_course_16_governance_control_plane,
+        "Course 17 end-to-end Agentic PDLC": check_course_17_end_to_end_agentic_pdlc,
         "diagrams": render_and_validate_diagrams,
         "labs": run_labs,
         "repository labs": run_repository_labs,

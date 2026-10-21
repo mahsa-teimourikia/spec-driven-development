@@ -7,7 +7,7 @@ This curriculum develops one idea across 38 courses: an enterprise should conver
 | Level | Global courses | Program parts | Status |
 | --- | ---: | --- | --- |
 | [Beginner](beginner/README.md) | 01–10 | SDD foundations; executable specifications | Courses 01–10 available |
-| [Intermediate](intermediate/README.md) | 11–23 | Agentic execution; frameworks; Agentic PDLC | Courses 11–16 available |
+| [Intermediate](intermediate/README.md) | 11–23 | Agentic execution; frameworks; Agentic PDLC | Courses 11–17 available |
 | [Advanced](advanced/README.md) | 24–38 | Enterprise controls; advanced agentic SDD | Planned |
 | [Enterprise Agent](enterprise-agent/README.md) | Capstone | Design a real enterprise Agentic PDLC | Planned |
 

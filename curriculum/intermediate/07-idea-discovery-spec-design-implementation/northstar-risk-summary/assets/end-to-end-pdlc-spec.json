@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "id": "course17-end-to-end-agentic-pdlc",
+  "title": "From approved intent to independently verified implementation",
+  "purpose": "Show the controlled transformations and feedback route in the AI-2410 Agentic PDLC.",
+  "output": {
+    "svg": "end-to-end-pdlc.svg",
+    "medium": "notebook and documentation",
+    "alt_text": "A left-to-right lifecycle from approved business intent through discovery, specification, design, bounded implementation, independent verification, and integration review. Failed evidence returns to discovery through an owner-controlled revision loop, while merge and production release remain externally authorized.",
+    "render_source": "render_diagram.py"
+  },
+  "canvas": {"width": 1600, "height": 720, "background": "#F7F9FC", "margin": 64, "grid": 8},
+  "layout": {"primary_flow": "left-to-right", "min_node_gap": 48, "min_layer_gap": 80, "node_padding": {"x": 20, "y": 16}},
+  "style": {
+    "font_family": "Inter, Arial, sans-serif",
+    "title_color": "#16324F",
+    "semantic_colors": {
+      "intent": {"fill": "#FFFFFF", "stroke": "#52606D"},
+      "governance": {"fill": "#E5F7F6", "stroke": "#16A3A5"},
+      "agent": {"fill": "#F0EEFF", "stroke": "#7667E8"},
+      "evidence": {"fill": "#EAF1FF", "stroke": "#2F6BFF"},
+      "authority": {"fill": "#FFF1DF", "stroke": "#F59E42"}
+    }
+  },
+  "nodes": [
+    {"id": "intent", "label_lines": ["Business intent", "approved"], "type": "intent", "bounds": {"x": 64, "y": 220, "width": 160, "height": 132}, "ports": {"out": {"side": "right", "offset": 0.5}}},
+    {"id": "discovery", "label_lines": ["Discovery", "evidence register"], "type": "governance", "bounds": {"x": 272, "y": 220, "width": 160, "height": 132}, "ports": {"in": {"side": "left", "offset": 0.5}, "out": {"side": "right", "offset": 0.5}, "feedback": {"side": "bottom", "offset": 0.5}}},
+    {"id": "specification", "label_lines": ["Specification", "ready"], "type": "governance", "bounds": {"x": 480, "y": 220, "width": 160, "height": 132}, "ports": {"in": {"side": "left", "offset": 0.5}, "out": {"side": "right", "offset": 0.5}}},
+    {"id": "design", "label_lines": ["Design + bounded", "work units"], "type": "governance", "bounds": {"x": 688, "y": 220, "width": 160, "height": 132}, "ports": {"in": {"side": "left", "offset": 0.5}, "out": {"side": "right", "offset": 0.5}}},
+    {"id": "implementation", "label_lines": ["Agent executes", "pinned context"], "type": "agent", "bounds": {"x": 896, "y": 220, "width": 160, "height": 132}, "ports": {"in": {"side": "left", "offset": 0.5}, "out": {"side": "right", "offset": 0.5}}},
+    {"id": "verification", "label_lines": ["Independent", "verification"], "type": "evidence", "bounds": {"x": 1104, "y": 220, "width": 160, "height": 132}, "ports": {"in": {"side": "left", "offset": 0.5}, "out": {"side": "right", "offset": 0.5}, "feedback": {"side": "bottom", "offset": 0.5}}},
+    {"id": "integration", "label_lines": ["Integration review", "eligible"], "type": "evidence", "bounds": {"x": 1312, "y": 220, "width": 160, "height": 132}, "ports": {"in": {"side": "left", "offset": 0.5}, "release": {"side": "bottom", "offset": 0.5}}},
+    {"id": "release", "label_lines": ["Merge + production release", "separate trusted authority"], "type": "authority", "bounds": {"x": 1216, "y": 520, "width": 288, "height": 104}, "ports": {"in": {"side": "top", "offset": 0.6111111111111112}}}
+  ],
+  "edges": [
+    {"id": "intent-discovery", "from": {"node": "intent", "port": "out"}, "to": {"node": "discovery", "port": "in"}, "kind": "primary", "route": [[224, 286], [272, 286]]},
+    {"id": "discovery-spec", "from": {"node": "discovery", "port": "out"}, "to": {"node": "specification", "port": "in"}, "kind": "primary", "route": [[432, 286], [480, 286]]},
+    {"id": "spec-design", "from": {"node": "specification", "port": "out"}, "to": {"node": "design", "port": "in"}, "kind": "primary", "route": [[640, 286], [688, 286]]},
+    {"id": "design-implementation", "from": {"node": "design", "port": "out"}, "to": {"node": "implementation", "port": "in"}, "kind": "primary", "route": [[848, 286], [896, 286]]},
+    {"id": "implementation-verification", "from": {"node": "implementation", "port": "out"}, "to": {"node": "verification", "port": "in"}, "kind": "primary", "route": [[1056, 286], [1104, 286]]},
+    {"id": "verification-integration", "from": {"node": "verification", "port": "out"}, "to": {"node": "integration", "port": "in"}, "kind": "primary", "route": [[1264, 286], [1312, 286]]},
+    {"id": "evidence-feedback", "from": {"node": "verification", "port": "feedback"}, "to": {"node": "discovery", "port": "feedback"}, "kind": "feedback", "label": "Failed evidence → owner decision → approved revision", "route": [[1184, 352], [1184, 440], [352, 440], [352, 352]]},
+    {"id": "integration-release", "from": {"node": "integration", "port": "release"}, "to": {"node": "release", "port": "in"}, "kind": "authority", "label": "not implied", "route": [[1392, 352], [1392, 520]]}
+  ],
+  "validation": {"no_overlaps": true, "route_around_nodes": true, "min_text_padding": 16, "min_connector_clearance": 12, "verify_port_attachment": true, "verify_contrast": true}
+}

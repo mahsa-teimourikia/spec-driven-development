@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="720" viewBox="0 0 1600 720" role="img" aria-labelledby="title desc">
+<title id="title">From approved intent to independently verified implementation</title>
+<desc id="desc">A left-to-right lifecycle from approved business intent through discovery, specification, design, bounded implementation, independent verification, and integration review. Failed evidence returns to discovery through an owner-controlled revision loop, while merge and production release remain externally authorized.</desc>
+<rect width="1600" height="720" fill="#F7F9FC"/>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#52606D"/></marker></defs>
+<text x="64" y="70" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="32" font-weight="700">From approved intent to independently verified implementation</text>
+<text x="64" y="106" fill="#52606D" font-family="Inter, Arial, sans-serif" font-size="18">Each state needs its own owner, artifact, evidence, and authorization boundary.</text>
+<rect x="64" y="220" width="160" height="132" rx="14" fill="#FFFFFF" stroke="#52606D" stroke-width="3"/>
+<text x="144.0" y="273.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="700">Business intent</text>
+<text x="144.0" y="301.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="500">approved</text>
+<rect x="272" y="220" width="160" height="132" rx="14" fill="#E5F7F6" stroke="#16A3A5" stroke-width="3"/>
+<text x="352.0" y="273.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="700">Discovery</text>
+<text x="352.0" y="301.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="500">evidence register</text>
+<rect x="480" y="220" width="160" height="132" rx="14" fill="#E5F7F6" stroke="#16A3A5" stroke-width="3"/>
+<text x="560.0" y="273.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="700">Specification</text>
+<text x="560.0" y="301.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="500">ready</text>
+<rect x="688" y="220" width="160" height="132" rx="14" fill="#E5F7F6" stroke="#16A3A5" stroke-width="3"/>
+<text x="768.0" y="273.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="700">Design + bounded</text>
+<text x="768.0" y="301.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="500">work units</text>
+<rect x="896" y="220" width="160" height="132" rx="14" fill="#F0EEFF" stroke="#7667E8" stroke-width="3"/>
+<text x="976.0" y="273.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="700">Agent executes</text>
+<text x="976.0" y="301.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="500">pinned context</text>
+<rect x="1104" y="220" width="160" height="132" rx="14" fill="#EAF1FF" stroke="#2F6BFF" stroke-width="3"/>
+<text x="1184.0" y="273.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="700">Independent</text>
+<text x="1184.0" y="301.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="500">verification</text>
+<rect x="1312" y="220" width="160" height="132" rx="14" fill="#EAF1FF" stroke="#2F6BFF" stroke-width="3"/>
+<text x="1392.0" y="273.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="700">Integration review</text>
+<text x="1392.0" y="301.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="500">eligible</text>
+<rect x="1216" y="520" width="288" height="104" rx="14" fill="#FFF1DF" stroke="#F59E42" stroke-width="3"/>
+<text x="1360.0" y="559.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="700">Merge + production release</text>
+<text x="1360.0" y="587.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="500">separate trusted authority</text>
+<polyline points="224,286 272,286" fill="none" stroke="#52606D" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="432,286 480,286" fill="none" stroke="#52606D" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="640,286 688,286" fill="none" stroke="#52606D" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="848,286 896,286" fill="none" stroke="#52606D" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="1056,286 1104,286" fill="none" stroke="#52606D" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="1264,286 1312,286" fill="none" stroke="#52606D" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="1184,352 1184,440 352,440 352,352" fill="none" stroke="#16A3A5" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow)" stroke-dasharray="8 7"/>
+<text x="660" y="430" text-anchor="middle" fill="#16A3A5" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="600">Failed evidence → owner decision → approved revision</text>
+<polyline points="1392,352 1392,520" fill="none" stroke="#F59E42" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow)" stroke-dasharray="8 7"/>
+<text x="1408" y="442" text-anchor="middle" fill="#F59E42" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="600">not implied</text>
+</svg>
