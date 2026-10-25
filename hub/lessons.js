@@ -822,6 +822,62 @@ const course16 = {
   }
 };
 
+const course17 = {
+  id: 'c17', course: 17, level: 'intermediate', part: 'IV · Agentic PDLC', status: 'available',
+  title: 'From Idea to Verified Implementation: The End-to-End Agentic PDLC',
+  summary: 'Transform approved business intent into a bounded implementation, independent evidence, and an integration-review handoff without transferring underwriting or release authority to an agent.',
+  outcomes: [
+    'Separate business-intent, discovery, specification, implementation, integration, and release readiness.',
+    'Record confirmed facts, unknowns, conflicts, owners, and blockers in a discovery evidence register.',
+    'Translate approved intent into revisioned requirements and independently owned acceptance evidence.',
+    'Select a minimum-sufficient proposal-and-review architecture that preserves trusted application boundaries.',
+    'Decompose the change into dependency-aware work units with bounded decision rights and stop conditions.',
+    'Execute against pinned specification, architecture, repository, evidence, permission, and context identities.',
+    'Recheck evidence authorization and distinguish citation existence, topic relevance, and exact-claim support.',
+    'Resolve opaque approval handles through a trusted registry and prove replay prevention across a durable-store restart.',
+    'Route failed verification to implementation repair or accountable specification and design revision.',
+    'Compare direct coding with governed SDD across seven deterministic experiments.',
+    'Keep integration eligibility separate from merge, deployment, and business-outcome claims.',
+    'Test the vertical slice with twelve golden scenarios and 39 labelled mutations, plus four semantic trace mutations and a real three-commit exercise.'
+  ],
+  readme: `${REPO}/blob/main/curriculum/intermediate/07-idea-discovery-spec-design-implementation/README.md`,
+  notebook: `${REPO}/blob/main/curriculum/intermediate/07-idea-discovery-spec-design-implementation/northstar-risk-summary/end_to_end_agentic_pdlc.ipynb`,
+  lab: `${REPO}/blob/main/curriculum/intermediate/07-idea-discovery-spec-design-implementation/northstar-risk-summary/lab.py`,
+  repoFixture: `${REPO}/tree/main/curriculum/intermediate/07-idea-discovery-spec-design-implementation/northstar-risk-summary`,
+  run: 'python3 curriculum/intermediate/07-idea-discovery-spec-design-implementation/northstar-risk-summary/lab.py',
+  labs: [
+    {
+      title: 'Lab A — Execute and break the AI-2410 vertical slice',
+      description: 'Build authorized context, recheck every cited source, distinguish relevance from exact support, block an injection-induced action before effects, and run seven failure experiments.',
+      command: 'python3 curriculum/intermediate/07-idea-discovery-spec-design-implementation/northstar-risk-summary/lab.py',
+      links: [['View the vertical-slice lab', `${REPO}/blob/main/curriculum/intermediate/07-idea-discovery-spec-design-implementation/northstar-risk-summary/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/intermediate/07-idea-discovery-spec-design-implementation/northstar-risk-summary/end_to_end_agentic_pdlc.ipynb`]]
+    },
+    {
+      title: 'Lab B — Complete the discovery-to-integration handoff',
+      description: 'Resolve four learner decisions, execute the three-commit dependency sequence, test restart-safe replay prevention and semantic trace mutations, and preserve the release boundary.',
+      command: 'Complete the starter lifecycle package, run Lab A, then compare with the reference package.',
+      links: [['Open the AI-2410 workshop', `${REPO}/tree/main/curriculum/intermediate/07-idea-discovery-spec-design-implementation/northstar-risk-summary`], ['Complete the starter package', `${REPO}/tree/main/curriculum/intermediate/07-idea-discovery-spec-design-implementation/northstar-risk-summary/workshop/starter`], ['Inspect the reference handoff', `${REPO}/blob/main/curriculum/intermediate/07-idea-discovery-spec-design-implementation/northstar-risk-summary/reference/lifecycle-package.json`]]
+    }
+  ],
+  references: [
+    ['GitHub Spec Kit', 'https://github.com/github/spec-kit'],
+    ['Spec Kit Agentic SDD reference', 'https://github.com/github/spec-kit/blob/main/docs/reference/agentic-sdd.md'],
+    ['OpenSpec official overview', 'https://github.com/Fission-AI/OpenSpec/blob/main/docs/overview.md'],
+    ['GitHub required status checks', 'https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches'],
+    ['NIST AI RMF', 'https://www.nist.gov/itl/ai-risk-management-framework']
+  ],
+  checkpoint: {
+    question: 'A Product Owner approved the AI-2410 ticket, but automatic broker communication remains unresolved. What may implementation do?',
+    options: [
+      'Implement the bounded summary-proposal path and keep broker communication blocked behind its accountable authority.',
+      'Treat ticket approval as permission to send messages.',
+      'Let the coding agent decide after tests pass.'
+    ],
+    answer: 0,
+    explanation: 'Readiness is capability-specific. Business intent can authorize discovery and bounded implementation without authorizing a protected side effect.'
+  }
+};
+
 function planned(course, level, part, title, summary) {
   return {
     id: `c${String(course).padStart(2, '0')}`, course, level, part,
@@ -849,7 +905,7 @@ const LESSONS = [
   course14,
   course15,
   course16,
-  planned(17, 'intermediate', 'IV · Agentic PDLC', 'Idea → discovery → spec → design → implementation', 'Build an end-to-end flow with explicit state, owners, gates, and handoffs.'),
+  course17,
   planned(18, 'intermediate', 'IV · Agentic PDLC', 'Brownfield development', 'Recover system truth before changing code with incomplete or stale specifications.'),
   planned(19, 'intermediate', 'IV · Agentic PDLC', 'Bug fixes and small changes', 'Use a proportional workflow that preserves evidence without process theatre.'),
   planned(20, 'intermediate', 'IV · Agentic PDLC', 'Multi-repository development', 'Coordinate contracts, versions, sequencing, and ownership across repositories.'),

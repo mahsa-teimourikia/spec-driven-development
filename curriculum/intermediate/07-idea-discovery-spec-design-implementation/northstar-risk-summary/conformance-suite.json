@@ -1,0 +1,17 @@
+{
+  "claim": "twelve named end-to-end fixtures, not general PDLC assurance",
+  "cases": [
+    {"id": "C17-G01", "kind": "pipeline", "mode": "valid", "expected_state": "READY_FOR_INTEGRATION_REVIEW", "expected_codes": []},
+    {"id": "C17-G02", "kind": "pipeline", "mode": "missing_source", "expected_state": "BLOCKED", "expected_codes": ["CITATION_NOT_FOUND"]},
+    {"id": "C17-G03", "kind": "pipeline", "mode": "unsupported_claim", "expected_state": "BLOCKED", "expected_codes": ["EVIDENCE_DOES_NOT_SUPPORT_CLAIM"]},
+    {"id": "C17-G04", "kind": "pipeline", "mode": "prompt_injection", "expected_state": "BLOCKED", "expected_codes": ["UNAUTHORIZED_SIDE_EFFECT"]},
+    {"id": "C17-G05", "kind": "pipeline", "mode": "stale_context", "expected_state": "BLOCKED", "expected_codes": ["STALE_CONTEXT"]},
+    {"id": "C17-G06", "kind": "pipeline", "mode": "unauthorized_mutation", "expected_state": "BLOCKED", "expected_codes": ["UNAUTHORIZED_SIDE_EFFECT"]},
+    {"id": "C17-G07", "kind": "pipeline", "mode": "unauthorized_send", "expected_state": "BLOCKED", "expected_codes": ["UNAUTHORIZED_SIDE_EFFECT"]},
+    {"id": "C17-G08", "kind": "specification_change", "expected_state": "BLOCKED", "expected_codes": ["STALE_CONTEXT", "STALE_SPECIFICATION"]},
+    {"id": "C17-G09", "kind": "pipeline", "mode": "valid", "include_receipt": false, "expected_state": "READY_FOR_HUMAN_REVIEW", "expected_codes": ["HUMAN_REVIEW_REQUIRED"]},
+    {"id": "C17-G10", "kind": "pipeline", "mode": "valid", "receipt_mutation": "wrong_subject", "expected_state": "BLOCKED", "expected_codes": ["REVIEW_SUBJECT_MISMATCH"]},
+    {"id": "C17-G11", "kind": "pipeline", "mode": "valid", "receipt_mutation": "expired", "expected_state": "BLOCKED", "expected_codes": ["REVIEW_RECEIPT_EXPIRED"]},
+    {"id": "C17-G12", "kind": "pipeline", "mode": "valid", "replay": true, "expected_state": "BLOCKED", "expected_codes": ["REVIEW_RECEIPT_REPLAYED"]}
+  ]
+}

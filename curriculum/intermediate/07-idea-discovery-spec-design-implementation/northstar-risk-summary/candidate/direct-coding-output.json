@@ -1,0 +1,13 @@
+{
+  "label": "EDUCATIONAL_ANTI_PATTERN",
+  "ticket": "Generate an AI underwriting risk summary and recommended actions.",
+  "agent_claim": "Implementation complete; tests pass.",
+  "unverified_assumptions": [
+    "all repository documents are authorized",
+    "citation presence implies evidence support",
+    "ticket approval authorizes architecture",
+    "model output may update underwriting state",
+    "agent tests establish release readiness"
+  ],
+  "state": "NOT_ELIGIBLE_FOR_INTEGRATION"
+}

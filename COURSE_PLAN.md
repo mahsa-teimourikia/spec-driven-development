@@ -106,7 +106,7 @@ Each future course follows this learning arc, adapted where the subject demands 
 
 | Course | Level folder | Topic | Status | Prerequisite | Learner evidence |
 | --- | --- | --- | --- | --- | --- |
-| 17 | intermediate/07 | Idea → discovery → spec → design → implementation | Planned | Parts I–III | End-to-end small-batch change and convergence record |
+| 17 | intermediate/07 | From Idea to Verified Implementation: The End-to-End Agentic PDLC | **Available** | Parts I–III | AI-2410 vertical slice with authorization rechecks, structured exact-claim support, registry-backed review, durable replay exercise, reproducible evidence, three real commits, semantic trace mutations, seven experiments, twelve golden scenarios, and 39-case control evaluation |
 | 18 | intermediate/08 | Brownfield development | Planned | C14, C17 | Characterization baseline, change delta, migration checks |
 | 19 | intermediate/09 | Bug fixes and small changes | Planned | C17–C18 | Proportional triage, minimal fix, regression evidence |
 | 20 | intermediate/10 | Multi-repository development | Planned | C10, C17 | Cross-repo change graph and staged integration |
@@ -211,7 +211,7 @@ The old lesson files are removed from the available curriculum rather than appen
 - **Independent evidence:** specification, policy, architecture, real unit-test, traceability, reviewer, and approval outputs in a release bundle, including explicit unverified risks.
 - **Specification persistence:** change specification, living system truth, and decision-history distinctions tied to current Spec Kit and OpenSpec practice.
 
-A third realism audit deepened Lab B into a nine-stage learner workflow: a deficient and internally conflicting Jira ticket; human-readable enterprise policies plus machine-readable controls; starter and reference change packages; candidate-owned versus independent tests; labelled evaluation cases; design/task/code/test/runtime traceability; proposal- and policy-bound approval receipts; and separate merge versus production-release decisions. Course 12 establishes a framework-neutral selection and authority model; Courses 13–14 apply it to Spec Kit and OpenSpec; Course 15 connects specifications to trusted enterprise delivery controls; and Course 16 compiles authoritative policy into exact agent context and tool-specific adapters without confusing guidance with authorization or enforcement.
+A third realism audit deepened Lab B into a nine-stage learner workflow: a deficient and internally conflicting Jira ticket; human-readable enterprise policies plus machine-readable controls; starter and reference change packages; candidate-owned versus independent tests; labelled evaluation cases; design/task/code/test/runtime traceability; proposal- and policy-bound approval receipts; and separate merge versus production-release decisions. Course 12 establishes a framework-neutral selection and authority model; Courses 13–14 apply it to Spec Kit and OpenSpec; Course 15 connects specifications to trusted enterprise delivery controls; Course 16 compiles authoritative policy into exact agent context and tool-specific adapters without confusing guidance with authorization or enforcement; and Course 17 integrates those controls into the AI-2410 discovery-to-verification vertical slice.
 
 ## Course 04 design record
 

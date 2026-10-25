@@ -1,0 +1,37 @@
+{
+  "change_id": "AI-2410",
+  "sequence": [
+    {
+      "id": "PR-AI2410-01-CONTRACT",
+      "title": "Establish AI-2410 behavior and contracts",
+      "depends_on": [],
+      "includes": ["discovery", "requirements", "acceptance", "design", "typed_contracts", "work_unit_graph"],
+      "excludes": ["model_integration", "broker_delivery", "production_deployment"],
+      "required_checks": ["artifact_consistency", "contract_tests", "architecture_review"],
+      "merge_condition": "normative_behavior_and_contract_approved"
+    },
+    {
+      "id": "PR-AI2410-02-IMPLEMENTATION",
+      "title": "Implement bounded risk-summary proposal path",
+      "depends_on": ["PR-AI2410-01-CONTRACT"],
+      "includes": ["authorized_context_builder", "deterministic_generator", "citation_and_support_validator", "negative_tests"],
+      "excludes": ["underwriting_mutation", "broker_delivery", "production_deployment"],
+      "required_checks": ["focused_tests", "authorization_negative_tests", "prompt_injection_test", "stale_context_test"],
+      "merge_condition": "exact_candidate_independently_verified"
+    },
+    {
+      "id": "PR-AI2410-03-INTEGRATION",
+      "title": "Integrate human review and independent evidence",
+      "depends_on": ["PR-AI2410-02-IMPLEMENTATION"],
+      "includes": ["exact_subject_review_receipt", "evidence_manifest", "conformance_suite", "mutation_evaluation", "integration_handoff"],
+      "excludes": ["automatic_broker_delivery", "production_release"],
+      "required_checks": ["end_to_end_tests", "receipt_replay_test", "evidence_subject_check", "independent_review"],
+      "merge_condition": "ready_for_integration_review_only"
+    }
+  ],
+  "policy": {
+    "no_stacked_merge_without_dependency": true,
+    "later_pr_rebases_on_merged_predecessor": true,
+    "every_pr_preserves_release_boundary": true
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "change_id": "AI-2410",
+  "revision": 3,
+  "requirements": [
+    {
+      "id": "REQ-RISK-001",
+      "modality": "SHALL",
+      "statement": "The system shall generate a risk-summary proposal using only authorized submission evidence and approved domain context.",
+      "owner": "Underwriting Product"
+    },
+    {
+      "id": "REQ-RISK-002",
+      "modality": "SHALL",
+      "statement": "Every material risk claim shall reference current source evidence that exists and supports that claim.",
+      "owner": "Underwriting Domain"
+    },
+    {
+      "id": "REQ-RISK-003",
+      "modality": "SHALL",
+      "statement": "Insufficient or contradictory evidence shall produce an unresolved result rather than an asserted conclusion.",
+      "owner": "Underwriting Domain"
+    },
+    {
+      "id": "REQ-RISK-004",
+      "modality": "SHALL_NOT",
+      "statement": "A summary proposal shall not independently approve, reject, or modify an underwriting decision.",
+      "owner": "Chief Underwriting Office"
+    },
+    {
+      "id": "SEC-RISK-001",
+      "modality": "SHALL_NOT",
+      "statement": "Model-facing execution shall not possess authority to mutate underwriting state or send broker communications.",
+      "owner": "AI Governance"
+    }
+  ]
+}
