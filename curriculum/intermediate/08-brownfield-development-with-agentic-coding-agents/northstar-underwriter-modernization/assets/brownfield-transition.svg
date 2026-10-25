@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="820" viewBox="0 0 1680 820" role="img" aria-labelledby="title desc">
+<title id="title">A governed brownfield transition</title>
+<desc id="desc">Four evidence sources—repository, runtime, specification, and stakeholder—feed revision-bound discovery. Discovery produces an accepted baseline and explicit dispositions. An approved semantic delta then enters a reversible implementation with shadow execution and rollback. Independent compatibility and invariant evidence supports integration-review eligibility, while merge, deployment, and retirement remain separate authority.</desc>
+<rect width="1680" height="820" fill="#F7F9FC"/>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#52606D"/></marker></defs>
+<text x="64" y="66" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700">A governed brownfield transition</text>
+<text x="64" y="104" fill="#52606D" font-family="Inter, Arial, sans-serif" font-size="18">Observe current reality, classify it, change only the approved delta, and keep the transition reversible.</text>
+<rect x="64" y="150" width="190" height="100" rx="14" fill="#FFFFFF" stroke="#52606D" stroke-width="3"/>
+<text x="159.0" y="186.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="700">Repository</text>
+<text x="159.0" y="214.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="500">truth</text>
+<rect x="64" y="270" width="190" height="100" rx="14" fill="#FFFFFF" stroke="#52606D" stroke-width="3"/>
+<text x="159.0" y="306.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="700">Runtime</text>
+<text x="159.0" y="334.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="500">truth</text>
+<rect x="64" y="390" width="190" height="100" rx="14" fill="#FFFFFF" stroke="#52606D" stroke-width="3"/>
+<text x="159.0" y="426.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="700">Specification</text>
+<text x="159.0" y="454.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="500">truth</text>
+<rect x="64" y="510" width="190" height="100" rx="14" fill="#FFFFFF" stroke="#52606D" stroke-width="3"/>
+<text x="159.0" y="546.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="700">Stakeholder</text>
+<text x="159.0" y="574.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="500">truth</text>
+<rect x="350" y="280" width="220" height="190" rx="14" fill="#E5F7F6" stroke="#087F7B" stroke-width="3"/>
+<text x="460.0" y="347.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="700">Revision-bound</text>
+<text x="460.0" y="375.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="500">discovery</text>
+<text x="460.0" y="403.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="500">provenance + confidence</text>
+<rect x="650" y="280" width="220" height="190" rx="14" fill="#EAF1FF" stroke="#2F6BFF" stroke-width="3"/>
+<text x="760.0" y="347.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="700">Accepted baseline</text>
+<text x="760.0" y="375.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="500">+ dispositions</text>
+<text x="760.0" y="403.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="500">unknowns stay open</text>
+<rect x="950" y="280" width="230" height="190" rx="14" fill="#F0EEFF" stroke="#7667E8" stroke-width="3"/>
+<text x="1065.0" y="347.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="700">Approved delta</text>
+<text x="1065.0" y="375.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="500">+ bounded agent work</text>
+<text x="1065.0" y="403.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="500">shadow + rollback</text>
+<rect x="1260" y="280" width="250" height="190" rx="14" fill="#E5F7F6" stroke="#087F7B" stroke-width="3"/>
+<text x="1385.0" y="347.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="700">Independent evidence</text>
+<text x="1385.0" y="375.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="500">compatibility + invariants</text>
+<text x="1385.0" y="403.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="500">migration + rollback</text>
+<rect x="1550" y="315" width="110" height="120" rx="14" fill="#E5F7F6" stroke="#087F7B" stroke-width="3"/>
+<text x="1605.0" y="361.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="700">Integration</text>
+<text x="1605.0" y="389.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="500">review eligible</text>
+<rect x="1310" y="650" width="350" height="100" rx="14" fill="#FFF1DF" stroke="#D97706" stroke-width="3"/>
+<text x="1485.0" y="686.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="700">Merge · deployment · retirement</text>
+<text x="1485.0" y="714.0" text-anchor="middle" fill="#16324F" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="500">separate trusted authority</text>
+<polyline points="254,200 300,200 300,314.2 350,314.2" fill="none" stroke="#52606D" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="254,320 350,354.1" fill="none" stroke="#52606D" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="254,440 350,395.9" fill="none" stroke="#52606D" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="254,560 300,560 300,435.8 350,435.8" fill="none" stroke="#52606D" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="570,375 650,375" fill="none" stroke="#52606D" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="870,375 950,375" fill="none" stroke="#52606D" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="1180,375 1260,375" fill="none" stroke="#52606D" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="1510,375 1550,375" fill="none" stroke="#52606D" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="1385,470 1385,570 460,570 460,470" fill="none" stroke="#087F7B" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow)" stroke-dasharray="8 7"/>
+<text x="920" y="558" text-anchor="middle" fill="#087F7B" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="650">divergence, stale evidence, or unknown → owner-controlled revision</text>
+<polyline points="1605,435 1605,650" fill="none" stroke="#D97706" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow)" stroke-dasharray="8 7"/>
+<text x="1558" y="555" text-anchor="middle" fill="#D97706" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="650">not implied</text>
+</svg>

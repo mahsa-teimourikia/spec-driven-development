@@ -878,6 +878,56 @@ const course17 = {
   }
 };
 
+const course18 = {
+  id: 'c18', course: 18, level: 'intermediate', part: 'IV · Agentic PDLC', status: 'available',
+  title: 'Brownfield Development with Agentic Coding Agents',
+  summary: 'Discover current system truth, classify legacy behavior, define a semantic delta, and execute a compatible, reversible modernization without transferring authority to a coding agent.',
+  outcomes: [
+    'Reconcile repository, runtime, specification, and stakeholder evidence with explicit provenance and confidence.',
+    'Separate characterization from approval and classify behavior as preserve, modify, retire, defect, or unknown.',
+    'Construct a semantic delta and impact graph spanning consumers, data, events, authorization, operations, and performance.',
+    'Apply branch-by-abstraction, expand-and-contract, feature flags, shadow execution, idempotency, and tested rollback.',
+    'Select affected regression evidence while retaining protected invariants independently of discovered dependencies.',
+    'Stop at integration-review eligibility without self-authorizing merge, deployment, or legacy retirement.'
+  ],
+  readme: `${REPO}/blob/main/curriculum/intermediate/08-brownfield-development-with-agentic-coding-agents/README.md`,
+  notebook: `${REPO}/blob/main/curriculum/intermediate/08-brownfield-development-with-agentic-coding-agents/northstar-underwriter-modernization/brownfield_agentic_development.ipynb`,
+  lab: `${REPO}/blob/main/curriculum/intermediate/08-brownfield-development-with-agentic-coding-agents/northstar-underwriter-modernization/lab.py`,
+  repoFixture: `${REPO}/tree/main/curriculum/intermediate/08-brownfield-development-with-agentic-coding-agents/northstar-underwriter-modernization`,
+  run: 'python3 curriculum/intermediate/08-brownfield-development-with-agentic-coding-agents/northstar-underwriter-modernization/lab.py',
+  labs: [
+    {
+      title: 'Lab A — Execute a governed brownfield transition',
+      description: 'Run twelve golden decisions, 24 labelled mutations, ten failure experiments, semantic compatibility checks, protected regression selection, and transactional migration retries.',
+      command: 'python3 curriculum/intermediate/08-brownfield-development-with-agentic-coding-agents/northstar-underwriter-modernization/lab.py',
+      links: [['View the modernization lab', `${REPO}/blob/main/curriculum/intermediate/08-brownfield-development-with-agentic-coding-agents/northstar-underwriter-modernization/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/intermediate/08-brownfield-development-with-agentic-coding-agents/northstar-underwriter-modernization/brownfield_agentic_development.ipynb`]]
+    },
+    {
+      title: 'Lab B — Govern the AI-2410 modernization package',
+      description: 'Bind discovery, classify observed behavior, preserve an explicit baseline, map consumer impact, and design a reversible rollout before comparing with the reference package.',
+      command: 'Complete the five starter decisions, run Lab A, then inspect the reference handoff.',
+      links: [['Open the AI-2410 workshop', `${REPO}/tree/main/curriculum/intermediate/08-brownfield-development-with-agentic-coding-agents/northstar-underwriter-modernization`], ['Complete the starter package', `${REPO}/tree/main/curriculum/intermediate/08-brownfield-development-with-agentic-coding-agents/northstar-underwriter-modernization/workshop/starter`], ['Inspect the reference handoff', `${REPO}/blob/main/curriculum/intermediate/08-brownfield-development-with-agentic-coding-agents/northstar-underwriter-modernization/reference/modernization-package.json`]]
+    }
+  ],
+  references: [
+    ['Martin Fowler: Strangler Fig', 'https://martinfowler.com/bliki/StranglerFigApplication.html'],
+    ['Martin Fowler: Branch by Abstraction', 'https://martinfowler.com/bliki/BranchByAbstraction.html'],
+    ['Pact contract-testing documentation', 'https://docs.pact.io/'],
+    ['PostgreSQL transaction isolation', 'https://www.postgresql.org/docs/current/transaction-iso.html'],
+    ['GitHub CODEOWNERS documentation', 'https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners']
+  ],
+  checkpoint: {
+    question: 'A replacement keeps the v1 JSON fields but changes HIGH-risk review from true to false. Is it backward compatible?',
+    options: [
+      'No. It breaks the semantic contract and a protected invariant even though the schema still validates.',
+      'Yes. Backward compatibility concerns field names only.',
+      'Yes, if a feature flag is enabled.'
+    ],
+    answer: 0,
+    explanation: 'Compatibility includes behavior and authority, not only syntax. A feature flag controls exposure but cannot approve a changed underwriting obligation.'
+  }
+};
+
 function planned(course, level, part, title, summary) {
   return {
     id: `c${String(course).padStart(2, '0')}`, course, level, part,
@@ -906,7 +956,7 @@ const LESSONS = [
   course15,
   course16,
   course17,
-  planned(18, 'intermediate', 'IV · Agentic PDLC', 'Brownfield development', 'Recover system truth before changing code with incomplete or stale specifications.'),
+  course18,
   planned(19, 'intermediate', 'IV · Agentic PDLC', 'Bug fixes and small changes', 'Use a proportional workflow that preserves evidence without process theatre.'),
   planned(20, 'intermediate', 'IV · Agentic PDLC', 'Multi-repository development', 'Coordinate contracts, versions, sequencing, and ownership across repositories.'),
   planned(21, 'intermediate', 'IV · Agentic PDLC', 'Multi-repository parallel-agent delivery', 'Extend bounded coordination across repository, contract, release, and integration boundaries.'),

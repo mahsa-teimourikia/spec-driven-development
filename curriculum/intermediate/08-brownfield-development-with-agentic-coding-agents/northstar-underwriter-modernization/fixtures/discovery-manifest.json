@@ -1,0 +1,36 @@
+{
+  "change_id": "AI-2410",
+  "repository_revision": "9c6a4d8f1e2b7a5036d991ac84f0b234d6a19e72",
+  "inspected_paths": [
+    "src/underwriting/legacy_risk_engine.py",
+    "src/underwriting/risk_summary.py",
+    "src/api/v1/risk.py",
+    "jobs/nightly_risk_batch.py"
+  ],
+  "findings": [
+    {
+      "id": "DISC-001",
+      "type": "SHARED_COMPONENT",
+      "subject": "LegacyRiskEngine",
+      "consumers": ["SubmissionAPIv1", "NightlyRiskBatch"],
+      "confidence": "CONFIRMED",
+      "provenance": ["STATIC:imports", "RUNTIME:trace-2026-10-12"]
+    },
+    {
+      "id": "DISC-002",
+      "type": "EXTERNAL_CONSUMER",
+      "subject": "LegacyPortal",
+      "confidence": "PARTIAL",
+      "provenance": ["CONTRACT:pact-legacy-portal-v1"]
+    },
+    {
+      "id": "DISC-003",
+      "type": "PROTECTED_AUTHORITY",
+      "subject": "UnderwriterReviewWorkflow",
+      "confidence": "CONFIRMED",
+      "provenance": ["OWNER:Underwriting Risk", "SPEC:REQ-RISK-010@3"]
+    }
+  ],
+  "unverified_external_consumer": true,
+  "open_questions": ["Q-DISC-001"]
+}

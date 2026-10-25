@@ -1608,5 +1608,89 @@ const QUESTIONS = [
     options: ['The declared deterministic fixtures are reproducible; production model quality and PDLC assurance remain unproven', 'The feature is approved for production', 'Every SDD framework is equivalent', 'All prompt injection is solved'],
     answer: 0,
     explanation: 'Fixture coverage supports a bounded teaching claim only. Production requires real identity, evidence, population, operations, and accountable authorization.'
+  },
+  {
+    category: 'Course 18 system truth',
+    question: 'Repository code, runtime telemetry, an approved specification, and a stakeholder statement disagree. What should the coding agent do first?',
+    options: ['Record the discrepancy with provenance, confidence, impact, and an accountable resolution route', 'Treat the newest source as authoritative', 'Always copy production behavior into the target specification', 'Choose the version that needs the smallest diff'],
+    answer: 0,
+    explanation: 'Each source contributes evidence but none automatically settles intent, authorization, and current reality together.'
+  },
+  {
+    category: 'Course 18 discovery',
+    question: 'Why bind a discovery manifest to a full repository commit?',
+    options: ['So later changes can invalidate affected findings and plans', 'To prove the discovered behavior is approved', 'To authorize deployment', 'To replace runtime evidence'],
+    answer: 0,
+    explanation: 'Discovery is subject-specific evidence. A repository change can make a previously accurate inventory stale.'
+  },
+  {
+    category: 'Course 18 characterization',
+    question: 'A characterization test captures a legacy HTTP 500 that conflicts with the approved error contract. What should happen?',
+    options: ['Keep it as observed evidence, classify it as a defect candidate, and route the target decision', 'Turn it into a permanent acceptance criterion', 'Delete the test and fix the code silently', 'Let the implementation agent decide whether users rely on it'],
+    answer: 0,
+    explanation: 'Characterization describes current behavior; it does not automatically approve that behavior or authorize an unrelated fix.'
+  },
+  {
+    category: 'Course 18 dispositions',
+    question: 'The team suspects a logging field has an external consumer but cannot verify it. Which disposition is safe?',
+    options: ['UNKNOWN, with an owner and investigation that blocks retirement', 'RETIRE because no code import was found', 'DEFECT because the field is old', 'PRESERVE forever without further evidence'],
+    answer: 0,
+    explanation: 'Uncertainty is retained explicitly. Absence from a static search is not evidence that an external or operational consumer does not exist.'
+  },
+  {
+    category: 'Course 18 semantic delta',
+    question: 'AI-2410 adds risk-summary proposals but does not change risk classification. How should the delta represent REQ-RISK-010?',
+    options: ['Preserve the deterministic requirement unchanged and add separate proposal obligations', 'Replace it with a model requirement', 'Retire it because the new code is cleaner', 'Move it into an agent prompt'],
+    answer: 0,
+    explanation: 'Risk classification and summarization are different capabilities. Additive requirements prevent a feature request from silently replacing approved authority.'
+  },
+  {
+    category: 'Course 18 compatibility',
+    question: 'The v1 response contains the same fields, but HIGH-risk submissions no longer require review. What kind of failure is this?',
+    options: ['A semantic compatibility break', 'No break because the schema matches', 'Only a documentation issue', 'A feature-flag configuration issue'],
+    answer: 0,
+    explanation: 'Backward compatibility includes meaning and workflow behavior, not just structural validation.'
+  },
+  {
+    category: 'Course 18 migration',
+    question: 'What makes a retryable summary migration idempotent under concurrency?',
+    options: ['A uniqueness rule enforced at the authoritative state transition with transactional conflict handling', 'A caller-side check that usually runs first', 'A comment saying retries are safe', 'A feature flag around the insert'],
+    answer: 0,
+    explanation: 'A pre-insert check can race. The state boundary must reject or safely absorb duplicate transition keys.'
+  },
+  {
+    category: 'Course 18 flags',
+    question: 'The AI-summary feature flag is enabled for an actor without proposal capability. What should occur?',
+    options: ['Block before provider execution because flags do not grant authorization', 'Run the provider because the flag is the authorization', 'Allow read and write access but log it', 'Ask the model whether the actor is trusted'],
+    answer: 0,
+    explanation: 'Feature exposure, identity, resource authorization, capability grants, execution, and verification are separate controls.'
+  },
+  {
+    category: 'Course 18 regression',
+    question: 'A dependency graph selects only the summary-provider tests and omits the underwriting authority invariant. What is the correct response?',
+    options: ['Block the plan; protected invariants form a mandatory floor independent of discovered edges', 'Accept the selection because static analysis is objective', 'Run no tests until the nightly suite', 'Let the agent report confidence instead'],
+    answer: 0,
+    explanation: 'Selective regression is an optimization. Incomplete discovery must not remove mandatory authority, security, or integrity evidence.'
+  },
+  {
+    category: 'Course 18 shadow execution',
+    question: 'The shadow provider disagrees with the legacy provider. Which result should become authoritative automatically?',
+    options: ['Neither; record the divergence and route it against approved behavior and accountable review', 'The new result because it is modern', 'The legacy result because it ran first', 'Whichever result has more tokens'],
+    answer: 0,
+    explanation: 'Shadowing produces comparison evidence. Divergence does not prove either implementation is correct.'
+  },
+  {
+    category: 'Course 18 rollback',
+    question: 'Why is disabling the new UI flag sometimes an incomplete rollback?',
+    options: ['New authoritative data or contracts may remain incompatible with the old path', 'Flags can never be disabled', 'Rollback must always delete all new data', 'UI behavior is the only compatibility dimension'],
+    answer: 0,
+    explanation: 'Rollback must restore a known-good compatible system across state, contracts, consumers, operations, and authority—not only hide exposure.'
+  },
+  {
+    category: 'Course 18 evidence',
+    question: 'The Course 18 lab passes ten experiments, twelve golden cases, and 24 labelled mutations. What can be claimed?',
+    options: ['The deterministic teaching package is reproducible; production modernization safety and model quality remain unproven', 'The legacy path may now be retired', 'Deployment is authorized', 'All brownfield repositories are covered'],
+    answer: 0,
+    explanation: 'The evidence is bounded to declared fixtures and controls. Production still needs real identities, telemetry, consumers, databases, representative populations, and accountable authorization.'
   }
 ];

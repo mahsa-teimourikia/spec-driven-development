@@ -1,0 +1,12 @@
+{
+  "change_id": "AI-2410",
+  "baseline_revision": 3,
+  "behaviors": [
+    {"id": "BEH-RISK-010", "observed": "Scores 80 and above classify HIGH", "disposition": "PRESERVE", "requirement_id": "REQ-RISK-010", "owner": "Underwriting Risk", "evidence": ["TEST-RISK-010", "TRACE-RISK-2026-10"]},
+    {"id": "BEH-RISK-011", "observed": "HIGH requires human review", "disposition": "PRESERVE", "requirement_id": "REQ-RISK-011", "owner": "Underwriting Risk", "evidence": ["PACT-PORTAL-V1", "TEST-RISK-011"]},
+    {"id": "BEH-SUM-002", "observed": "Approved legacy summaries remain readable", "disposition": "PRESERVE", "requirement_id": "REQ-SUM-002", "owner": "Underwriter Assistant", "evidence": ["QUERY-SUMMARY-READ-4"]},
+    {"id": "BEH-SUM-006", "observed": "Underwriters prepare summaries manually", "disposition": "MODIFY", "requirement_id": "REQ-RISK-021", "owner": "Underwriter Assistant", "evidence": ["WORKFLOW-OBS-18"]},
+    {"id": "BEH-ERR-003", "observed": "Malformed input can return HTTP 500", "disposition": "DEFECT", "requirement_id": null, "owner": "Submission API", "evidence": ["INC-991", "TEST-CHAR-ERR-003"]},
+    {"id": "BEH-LOG-009", "observed": "Deprecated logging field may feed reporting", "disposition": "UNKNOWN", "requirement_id": null, "owner": null, "evidence": ["STATIC-SEARCH-LOG-009"]}
+  ]
+}

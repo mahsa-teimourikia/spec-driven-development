@@ -1,0 +1,16 @@
+{
+  "pattern": ["branch by abstraction", "expand and contract", "shadow execution"],
+  "phases": [
+    {"id": "EXPAND", "exposure": "none", "action": "add proposal table and provider interface", "exit_evidence": ["schema compatibility", "legacy read path passes"]},
+    {"id": "SHADOW", "exposure": "internal comparison only", "action": "run proposal provider without authoritative effects", "exit_evidence": ["labelled divergence review", "latency and failure evidence"]},
+    {"id": "LIMITED", "exposure": "authorized internal users", "action": "display proposal with provenance and human review", "exit_evidence": ["consumer contracts", "protected invariants", "rollback rehearsal"]},
+    {"id": "CONTRACT", "exposure": "unchanged", "action": "retire legacy structures only through a separate approved change", "exit_evidence": ["all consumers retired", "data verification", "owner approval"]}
+  ],
+  "rollback": {
+    "trigger": ["semantic divergence", "authorization defect", "duplicate state", "unacceptable latency"],
+    "action": "disable proposal exposure and return to LegacySummaryProvider",
+    "preserves": ["deterministic risk category", "v1 response", "legacy summary reads"],
+    "tested": true
+  },
+  "authorization": "Feature flags select exposure only; trusted capability and subject authorization remain mandatory."
+}

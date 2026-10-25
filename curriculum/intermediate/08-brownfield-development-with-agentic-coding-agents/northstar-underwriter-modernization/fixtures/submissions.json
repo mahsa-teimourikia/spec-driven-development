@@ -1,0 +1,7 @@
+{
+  "submissions": [
+    {"submission_id": "SUB-2410-001", "score": 91, "evidence": ["DOC-11@4", "DOC-12@2"]},
+    {"submission_id": "SUB-2410-002", "score": 50, "evidence": ["DOC-21@1"]},
+    {"submission_id": "SUB-2410-003", "score": 49, "evidence": []}
+  ]
+}

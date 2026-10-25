@@ -9,11 +9,11 @@ This path turns specification skills into repeatable delivery flows.
 15. [Integrating SDD into Enterprise PDLC and CI/CD](05-enterprise-pdlc-ci-cd-integration/README.md) — available
 16. [Enterprise SDD Governance Control Plane & Agent Instruction Management](06-enterprise-sdd-governance-control-plane-agent-instructions/README.md) — available
 17. [From Idea to Verified Implementation: The End-to-End Agentic PDLC](07-idea-discovery-spec-design-implementation/README.md) — available
-18. Brownfield development
+18. [Brownfield Development with Agentic Coding Agents](08-brownfield-development-with-agentic-coding-agents/README.md) — available
 19. Bug fixes and small changes
 20. Multi-repository development
 21. Multi-repository parallel-agent delivery
 22. PR and review strategy
 23. Human approval gates
 
-Courses 11–17 are available. The remaining courses will be published as complete vertical slices; see the [course plan](../../COURSE_PLAN.md).
+Courses 11–18 are available. The remaining courses will be published as complete vertical slices; see the [course plan](../../COURSE_PLAN.md).

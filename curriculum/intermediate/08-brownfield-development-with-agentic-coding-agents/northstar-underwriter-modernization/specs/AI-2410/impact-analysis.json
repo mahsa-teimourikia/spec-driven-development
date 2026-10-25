@@ -1,0 +1,20 @@
+{
+  "change_id": "AI-2410",
+  "repository_revision": "9c6a4d8f1e2b7a5036d991ac84f0b234d6a19e72",
+  "changed_capability": "RiskSummaryProvider",
+  "consumers": [
+    {"id": "SubmissionAPIv1", "impact": "PRESERVE", "contract": "structural and semantic v1 response", "evidence": ["test_v1_contract", "test_high_risk_requires_review"]},
+    {"id": "UnderwriterAssistant", "impact": "MODIFY", "contract": "display non-authoritative proposal", "evidence": ["test_ai_proposal_never_authoritative"]},
+    {"id": "NightlyRiskBatch", "impact": "PRESERVE", "contract": "deterministic category remains source of truth", "evidence": ["test_batch_contract"]},
+    {"id": "LegacyPortal", "impact": "INVESTIGATE", "contract": "published v1 pact; active traffic unverified", "evidence": ["PACT-PORTAL-V1"], "block_retirement": true},
+    {"id": "RiskReporting", "impact": "PRESERVE", "contract": "authoritative category semantics", "evidence": ["test_reporting_contract"]}
+  ],
+  "persistent_state": ["submission.risk_summary", "summary_proposal"],
+  "events": ["risk-assessment-created@v1"],
+  "protected_invariants": [
+    "test_high_risk_requires_review",
+    "test_ai_proposal_never_authoritative",
+    "test_underwriting_authority_unchanged"
+  ],
+  "unknowns": ["Q-DISC-001", "Q-DISC-002"]
+}

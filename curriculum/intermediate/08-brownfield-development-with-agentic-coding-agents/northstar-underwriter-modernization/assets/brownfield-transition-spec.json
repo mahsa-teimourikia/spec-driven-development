@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "id": "course18-brownfield-transition",
+  "title": "A governed brownfield transition",
+  "purpose": "Show how repository, runtime, specification, and stakeholder evidence enter discovery before an approved delta becomes a reversible implementation.",
+  "output": {
+    "svg": "brownfield-transition.svg",
+    "alt_text": "Four evidence sources—repository, runtime, specification, and stakeholder—feed revision-bound discovery. Discovery produces an accepted baseline and explicit dispositions. An approved semantic delta then enters a reversible implementation with shadow execution and rollback. Independent compatibility and invariant evidence supports integration-review eligibility, while merge, deployment, and retirement remain separate authority.",
+    "render_source": "render_diagram.py"
+  },
+  "canvas": {"width": 1680, "height": 820, "background": "#F7F9FC", "margin": 64},
+  "style": {
+    "font_family": "Inter, Arial, sans-serif",
+    "semantic_colors": {
+      "source": {"fill": "#FFFFFF", "stroke": "#52606D"},
+      "discovery": {"fill": "#E5F7F6", "stroke": "#087F7B"},
+      "spec": {"fill": "#EAF1FF", "stroke": "#2F6BFF"},
+      "agent": {"fill": "#F0EEFF", "stroke": "#7667E8"},
+      "evidence": {"fill": "#E5F7F6", "stroke": "#087F7B"},
+      "authority": {"fill": "#FFF1DF", "stroke": "#D97706"}
+    }
+  },
+  "nodes": [
+    {"id": "repository", "label_lines": ["Repository", "truth"], "type": "source", "bounds": {"x": 64, "y": 150, "width": 190, "height": 100}, "ports": {"out": {"side": "right", "offset": 0.5}}},
+    {"id": "runtime", "label_lines": ["Runtime", "truth"], "type": "source", "bounds": {"x": 64, "y": 270, "width": 190, "height": 100}, "ports": {"out": {"side": "right", "offset": 0.5}}},
+    {"id": "specification", "label_lines": ["Specification", "truth"], "type": "source", "bounds": {"x": 64, "y": 390, "width": 190, "height": 100}, "ports": {"out": {"side": "right", "offset": 0.5}}},
+    {"id": "stakeholder", "label_lines": ["Stakeholder", "truth"], "type": "source", "bounds": {"x": 64, "y": 510, "width": 190, "height": 100}, "ports": {"out": {"side": "right", "offset": 0.5}}},
+    {"id": "discovery", "label_lines": ["Revision-bound", "discovery", "provenance + confidence"], "type": "discovery", "bounds": {"x": 350, "y": 280, "width": 220, "height": 190}, "ports": {"repo": {"side": "left", "offset": 0.18}, "runtime": {"side": "left", "offset": 0.39}, "spec": {"side": "left", "offset": 0.61}, "stakeholder": {"side": "left", "offset": 0.82}, "out": {"side": "right", "offset": 0.5}, "feedback": {"side": "bottom", "offset": 0.5}}},
+    {"id": "baseline", "label_lines": ["Accepted baseline", "+ dispositions", "unknowns stay open"], "type": "spec", "bounds": {"x": 650, "y": 280, "width": 220, "height": 190}, "ports": {"in": {"side": "left", "offset": 0.5}, "out": {"side": "right", "offset": 0.5}}},
+    {"id": "transition", "label_lines": ["Approved delta", "+ bounded agent work", "shadow + rollback"], "type": "agent", "bounds": {"x": 950, "y": 280, "width": 230, "height": 190}, "ports": {"in": {"side": "left", "offset": 0.5}, "out": {"side": "right", "offset": 0.5}}},
+    {"id": "verification", "label_lines": ["Independent evidence", "compatibility + invariants", "migration + rollback"], "type": "evidence", "bounds": {"x": 1260, "y": 280, "width": 250, "height": 190}, "ports": {"in": {"side": "left", "offset": 0.5}, "review": {"side": "right", "offset": 0.5}, "feedback": {"side": "bottom", "offset": 0.5}}},
+    {"id": "integration", "label_lines": ["Integration", "review eligible"], "type": "evidence", "bounds": {"x": 1550, "y": 315, "width": 110, "height": 120}, "ports": {"in": {"side": "left", "offset": 0.5}, "authority": {"side": "bottom", "offset": 0.5}}},
+    {"id": "authority", "label_lines": ["Merge · deployment · retirement", "separate trusted authority"], "type": "authority", "bounds": {"x": 1310, "y": 650, "width": 350, "height": 100}, "ports": {"in": {"side": "top", "offset": 0.8428571428571429}}}
+  ],
+  "edges": [
+    {"id": "repo-discovery", "from": {"node": "repository", "port": "out"}, "to": {"node": "discovery", "port": "repo"}, "kind": "source", "route": [[254, 200], [300, 200], [300, 314.2], [350, 314.2]]},
+    {"id": "runtime-discovery", "from": {"node": "runtime", "port": "out"}, "to": {"node": "discovery", "port": "runtime"}, "kind": "source", "route": [[254, 320], [350, 354.1]]},
+    {"id": "spec-discovery", "from": {"node": "specification", "port": "out"}, "to": {"node": "discovery", "port": "spec"}, "kind": "source", "route": [[254, 440], [350, 395.9]]},
+    {"id": "stakeholder-discovery", "from": {"node": "stakeholder", "port": "out"}, "to": {"node": "discovery", "port": "stakeholder"}, "kind": "source", "route": [[254, 560], [300, 560], [300, 435.8], [350, 435.8]]},
+    {"id": "discovery-baseline", "from": {"node": "discovery", "port": "out"}, "to": {"node": "baseline", "port": "in"}, "kind": "primary", "route": [[570, 375], [650, 375]]},
+    {"id": "baseline-transition", "from": {"node": "baseline", "port": "out"}, "to": {"node": "transition", "port": "in"}, "kind": "primary", "route": [[870, 375], [950, 375]]},
+    {"id": "transition-verification", "from": {"node": "transition", "port": "out"}, "to": {"node": "verification", "port": "in"}, "kind": "primary", "route": [[1180, 375], [1260, 375]]},
+    {"id": "verification-integration", "from": {"node": "verification", "port": "review"}, "to": {"node": "integration", "port": "in"}, "kind": "primary", "route": [[1510, 375], [1550, 375]]},
+    {"id": "feedback", "from": {"node": "verification", "port": "feedback"}, "to": {"node": "discovery", "port": "feedback"}, "kind": "feedback", "label": "divergence, stale evidence, or unknown → owner-controlled revision", "route": [[1385, 470], [1385, 570], [460, 570], [460, 470]]},
+    {"id": "authority-edge", "from": {"node": "integration", "port": "authority"}, "to": {"node": "authority", "port": "in"}, "kind": "authority", "label": "not implied", "route": [[1605, 435], [1605, 650]]}
+  ],
+  "validation": {"no_overlaps": true, "route_around_nodes": true, "min_text_padding": 16, "verify_port_attachment": true, "verify_contrast": true}
+}

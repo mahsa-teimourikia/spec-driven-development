@@ -1,0 +1,16 @@
+{
+  "limitations": [
+    "Credential-free deterministic fixtures are not production telemetry.",
+    "No real AI model, enterprise identity provider, migration database, or release system is evaluated."
+  ],
+  "results": {
+    "conformance": "sha256:d07b7f4e50c434e6866d306819b336ca3935a0fa7ab19c5804c5a2674ace7ebb",
+    "experiments": "sha256:c4fdffba515ff81f51e39247d5937692c8264f4e29d7ec842f4383e8d4ab8c36",
+    "mutation_evaluation": "sha256:fd73c8acccc74f136305f0a5142e2d26b7eae6614e411febffaae12664b1e0ea"
+  },
+  "subject": {
+    "change_id": "AI-2410",
+    "repository_revision": "9c6a4d8f1e2b7a5036d991ac84f0b234d6a19e72",
+    "specification_revision": 4
+  }
+}

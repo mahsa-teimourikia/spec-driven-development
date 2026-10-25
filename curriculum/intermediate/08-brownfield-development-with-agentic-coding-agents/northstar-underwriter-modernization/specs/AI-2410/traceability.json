@@ -1,0 +1,9 @@
+{
+  "links": [
+    {"requirement": "REQ-RISK-010", "baseline_behavior": ["BEH-RISK-010"], "impact": ["SubmissionAPIv1", "NightlyRiskBatch", "RiskReporting"], "code": ["brownfield_app/legacy.py:classify_risk"], "tests": ["test_characterization_boundaries", "test_v1_semantics"], "evidence": ["CONF-001"]},
+    {"requirement": "REQ-RISK-011", "baseline_behavior": ["BEH-RISK-011"], "impact": ["SubmissionAPIv1", "LegacyPortal"], "code": ["brownfield_app/legacy.py:legacy_v1_response"], "tests": ["test_high_risk_requires_review"], "evidence": ["CONF-002"]},
+    {"requirement": "REQ-RISK-021", "baseline_behavior": ["BEH-SUM-006"], "impact": ["UnderwriterAssistant"], "code": ["brownfield_app/legacy.py:AISummaryProvider"], "tests": ["test_additive_proposal"], "evidence": ["CONF-003"]},
+    {"requirement": "REQ-RISK-022", "baseline_behavior": [], "impact": ["UnderwriterAssistant", "SubmissionAPIv1"], "code": ["brownfield_app/governance.py:validate_proposal"], "tests": ["test_ai_proposal_never_authoritative"], "evidence": ["CONF-004"]},
+    {"requirement": "REQ-MIG-004", "baseline_behavior": [], "impact": ["summary_proposal"], "code": ["brownfield_app/migration.py:ProposalStore.migrate"], "tests": ["test_transactional_retry"], "evidence": ["CONF-005"]}
+  ]
+}
