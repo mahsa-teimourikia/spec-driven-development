@@ -119,7 +119,7 @@ The [discovery record](northstar-underwriter-modernization/specs/AI-2410/discove
 - calibrated confidence; and
 - open questions.
 
-An agent explanation is a discovery proposal. It becomes trusted input only after the application validates its provenance and freshness.
+An agent explanation is a discovery proposal. It becomes trusted input only after the application validates its provenance and freshness. The reference validator also compares the manifest with a protected union of static references, API contracts, registered owners, and runtime observations. A consumer omitted from the proposal remains visible in that independent evidence and blocks integration.
 
 ### Static and dynamic evidence are complementary
 
@@ -249,7 +249,7 @@ Course 18 adds `summary_proposal` while preserving `submission.risk_summary`. Th
 
 ### Feature flags and shadow execution
 
-A flag chooses exposure. It does not grant resource access, a write capability, or underwriting authority.
+A flag chooses exposure. It does not grant resource access, a write capability, or underwriting authority. The credential-free lab resolves a synthetic trusted grant bound to principal, submission, operation, and policy revision before provider selection, then resolves it again immediately before persistence.
 
 ```text
 flag evaluation → capability enabled?
@@ -258,11 +258,11 @@ execution       → perform the bounded operation
 verification    → record independent evidence
 ```
 
-Shadow execution produces comparison evidence without authoritative side effects. Divergence routes to review; it does not automatically make the new or old result correct.
+Shadow execution runs both providers on the same submission and compares their actual outputs with an approved oracle. Differences are classified as expected, acceptable, unexpected, or unresolved. Unexpected and unresolved divergence route to review; a difference alone does not make the new or old result correct.
 
 ## 9. Idempotency belongs at the state boundary
 
-“Check, then insert” is vulnerable to concurrent retries. The reference `ProposalStore` uses a unique key on `(submission_id, source_revision)` and performs conflict handling inside the transaction.
+“Check, then insert” is vulnerable to concurrent retries. The reference `ProposalStore` uses a unique key on `(submission_id, source_revision)`, compares a canonical payload digest inside the transaction, returns `ALREADY_APPLIED` only for a semantically identical retry, and returns `IDEMPOTENCY_CONFLICT` for a different payload under the same key.
 
 Migration invariants are:
 
@@ -285,7 +285,7 @@ changed component tests
 + periodic broad regression
 ```
 
-Selective testing optimizes feedback. It never removes mandatory security, authority, data-integrity, or safety gates. A static dependency graph can be incomplete, so protected tests are selected independently of discovered edges.
+Selective testing optimizes feedback. It never removes mandatory security, authority, data-integrity, or safety gates. A static dependency graph can be incomplete, so protected tests are selected independently of discovered edges. The planner returns both selected tests and unmapped consumers; a critical consumer without a verification path blocks integration.
 
 Useful evidence includes both selection quality and execution outcomes:
 
@@ -334,7 +334,7 @@ Each phase needs:
 - rollback procedure and rehearsal evidence; and
 - evidence expiry rules.
 
-Rollback means returning to a known-good compatible state. Disabling a UI flag while new authoritative data remains unreadable by the old system is not a complete rollback.
+Rollback means returning to a known-good compatible state. The lab executes the sequence: observe legacy, enable the proposal path, persist a non-authoritative proposal, disable the path, and verify that the legacy provider, legacy v1 response, legacy reads, and authoritative state are intact. Disabling a UI flag alone is not a complete rollback.
 
 ## 13. Run the vertical slice
 
@@ -347,12 +347,13 @@ python3 curriculum/intermediate/08-brownfield-development-with-agentic-coding-ag
 The lab runs:
 
 - 12 golden conformance cases;
-- 24 labelled mutations;
+- 24 labelled artifact mutations whose findings are derived from changed behavior, not labels;
 - 10 focused failure experiments;
 - a direct-agent versus governed-path comparison;
 - semantic v1 compatibility checks;
 - protected selective regression;
-- transactional idempotency; and
+- transactional retry identity and conflict detection;
+- measured shadow comparison and an executed rollback rehearsal; and
 - rollout and retirement authority boundaries.
 
 The guided notebook imports this reusable code; it does not duplicate a toy version of the lab.

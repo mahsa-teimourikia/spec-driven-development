@@ -12,7 +12,7 @@
       "id": "DISC-001",
       "type": "SHARED_COMPONENT",
       "subject": "LegacyRiskEngine",
-      "consumers": ["SubmissionAPIv1", "NightlyRiskBatch"],
+      "consumers": ["SubmissionAPIv1", "NightlyRiskBatch", "RiskReporting"],
       "confidence": "CONFIRMED",
       "provenance": ["STATIC:imports", "RUNTIME:trace-2026-10-12"]
     },
@@ -29,6 +29,13 @@
       "subject": "UnderwriterReviewWorkflow",
       "confidence": "CONFIRMED",
       "provenance": ["OWNER:Underwriting Risk", "SPEC:REQ-RISK-010@3"]
+    },
+    {
+      "id": "DISC-004",
+      "type": "REPORTING_CONSUMER",
+      "subject": "RiskReporting",
+      "confidence": "CONFIRMED",
+      "provenance": ["RUNTIME:report-trace-2026-10-13", "OWNER:Data Platform"]
     }
   ],
   "unverified_external_consumer": true,

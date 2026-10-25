@@ -2,14 +2,17 @@
 
 from __future__ import annotations
 
-from .contracts import BehaviorRecord, Decision, Finding
+from .contracts import BehaviorRecord, Decision, Finding, RegressionPlan
 
 
 REQUIRED_DISCOVERY_EVIDENCE = {"STATIC", "RUNTIME", "CONTRACT", "OWNER"}
 
 
 def validate_discovery_manifest(
-    manifest: dict[str, object], *, actual_repository_revision: str
+    manifest: dict[str, object],
+    *,
+    actual_repository_revision: str,
+    trusted_dependency_evidence: dict[str, object] | None = None,
 ) -> Decision:
     findings: list[Finding] = []
     revision = manifest.get("repository_revision")
@@ -30,9 +33,47 @@ def validate_discovery_manifest(
         if not provenance:
             findings.append(Finding("MISSING_PROVENANCE", f"{item.get('id')} has no evidence provenance."))
 
+    if trusted_dependency_evidence is not None:
+        claimed_consumers: set[str] = set()
+        for item in manifest.get("findings", []):
+            if not isinstance(item, dict):
+                continue
+            consumers = item.get("consumers", [])
+            if isinstance(consumers, list):
+                claimed_consumers.update(str(consumer) for consumer in consumers)
+            if item.get("type") == "EXTERNAL_CONSUMER" and item.get("subject"):
+                claimed_consumers.add(str(item["subject"]))
+
+        independently_observed: dict[str, set[str]] = {}
+        for observation in trusted_dependency_evidence.get("observations", []):
+            if not isinstance(observation, dict):
+                continue
+            source = str(observation.get("source", ""))
+            for consumer in observation.get("consumers", []):
+                independently_observed.setdefault(str(consumer), set()).add(source)
+
+        for consumer, sources in independently_observed.items():
+            if consumer not in claimed_consumers:
+                findings.append(
+                    Finding(
+                        "INCOMPLETE_IMPACT_GRAPH",
+                        f"{consumer} exists in independent dependency evidence but not the discovery manifest.",
+                    )
+                )
+            elif len(sources) < 2:
+                findings.append(
+                    Finding(
+                        "UNVERIFIED_RELATIONSHIP",
+                        f"{consumer} has only one independent evidence source and remains UNKNOWN.",
+                        "REVIEW",
+                    )
+                )
+
     if manifest.get("unverified_external_consumer") and "Q-DISC-001" not in manifest.get("open_questions", []):
         findings.append(Finding("HIDDEN_UNKNOWN", "Unverified consumer must remain an open question."))
-    return Decision("BLOCKED" if findings else "PASS", tuple(findings))
+    if any(item.severity == "BLOCK" for item in findings):
+        return Decision("BLOCKED", tuple(findings))
+    return Decision("REVIEW_REQUIRED" if findings else "PASS", tuple(findings))
 
 
 def validate_behavior_records(records: list[BehaviorRecord]) -> Decision:
@@ -50,11 +91,27 @@ def validate_behavior_records(records: list[BehaviorRecord]) -> Decision:
 
 
 def required_regression_tests(
-    *, impacted_consumers: set[str], mapped_tests: dict[str, set[str]], protected_tests: set[str]
-) -> set[str]:
-    """Select consumer tests while always retaining mandatory protected invariants."""
+    *,
+    impacted_consumers: set[str],
+    mapped_tests: dict[str, set[str]],
+    protected_tests: set[str],
+    critical_consumers: set[str] | None = None,
+) -> RegressionPlan:
+    """Select tests and expose every consumer without a verification path."""
     selected = set(protected_tests)
     selected.update(mapped_tests.get("CHANGED_COMPONENT", set()))
+    unmapped: set[str] = set()
     for consumer in impacted_consumers:
-        selected.update(mapped_tests.get(consumer, set()))
-    return selected
+        tests = mapped_tests.get(consumer, set())
+        if tests:
+            selected.update(tests)
+        else:
+            unmapped.add(consumer)
+    critical = impacted_consumers if critical_consumers is None else critical_consumers
+    if unmapped & critical:
+        state = "BLOCKED"
+    elif unmapped:
+        state = "REVIEW_REQUIRED"
+    else:
+        state = "PASS"
+    return RegressionPlan(frozenset(selected), frozenset(unmapped), state)

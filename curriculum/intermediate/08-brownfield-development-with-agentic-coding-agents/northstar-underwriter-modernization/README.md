@@ -33,10 +33,10 @@ The runner prints a JSON report and makes no network calls.
 | `brownfield_app/discovery.py` | Discovery, disposition, and regression-selection checks |
 | `brownfield_app/governance.py` | Trusted freshness, compatibility, authorization, and change-package checks |
 | `brownfield_app/migration.py` | Transactional idempotency at the proposal state boundary |
-| `fixtures/` | Repository/runtime teaching evidence and submissions |
-| `specs/AI-2410/` | Discovery, baseline, delta, impact, regression, rollout, and traceability |
+| `fixtures/` | Agent-authored discovery plus independent static, contract, owner, and runtime evidence |
+| `specs/AI-2410/` | Discovery, baseline, delta, impact, compatibility contract, regression, rollout, and traceability |
 | `conformance-suite.json` | Twelve golden decisions |
-| `evaluation-cases.json` | Twenty-four labelled mutations |
+| `evaluation-cases.json` | Twenty-four labelled artifact mutations; the evaluator sees only their resulting artifacts |
 | `evidence/manifest.json` | Reproducible subject-bound result digests and explicit limitations |
 | `candidate/` | Unsafe direct-agent baseline |
 | `reference/` | Governed handoff with explicit non-authorities |

@@ -10,7 +10,8 @@
     "trigger": ["semantic divergence", "authorization defect", "duplicate state", "unacceptable latency"],
     "action": "disable proposal exposure and return to LegacySummaryProvider",
     "preserves": ["deterministic risk category", "v1 response", "legacy summary reads"],
-    "tested": true
+    "tested": true,
+    "evidence": ["ai path observed", "legacy provider restored", "authoritative state unchanged", "legacy reads preserved"]
   },
   "authorization": "Feature flags select exposure only; trusted capability and subject authorization remain mandatory."
 }

@@ -2806,11 +2806,13 @@ def check_course_18_brownfield_development() -> list[str]:
         scenario / "brownfield_app" / "governance.py",
         scenario / "brownfield_app" / "migration.py",
         scenario / "fixtures" / "discovery-manifest.json",
+        scenario / "fixtures" / "trusted-dependency-evidence.json",
         scenario / "fixtures" / "submissions.json",
         scenario / "specs" / "AI-2410" / "discovery.md",
         scenario / "specs" / "AI-2410" / "baseline-behaviors.yaml",
         scenario / "specs" / "AI-2410" / "semantic-delta.yaml",
         scenario / "specs" / "AI-2410" / "impact-analysis.json",
+        scenario / "specs" / "AI-2410" / "v1-compatibility-contract.json",
         scenario / "specs" / "AI-2410" / "regression-plan.yaml",
         scenario / "specs" / "AI-2410" / "rollout-and-rollback.yaml",
         scenario / "specs" / "AI-2410" / "traceability.json",
@@ -2866,6 +2868,19 @@ def check_course_18_brownfield_development() -> list[str]:
     comparison = report.get("baseline_comparison", {})
     if comparison.get("population") != 12 or comparison.get("governed_correct") != 12 or comparison.get("direct_baseline_correct") >= 12:
         errors.append("Course 18 direct-versus-governed comparison is incomplete or overclaims the baseline")
+    experiments = report.get("experiments", {}).get("results", {})
+    if experiments.get("transactional_idempotency", {}).get("statuses") != [
+        "APPLIED", "ALREADY_APPLIED", "IDEMPOTENCY_CONFLICT"
+    ]:
+        errors.append("Course 18 must distinguish identical retries from conflicting payloads")
+    rollback_checks = experiments.get("executed_rollback", {}).get("checks", {})
+    if set(rollback_checks) != {
+        "ai_path_observed", "legacy_path_restored", "authoritative_state_unchanged", "legacy_reads_preserved"
+    } or not all(rollback_checks.values()):
+        errors.append("Course 18 must execute and verify the complete rollback rehearsal")
+    governance_source = (scenario / "brownfield_app" / "governance.py").read_text(encoding="utf-8")
+    if "evaluate_case" in governance_source or "case.get(" in governance_source or "authorized: bool" in governance_source:
+        errors.append("Course 18 evaluation and authorization must derive decisions from trusted artifacts")
 
     delta = json.loads((scenario / "specs" / "AI-2410" / "semantic-delta.yaml").read_text(encoding="utf-8"))
     if delta.get("retired") != []:

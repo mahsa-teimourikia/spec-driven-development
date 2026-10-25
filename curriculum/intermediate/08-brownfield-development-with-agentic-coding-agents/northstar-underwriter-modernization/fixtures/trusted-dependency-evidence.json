@@ -1,0 +1,10 @@
+{
+  "description": "Independent synthetic observations held outside the agent-authored discovery manifest.",
+  "observations": [
+    {"source": "STATIC", "consumers": ["SubmissionAPIv1", "NightlyRiskBatch"]},
+    {"source": "CONTRACT", "consumers": ["SubmissionAPIv1", "LegacyPortal"]},
+    {"source": "RUNTIME", "consumers": ["SubmissionAPIv1", "RiskReporting"]},
+    {"source": "OWNER", "consumers": ["NightlyRiskBatch", "LegacyPortal", "RiskReporting"]}
+  ],
+  "critical_consumers": ["SubmissionAPIv1", "NightlyRiskBatch", "LegacyPortal", "RiskReporting"]
+}
