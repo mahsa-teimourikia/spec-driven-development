@@ -1,0 +1,13 @@
+{
+  "trusted_producer": "northstar-ci",
+  "required_binding": [
+    "bug_id",
+    "baseline_revision",
+    "candidate_revision",
+    "acceptance_digest"
+  ],
+  "required_transition": "FAIL_TO_PASS",
+  "self_report_is_authoritative": false,
+  "mutation_label_is_authoritative": false,
+  "candidate_manifest_is_authoritative": false
+}

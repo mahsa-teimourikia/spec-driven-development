@@ -1,0 +1,12 @@
+{
+  "claim": "Changed > to >= and all tests pass.",
+  "agent_tests_passed": true,
+  "missing_controls": [
+    "baseline failure bound to the old revision",
+    "protected acceptance-oracle verification",
+    "actual diff boundary validation",
+    "root-cause experiment",
+    "evidence receipt bound to the candidate revision"
+  ],
+  "authoritative": false
+}

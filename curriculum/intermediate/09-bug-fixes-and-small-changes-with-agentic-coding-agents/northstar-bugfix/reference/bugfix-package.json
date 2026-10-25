@@ -1,0 +1,21 @@
+{
+  "bug_id": "BUG-2415",
+  "state": "READY_FOR_INTEGRATION_REVIEW",
+  "workflow_mode": "STRUCTURED",
+  "root_cause": "HYP-OPERATOR",
+  "work_unit": "WU-BUG-2415",
+  "evidence_producer": "northstar-ci",
+  "non_authorities": {
+    "mutation_label": false,
+    "agent_self_report": false,
+    "candidate_manifest": false,
+    "test_name": false
+  },
+  "review_focus": [
+    "requirement meaning",
+    "root-cause evidence",
+    "minimal sufficient diff",
+    "protected oracle",
+    "revision-bound red-green evidence"
+  ]
+}

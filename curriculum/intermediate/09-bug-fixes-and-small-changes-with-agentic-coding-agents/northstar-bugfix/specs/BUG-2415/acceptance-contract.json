@@ -1,0 +1,19 @@
+{
+  "authority": "Northstar Risk Policy Owner",
+  "requirement": "REQ-RISK-010@3",
+  "expectations": [
+    {"score": 0, "category": "LOW"},
+    {"score": 49, "category": "LOW"},
+    {"score": 50, "category": "MEDIUM"},
+    {"score": 79, "category": "MEDIUM"},
+    {"score": 80, "category": "HIGH"},
+    {"score": 81, "category": "HIGH"},
+    {"score": 100, "category": "HIGH"}
+  ],
+  "api_obligations": {
+    "score_80_requires_review": true,
+    "response_preserves_submission_id": true,
+    "invalid_scores_are_rejected": true
+  },
+  "change_authority": "policy-owner-approval-required"
+}

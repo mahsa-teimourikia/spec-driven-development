@@ -4,7 +4,7 @@
 
 ## Start here
 
-Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through [Course 17: From Idea to Verified Implementation](curriculum/intermediate/07-idea-discovery-spec-design-implementation/README.md), then complete [Course 18: Brownfield Development with Agentic Coding Agents](curriculum/intermediate/08-brownfield-development-with-agentic-coding-agents/README.md) with its guided [notebook](curriculum/intermediate/08-brownfield-development-with-agentic-coding-agents/northstar-underwriter-modernization/brownfield_agentic_development.ipynb), deterministic [modernization lab](curriculum/intermediate/08-brownfield-development-with-agentic-coding-agents/northstar-underwriter-modernization/lab.py), [AI-2410 workshop](curriculum/intermediate/08-brownfield-development-with-agentic-coding-agents/northstar-underwriter-modernization/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
+Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through [Course 18: Brownfield Development with Agentic Coding Agents](curriculum/intermediate/08-brownfield-development-with-agentic-coding-agents/README.md), then complete [Course 19: Bug Fixes and Small Changes with Agentic Coding Agents](curriculum/intermediate/09-bug-fixes-and-small-changes-with-agentic-coding-agents/README.md) with its guided [notebook](curriculum/intermediate/09-bug-fixes-and-small-changes-with-agentic-coding-agents/northstar-bugfix/bugfix_small_changes.ipynb), deterministic [bug-fix lab](curriculum/intermediate/09-bug-fixes-and-small-changes-with-agentic-coding-agents/northstar-bugfix/lab.py), [BUG-2415 workshop](curriculum/intermediate/09-bug-fixes-and-small-changes-with-agentic-coding-agents/northstar-bugfix/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
 
 This is not simply a tutorial for one specification framework. The central skill is turning organizational intent, architecture rules, product requirements, and engineering constraints into a hierarchy of durable specifications that agents can execute—and humans can govern.
 
@@ -278,9 +278,22 @@ Course 18 turns the same AI-2410 capability into a governed brownfield transitio
 - select affected regression evidence while retaining protected invariants independently of the impact graph; and
 - compare an unsafe direct-agent replacement with a governed path across ten experiments, twelve golden cases, and 24 labelled mutations.
 
+## Course 19 outcome
+
+Course 19 applies proportional SDD to bug fixes and small changes. You will:
+
+- distinguish bug reports and observed symptoms from approved requirements and confirmed causes;
+- select lightweight, structured, or governed workflows from consequence, authority, uncertainty, exposure, and reversibility rather than line count;
+- write a minimal bug-fix contract with exact scope, non-goals, evidence obligations, and stop conditions;
+- prove the red-to-green transition against the same protected oracle and exact baseline/candidate revisions;
+- use discriminating experiments to reject root-cause mismatch on the production path;
+- validate actual diff paths, rename endpoints, protected files, and change purposes;
+- block weakened tests, scope expansion, stale specifications, conflicting requirements, and replayed evidence; and
+- compare an unsafe self-reported baseline with a governed path across ten experiments, twelve conformance cases, and 30 evaluation cases.
+
 ## Run locally
 
-Everything in Courses 01–18 is credential-free and uses the Python standard library.
+Everything in Courses 01–19 is credential-free and uses the Python standard library.
 
 ```bash
 python3 curriculum/beginner/01-why-agentic-coding-changes-pdlc/lab.py
@@ -302,6 +315,7 @@ python3 curriculum/intermediate/05-enterprise-pdlc-ci-cd-integration/northstar-s
 python3 curriculum/intermediate/06-enterprise-sdd-governance-control-plane-agent-instructions/northstar-governance-control-plane/lab.py
 python3 curriculum/intermediate/07-idea-discovery-spec-design-implementation/northstar-risk-summary/lab.py
 python3 curriculum/intermediate/08-brownfield-development-with-agentic-coding-agents/northstar-underwriter-modernization/lab.py
+python3 curriculum/intermediate/09-bug-fixes-and-small-changes-with-agentic-coding-agents/northstar-bugfix/lab.py
 python3 -m unittest discover -s tests -v
 python3 scripts/validate_course.py
 ```

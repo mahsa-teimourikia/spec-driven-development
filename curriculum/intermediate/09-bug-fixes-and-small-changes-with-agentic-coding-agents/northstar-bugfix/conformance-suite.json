@@ -1,0 +1,16 @@
+{
+  "cases": [
+    {"id": "CONF-01", "mutations": [], "expected_state": "PASS", "required_codes": []},
+    {"id": "CONF-02", "mutations": ["stale_repository"], "expected_state": "BLOCKED", "required_codes": ["STALE_REPOSITORY_REVISION"]},
+    {"id": "CONF-03", "mutations": ["stale_specification"], "expected_state": "BLOCKED", "required_codes": ["STALE_SPECIFICATION"]},
+    {"id": "CONF-04", "mutations": ["weaken_oracle"], "expected_state": "BLOCKED", "required_codes": ["TEST_ORACLE_CHANGED"]},
+    {"id": "CONF-05", "mutations": ["scope_expansion"], "expected_state": "BLOCKED", "required_codes": ["SCOPE_EXPANSION"]},
+    {"id": "CONF-06", "mutations": ["root_cause_mismatch"], "expected_state": "BLOCKED", "required_codes": ["ROOT_CAUSE_MISMATCH"]},
+    {"id": "CONF-07", "mutations": ["protected_path_change"], "expected_state": "BLOCKED", "required_codes": ["PROTECTED_PATH_CHANGE"]},
+    {"id": "CONF-08", "mutations": ["requirement_conflict"], "expected_state": "BLOCKED", "required_codes": ["NORMATIVE_CONFLICT"]},
+    {"id": "CONF-09", "mutations": ["replay_old_evidence"], "expected_state": "BLOCKED", "required_codes": ["STALE_EVIDENCE"]},
+    {"id": "CONF-10", "mutations": ["missing_reproduction"], "expected_state": "BLOCKED", "required_codes": ["DEFECT_NOT_REPRODUCED", "RED_GREEN_NOT_PROVEN"]},
+    {"id": "CONF-11", "mutations": ["opportunistic_refactor"], "expected_state": "BLOCKED", "required_codes": ["UNJUSTIFIED_CHANGE"]},
+    {"id": "CONF-12", "mutations": ["risk_downgrade"], "expected_state": "BLOCKED", "required_codes": ["RISK_TIER_DOWNGRADE"]}
+  ]
+}

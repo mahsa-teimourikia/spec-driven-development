@@ -1,0 +1,11 @@
+{
+  "state": "READY_FOR_INTEGRATION_REVIEW",
+  "producer": "northstar-ci",
+  "acceptance_digest": "sha256:3963f109090dde23d8911f6a940505c7bfb5a06c54842d628ce467edc83dde4a",
+  "conformance_digest": "sha256:44b9e3c78ecb643e33468bb1d273b3bb25331fa425919a67ce4c4c1394fa540e",
+  "evaluation_digest": "sha256:0fcf58144da00cc1fb01e836b37d974b3b7f98aa56abef16b31da47a5c1af2ec",
+  "conformance": "12/12",
+  "evaluation": "30/30",
+  "experiments": "10/10",
+  "authority": "Evidence establishes review eligibility; it does not authorize merge or deployment."
+}

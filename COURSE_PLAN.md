@@ -108,7 +108,7 @@ Each future course follows this learning arc, adapted where the subject demands 
 | --- | --- | --- | --- | --- | --- |
 | 17 | intermediate/07 | From Idea to Verified Implementation: The End-to-End Agentic PDLC | **Available** | Parts I–III | AI-2410 vertical slice with authorization rechecks, structured exact-claim support, registry-backed review, durable replay exercise, reproducible evidence, three real commits, semantic trace mutations, seven experiments, twelve golden scenarios, and 39-case control evaluation |
 | 18 | intermediate/08 | Brownfield Development with Agentic Coding Agents | **Available** | C10, C14, C16–C17 | Revision-bound discovery, five-way behavior disposition, semantic delta, compatibility/impact graph, branch-by-abstraction, expand-and-contract, shadow/rollback controls, twelve golden cases, ten experiments, and 24 labelled mutations |
-| 19 | intermediate/09 | Bug fixes and small changes | Planned | C17–C18 | Proportional triage, minimal fix, regression evidence |
+| 19 | intermediate/09 | Bug fixes and small changes | **Available** | C17–C18 | BUG-2415 proportional triage, minimal contract, causal experiment, protected oracle, actual-diff scope, revision-bound red-green receipt, twelve conformance cases, ten experiments, and 30-case evaluation |
 | 20 | intermediate/10 | Multi-repository development | Planned | C10, C17 | Cross-repo change graph and staged integration |
 | 21 | intermediate/11 | Multi-repository parallel-agent delivery | Planned | C11, C17, C20 | Cross-repository partitioning, ownership leases, staged integration, recovery, and merge evidence |
 | 22 | intermediate/12 | PR and review strategy | Planned | C17–C21 | Spec → design → implementation PR series compared with a mega-PR using latency, depth, rework, conflict, exception, and size evidence |
@@ -211,7 +211,7 @@ The old lesson files are removed from the available curriculum rather than appen
 - **Independent evidence:** specification, policy, architecture, real unit-test, traceability, reviewer, and approval outputs in a release bundle, including explicit unverified risks.
 - **Specification persistence:** change specification, living system truth, and decision-history distinctions tied to current Spec Kit and OpenSpec practice.
 
-A third realism audit deepened Lab B into a nine-stage learner workflow: a deficient and internally conflicting Jira ticket; human-readable enterprise policies plus machine-readable controls; starter and reference change packages; candidate-owned versus independent tests; labelled evaluation cases; design/task/code/test/runtime traceability; proposal- and policy-bound approval receipts; and separate merge versus production-release decisions. Course 12 establishes a framework-neutral selection and authority model; Courses 13–14 apply it to Spec Kit and OpenSpec; Course 15 connects specifications to trusted enterprise delivery controls; Course 16 compiles authoritative policy into exact agent context and tool-specific adapters without confusing guidance with authorization or enforcement; Course 17 integrates those controls into the AI-2410 discovery-to-verification vertical slice; and Course 18 revisits AI-2410 as a brownfield transition that must preserve approved legacy semantics and reversible migration paths.
+A third realism audit deepened Lab B into a nine-stage learner workflow: a deficient and internally conflicting Jira ticket; human-readable enterprise policies plus machine-readable controls; starter and reference change packages; candidate-owned versus independent tests; labelled evaluation cases; design/task/code/test/runtime traceability; proposal- and policy-bound approval receipts; and separate merge versus production-release decisions. Course 12 establishes a framework-neutral selection and authority model; Courses 13–14 apply it to Spec Kit and OpenSpec; Course 15 connects specifications to trusted enterprise delivery controls; Course 16 compiles authoritative policy into exact agent context and tool-specific adapters without confusing guidance with authorization or enforcement; Course 17 integrates those controls into the AI-2410 discovery-to-verification vertical slice; Course 18 revisits AI-2410 as a brownfield transition that must preserve approved legacy semantics and reversible migration paths; and Course 19 applies proportional controls, causal evidence, protected oracles, and revision-bound red-green evidence to a small but consequential defect.
 
 ## Course 04 design record
 
@@ -360,6 +360,20 @@ Course 18 begins with Course 17's approved additive risk-summary capability and 
 - **Evidence:** the lab runs ten focused experiments, twelve golden decisions, and 24 labelled mutations. Selective regression retains three protected invariants regardless of the discovered dependency graph.
 - **Authority boundary:** the package stops at integration-review eligibility. Merge, deployment, legacy retirement, and business outcome remain explicitly unauthorized and unproven.
 - **Production upgrade:** authenticated repository/runtime sources, service and contract catalogs, verifiable provenance, database-specific concurrency and recovery tests, representative shadow populations, identity/policy enforcement, operational rehearsal, and protected review gates remain required.
+
+## Course 19 design record
+
+Course 19 narrows the lens from a brownfield modernization to a one-character boundary defect, then shows why small scope does not imply low consequence or low uncertainty.
+
+- **Scenario:** Northstar defect `BUG-2415` reports that score 80 is classified as `MEDIUM` even though `REQ-RISK-010@3` places it in `HIGH` and requires human review.
+- **Proportionality:** consequence, authority, scope, reversibility, uncertainty, and exposure select `LIGHTWEIGHT`, `STRUCTURED`, or `GOVERNED`; trusted mandatory modes cannot be downgraded by an agent.
+- **Contract:** the minimal package binds repository/specification revisions, observation, expected behavior, authority, writable/protected paths, non-goals, evidence, and stop conditions.
+- **Causal evidence:** four hypotheses predict different observations. The reference confirms the comparison-operator cause and separately exercises the API path so an upstream normalization fault cannot hide behind a green unit test.
+- **Oracle and scope:** candidate acceptance content is compared with a protected contract digest. Actual diff entries validate additions, modifications, deletions, both rename paths, normalized paths, protected files, and allowed purposes.
+- **Evidence:** the same focused regression fails on the baseline and passes on the candidate. A trusted receipt binds the defect, both revisions, the acceptance digest, and producer identity; stale or self-reported evidence blocks.
+- **Evaluation:** ten executable failure experiments, twelve conformance cases, and 30 single/combined mutations are derived from artifact behavior. A naive self-reported baseline accepts all twelve comparison cases, making its unsafe omissions observable without claiming production performance.
+- **Authority boundary:** success means `READY_FOR_INTEGRATION_REVIEW`; merge and deployment remain separate trusted decisions.
+- **Production upgrade:** repository-derived rename/copy diffs, symlink and case-folding hardening, isolated runners, workload identity, signed provenance, protected artifact registries, flaky-test controls, historical evaluation populations, and enforced branch policies remain required.
 
 ## Risk boundaries
 
