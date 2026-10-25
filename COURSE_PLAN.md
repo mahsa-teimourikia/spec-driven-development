@@ -107,7 +107,7 @@ Each future course follows this learning arc, adapted where the subject demands 
 | Course | Level folder | Topic | Status | Prerequisite | Learner evidence |
 | --- | --- | --- | --- | --- | --- |
 | 17 | intermediate/07 | From Idea to Verified Implementation: The End-to-End Agentic PDLC | **Available** | Parts I–III | AI-2410 vertical slice with authorization rechecks, structured exact-claim support, registry-backed review, durable replay exercise, reproducible evidence, three real commits, semantic trace mutations, seven experiments, twelve golden scenarios, and 39-case control evaluation |
-| 18 | intermediate/08 | Brownfield development | Planned | C14, C17 | Characterization baseline, change delta, migration checks |
+| 18 | intermediate/08 | Brownfield Development with Agentic Coding Agents | **Available** | C10, C14, C16–C17 | Revision-bound discovery, five-way behavior disposition, semantic delta, compatibility/impact graph, branch-by-abstraction, expand-and-contract, shadow/rollback controls, twelve golden cases, ten experiments, and 24 labelled mutations |
 | 19 | intermediate/09 | Bug fixes and small changes | Planned | C17–C18 | Proportional triage, minimal fix, regression evidence |
 | 20 | intermediate/10 | Multi-repository development | Planned | C10, C17 | Cross-repo change graph and staged integration |
 | 21 | intermediate/11 | Multi-repository parallel-agent delivery | Planned | C11, C17, C20 | Cross-repository partitioning, ownership leases, staged integration, recovery, and merge evidence |
@@ -211,7 +211,7 @@ The old lesson files are removed from the available curriculum rather than appen
 - **Independent evidence:** specification, policy, architecture, real unit-test, traceability, reviewer, and approval outputs in a release bundle, including explicit unverified risks.
 - **Specification persistence:** change specification, living system truth, and decision-history distinctions tied to current Spec Kit and OpenSpec practice.
 
-A third realism audit deepened Lab B into a nine-stage learner workflow: a deficient and internally conflicting Jira ticket; human-readable enterprise policies plus machine-readable controls; starter and reference change packages; candidate-owned versus independent tests; labelled evaluation cases; design/task/code/test/runtime traceability; proposal- and policy-bound approval receipts; and separate merge versus production-release decisions. Course 12 establishes a framework-neutral selection and authority model; Courses 13–14 apply it to Spec Kit and OpenSpec; Course 15 connects specifications to trusted enterprise delivery controls; Course 16 compiles authoritative policy into exact agent context and tool-specific adapters without confusing guidance with authorization or enforcement; and Course 17 integrates those controls into the AI-2410 discovery-to-verification vertical slice.
+A third realism audit deepened Lab B into a nine-stage learner workflow: a deficient and internally conflicting Jira ticket; human-readable enterprise policies plus machine-readable controls; starter and reference change packages; candidate-owned versus independent tests; labelled evaluation cases; design/task/code/test/runtime traceability; proposal- and policy-bound approval receipts; and separate merge versus production-release decisions. Course 12 establishes a framework-neutral selection and authority model; Courses 13–14 apply it to Spec Kit and OpenSpec; Course 15 connects specifications to trusted enterprise delivery controls; Course 16 compiles authoritative policy into exact agent context and tool-specific adapters without confusing guidance with authorization or enforcement; Course 17 integrates those controls into the AI-2410 discovery-to-verification vertical slice; and Course 18 revisits AI-2410 as a brownfield transition that must preserve approved legacy semantics and reversible migration paths.
 
 ## Course 04 design record
 
@@ -346,6 +346,20 @@ Course 11 starts with Course 10's six-node work-unit graph and asks a different 
 - **Evaluation:** 36 transparent deterministic mutation cases produce 38 expected findings with zero fixture false positives or false negatives. The result is rule-regression coverage, not general orchestrator accuracy or a productivity benchmark.
 - **Evidence boundary:** all identities, permissions, approvals, revisions, timings, events, and results are fictional fixtures. The course does not execute agents, authenticate workloads, provision access, approve merge, or authorize release.
 - **Production upgrade:** authenticated workload identity, short-lived capability brokerage, protected repository APIs, durable transactional state, signed authority artifacts, immutable event/evidence storage, distributed tracing, reviewer-capacity telemetry, independent assurance, and CI/policy enforcement remain required.
+
+## Course 18 design record
+
+Course 18 begins with Course 17's approved additive risk-summary capability and asks what changes when the target repository already contains authoritative code, external consumers, persistent data, operational history, defects, and unknown dependencies.
+
+- **Scenario:** Northstar adds an evidence-grounded, non-authoritative summary proposal alongside the Underwriter Assistant's deterministic risk category and human review workflow.
+- **Four truths:** repository, runtime, specification, and stakeholder evidence remain separately attributable. Disagreement becomes a discrepancy record; a coding agent cannot select authority by recency, proximity, or convenience.
+- **Discovery:** a manifest binds inspected paths, dependencies, confidence, provenance, unknown consumers, and open questions to a full commit. Stale repository or specification identity invalidates affected work.
+- **Behavior model:** characterization evidence is classified as `PRESERVE`, `MODIFY`, `RETIRE`, `DEFECT`, or `UNKNOWN`; unknown behavior blocks retirement, and observed defects do not become target requirements automatically.
+- **Delta and impact:** deterministic classification, HIGH-risk review, v1 semantics, and legacy reads remain in the accepted baseline. The approved delta adds proposals and idempotent persistence without any retirement. The impact graph covers five consumers, state, events, authority, operations, and protected invariants.
+- **Migration:** branch by abstraction, expand and contract, shadow execution, limited exposure, and rollback keep old and new paths compatible. A transactional uniqueness constraint makes retries idempotent at the state boundary. Feature flags never grant authorization.
+- **Evidence:** the lab runs ten focused experiments, twelve golden decisions, and 24 labelled mutations. Selective regression retains three protected invariants regardless of the discovered dependency graph.
+- **Authority boundary:** the package stops at integration-review eligibility. Merge, deployment, legacy retirement, and business outcome remain explicitly unauthorized and unproven.
+- **Production upgrade:** authenticated repository/runtime sources, service and contract catalogs, verifiable provenance, database-specific concurrency and recovery tests, representative shadow populations, identity/policy enforcement, operational rehearsal, and protected review gates remain required.
 
 ## Risk boundaries
 

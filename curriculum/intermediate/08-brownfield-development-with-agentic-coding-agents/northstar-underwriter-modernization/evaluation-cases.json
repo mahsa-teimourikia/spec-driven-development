@@ -1,0 +1,287 @@
+{
+  "description": "Labelled fixture mutations create real artifact and runtime changes; labels are never inputs to the evaluator.",
+  "cases": [
+    {
+      "id": "M01",
+      "mutation": "stale repository evidence",
+      "mutations": [
+        "stale_repository"
+      ],
+      "expected_state": "BLOCKED",
+      "expected_codes": [
+        "STALE_REPOSITORY_REVISION"
+      ]
+    },
+    {
+      "id": "M02",
+      "mutation": "stale specification",
+      "mutations": [
+        "stale_specification"
+      ],
+      "expected_state": "BLOCKED",
+      "expected_codes": [
+        "STALE_SPECIFICATION_REVISION"
+      ]
+    },
+    {
+      "id": "M03",
+      "mutation": "unknown retirement",
+      "mutations": [
+        "unknown_retirement"
+      ],
+      "expected_state": "BLOCKED",
+      "expected_codes": [
+        "UNAUTHORIZED_RETIREMENT"
+      ]
+    },
+    {
+      "id": "M04",
+      "mutation": "missed consumer",
+      "mutations": [
+        "missed_consumer"
+      ],
+      "expected_state": "BLOCKED",
+      "expected_codes": [
+        "INCOMPLETE_IMPACT_GRAPH"
+      ]
+    },
+    {
+      "id": "M05",
+      "mutation": "characterization legitimizes defect",
+      "mutations": [
+        "characterized_defect"
+      ],
+      "expected_state": "BLOCKED",
+      "expected_codes": [
+        "CHARACTERIZED_DEFECT"
+      ]
+    },
+    {
+      "id": "M06",
+      "mutation": "semantic contract break",
+      "mutations": [
+        "semantic_break"
+      ],
+      "expected_state": "BLOCKED",
+      "expected_codes": [
+        "SEMANTIC_COMPATIBILITY_BREAK"
+      ]
+    },
+    {
+      "id": "M07",
+      "mutation": "feature flag used as authorization",
+      "mutations": [
+        "flag_as_auth"
+      ],
+      "expected_state": "BLOCKED",
+      "expected_codes": [
+        "FEATURE_FLAG_IS_NOT_AUTHORIZATION"
+      ]
+    },
+    {
+      "id": "M08",
+      "mutation": "retry carries conflicting payload",
+      "mutations": [
+        "duplicate_effect"
+      ],
+      "expected_state": "BLOCKED",
+      "expected_codes": [
+        "IDEMPOTENCY_CONFLICT"
+      ]
+    },
+    {
+      "id": "M09",
+      "mutation": "protected invariant omitted",
+      "mutations": [
+        "missing_protected_test"
+      ],
+      "expected_state": "BLOCKED",
+      "expected_codes": [
+        "PROTECTED_INVARIANT_OMITTED"
+      ]
+    },
+    {
+      "id": "M10",
+      "mutation": "rollback not restored",
+      "mutations": [
+        "no_rollback"
+      ],
+      "expected_state": "BLOCKED",
+      "expected_codes": [
+        "NO_TESTED_ROLLBACK"
+      ]
+    },
+    {
+      "id": "M11",
+      "mutation": "AI output becomes authoritative",
+      "mutations": [
+        "authority_escalation"
+      ],
+      "expected_state": "BLOCKED",
+      "expected_codes": [
+        "AUTHORITY_ESCALATION"
+      ]
+    },
+    {
+      "id": "M12",
+      "mutation": "unexpected shadow divergence",
+      "mutations": [
+        "shadow_divergence"
+      ],
+      "expected_state": "REVIEW_REQUIRED",
+      "expected_codes": [
+        "SHADOW_DIVERGENCE"
+      ]
+    },
+    {
+      "id": "M13",
+      "mutation": "stale context plus retirement",
+      "mutations": [
+        "stale_repository",
+        "unknown_retirement"
+      ],
+      "expected_state": "BLOCKED",
+      "expected_codes": [
+        "STALE_REPOSITORY_REVISION",
+        "UNAUTHORIZED_RETIREMENT"
+      ]
+    },
+    {
+      "id": "M14",
+      "mutation": "missing consumer plus semantic break",
+      "mutations": [
+        "missed_consumer",
+        "semantic_break"
+      ],
+      "expected_state": "BLOCKED",
+      "expected_codes": [
+        "INCOMPLETE_IMPACT_GRAPH",
+        "SEMANTIC_COMPATIBILITY_BREAK"
+      ]
+    },
+    {
+      "id": "M15",
+      "mutation": "authorization failure plus authority escalation",
+      "mutations": [
+        "flag_as_auth",
+        "authority_escalation"
+      ],
+      "expected_state": "BLOCKED",
+      "expected_codes": [
+        "FEATURE_FLAG_IS_NOT_AUTHORIZATION",
+        "AUTHORITY_ESCALATION"
+      ]
+    },
+    {
+      "id": "M16",
+      "mutation": "conflicting retry plus failed rollback",
+      "mutations": [
+        "duplicate_effect",
+        "no_rollback"
+      ],
+      "expected_state": "BLOCKED",
+      "expected_codes": [
+        "IDEMPOTENCY_CONFLICT",
+        "NO_TESTED_ROLLBACK"
+      ]
+    },
+    {
+      "id": "M17",
+      "mutation": "stale spec plus protected test gap",
+      "mutations": [
+        "stale_specification",
+        "missing_protected_test"
+      ],
+      "expected_state": "BLOCKED",
+      "expected_codes": [
+        "STALE_SPECIFICATION_REVISION",
+        "PROTECTED_INVARIANT_OMITTED"
+      ]
+    },
+    {
+      "id": "M18",
+      "mutation": "defect plus unauthorized retirement",
+      "mutations": [
+        "characterized_defect",
+        "unknown_retirement"
+      ],
+      "expected_state": "BLOCKED",
+      "expected_codes": [
+        "CHARACTERIZED_DEFECT",
+        "UNAUTHORIZED_RETIREMENT"
+      ]
+    },
+    {
+      "id": "M19",
+      "mutation": "stale repository plus failed rollback",
+      "mutations": [
+        "stale_repository",
+        "no_rollback"
+      ],
+      "expected_state": "BLOCKED",
+      "expected_codes": [
+        "STALE_REPOSITORY_REVISION",
+        "NO_TESTED_ROLLBACK"
+      ]
+    },
+    {
+      "id": "M20",
+      "mutation": "semantic break plus shadow divergence",
+      "mutations": [
+        "semantic_break",
+        "shadow_divergence"
+      ],
+      "expected_state": "BLOCKED",
+      "expected_codes": [
+        "SEMANTIC_COMPATIBILITY_BREAK",
+        "SHADOW_DIVERGENCE"
+      ]
+    },
+    {
+      "id": "M21",
+      "mutation": "missed consumer plus missing protected test",
+      "mutations": [
+        "missed_consumer",
+        "missing_protected_test"
+      ],
+      "expected_state": "BLOCKED",
+      "expected_codes": [
+        "INCOMPLETE_IMPACT_GRAPH",
+        "PROTECTED_INVARIANT_OMITTED"
+      ]
+    },
+    {
+      "id": "M22",
+      "mutation": "authorization failure plus stale spec",
+      "mutations": [
+        "flag_as_auth",
+        "stale_specification"
+      ],
+      "expected_state": "BLOCKED",
+      "expected_codes": [
+        "FEATURE_FLAG_IS_NOT_AUTHORIZATION",
+        "STALE_SPECIFICATION_REVISION"
+      ]
+    },
+    {
+      "id": "M23",
+      "mutation": "authority escalation plus conflicting retry",
+      "mutations": [
+        "authority_escalation",
+        "duplicate_effect"
+      ],
+      "expected_state": "BLOCKED",
+      "expected_codes": [
+        "AUTHORITY_ESCALATION",
+        "IDEMPOTENCY_CONFLICT"
+      ]
+    },
+    {
+      "id": "M24",
+      "mutation": "clean reference",
+      "mutations": [],
+      "expected_state": "PASS",
+      "expected_codes": []
+    }
+  ]
+}

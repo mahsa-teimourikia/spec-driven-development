@@ -1,0 +1,121 @@
+{
+  "description": "Golden decisions derived from actual Course 18 candidate artifacts and observed outcomes.",
+  "cases": [
+    {
+      "id": "C18-001",
+      "mutations": [],
+      "expected_state": "PASS",
+      "expected_codes": []
+    },
+    {
+      "id": "C18-002",
+      "mutations": [
+        "stale_repository"
+      ],
+      "expected_state": "BLOCKED",
+      "expected_codes": [
+        "STALE_REPOSITORY_REVISION"
+      ]
+    },
+    {
+      "id": "C18-003",
+      "mutations": [
+        "stale_specification"
+      ],
+      "expected_state": "BLOCKED",
+      "expected_codes": [
+        "STALE_SPECIFICATION_REVISION"
+      ]
+    },
+    {
+      "id": "C18-004",
+      "mutations": [
+        "unknown_retirement"
+      ],
+      "expected_state": "BLOCKED",
+      "expected_codes": [
+        "UNAUTHORIZED_RETIREMENT"
+      ]
+    },
+    {
+      "id": "C18-005",
+      "mutations": [
+        "missed_consumer"
+      ],
+      "expected_state": "BLOCKED",
+      "expected_codes": [
+        "INCOMPLETE_IMPACT_GRAPH"
+      ]
+    },
+    {
+      "id": "C18-006",
+      "mutations": [
+        "characterized_defect"
+      ],
+      "expected_state": "BLOCKED",
+      "expected_codes": [
+        "CHARACTERIZED_DEFECT"
+      ]
+    },
+    {
+      "id": "C18-007",
+      "mutations": [
+        "semantic_break"
+      ],
+      "expected_state": "BLOCKED",
+      "expected_codes": [
+        "SEMANTIC_COMPATIBILITY_BREAK"
+      ]
+    },
+    {
+      "id": "C18-008",
+      "mutations": [
+        "flag_as_auth"
+      ],
+      "expected_state": "BLOCKED",
+      "expected_codes": [
+        "FEATURE_FLAG_IS_NOT_AUTHORIZATION"
+      ]
+    },
+    {
+      "id": "C18-009",
+      "mutations": [
+        "duplicate_effect"
+      ],
+      "expected_state": "BLOCKED",
+      "expected_codes": [
+        "IDEMPOTENCY_CONFLICT"
+      ]
+    },
+    {
+      "id": "C18-010",
+      "mutations": [
+        "missing_protected_test"
+      ],
+      "expected_state": "BLOCKED",
+      "expected_codes": [
+        "PROTECTED_INVARIANT_OMITTED"
+      ]
+    },
+    {
+      "id": "C18-011",
+      "mutations": [
+        "shadow_divergence"
+      ],
+      "expected_state": "REVIEW_REQUIRED",
+      "expected_codes": [
+        "SHADOW_DIVERGENCE"
+      ]
+    },
+    {
+      "id": "C18-012",
+      "mutations": [
+        "authority_escalation"
+      ],
+      "expected_state": "BLOCKED",
+      "expected_codes": [
+        "AUTHORITY_ESCALATION"
+      ]
+    }
+  ]
+}

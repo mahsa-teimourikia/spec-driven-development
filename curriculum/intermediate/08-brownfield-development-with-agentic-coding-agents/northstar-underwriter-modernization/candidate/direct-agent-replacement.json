@@ -1,0 +1,12 @@
+{
+  "change_id": "AI-2410",
+  "approach": "replace LegacyRiskEngine with AI implementation",
+  "agent_tests_passed": true,
+  "repository_revision": "unbound",
+  "assumptions": ["old code is obsolete", "schema compatibility is sufficient", "feature flag grants permission"],
+  "omitted_consumers": ["NightlyRiskBatch", "LegacyPortal", "RiskReporting"],
+  "retirements": ["deterministic risk classification", "v1 review semantics"],
+  "rollback": null,
+  "independent_evidence": [],
+  "verdict": "BLOCKED"
+}

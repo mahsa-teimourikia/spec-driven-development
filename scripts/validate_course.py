@@ -2775,10 +2775,10 @@ def check_course_17_end_to_end_agentic_pdlc() -> list[str]:
         errors.append("Course 17 starter must retain exactly four learner decisions")
 
     quiz_source = (ROOT / "quiz" / "questions.js").read_text(encoding="utf-8")
-    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 230:
-        errors.append("Course 17 cumulative quiz must contain 230 questions")
-    if "Courses 01–17" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
-        errors.append("Course 17 cumulative quiz must identify Courses 01–17")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) < 230:
+        errors.append("Course 17 cumulative quiz must retain at least its original 230 questions")
+    if "Courses 01–" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
+        errors.append("Course 17 cumulative quiz must identify the published course range")
     hub = (ROOT / "hub" / "lessons.js").read_text(encoding="utf-8")
     hub_fragments = [
         "const course17 = {",
@@ -2788,6 +2788,140 @@ def check_course_17_end_to_end_agentic_pdlc() -> list[str]:
     ]
     if any(fragment not in hub for fragment in hub_fragments):
         errors.append("Course 17 Learning Hub entry is incomplete or points outside the vertical slice")
+    return errors
+
+
+def check_course_18_brownfield_development() -> list[str]:
+    errors: list[str] = []
+    lesson = ROOT / "curriculum" / "intermediate" / "08-brownfield-development-with-agentic-coding-agents"
+    scenario = lesson / "northstar-underwriter-modernization"
+    required = [
+        lesson / "README.md",
+        scenario / "README.md",
+        scenario / "lab.py",
+        scenario / "brownfield_agentic_development.ipynb",
+        scenario / "brownfield_app" / "contracts.py",
+        scenario / "brownfield_app" / "legacy.py",
+        scenario / "brownfield_app" / "discovery.py",
+        scenario / "brownfield_app" / "governance.py",
+        scenario / "brownfield_app" / "migration.py",
+        scenario / "fixtures" / "discovery-manifest.json",
+        scenario / "fixtures" / "trusted-dependency-evidence.json",
+        scenario / "fixtures" / "submissions.json",
+        scenario / "specs" / "AI-2410" / "discovery.md",
+        scenario / "specs" / "AI-2410" / "baseline-behaviors.yaml",
+        scenario / "specs" / "AI-2410" / "semantic-delta.yaml",
+        scenario / "specs" / "AI-2410" / "impact-analysis.json",
+        scenario / "specs" / "AI-2410" / "v1-compatibility-contract.json",
+        scenario / "specs" / "AI-2410" / "regression-plan.yaml",
+        scenario / "specs" / "AI-2410" / "rollout-and-rollback.yaml",
+        scenario / "specs" / "AI-2410" / "traceability.json",
+        scenario / "candidate" / "direct-agent-replacement.json",
+        scenario / "reference" / "modernization-package.json",
+        scenario / "workshop" / "starter" / "modernization-package.json",
+        scenario / "conformance-suite.json",
+        scenario / "evaluation-cases.json",
+        scenario / "evidence" / "manifest.json",
+        scenario / "assets" / "brownfield-transition-spec.json",
+        scenario / "assets" / "render_diagram.py",
+        scenario / "assets" / "brownfield-transition.svg",
+        scenario / ".github" / "workflows" / "validation.yml",
+        ROOT / "tests" / "test_course_18.py",
+    ]
+    for path in required:
+        if not path.exists():
+            errors.append(f"Course 18 missing required artifact: {path.relative_to(ROOT)}")
+    if errors:
+        return errors
+
+    result = subprocess.run(
+        [sys.executable, str(scenario / "lab.py")],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    try:
+        report = json.loads(result.stdout) if result.returncode == 0 else {}
+    except json.JSONDecodeError:
+        report = {}
+    if not report:
+        errors.append("Course 18 lab did not produce its JSON modernization report")
+        return errors
+
+    reference = report.get("reference", {})
+    if reference.get("state") != "READY_FOR_INTEGRATION_REVIEW":
+        errors.append("Course 18 reference must stop at integration-review eligibility")
+    if any(reference.get(field) is not False for field in (
+        "merge_authorized", "deployment_authorized", "legacy_retirement_authorized", "business_outcome_proven"
+    )):
+        errors.append("Course 18 must keep merge, deployment, retirement, and outcome authority separate")
+    if (report.get("experiments", {}).get("passed"), report.get("experiments", {}).get("total")) != (10, 10):
+        errors.append("Course 18 must retain all ten focused experiments")
+    if (report.get("conformance", {}).get("passed"), report.get("conformance", {}).get("total")) != (12, 12):
+        errors.append("Course 18 must retain twelve passing golden decisions")
+    if (report.get("evaluation", {}).get("passed"), report.get("evaluation", {}).get("total")) != (24, 24):
+        errors.append("Course 18 must retain 24 detected labelled mutations")
+    stored_evidence = json.loads((scenario / "evidence" / "manifest.json").read_text(encoding="utf-8"))
+    if stored_evidence != report.get("evidence_manifest"):
+        errors.append("Course 18 stored evidence manifest must reproduce the executed lab results")
+    comparison = report.get("baseline_comparison", {})
+    if comparison.get("population") != 12 or comparison.get("governed_correct") != 12 or comparison.get("direct_baseline_correct") >= 12:
+        errors.append("Course 18 direct-versus-governed comparison is incomplete or overclaims the baseline")
+    experiments = report.get("experiments", {}).get("results", {})
+    if experiments.get("transactional_idempotency", {}).get("statuses") != [
+        "APPLIED", "ALREADY_APPLIED", "IDEMPOTENCY_CONFLICT"
+    ]:
+        errors.append("Course 18 must distinguish identical retries from conflicting payloads")
+    rollback_checks = experiments.get("executed_rollback", {}).get("checks", {})
+    if set(rollback_checks) != {
+        "ai_path_observed", "legacy_path_restored", "authoritative_state_unchanged", "legacy_reads_preserved"
+    } or not all(rollback_checks.values()):
+        errors.append("Course 18 must execute and verify the complete rollback rehearsal")
+    governance_source = (scenario / "brownfield_app" / "governance.py").read_text(encoding="utf-8")
+    if "evaluate_case" in governance_source or "case.get(" in governance_source or "authorized: bool" in governance_source:
+        errors.append("Course 18 evaluation and authorization must derive decisions from trusted artifacts")
+
+    delta = json.loads((scenario / "specs" / "AI-2410" / "semantic-delta.yaml").read_text(encoding="utf-8"))
+    if delta.get("retired") != []:
+        errors.append("Course 18 AI-2410 delta must not authorize legacy retirement")
+    preserved = {item.get("requirement_id") for item in delta.get("preserved", [])}
+    added = {item.get("requirement_id") for item in delta.get("added", [])}
+    if preserved != {"REQ-RISK-010", "REQ-RISK-011", "REQ-API-001"}:
+        errors.append("Course 18 must preserve deterministic classification, human review, and v1 semantics")
+    if added != {"REQ-RISK-021", "REQ-RISK-022", "REQ-MIG-004"}:
+        errors.append("Course 18 approved delta is incomplete")
+
+    impact = json.loads((scenario / "specs" / "AI-2410" / "impact-analysis.json").read_text(encoding="utf-8"))
+    consumers = {item.get("id"): item for item in impact.get("consumers", [])}
+    if set(consumers) != {"SubmissionAPIv1", "UnderwriterAssistant", "NightlyRiskBatch", "LegacyPortal", "RiskReporting"}:
+        errors.append("Course 18 impact graph must retain all five consumers")
+    elif consumers["LegacyPortal"].get("impact") != "INVESTIGATE" or consumers["LegacyPortal"].get("block_retirement") is not True:
+        errors.append("Course 18 unknown legacy consumer must block retirement")
+    if len(impact.get("protected_invariants", [])) != 3:
+        errors.append("Course 18 must retain all three protected invariants")
+
+    reference_package = json.loads((scenario / "reference" / "modernization-package.json").read_text(encoding="utf-8"))
+    if reference_package.get("authorized_retirements") != [] or reference_package.get("legacy_retirement_authorized") is not False:
+        errors.append("Course 18 reference package must not authorize retirement")
+    starter = (scenario / "workshop" / "starter" / "modernization-package.json").read_text(encoding="utf-8")
+    if starter.count("TODO-") != 5:
+        errors.append("Course 18 starter must retain exactly five learner decisions")
+
+    quiz_source = (ROOT / "quiz" / "questions.js").read_text(encoding="utf-8")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 242:
+        errors.append("Course 18 cumulative quiz must contain 242 questions")
+    if "Courses 01–18" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
+        errors.append("Course 18 cumulative quiz must identify Courses 01–18")
+    hub = (ROOT / "hub" / "lessons.js").read_text(encoding="utf-8")
+    hub_fragments = [
+        "const course18 = {",
+        "08-brownfield-development-with-agentic-coding-agents/northstar-underwriter-modernization/brownfield_agentic_development.ipynb",
+        "08-brownfield-development-with-agentic-coding-agents/northstar-underwriter-modernization/workshop/starter",
+        "twelve golden decisions, 24 labelled mutations, ten failure experiments",
+    ]
+    if any(fragment not in hub for fragment in hub_fragments):
+        errors.append("Course 18 Learning Hub entry is incomplete or points outside the workshop package")
     return errors
 
 
@@ -2814,6 +2948,7 @@ def main() -> None:
         "Course 15 enterprise delivery": check_course_15_enterprise_delivery,
         "Course 16 governance control plane": check_course_16_governance_control_plane,
         "Course 17 end-to-end Agentic PDLC": check_course_17_end_to_end_agentic_pdlc,
+        "Course 18 brownfield development": check_course_18_brownfield_development,
         "diagrams": render_and_validate_diagrams,
         "labs": run_labs,
         "repository labs": run_repository_labs,

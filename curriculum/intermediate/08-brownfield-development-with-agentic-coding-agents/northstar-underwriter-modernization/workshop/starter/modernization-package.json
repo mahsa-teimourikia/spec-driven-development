@@ -1,0 +1,9 @@
+{
+  "change_id": "AI-2410",
+  "repository_revision": "TODO-1-bind-the-exact-revision",
+  "accepted_baseline": "TODO-2-classify-observed-behavior",
+  "semantic_delta": "TODO-3-separate-preserve-add-modify-retire",
+  "impact_and_regression": "TODO-4-cover-consumers-and-protected-invariants",
+  "rollout_and_rollback": "TODO-5-design-reversible-migration",
+  "authority_boundary": "AI output remains a proposal; flags do not grant authorization."
+}

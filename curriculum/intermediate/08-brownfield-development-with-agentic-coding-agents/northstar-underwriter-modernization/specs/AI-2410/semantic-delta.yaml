@@ -1,0 +1,18 @@
+{
+  "change_id": "AI-2410",
+  "from_revision": 3,
+  "to_revision": 4,
+  "preserved": [
+    {"requirement_id": "REQ-RISK-010", "statement": "The system SHALL calculate the authoritative risk category using the approved deterministic risk engine."},
+    {"requirement_id": "REQ-RISK-011", "statement": "The system SHALL require human review for HIGH-risk submissions."},
+    {"requirement_id": "REQ-API-001", "statement": "The v1 response SHALL preserve its structural and behavioral contract."}
+  ],
+  "added": [
+    {"requirement_id": "REQ-RISK-021", "statement": "The system SHALL generate an evidence-grounded risk-summary proposal for an authorized submission."},
+    {"requirement_id": "REQ-RISK-022", "statement": "An AI-generated summary SHALL NOT independently alter the risk category, review requirement, underwriting decision, price, or broker communication."},
+    {"requirement_id": "REQ-MIG-004", "statement": "A retry for the same submission and source revision SHALL NOT create a duplicate proposal record."}
+  ],
+  "modified": [],
+  "retired": [],
+  "explicit_non_goals": ["risk engine replacement", "v1 retirement", "automatic underwriting action"]
+}

@@ -1,0 +1,16 @@
+{
+  "contract": "northstar-risk-v1",
+  "required": {
+    "submission_id": "string",
+    "risk_category": "string",
+    "review_required": "boolean"
+  },
+  "additional_properties": true,
+  "exact_response_identity": false,
+  "semantic_fields": ["submission_id", "risk_category", "review_required"],
+  "semantic_obligations": [
+    "submission_id identifies the requested subject",
+    "risk_category preserves REQ-RISK-010 thresholds",
+    "HIGH risk always requires review"
+  ]
+}

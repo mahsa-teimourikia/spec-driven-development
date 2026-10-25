@@ -1,0 +1,17 @@
+{
+  "change_id": "AI-2410",
+  "state": "READY_FOR_INTEGRATION_REVIEW",
+  "repository_revision": "9c6a4d8f1e2b7a5036d991ac84f0b234d6a19e72",
+  "specification_revision": 4,
+  "accepted_baseline": ["REQ-RISK-010", "REQ-RISK-011", "REQ-API-001", "REQ-SUM-002"],
+  "approved_delta": ["REQ-RISK-021", "REQ-RISK-022", "REQ-MIG-004"],
+  "authorized_retirements": [],
+  "strategy": ["branch by abstraction", "expand and contract", "shadow execution"],
+  "open_questions": ["Q-DISC-001", "Q-DISC-002"],
+  "blocked_actions": ["replace risk classifier", "retire v1", "send broker message", "self-approve proposal"],
+  "integration_review_eligible": true,
+  "merge_authorized": false,
+  "deployment_authorized": false,
+  "legacy_retirement_authorized": false,
+  "business_outcome_proven": false
+}

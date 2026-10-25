@@ -4,7 +4,7 @@
 
 ## Start here
 
-Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through [Course 16: Enterprise SDD Governance Control Plane & Agent Instruction Management](curriculum/intermediate/06-enterprise-sdd-governance-control-plane-agent-instructions/README.md), then complete [Course 17: From Idea to Verified Implementation](curriculum/intermediate/07-idea-discovery-spec-design-implementation/README.md) with its guided [notebook](curriculum/intermediate/07-idea-discovery-spec-design-implementation/northstar-risk-summary/end_to_end_agentic_pdlc.ipynb), deterministic [vertical-slice lab](curriculum/intermediate/07-idea-discovery-spec-design-implementation/northstar-risk-summary/lab.py), [AI-2410 workshop](curriculum/intermediate/07-idea-discovery-spec-design-implementation/northstar-risk-summary/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
+Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through [Course 17: From Idea to Verified Implementation](curriculum/intermediate/07-idea-discovery-spec-design-implementation/README.md), then complete [Course 18: Brownfield Development with Agentic Coding Agents](curriculum/intermediate/08-brownfield-development-with-agentic-coding-agents/README.md) with its guided [notebook](curriculum/intermediate/08-brownfield-development-with-agentic-coding-agents/northstar-underwriter-modernization/brownfield_agentic_development.ipynb), deterministic [modernization lab](curriculum/intermediate/08-brownfield-development-with-agentic-coding-agents/northstar-underwriter-modernization/lab.py), [AI-2410 workshop](curriculum/intermediate/08-brownfield-development-with-agentic-coding-agents/northstar-underwriter-modernization/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
 
 This is not simply a tutorial for one specification framework. The central skill is turning organizational intent, architecture rules, product requirements, and engineering constraints into a hierarchy of durable specifications that agents can execute—and humans can govern.
 
@@ -263,9 +263,24 @@ Course 17 integrates the prior controls into one end-to-end Agentic PDLC. You wi
 - preserve specification authority during convergence and selectively revalidate affected descendants; and
 - compare direct coding with governed delivery across seven experiments, twelve golden scenarios, and 39 labelled control mutations.
 
+## Course 18 outcome
+
+Course 18 turns the same AI-2410 capability into a governed brownfield transition. You will:
+
+- reconcile repository, runtime, specification, and stakeholder evidence without treating any one source as automatically authoritative;
+- bind discovery to an exact commit and preserve provenance, confidence, unknowns, and discrepancy ownership;
+- use characterization tests to observe current behavior, then classify it as preserve, modify, retire, defect, or unknown;
+- express the target as an accepted baseline plus approved semantic delta minus explicitly authorized retirements;
+- map code, consumer, data, event, authorization, operational, and performance impact;
+- distinguish structural compatibility from behavioral compatibility and protect HIGH-risk human review;
+- apply branch-by-abstraction, expand-and-contract, feature flags, shadow execution, and exercised rollback;
+- enforce migration idempotency transactionally and keep AI summaries non-authoritative;
+- select affected regression evidence while retaining protected invariants independently of the impact graph; and
+- compare an unsafe direct-agent replacement with a governed path across ten experiments, twelve golden cases, and 24 labelled mutations.
+
 ## Run locally
 
-Everything in Courses 01–17 is credential-free and uses the Python standard library.
+Everything in Courses 01–18 is credential-free and uses the Python standard library.
 
 ```bash
 python3 curriculum/beginner/01-why-agentic-coding-changes-pdlc/lab.py
@@ -286,6 +301,7 @@ python3 curriculum/intermediate/04-openspec-enterprise-change-driven-sdd/northst
 python3 curriculum/intermediate/05-enterprise-pdlc-ci-cd-integration/northstar-sdd-delivery/lab.py
 python3 curriculum/intermediate/06-enterprise-sdd-governance-control-plane-agent-instructions/northstar-governance-control-plane/lab.py
 python3 curriculum/intermediate/07-idea-discovery-spec-design-implementation/northstar-risk-summary/lab.py
+python3 curriculum/intermediate/08-brownfield-development-with-agentic-coding-agents/northstar-underwriter-modernization/lab.py
 python3 -m unittest discover -s tests -v
 python3 scripts/validate_course.py
 ```

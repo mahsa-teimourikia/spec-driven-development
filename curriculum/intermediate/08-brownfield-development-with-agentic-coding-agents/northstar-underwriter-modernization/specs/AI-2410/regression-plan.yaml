@@ -1,0 +1,9 @@
+{
+  "strategy": "changed component + affected consumers + integrations + protected invariants + scheduled broad suite",
+  "changed_component": ["test_summary_provider", "test_summary_validation"],
+  "consumer_contracts": ["test_v1_contract", "test_batch_contract", "test_legacy_portal_pact", "test_reporting_contract"],
+  "affected_integrations": ["test_underwriter_assistant_proposal", "test_summary_store_retry"],
+  "protected_invariants": ["test_high_risk_requires_review", "test_ai_proposal_never_authoritative", "test_underwriting_authority_unchanged"],
+  "broad_regression": {"cadence": "nightly and before production rollout", "required_for_contract_phase": true},
+  "fail_closed_rules": ["missing impact disposition", "unmapped critical consumer", "missing protected test", "stale repository revision", "unresolved retirement"]
+}
