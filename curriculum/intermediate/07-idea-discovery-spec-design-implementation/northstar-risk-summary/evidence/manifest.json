@@ -1,22 +1,85 @@
 {
   "change_id": "AI-2410",
-  "subject": {
-    "specification_revision": 3,
-    "architecture_revision": "ADR-RISK-008@2",
-    "repository_base": "northstar-training-base-2410"
-  },
   "evidence": [
-    {"id": "EVID-CONTRACT-001", "kind": "contract_tests", "producer": "course17-independent-tests", "status": "PASS"},
-    {"id": "EVID-CITATION-001", "kind": "citation_integrity", "producer": "course17-independent-tests", "status": "PASS"},
-    {"id": "EVID-SUPPORT-001", "kind": "evidence_support", "producer": "course17-independent-tests", "status": "PASS"},
-    {"id": "EVID-AUTHZ-001", "kind": "authorization_boundary", "producer": "course17-independent-tests", "status": "PASS"},
-    {"id": "EVID-INJECTION-001", "kind": "prompt_injection", "producer": "course17-independent-tests", "status": "PASS"},
-    {"id": "EVID-STALE-001", "kind": "stale_context", "producer": "course17-independent-tests", "status": "PASS"}
+    {
+      "criterion_ids": ["REQ-RISK-001", "AC-RISK-001"],
+      "id": "EVID-CONTRACT-001",
+      "kind": "contract_tests",
+      "producer": "course17-executed-local-harness",
+      "result": {"reference_state": "READY_FOR_INTEGRATION_REVIEW"},
+      "result_artifact_digest": "sha256:3352251b580fef4f314253c9fd4751ddd4108a3451248573204f8b60b9b1a2d6",
+      "run_id": "RUN-AI2410-e399ada2179e",
+      "status": "PASS"
+    },
+    {
+      "criterion_ids": ["REQ-RISK-002", "AC-RISK-002"],
+      "id": "EVID-CITATION-001",
+      "kind": "citation_integrity",
+      "producer": "course17-executed-local-harness",
+      "result": {"case": "C17-G02", "passed": true},
+      "result_artifact_digest": "sha256:1b83ff7f4df0e18654ab022da1ec75c4605b653565c6fbc6c7b5d03a11cc02b4",
+      "run_id": "RUN-AI2410-e399ada2179e",
+      "status": "PASS"
+    },
+    {
+      "criterion_ids": ["REQ-RISK-002", "REQ-RISK-003", "AC-RISK-003"],
+      "id": "EVID-SUPPORT-001",
+      "kind": "exact_claim_support",
+      "producer": "course17-executed-local-harness",
+      "result": {"case": "C17-G03", "passed": true},
+      "result_artifact_digest": "sha256:97c9ebaff8d4037bd48f2504ae5d241dd384fd6c47160477674095372fcf6592",
+      "run_id": "RUN-AI2410-e399ada2179e",
+      "status": "PASS"
+    },
+    {
+      "criterion_ids": ["REQ-RISK-001", "REQ-RISK-004", "SEC-RISK-001", "AC-RISK-004"],
+      "id": "EVID-AUTHZ-001",
+      "kind": "authorization_boundary",
+      "producer": "course17-executed-local-harness",
+      "result": {"unauthorized_mutation": "BLOCKED"},
+      "result_artifact_digest": "sha256:9bcf34f39d0aab65def8f152abfe8fa9e95d362637ebb2b08e953aafad338f4a",
+      "run_id": "RUN-AI2410-e399ada2179e",
+      "status": "PASS"
+    },
+    {
+      "criterion_ids": ["SEC-RISK-001", "AC-RISK-004"],
+      "id": "EVID-INJECTION-001",
+      "kind": "prompt_injection",
+      "producer": "course17-executed-local-harness",
+      "result": {"effect_invocations": [], "state": "BLOCKED"},
+      "result_artifact_digest": "sha256:8d260ace9a6f57370f391032e2ffce0bbe308979f7933b2ea17e5935e5ed5f30",
+      "run_id": "RUN-AI2410-e399ada2179e",
+      "status": "PASS"
+    },
+    {
+      "criterion_ids": ["REQ-RISK-001", "REQ-RISK-002", "REQ-RISK-003", "AC-RISK-005"],
+      "id": "EVID-STALE-001",
+      "kind": "stale_context",
+      "producer": "course17-executed-local-harness",
+      "result": {"specification_change": "BLOCKED"},
+      "result_artifact_digest": "sha256:470b88cc48204b9e1a3e6eded54d314d3ada65df43f3090641aec6b5f244d29e",
+      "run_id": "RUN-AI2410-e399ada2179e",
+      "status": "PASS"
+    }
   ],
   "limitations": [
-    "deterministic fixtures only",
+    "deterministic local fixtures only",
+    "reproducible evidence summary, not an authenticated attestation",
     "no production model-quality claim",
     "no authenticated external identity provider",
     "no merge or release authorization"
-  ]
+  ],
+  "run": {
+    "conformance": {"passed": 12, "total": 12},
+    "dataset_digest": "sha256:e1197eaadbef74d04c5520eaf8f3be69c14a819868d7271ba2ec048f4b932dc5",
+    "dataset_id": "northstar-submissions-fixture-v2",
+    "implementation_digest": "sha256:1184e49412fc2b621b3b927c5f7d821f868413aeff247147f76a15538c274379",
+    "mutation_evaluation": {"passed": 39, "total": 39},
+    "run_id": "RUN-AI2410-e399ada2179e"
+  },
+  "subject": {
+    "architecture_revision": "ADR-RISK-008@2",
+    "repository_base": "northstar-training-base-2410",
+    "specification_revision": 3
+  }
 }

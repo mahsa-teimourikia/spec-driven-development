@@ -833,11 +833,12 @@ const course17 = {
     'Select a minimum-sufficient proposal-and-review architecture that preserves trusted application boundaries.',
     'Decompose the change into dependency-aware work units with bounded decision rights and stop conditions.',
     'Execute against pinned specification, architecture, repository, evidence, permission, and context identities.',
-    'Validate citation existence, citation correctness, evidence support, scope, freshness, and forbidden effects.',
+    'Recheck evidence authorization and distinguish citation existence, topic relevance, and exact-claim support.',
+    'Resolve opaque approval handles through a trusted registry and prove replay prevention across a durable-store restart.',
     'Route failed verification to implementation repair or accountable specification and design revision.',
     'Compare direct coding with governed SDD across seven deterministic experiments.',
     'Keep integration eligibility separate from merge, deployment, and business-outcome claims.',
-    'Test the vertical slice with twelve golden scenarios and 39 labelled mutations.'
+    'Test the vertical slice with twelve golden scenarios and 39 labelled mutations, plus four semantic trace mutations and a real three-commit exercise.'
   ],
   readme: `${REPO}/blob/main/curriculum/intermediate/07-idea-discovery-spec-design-implementation/README.md`,
   notebook: `${REPO}/blob/main/curriculum/intermediate/07-idea-discovery-spec-design-implementation/northstar-risk-summary/end_to_end_agentic_pdlc.ipynb`,
@@ -847,13 +848,13 @@ const course17 = {
   labs: [
     {
       title: 'Lab A — Execute and break the AI-2410 vertical slice',
-      description: 'Build authorized context, generate a non-authoritative proposal, validate exact grounding and authority, compare the direct baseline, and run seven failure experiments.',
+      description: 'Build authorized context, recheck every cited source, distinguish relevance from exact support, block an injection-induced action before effects, and run seven failure experiments.',
       command: 'python3 curriculum/intermediate/07-idea-discovery-spec-design-implementation/northstar-risk-summary/lab.py',
       links: [['View the vertical-slice lab', `${REPO}/blob/main/curriculum/intermediate/07-idea-discovery-spec-design-implementation/northstar-risk-summary/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/intermediate/07-idea-discovery-spec-design-implementation/northstar-risk-summary/end_to_end_agentic_pdlc.ipynb`]]
     },
     {
       title: 'Lab B — Complete the discovery-to-integration handoff',
-      description: 'Resolve four learner decisions from authoritative artifacts, trace invalidation, and preserve the boundary between verified implementation and trusted delivery.',
+      description: 'Resolve four learner decisions, execute the three-commit dependency sequence, test restart-safe replay prevention and semantic trace mutations, and preserve the release boundary.',
       command: 'Complete the starter lifecycle package, run Lab A, then compare with the reference package.',
       links: [['Open the AI-2410 workshop', `${REPO}/tree/main/curriculum/intermediate/07-idea-discovery-spec-design-implementation/northstar-risk-summary`], ['Complete the starter package', `${REPO}/tree/main/curriculum/intermediate/07-idea-discovery-spec-design-implementation/northstar-risk-summary/workshop/starter`], ['Inspect the reference handoff', `${REPO}/blob/main/curriculum/intermediate/07-idea-discovery-spec-design-implementation/northstar-risk-summary/reference/lifecycle-package.json`]]
     }

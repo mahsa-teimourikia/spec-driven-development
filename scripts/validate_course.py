@@ -2657,7 +2657,10 @@ def check_course_17_end_to_end_agentic_pdlc() -> list[str]:
         scenario / "app" / "context_builder.py",
         scenario / "app" / "generator.py",
         scenario / "app" / "validator.py",
+        scenario / "app" / "effects.py",
         scenario / "app" / "review.py",
+        scenario / "app" / "pr_exercise.py",
+        scenario / "app" / "traceability.py",
         scenario / "specs" / "AI-2410" / "discovery.md",
         scenario / "specs" / "AI-2410" / "requirements.yaml",
         scenario / "specs" / "AI-2410" / "acceptance.yaml",
@@ -2710,6 +2713,18 @@ def check_course_17_end_to_end_agentic_pdlc() -> list[str]:
         errors.append("Course 17 must retain twelve passing golden scenarios")
     if (report.get("evaluation", {}).get("passed"), report.get("evaluation", {}).get("total")) != (39, 39):
         errors.append("Course 17 must retain 39 detected labelled mutations")
+    trace_evaluation = report.get("traceability_evaluation", {})
+    if trace_evaluation.get("reference_findings") != [] or (trace_evaluation.get("passed"), trace_evaluation.get("total")) != (4, 4):
+        errors.append("Course 17 must retain a clean semantic trace and four detected traceability mutations")
+    injection = report.get("experiments", {}).get("results", {}).get("prompt_injection", {})
+    if injection.get("state") != "BLOCKED" or injection.get("attempted_actions") != ["send_broker_email"] or injection.get("effect_invocations") != []:
+        errors.append("Course 17 injection experiment must block the attempted action before any effect invocation")
+    delivery = report.get("pr_sequence_exercise", {})
+    if delivery.get("dependency_order_valid") is not True or delivery.get("integration_valid_after_change") is not False or delivery.get("invalidation_code") != "STALE_CONTRACT_REVISION":
+        errors.append("Course 17 must execute the three-commit dependency sequence and invalidate stale integration evidence")
+    restart = report.get("restart_replay_exercise", {})
+    if restart.get("atomic_uniqueness_enforced") is not True:
+        errors.append("Course 17 durable receipt exercise must reject replay after store restart")
     comparison = report.get("baseline_comparison", {})
     if comparison.get("population") != 7 or comparison.get("governed_correct") != 7 or comparison.get("direct_baseline_validated") != 0:
         errors.append("Course 17 direct-versus-governed comparison is incomplete or overclaims the baseline")
@@ -2742,12 +2757,16 @@ def check_course_17_end_to_end_agentic_pdlc() -> list[str]:
     traceability = json.loads((scenario / "specs" / "AI-2410" / "traceability.json").read_text(encoding="utf-8"))
     requirement_ids = {item.get("id") for item in requirements.get("requirements", [])}
     trace_links = {item.get("requirement"): item for item in traceability.get("links", [])}
-    if set(trace_links) != requirement_ids or any(not all(item.get(field) for field in ("design", "work_units", "code", "tests", "evidence")) for item in trace_links.values()):
-        errors.append("Course 17 traceability must cover every requirement through code, tests, and evidence")
+    if set(trace_links) != requirement_ids or any(not all(item.get(field) for field in ("acceptance", "design", "work_units", "code", "tests", "evidence")) for item in trace_links.values()):
+        errors.append("Course 17 traceability must cover every requirement through acceptance, design, code, tests, and evidence")
 
     manifest = json.loads((scenario / "evidence" / "manifest.json").read_text(encoding="utf-8"))
     if manifest.get("subject", {}).get("specification_revision") != 3 or len(manifest.get("evidence", [])) != 6:
         errors.append("Course 17 evidence manifest must remain exact-subject and six-item")
+    if manifest != report.get("evidence_manifest"):
+        errors.append("Course 17 stored evidence manifest must reproduce the executed lab results")
+    if any(not item.get("criterion_ids") or not str(item.get("result_artifact_digest", "")).startswith("sha256:") for item in manifest.get("evidence", [])):
+        errors.append("Course 17 evidence records must bind criteria and result-artifact digests")
     reference_package = json.loads((scenario / "reference" / "lifecycle-package.json").read_text(encoding="utf-8"))
     if reference_package.get("merge", {}).get("state") != "NOT_AUTHORIZED" or reference_package.get("release", {}).get("state") != "NOT_AUTHORIZED":
         errors.append("Course 17 reference lifecycle package must not grant merge or release authority")

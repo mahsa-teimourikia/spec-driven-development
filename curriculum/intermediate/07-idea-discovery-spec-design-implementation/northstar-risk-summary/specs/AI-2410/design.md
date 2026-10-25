@@ -6,11 +6,16 @@
 
 ## Components
 
-1. Trusted context builder selects authorized, submission-scoped evidence.
-2. A model-facing generator creates non-authoritative risk claims.
-3. Trusted validation checks exact context, citation existence, evidence support, freshness, scope, and forbidden actions.
-4. Human review consumes an authenticated, expiring receipt bound to the exact validated proposal.
-5. Integration review receives evidence; merge and release authority remain outside this slice.
+1. Trusted context builder selects authorized, submission-scoped evidence and pins its revisions.
+2. A model-facing generator creates non-authoritative risk claims or a controlled insufficient-evidence outcome.
+3. Trusted validation independently rechecks context membership, authorization, submission scope, freshness, citation existence, topic relevance, exact structured-fact support, and forbidden actions.
+4. An effect boundary remains uncalled when untrusted evidence induces a forbidden action request.
+5. Human review resolves an opaque caller receipt ID through a trusted registry, then consumes the exact authenticated record once.
+6. Integration review receives reproducible executed evidence; merge and release authority remain outside this slice.
+
+## Receipt durability
+
+The reference path uses a process-local store to make the limitation visible. A second exercise uses SQLite with a primary-key uniqueness constraint so consumption is atomic and replay remains blocked after a store-object restart. A production design requires managed durable storage, atomic compare-and-set semantics, revocation and expiration checks, secure time, authenticated principals, audit retention, and concurrency testing.
 
 ## Protected decisions
 

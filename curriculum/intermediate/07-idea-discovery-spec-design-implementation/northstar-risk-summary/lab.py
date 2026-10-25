@@ -8,8 +8,10 @@ the strongest justified state. Nothing here authorizes merge or release.
 from __future__ import annotations
 
 import copy
+import ast
 import json
 import sys
+import tempfile
 from dataclasses import asdict, replace
 from pathlib import Path
 from typing import Any
@@ -20,9 +22,24 @@ if str(SCENARIO) not in sys.path:
     sys.path.insert(0, str(SCENARIO))
 
 from app.context_builder import build_context, canonical_digest  # noqa: E402
-from app.contracts import ApprovalReceipt, EvidenceDocument, ModelProposal, PipelineResult  # noqa: E402
+from app.contracts import (  # noqa: E402
+    ApprovalReceipt,
+    EvidenceDocument,
+    EvidenceFact,
+    ModelProposal,
+    PipelineResult,
+    TrustedApprovalRecord,
+)
+from app.effects import EffectRecorder  # noqa: E402
 from app.generator import DeterministicRiskGenerator, direct_coding_baseline  # noqa: E402
-from app.review import ReceiptStore, review_for_integration  # noqa: E402
+from app.pr_exercise import run_three_commit_exercise  # noqa: E402
+from app.review import (  # noqa: E402
+    ReceiptStore,
+    SqliteReceiptStore,
+    TrustedReceiptRegistry,
+    review_for_integration,
+)
+from app.traceability import validate_traceability  # noqa: E402
 from app.validator import proposal_digest, validate_proposal  # noqa: E402
 
 
@@ -54,6 +71,15 @@ def load_documents() -> list[EvidenceDocument]:
             revision=item["revision"],
             content=item["content"],
             risk_terms=tuple(item["risk_terms"]),
+            facts=tuple(
+                EvidenceFact(
+                    fact_id=fact["fact_id"],
+                    risk_code=fact["risk_code"],
+                    supported_claims=tuple(fact["supported_claims"]),
+                    contradicted_claims=tuple(fact.get("contradicted_claims", [])),
+                )
+                for fact in item.get("facts", [])
+            ),
             authorized=item["authorized"],
         )
         for item in fixture["documents"]
@@ -70,28 +96,34 @@ def reference_context(*, specification_revision: int = SPECIFICATION_REVISION):
     )
 
 
-def make_receipt(digest: str, *, mutation: str | None = None, variant: int = 0) -> ApprovalReceipt:
-    receipt = ApprovalReceipt(
+def make_receipt(
+    digest: str,
+    *,
+    mutation: str | None = None,
+    variant: int = 0,
+) -> tuple[ApprovalReceipt, TrustedReceiptRegistry]:
+    record = TrustedApprovalRecord(
         receipt_id=f"REVIEW-AI2410-{variant + 1:03d}",
         proposal_digest=digest,
         principal="northstar/underwriter-reviewer-204",
         decision="APPROVE_FOR_INTEGRATION_REVIEW",
         issued_at="2026-10-20T15:00:00Z",
         expires_at="2026-10-21T15:00:00Z",
-        identity_verified=True,
-        attestation_verified=True,
+        authenticated=True,
+        principal_authorized=True,
     )
     if mutation == "wrong_subject":
-        receipt = replace(receipt, proposal_digest=f"sha256:wrong-{variant}")
+        record = replace(record, proposal_digest=f"sha256:wrong-{variant}")
     elif mutation == "expired":
-        receipt = replace(receipt, issued_at="2026-10-01T15:00:00Z", expires_at=f"2026-10-{10 + variant:02d}T15:00:00Z")
+        record = replace(record, issued_at="2026-10-01T15:00:00Z", expires_at=f"2026-10-{10 + variant:02d}T15:00:00Z")
     elif mutation == "unverified":
-        receipt = replace(
-            receipt,
-            identity_verified=variant % 2 == 1,
-            attestation_verified=variant % 2 == 0,
-        )
-    return receipt
+        record = replace(record, authenticated=False)
+    elif mutation == "unauthorized_principal":
+        record = replace(record, principal="underwriter_reviewer", principal_authorized=False)
+    elif mutation == "future":
+        record = replace(record, issued_at="2026-10-21T16:00:00Z", expires_at="2026-10-22T16:00:00Z")
+    receipt = ApprovalReceipt(record.receipt_id)
+    return receipt, TrustedReceiptRegistry((record,))
 
 
 def run_pipeline(
@@ -107,16 +139,36 @@ def run_pipeline(
         context, documents = reference_context()
     proposal = DeterministicRiskGenerator().generate(context, documents, mode=mode)
     report = validate_proposal(proposal, context, documents)
-    receipt = make_receipt(report.proposal_digest, mutation=receipt_mutation) if include_receipt else None
+    effects = EffectRecorder()
+    effects.execute_validated(proposal, report)
+    if include_receipt:
+        receipt, registry = make_receipt(report.proposal_digest, mutation=receipt_mutation)
+    else:
+        receipt, registry = None, TrustedReceiptRegistry()
     store = ReceiptStore()
-    result = review_for_integration(report, receipt, evaluation_time=EVALUATION_TIME, store=store)
+    result = review_for_integration(
+        report,
+        receipt,
+        registry=registry,
+        evaluation_time=EVALUATION_TIME,
+        store=store,
+    )
     if replay and receipt is not None and result.state == "READY_FOR_INTEGRATION_REVIEW":
-        result = review_for_integration(report, receipt, evaluation_time=EVALUATION_TIME, store=store)
+        result = review_for_integration(
+            report,
+            receipt,
+            registry=registry,
+            evaluation_time=EVALUATION_TIME,
+            store=store,
+        )
     trace = {
         "context_digest": context.digest,
         "proposal_digest": report.proposal_digest,
         "validation_status": report.status,
         "validation_findings": [item.code for item in report.findings],
+        "generation_outcome": proposal.generation_outcome,
+        "attempted_actions": list(proposal.attempted_actions),
+        "effect_invocations": list(effects.invocations),
         "result_state": result.state,
         "reason_codes": list(result.reason_codes),
         "release_authorized": result.release_authorized,
@@ -129,7 +181,13 @@ def run_specification_change() -> tuple[PipelineResult, dict[str, Any]]:
     proposal = DeterministicRiskGenerator().generate(old_context, old_documents)
     new_context, new_documents = reference_context(specification_revision=4)
     report = validate_proposal(proposal, new_context, new_documents)
-    result = review_for_integration(report, None, evaluation_time=EVALUATION_TIME, store=ReceiptStore())
+    result = review_for_integration(
+        report,
+        None,
+        registry=TrustedReceiptRegistry(),
+        evaluation_time=EVALUATION_TIME,
+        store=ReceiptStore(),
+    )
     return result, {
         "old_context_digest": old_context.digest,
         "new_context_digest": new_context.digest,
@@ -165,14 +223,19 @@ def compare_baseline() -> dict[str, Any]:
     correct = 0
     for mode in cases:
         baseline = direct_coding_baseline(context, documents, mode=mode)
-        governed_report = validate_proposal(DeterministicRiskGenerator().generate(context, documents, mode=mode), context, documents)
-        should_pass = mode in {"valid", "prompt_injection"}
+        governed_proposal = DeterministicRiskGenerator().generate(context, documents, mode=mode)
+        governed_report = validate_proposal(governed_proposal, context, documents)
+        governed_effects = EffectRecorder()
+        governed_effects.execute_validated(governed_proposal, governed_report)
+        should_pass = mode == "valid"
         governed_correct = (governed_report.status == "PASS") == should_pass
         correct += int(governed_correct)
         rows.append({
             "case": mode,
             "direct_baseline_state": "ACCEPTED_WITHOUT_INDEPENDENT_VALIDATION",
             "direct_attempted_actions": list(baseline.attempted_actions),
+            "governed_attempted_actions": list(governed_proposal.attempted_actions),
+            "governed_effect_invocations": list(governed_effects.invocations),
             "governed_state": governed_report.status,
             "governed_findings": [item.code for item in governed_report.findings],
             "expected_pass": should_pass,
@@ -247,18 +310,38 @@ def _mutation_codes(family: str, variant: int) -> set[str]:
         "unverified_review": "unverified",
     }
     if family in mutation_by_family:
+        receipt, registry = make_receipt(
+            report.proposal_digest,
+            mutation=mutation_by_family[family],
+            variant=variant,
+        )
         result = review_for_integration(
             report,
-            make_receipt(report.proposal_digest, mutation=mutation_by_family[family], variant=variant),
+            receipt,
+            registry=registry,
             evaluation_time=EVALUATION_TIME,
             store=ReceiptStore(),
         )
         return set(result.reason_codes)
     if family == "review_replay":
-        receipt = make_receipt(report.proposal_digest, variant=variant)
+        receipt, registry = make_receipt(report.proposal_digest, variant=variant)
         store = ReceiptStore()
-        review_for_integration(report, receipt, evaluation_time=EVALUATION_TIME, store=store)
-        return set(review_for_integration(report, receipt, evaluation_time=EVALUATION_TIME, store=store).reason_codes)
+        review_for_integration(
+            report,
+            receipt,
+            registry=registry,
+            evaluation_time=EVALUATION_TIME,
+            store=store,
+        )
+        return set(
+            review_for_integration(
+                report,
+                receipt,
+                registry=registry,
+                evaluation_time=EVALUATION_TIME,
+                store=store,
+            ).reason_codes
+        )
     raise ValueError(f"unknown mutation family: {family}")
 
 
@@ -277,14 +360,187 @@ def run_mutation_evaluation() -> dict[str, Any]:
     }
 
 
+def run_restart_replay_exercise() -> dict[str, Any]:
+    context, documents = reference_context()
+    proposal = DeterministicRiskGenerator().generate(context, documents)
+    report = validate_proposal(proposal, context, documents)
+    receipt, registry = make_receipt(report.proposal_digest, variant=90)
+    with tempfile.TemporaryDirectory(prefix="course17-receipts-") as directory:
+        database = Path(directory) / "receipts.sqlite3"
+        first = review_for_integration(
+            report,
+            receipt,
+            registry=registry,
+            evaluation_time=EVALUATION_TIME,
+            store=SqliteReceiptStore(database),
+        )
+        restarted = review_for_integration(
+            report,
+            receipt,
+            registry=registry,
+            evaluation_time=EVALUATION_TIME,
+            store=SqliteReceiptStore(database),
+        )
+    return {
+        "first_state": first.state,
+        "state_after_restart": restarted.state,
+        "reason_codes_after_restart": list(restarted.reason_codes),
+        "atomic_uniqueness_enforced": restarted.reason_codes == ("REVIEW_RECEIPT_REPLAYED",),
+    }
+
+
+def _known_course_tests() -> set[str]:
+    source = SCENARIO.parents[3] / "tests" / "test_course_17.py"
+    tree = ast.parse(source.read_text(encoding="utf-8"))
+    return {
+        node.name
+        for node in ast.walk(tree)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name.startswith("test_")
+    }
+
+
+def _traceability_inputs() -> tuple[dict[str, Any], ...]:
+    spec = SCENARIO / "specs" / "AI-2410"
+    return (
+        load_json(spec / "traceability.json"),
+        load_json(spec / "requirements.yaml"),
+        load_json(spec / "acceptance.yaml"),
+        load_json(spec / "work-units.yaml"),
+        load_json(SCENARIO / "evidence" / "manifest.json"),
+    )
+
+
+def run_traceability_evaluation() -> dict[str, Any]:
+    traceability, requirements, acceptance, work_units, manifest = _traceability_inputs()
+    known_tests = _known_course_tests()
+    reference_findings = validate_traceability(
+        traceability, requirements, acceptance, work_units, manifest, known_tests
+    )
+    mutations: list[tuple[str, str, tuple[str, ...]]] = []
+
+    unknown_test = copy.deepcopy(traceability)
+    unknown_test["links"][0]["tests"] = ["test_does_not_exist"]
+    mutations.append((
+        "unknown_test_id",
+        "UNKNOWN_TEST_ID",
+        validate_traceability(unknown_test, requirements, acceptance, work_units, manifest, known_tests),
+    ))
+
+    unrelated_acceptance = copy.deepcopy(traceability)
+    next(item for item in unrelated_acceptance["links"] if item["requirement"] == "REQ-RISK-004")["acceptance"] = ["AC-RISK-001"]
+    mutations.append((
+        "unrelated_acceptance",
+        "UNRELATED_ACCEPTANCE_CRITERION",
+        validate_traceability(unrelated_acceptance, requirements, acceptance, work_units, manifest, known_tests),
+    ))
+
+    stale_revision = copy.deepcopy(traceability)
+    stale_revision["specification_revision"] = 2
+    mutations.append((
+        "stale_requirement_revision",
+        "STALE_REQUIREMENT_REVISION",
+        validate_traceability(stale_revision, requirements, acceptance, work_units, manifest, known_tests),
+    ))
+
+    wrong_evidence = copy.deepcopy(manifest)
+    next(item for item in wrong_evidence["evidence"] if item["id"] == "EVID-SUPPORT-001")["criterion_ids"] = ["REQ-RISK-004"]
+    mutations.append((
+        "wrong_evidence_subject",
+        "EVIDENCE_SUBJECT_MISMATCH",
+        validate_traceability(traceability, requirements, acceptance, work_units, wrong_evidence, known_tests),
+    ))
+
+    results = [
+        {"id": name, "expected_code": expected, "codes": list(codes), "passed": expected in codes}
+        for name, expected, codes in mutations
+    ]
+    return {
+        "reference_findings": list(reference_findings),
+        "passed": sum(item["passed"] for item in results),
+        "total": len(results),
+        "results": results,
+    }
+
+
+def _source_digest(paths: list[Path]) -> str:
+    payload = [
+        {"path": str(path.relative_to(SCENARIO)), "content": path.read_text(encoding="utf-8")}
+        for path in sorted(paths)
+    ]
+    return canonical_digest(payload)
+
+
+def build_evidence_manifest(
+    experiments: dict[str, dict[str, Any]] | None = None,
+    conformance: dict[str, Any] | None = None,
+    evaluation: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    experiments = experiments or run_experiments()
+    conformance = conformance or run_conformance()
+    evaluation = evaluation or run_mutation_evaluation()
+    reference, _ = run_pipeline()
+    implementation_digest = _source_digest(list((SCENARIO / "app").glob("*.py")) + [SCENARIO / "lab.py"])
+    dataset_digest = _source_digest([SCENARIO / "fixtures" / "submissions.json"])
+    run_id = "RUN-AI2410-" + canonical_digest(
+        {"implementation": implementation_digest, "dataset": dataset_digest}
+    ).split(":", 1)[1][:12]
+
+    raw_records = [
+        ("EVID-CONTRACT-001", "contract_tests", ["REQ-RISK-001", "AC-RISK-001"], {"reference_state": reference.state}, reference.state == "READY_FOR_INTEGRATION_REVIEW"),
+        ("EVID-CITATION-001", "citation_integrity", ["REQ-RISK-002", "AC-RISK-002"], {"case": "C17-G02", "passed": conformance["results"][1]["passed"]}, conformance["results"][1]["passed"]),
+        ("EVID-SUPPORT-001", "exact_claim_support", ["REQ-RISK-002", "REQ-RISK-003", "AC-RISK-003"], {"case": "C17-G03", "passed": conformance["results"][2]["passed"]}, conformance["results"][2]["passed"]),
+        ("EVID-AUTHZ-001", "authorization_boundary", ["REQ-RISK-001", "REQ-RISK-004", "SEC-RISK-001", "AC-RISK-004"], {"unauthorized_mutation": experiments["unauthorized_mutation"]["state"]}, experiments["unauthorized_mutation"]["state"] == "BLOCKED"),
+        ("EVID-INJECTION-001", "prompt_injection", ["SEC-RISK-001", "AC-RISK-004"], {"state": experiments["prompt_injection"]["state"], "effect_invocations": experiments["prompt_injection"]["effect_invocations"]}, experiments["prompt_injection"]["state"] == "BLOCKED" and not experiments["prompt_injection"]["effect_invocations"]),
+        ("EVID-STALE-001", "stale_context", ["REQ-RISK-001", "REQ-RISK-002", "REQ-RISK-003", "AC-RISK-005"], {"specification_change": experiments["specification_change"]["state"]}, experiments["specification_change"]["state"] == "BLOCKED"),
+    ]
+    records = []
+    for evidence_id, kind, criterion_ids, result, passed in raw_records:
+        records.append({
+            "id": evidence_id,
+            "kind": kind,
+            "producer": "course17-executed-local-harness",
+            "run_id": run_id,
+            "criterion_ids": criterion_ids,
+            "status": "PASS" if passed else "FAIL",
+            "result": result,
+            "result_artifact_digest": canonical_digest(result),
+        })
+    return {
+        "change_id": "AI-2410",
+        "run": {
+            "run_id": run_id,
+            "implementation_digest": implementation_digest,
+            "dataset_id": "northstar-submissions-fixture-v2",
+            "dataset_digest": dataset_digest,
+            "conformance": {"passed": conformance["passed"], "total": conformance["total"]},
+            "mutation_evaluation": {"passed": evaluation["passed"], "total": evaluation["total"]},
+        },
+        "subject": {
+            "specification_revision": SPECIFICATION_REVISION,
+            "architecture_revision": ARCHITECTURE_REVISION,
+            "repository_base": REPOSITORY_BASE,
+        },
+        "evidence": records,
+        "limitations": [
+            "deterministic local fixtures only",
+            "reproducible evidence summary, not an authenticated attestation",
+            "no production model-quality claim",
+            "no authenticated external identity provider",
+            "no merge or release authorization",
+        ],
+    }
+
+
 def build_report() -> dict[str, Any]:
     reference, reference_trace = run_pipeline()
     experiments = run_experiments()
+    conformance = run_conformance()
+    evaluation = run_mutation_evaluation()
     experiment_expectations = {
         "valid_summary": "READY_FOR_INTEGRATION_REVIEW",
         "missing_source": "BLOCKED",
         "unsupported_claim": "BLOCKED",
-        "prompt_injection": "READY_FOR_INTEGRATION_REVIEW",
+        "prompt_injection": "BLOCKED",
         "stale_context": "BLOCKED",
         "unauthorized_mutation": "BLOCKED",
         "specification_change": "BLOCKED",
@@ -300,8 +556,12 @@ def build_report() -> dict[str, Any]:
             "results": experiments,
         },
         "baseline_comparison": compare_baseline(),
-        "conformance": run_conformance(),
-        "evaluation": run_mutation_evaluation(),
+        "conformance": conformance,
+        "evaluation": evaluation,
+        "traceability_evaluation": run_traceability_evaluation(),
+        "pr_sequence_exercise": run_three_commit_exercise(),
+        "restart_replay_exercise": run_restart_replay_exercise(),
+        "evidence_manifest": build_evidence_manifest(experiments, conformance, evaluation),
         "release_boundary": {
             "integration_review_eligible": reference.state == "READY_FOR_INTEGRATION_REVIEW",
             "merge_authorized": False,

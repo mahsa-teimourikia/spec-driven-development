@@ -256,10 +256,12 @@ Course 17 integrates the prior controls into one end-to-end Agentic PDLC. You wi
 - select a minimum-sufficient proposal-and-review architecture instead of granting model-facing code consequential authority;
 - decompose work into dependency-aware AWUs with explicit paths, decisions, stop conditions, and evidence;
 - execute against pinned specification, architecture, repository, evidence, permission, and context identities;
-- distinguish citation presence, citation correctness, and evidence support;
-- block stale context, unsupported claims, cross-submission evidence, instruction injection, and forbidden effects;
+- recheck citation authorization and distinguish citation existence, topic relevance, and exact-claim support;
+- block stale context, unsupported claims, cross-submission evidence, injection-induced action attempts, and forbidden effects;
+- resolve review through a trusted receipt registry and prove replay rejection after a durable-store restart;
+- execute a real three-commit dependency sequence and detect four semantic traceability mutations;
 - preserve specification authority during convergence and selectively revalidate affected descendants; and
-- compare direct coding with governed delivery across seven experiments, twelve golden scenarios, and 39 labelled mutations.
+- compare direct coding with governed delivery across seven experiments, twelve golden scenarios, and 39 labelled control mutations.
 
 ## Run locally
 

@@ -12,16 +12,16 @@
     {
       "id": "AC-RISK-002",
       "requirements": ["REQ-RISK-002"],
-      "given": "a claim cites a missing or unauthorized source",
+      "given": "a claim cites a missing, unauthorized, cross-submission, or outside-context source",
       "when": "citation validation runs",
-      "then": ["proposal_is_blocked", "CITATION_NOT_FOUND_is_recorded"]
+      "then": ["proposal_is_blocked", "authorization_and_scope_are_rechecked_at_validation"]
     },
     {
       "id": "AC-RISK-003",
-      "requirements": ["REQ-RISK-003"],
-      "given": "the cited evidence does not support the declared risk",
+      "requirements": ["REQ-RISK-002", "REQ-RISK-003"],
+      "given": "the cited evidence concerns the topic but does not support the exact claim",
       "when": "evidence-support validation runs",
-      "then": ["proposal_is_blocked", "EVIDENCE_DOES_NOT_SUPPORT_CLAIM_is_recorded"]
+      "then": ["proposal_is_blocked", "EVIDENCE_INSUFFICIENT_FOR_CLAIM_is_recorded"]
     },
     {
       "id": "AC-RISK-004",
@@ -32,7 +32,7 @@
     },
     {
       "id": "AC-RISK-005",
-      "requirements": ["REQ-RISK-001", "REQ-RISK-002"],
+      "requirements": ["REQ-RISK-001", "REQ-RISK-002", "REQ-RISK-003"],
       "given": "the specification, architecture, context, or evidence revision changed",
       "when": "old evidence is presented",
       "then": ["affected_evidence_is_invalid", "revalidation_is_required"]

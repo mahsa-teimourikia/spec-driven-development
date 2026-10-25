@@ -7,12 +7,21 @@ from typing import Any
 
 
 @dataclass(frozen=True)
+class EvidenceFact:
+    fact_id: str
+    risk_code: str
+    supported_claims: tuple[str, ...]
+    contradicted_claims: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
 class EvidenceDocument:
     document_id: str
     submission_id: str
     revision: int
     content: str
     risk_terms: tuple[str, ...]
+    facts: tuple[EvidenceFact, ...]
     authorized: bool = True
 
 
@@ -45,6 +54,8 @@ class ModelProposal:
     architecture_revision: str
     claims: tuple[RiskClaim, ...]
     attempted_actions: tuple[str, ...] = ()
+    generation_outcome: str = "PROPOSED"
+    generation_reasons: tuple[str, ...] = ()
 
     def payload(self) -> dict[str, Any]:
         return asdict(self)
@@ -67,14 +78,24 @@ class ValidationReport:
 
 @dataclass(frozen=True)
 class ApprovalReceipt:
+    """Untrusted caller-supplied handle; it contains no proof of approval."""
+
+    receipt_id: str
+
+
+@dataclass(frozen=True)
+class TrustedApprovalRecord:
+    """Approval facts returned by a trusted application registry."""
+
     receipt_id: str
     proposal_digest: str
     principal: str
     decision: str
     issued_at: str
     expires_at: str
-    identity_verified: bool
-    attestation_verified: bool
+    authenticated: bool
+    principal_authorized: bool
+    revoked: bool = False
 
 
 @dataclass(frozen=True)

@@ -139,13 +139,14 @@ The [requirements](northstar-risk-summary/specs/AI-2410/requirements.yaml) are J
 
 ## 6. Acceptance criteria are evidence designs
 
-A citation requirement has at least three distinct checks:
+A citation requirement has four distinct checks:
 
 1. **Presence:** a source reference exists.
-2. **Correctness:** the reference identifies a current, authorized source.
-3. **Support:** the source supports the specific claim.
+2. **Authorization and freshness:** trusted application state admits the exact source revision for the exact submission.
+3. **Relevance:** the source concerns the claim's topic.
+4. **Support:** structured source facts support the exact statement rather than merely sharing a risk label.
 
-A model can satisfy the first while failing the other two. The [acceptance package](northstar-risk-summary/specs/AI-2410/acceptance.yaml) therefore includes happy, missing-source, unsupported-claim, protected-action, and stale-revision cases.
+A model can satisfy the first three while failing the fourth. “Flood assessment pending” is relevant to flood but does not support “material flood exposure.” The [acceptance package](northstar-risk-summary/specs/AI-2410/acceptance.yaml) therefore includes happy, missing-source, unauthorized-source, exact-support, protected-action, and stale-revision cases.
 
 Examples do not exhaust a requirement. Add negative, boundary, failure, stale-state, replay, injection, and wrong-subject cases where the risk justifies them.
 
@@ -158,7 +159,7 @@ Do not reduce the whole feature to one “approved” boolean.
 | Authorized evidence selection | READY | Trusted application filter exists |
 | Risk-summary proposal | READY_FOR_BOUNDED_IMPLEMENTATION | Behavior and scope are explicit |
 | Citation and support validation | READY | Independent criteria exist |
-| Human review handoff | READY | Exact-subject receipt contract exists |
+| Human review handoff | READY | Trusted registry resolves an exact-subject receipt handle |
 | Automatic broker communication | BLOCKED | Protected authority unresolved |
 | Underwriting-state mutation | OUT_OF_SCOPE | Existing service retains ownership |
 
@@ -237,7 +238,7 @@ Parallel execution is useful only when contracts are stable, write ownership is 
 
 Each AWU names requirements, dependencies, writable paths, allowed local decisions, proposals requiring escalation, forbidden decisions, stop conditions, and required evidence.
 
-The [working PR sequence](northstar-risk-summary/specs/AI-2410/pr-sequence.yaml) turns that graph into three reviewable increments: contracts and intent, bounded implementation, then integration evidence. Each PR rebases on its merged predecessor, has explicit exclusions and checks, and preserves the release boundary. The accompanying [traceability map](northstar-risk-summary/specs/AI-2410/traceability.json) connects every requirement to design, AWUs, code, independent tests, and evidence.
+The [working PR sequence](northstar-risk-summary/specs/AI-2410/pr-sequence.yaml) turns that graph into three reviewable increments: contracts and intent, bounded implementation, then integration evidence. Each PR rebases on its merged predecessor, has explicit exclusions and checks, and preserves the release boundary. `app/pr_exercise.py` constructs those three commits in a temporary local Git repository, verifies their parent chain, and proves a later contract revision invalidates the integration result. The accompanying [traceability map](northstar-risk-summary/specs/AI-2410/traceability.json) connects every requirement to design, acceptance, AWUs, code, independent tests, and evidence; four semantic mutations prove that nonempty links alone are insufficient.
 
 ## 11. Execute against pinned context
 
@@ -253,17 +254,22 @@ The trusted application binds:
 
 The model does not choose a convenient revision. If the specification or evidence changes, the old proposal becomes stale even when its prose still looks plausible.
 
+Selection is not a permanent authorization. Validation independently requires every cited document to remain authorized, belong to the exact submission, appear in the context's approved document set, and match its pinned revision. The fixture's `authorized` field stands in for a trusted evidence service; production must derive that decision from authenticated application state rather than document content or caller input.
+
 ## 12. A real vertical slice
 
 The [Northstar lab](northstar-risk-summary/README.md) is application code, not only a policy simulator:
 
 - `app/contracts.py` defines typed trust-boundary objects;
 - `app/context_builder.py` selects authorized subject-scoped evidence;
-- `app/generator.py` provides a deterministic proposal generator and an unsafe baseline;
-- `app/validator.py` checks exact context, scope, citation, support, freshness, and effects;
-- `app/review.py` consumes exact-subject review receipts once;
-- `lab.py` runs the workflow, experiments, baseline comparison, conformance suite, and mutation evaluation; and
-- `evidence/manifest.json` records independent fixture evidence and limitations.
+- `app/generator.py` proposes exact structured facts or returns controlled insufficient-evidence outcomes;
+- `app/validator.py` rechecks context membership, authorization, submission scope, relevance, exact support, freshness, and effects;
+- `app/effects.py` records whether any protected effect boundary was invoked;
+- `app/review.py` resolves untrusted receipt handles through a trusted registry and demonstrates process-local and durable atomic consumption;
+- `app/pr_exercise.py` executes the three-commit delivery sequence;
+- `app/traceability.py` checks semantic relationships instead of only nonempty fields;
+- `lab.py` runs the workflow, experiments, baseline comparison, conformance, mutation, replay, delivery, and traceability evaluations; and
+- `evidence/manifest.json` is reproducible from executed results and binds run, implementation, dataset, criteria, and result digests while remaining explicitly unauthenticated training evidence.
 
 Run it from the repository root:
 
@@ -317,8 +323,10 @@ Do not relax a requirement merely because the current implementation cannot sati
 | Planner-generated design treated as approval | Proposal launders architecture authority | ADR owner and explicit design state |
 | Every work unit assigned to a new agent | Coordination tax and authority surface grow | Dependency and review-capacity analysis |
 | Agent-authored tests treated as independent proof | Self-confirming evidence loop | Independent acceptance and negative tests |
-| Citation presence treated as grounding | Wrong or unsupported sources pass | Existence, authorization, revision, and support checks |
-| Retrieved instructions obeyed | Untrusted content changes control behavior | Typed context and narrow tools |
+| Citation presence or topic match treated as grounding | Relevant but non-supporting evidence passes | Separate existence, relevance, and exact-claim support |
+| Retrieved instructions obeyed | Untrusted content changes control behavior | Record the attempted action, reject it in trusted validation, and verify zero effect invocations |
+| Caller-supplied verification booleans trusted | A forged object becomes an approval | Resolve an opaque receipt handle through a trusted registry |
+| Empty evidence crashes generation | Failure escapes the governed state machine | Controlled `INSUFFICIENT_EVIDENCE` or `NO_SUPPORTED_RISK_FACTORS` outcomes |
 | Passing implementation triggers deployment | Verification collapses into release | Separate merge and release receipts |
 
 ## 17. Evaluation and observability
@@ -329,7 +337,9 @@ The default evaluation contains:
 
 - seven required experiments;
 - twelve end-to-end golden scenarios; and
-- thirty-nine labelled mutation cases across twelve failure families.
+- thirty-nine labelled control mutations across twelve failure families;
+- four semantic traceability mutations; and
+- executable restart-replay and three-commit dependency exercises.
 
 These counts describe fixture coverage. They do not certify production security, model accuracy, or organizational compliance.
 
@@ -339,10 +349,10 @@ For production, measure at least grounded-claim rate, unsupported-claim rate, ci
 
 | Training mechanism | Production requirement |
 | --- | --- |
-| Static JSON evidence | Authenticated source and evidence registries |
-| In-memory receipt store | Durable atomic single-use consumption |
+| Structured fixture facts | Domain-reviewed support schema plus calibrated supported/contradicted/insufficient evaluator |
+| Reproducible local evidence manifest | Authenticated test-run attestation and immutable artifact registry |
+| In-memory receipt store plus SQLite restart exercise | Managed durable store, atomic compare-and-set, uniqueness, revocation, and secure time |
 | Deterministic generator | Approved gateway, versioned prompts/models, and representative evaluation |
-| Exact risk-term support | Domain-reviewed semantic support evaluator with uncertainty |
 | Fixture submission | Tenant/subject authorization before evidence retrieval |
 | Local context digest | Signed provenance and secure freshness source |
 | One process | Durable orchestration, retries, cancellation, concurrency, and recovery |
@@ -356,7 +366,7 @@ Use the fuller path when ambiguity, probabilistic behavior, sensitive data, cons
 
 ## 20. Exercises
 
-1. **Implementation:** add an `INSUFFICIENT_EVIDENCE` result without weakening citation support rules.
+1. **Implementation:** add a contradictory structured fact and preserve the distinction between `CONTRADICTED` and `INSUFFICIENT`.
 2. **Diagnosis:** mutate an authorized document after context compilation and explain every invalidated descendant.
 3. **Security:** add a tool-shaped instruction to evidence and prove it cannot add a capability.
 4. **Architecture:** compare one-agent and two-agent execution for the AWU graph; include review capacity and integration cost.

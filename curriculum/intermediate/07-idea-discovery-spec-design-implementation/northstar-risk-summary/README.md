@@ -1,6 +1,6 @@
 # Northstar AI-2410 — end-to-end Agentic PDLC lab
 
-This credential-free workshop turns approved business intent into a verified, non-authoritative underwriting risk-summary proposal. It is a real bounded feature slice: typed application contracts, authorized context selection, deterministic generation, independent validation, human-review receipt consumption, evidence, and failure injection.
+This credential-free workshop turns approved business intent into a verified, non-authoritative underwriting risk-summary proposal. It is a real bounded feature slice: typed application contracts, authorization rechecked at validation, structured exact-claim support, controlled abstention, registry-backed human review, durable replay demonstration, reproducible evidence, and failure injection.
 
 ## Run
 
@@ -16,7 +16,9 @@ Expected summary:
 - reference state: `READY_FOR_INTEGRATION_REVIEW`;
 - required experiments: 7/7;
 - golden scenarios: 12/12;
-- labelled mutations: 39/39; and
+- labelled mutations: 39/39;
+- semantic traceability mutations: 4/4;
+- three real dependency-ordered commits and durable restart replay: passed; and
 - merge, deployment, and business-outcome claims: false.
 
 ## Artifact map
@@ -28,12 +30,12 @@ Expected summary:
 | `specs/AI-2410/acceptance.yaml` | independently owned evidence design |
 | `specs/AI-2410/design.md` | bounded architecture and rejected alternatives |
 | `specs/AI-2410/work-units.yaml` | dependency graph and agent decision rights |
-| `specs/AI-2410/pr-sequence.yaml` | three reviewable PRs with dependencies and exact checks |
-| `specs/AI-2410/traceability.json` | requirements → design → AWUs → code → tests → evidence |
+| `specs/AI-2410/pr-sequence.yaml` | three reviewable PRs, exercised as real local commits |
+| `specs/AI-2410/traceability.json` | semantically checked requirements → acceptance → design → AWUs → code → tests → evidence |
 | `specs/AI-2410/execution-context.json` | pinned revisions and permission boundary |
 | `app/` | reusable vertical-slice implementation |
 | `fixtures/submissions.json` | authorized, cross-submission, restricted, and injection-shaped documents |
-| `evidence/manifest.json` | fixture evidence and explicit limitations |
+| `evidence/manifest.json` | reproducible run, implementation, dataset, criterion, and result digests with explicit limitations |
 | `candidate/direct-coding-output.json` | deliberately unsafe direct-coding comparison |
 | `reference/lifecycle-package.json` | complete training handoff |
 | `workshop/starter/` | four learner-owned decisions |
@@ -46,13 +48,13 @@ Expected summary:
 
 1. **Valid summary:** confirm a current, supported citation reaches integration review.
 2. **Missing source:** observe `CITATION_NOT_FOUND`.
-3. **Unsupported claim:** observe `EVIDENCE_DOES_NOT_SUPPORT_CLAIM`.
-4. **Prompt injection:** confirm instruction-shaped evidence remains data and creates no capability.
+3. **Unsupported claim:** prove topic relevance is not exact claim support; observe `EVIDENCE_INSUFFICIENT_FOR_CLAIM`.
+4. **Prompt injection:** let instruction-shaped evidence induce an attempted broker action, reject it, and confirm zero effect invocations.
 5. **Stale context:** observe `STALE_CONTEXT`.
 6. **Unauthorized mutation:** observe `UNAUTHORIZED_SIDE_EFFECT` without modifying underwriting state.
 7. **Specification change:** confirm the old proposal requires revalidation and cannot rewrite the specification.
 
-The lab also exercises wrong-submission access, evidence-revision drift, altered or expired review receipts, and replay.
+The lab also exercises evidence authorization after context construction, wrong-submission access, outside-context evidence, empty evidence, missing risk facts, evidence-revision drift, forged or expired receipt handles, process restart, and replay.
 
 ## Workshop task
 
@@ -75,7 +77,15 @@ Use `specs/AI-2410/pr-sequence.yaml` as the delivery exercise:
 2. rebase on the merged contract PR and implement the bounded proposal path; and
 3. rebase again, add exact-subject review and independent evidence, and stop at integration review.
 
-Each PR has a narrow review purpose, dependency, exclusion set, required checks, and merge condition. A later PR cannot use its own green status to erase an unmet predecessor or authorize production release.
+Each PR has a narrow review purpose, dependency, exclusion set, required checks, and merge condition. `app/pr_exercise.py` creates three actual commits in an isolated temporary Git repository, verifies the parent chain, then changes the prerequisite revision and observes `STALE_CONTRACT_REVISION`. A later PR cannot use its own green status to erase an unmet predecessor or authorize production release.
+
+## Evidence and traceability
+
+`lab.build_evidence_manifest()` executes the named scenarios and emits the exact manifest stored in `evidence/manifest.json`. Every record carries a run ID, implementation digest, dataset identity and digest, criterion IDs, result payload, and result-artifact digest. This makes the local result reproducible, not authenticated; production needs signed attestations and an immutable evidence registry.
+
+`lab.run_traceability_evaluation()` checks relationship meaning, not only field presence. Its clean reference and four mutations cover an unknown test, unrelated acceptance criterion, stale requirement revision, and evidence bound to another requirement.
+
+The caller supplies only an opaque approval receipt ID. `TrustedReceiptRegistry` supplies authenticated approval facts; caller-authored booleans cannot create authority. The default in-memory store demonstrates the limitation, while `SqliteReceiptStore` uses an atomic uniqueness constraint and proves replay remains blocked after the store object restarts. Production still requires a managed durable service, revocation, secure time, and authenticated identity.
 
 ## Framework comparison
 
@@ -83,6 +93,6 @@ Represent the same change once as a Spec Kit-style spec/plan/tasks flow and once
 
 ## Limits
 
-This lab uses static fixtures, exact term matching, SHA-256 digests, deterministic outputs, and a process-local receipt store. It does not implement tenant infrastructure, cryptographic signatures, secure time, real workload identity, model evaluation, semantic entailment, durable workflow recovery, or production deployment. Passing the fixture supports a teaching claim only.
+This lab uses static structured facts, SHA-256 digests, deterministic outputs, an in-process trusted registry, and local SQLite for a narrow restart exercise. Exact structured matching establishes only fixture claim support; it is not general semantic entailment. The lab does not implement tenant infrastructure, cryptographic signatures, secure time, real workload identity, model evaluation, concurrent workflow recovery, or production deployment. Passing the fixture supports a teaching claim only.
 
 Return to the [Course 17 chapter](../README.md).

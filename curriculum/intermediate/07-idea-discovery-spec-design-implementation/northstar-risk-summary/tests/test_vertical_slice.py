@@ -24,6 +24,17 @@ class VerticalSliceSmokeTests(unittest.TestCase):
         self.assertEqual(result.state, "BLOCKED")
         self.assertIn("UNAUTHORIZED_SIDE_EFFECT", trace["validation_findings"])
 
+    def test_adversarial_document_attempt_never_reaches_effect_gateway(self):
+        result, trace = lab.run_pipeline(mode="prompt_injection")
+        self.assertEqual(result.state, "BLOCKED")
+        self.assertEqual(trace["attempted_actions"], ["send_broker_email"])
+        self.assertEqual(trace["effect_invocations"], [])
+
+    def test_empty_evidence_abstains(self):
+        from app.generator import DeterministicRiskGenerator
+        proposal = DeterministicRiskGenerator().generate(lab.reference_context()[0], {})
+        self.assertEqual(proposal.generation_outcome, "INSUFFICIENT_EVIDENCE")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -3,10 +3,12 @@
 from .contracts import (
     ApprovalReceipt,
     EvidenceDocument,
+    EvidenceFact,
     ExecutionContext,
     ModelProposal,
     PipelineResult,
     RiskClaim,
+    TrustedApprovalRecord,
     ValidationFinding,
     ValidationReport,
 )
@@ -14,10 +16,12 @@ from .contracts import (
 __all__ = [
     "ApprovalReceipt",
     "EvidenceDocument",
+    "EvidenceFact",
     "ExecutionContext",
     "ModelProposal",
     "PipelineResult",
     "RiskClaim",
+    "TrustedApprovalRecord",
     "ValidationFinding",
     "ValidationReport",
 ]

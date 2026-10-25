@@ -106,7 +106,7 @@ Each future course follows this learning arc, adapted where the subject demands 
 
 | Course | Level folder | Topic | Status | Prerequisite | Learner evidence |
 | --- | --- | --- | --- | --- | --- |
-| 17 | intermediate/07 | From Idea to Verified Implementation: The End-to-End Agentic PDLC | **Available** | Parts I–III | AI-2410 discovery evidence register, revisioned requirements and acceptance, proposal-and-review architecture, bounded AWUs, pinned execution context, real risk-summary vertical slice, independent evidence, controlled convergence, seven experiments, twelve golden scenarios, and 39-case mutation evaluation |
+| 17 | intermediate/07 | From Idea to Verified Implementation: The End-to-End Agentic PDLC | **Available** | Parts I–III | AI-2410 vertical slice with authorization rechecks, structured exact-claim support, registry-backed review, durable replay exercise, reproducible evidence, three real commits, semantic trace mutations, seven experiments, twelve golden scenarios, and 39-case control evaluation |
 | 18 | intermediate/08 | Brownfield development | Planned | C14, C17 | Characterization baseline, change delta, migration checks |
 | 19 | intermediate/09 | Bug fixes and small changes | Planned | C17–C18 | Proportional triage, minimal fix, regression evidence |
 | 20 | intermediate/10 | Multi-repository development | Planned | C10, C17 | Cross-repo change graph and staged integration |

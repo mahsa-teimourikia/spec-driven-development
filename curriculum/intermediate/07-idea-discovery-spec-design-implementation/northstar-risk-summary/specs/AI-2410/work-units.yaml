@@ -22,14 +22,14 @@
       "id": "AWU-RISK-VALIDATION",
       "requirements": ["REQ-RISK-002", "REQ-RISK-003", "SEC-RISK-001"],
       "depends_on": ["AWU-RISK-CONTRACT"],
-      "writable_paths": ["app/context_builder.py", "app/validator.py", "tests/**"],
+      "writable_paths": ["app/context_builder.py", "app/validator.py", "app/effects.py", "app/traceability.py", "tests/**"],
       "required_evidence": ["citation_tests", "support_tests", "authorization_negative_tests"]
     },
     {
       "id": "AWU-RISK-INTEGRATION",
       "requirements": ["REQ-RISK-001", "REQ-RISK-002", "REQ-RISK-003", "REQ-RISK-004", "SEC-RISK-001"],
       "depends_on": ["AWU-RISK-GENERATION", "AWU-RISK-VALIDATION"],
-      "writable_paths": ["app/review.py", "lab.py", "evidence/**"],
+      "writable_paths": ["app/review.py", "app/pr_exercise.py", "lab.py", "evidence/**"],
       "required_evidence": ["end_to_end_tests", "independent_review"]
     }
   ]

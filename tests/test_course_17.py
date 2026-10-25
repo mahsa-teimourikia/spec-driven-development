@@ -25,7 +25,10 @@ class Course17EndToEndPDLCTests(unittest.TestCase):
         return set(trace["validation_findings"])
 
     def test_context_selects_only_authorized_submission_evidence(self):
-        self.assertEqual(set(self.documents), {"DOC-APP-001", "DOC-LOSS-001", "DOC-INJECT-001"})
+        self.assertEqual(
+            set(self.documents),
+            {"DOC-APP-001", "DOC-LOSS-001", "DOC-INJECT-001", "DOC-FLOOD-PENDING-001"},
+        )
         self.assertNotIn("DOC-OTHER-001", self.documents)
         self.assertNotIn("DOC-RESTRICTED-001", self.documents)
 
@@ -49,10 +52,17 @@ class Course17EndToEndPDLCTests(unittest.TestCase):
     def test_unsupported_claim_blocks(self):
         self.assertIn("EVIDENCE_DOES_NOT_SUPPORT_CLAIM", self.findings("unsupported_claim"))
 
-    def test_instruction_shaped_evidence_cannot_add_capability(self):
+    def test_topic_relevance_is_not_exact_claim_support(self):
+        findings = self.findings("unsupported_claim")
+        self.assertIn("EVIDENCE_INSUFFICIENT_FOR_CLAIM", findings)
+        self.assertNotIn("CITATION_NOT_RELEVANT", findings)
+
+    def test_adversarial_document_attempt_is_blocked_before_effect_gateway(self):
         result, trace = lab.run_pipeline(mode="prompt_injection")
-        self.assertEqual(result.state, "READY_FOR_INTEGRATION_REVIEW")
-        self.assertNotIn("UNAUTHORIZED_SIDE_EFFECT", trace["validation_findings"])
+        self.assertEqual(result.state, "BLOCKED")
+        self.assertEqual(trace["attempted_actions"], ["send_broker_email"])
+        self.assertIn("UNAUTHORIZED_SIDE_EFFECT", trace["validation_findings"])
+        self.assertEqual(trace["effect_invocations"], [])
 
     def test_stale_context_blocks(self):
         self.assertIn("STALE_CONTEXT", self.findings("stale_context"))
@@ -81,6 +91,53 @@ class Course17EndToEndPDLCTests(unittest.TestCase):
         codes = {item.code for item in validate_proposal(proposal, self.context, changed).findings}
         self.assertIn("EVIDENCE_REVISION_MISMATCH", codes)
 
+    def test_cited_evidence_is_reauthorized_during_validation(self):
+        from app.generator import DeterministicRiskGenerator
+        from app.validator import validate_proposal
+        proposal = DeterministicRiskGenerator().generate(self.context, self.documents)
+        changed = copy.deepcopy(self.documents)
+        changed["DOC-APP-001"] = replace(
+            changed["DOC-APP-001"],
+            submission_id="SUB-OTHER",
+            authorized=False,
+        )
+        codes = {item.code for item in validate_proposal(proposal, self.context, changed).findings}
+        self.assertTrue({"EVIDENCE_NOT_AUTHORIZED", "EVIDENCE_SUBMISSION_MISMATCH"}.issubset(codes))
+
+    def test_cited_evidence_outside_approved_context_is_blocked(self):
+        from app.generator import DeterministicRiskGenerator
+        from app.validator import validate_proposal
+        proposal = DeterministicRiskGenerator().generate(self.context, self.documents)
+        all_documents = {item.document_id: item for item in lab.load_documents()}
+        restricted = all_documents["DOC-RESTRICTED-001"]
+        claim = replace(proposal.claims[0], risk_code="FLOOD", evidence_ids=(restricted.document_id,))
+        proposal = replace(proposal, claims=(claim,))
+        codes = {item.code for item in validate_proposal(proposal, self.context, all_documents).findings}
+        self.assertTrue({"EVIDENCE_NOT_AUTHORIZED", "EVIDENCE_OUTSIDE_APPROVED_CONTEXT"}.issubset(codes))
+
+    def test_empty_evidence_abstains_without_exception(self):
+        from app.generator import DeterministicRiskGenerator
+        from app.validator import validate_proposal
+        proposal = DeterministicRiskGenerator().generate(self.context, {})
+        self.assertEqual(proposal.generation_outcome, "INSUFFICIENT_EVIDENCE")
+        codes = {item.code for item in validate_proposal(proposal, self.context, {}).findings}
+        self.assertIn("INSUFFICIENT_EVIDENCE", codes)
+
+    def test_empty_risk_facts_abstain_without_exception(self):
+        from app.context_builder import build_context
+        from app.contracts import EvidenceDocument
+        from app.generator import DeterministicRiskGenerator
+        document = EvidenceDocument("DOC-EMPTY", "SUB-EMPTY", 1, "No risk facts.", (), (), True)
+        context, documents = build_context(
+            "SUB-EMPTY",
+            [document],
+            specification_revision=3,
+            architecture_revision=lab.ARCHITECTURE_REVISION,
+            repository_base=lab.REPOSITORY_BASE,
+        )
+        proposal = DeterministicRiskGenerator().generate(context, documents)
+        self.assertEqual(proposal.generation_outcome, "NO_SUPPORTED_RISK_FACTORS")
+
     def test_missing_review_receipt_waits_for_human(self):
         result, _ = lab.run_pipeline(include_receipt=False)
         self.assertEqual(result.state, "READY_FOR_HUMAN_REVIEW")
@@ -100,28 +157,37 @@ class Course17EndToEndPDLCTests(unittest.TestCase):
         self.assertIn("REVIEW_IDENTITY_UNVERIFIED", result.reason_codes)
 
     def test_review_role_label_cannot_replace_authorized_principal(self):
-        from app.generator import DeterministicRiskGenerator
-        from app.review import ReceiptStore, review_for_integration
-        from app.validator import validate_proposal
-        proposal = DeterministicRiskGenerator().generate(self.context, self.documents)
-        report = validate_proposal(proposal, self.context, self.documents)
-        receipt = replace(lab.make_receipt(report.proposal_digest), principal="underwriter_reviewer")
-        result = review_for_integration(report, receipt, evaluation_time=lab.EVALUATION_TIME, store=ReceiptStore())
+        result, _ = lab.run_pipeline(receipt_mutation="unauthorized_principal")
         self.assertIn("REVIEW_PRINCIPAL_UNAUTHORIZED", result.reason_codes)
 
     def test_future_review_receipt_blocks(self):
+        result, _ = lab.run_pipeline(receipt_mutation="future")
+        self.assertIn("REVIEW_TIME_INVALID", result.reason_codes)
+
+    def test_caller_cannot_self_assert_a_verified_receipt(self):
+        from app.contracts import ApprovalReceipt
         from app.generator import DeterministicRiskGenerator
-        from app.review import ReceiptStore, review_for_integration
+        from app.review import ReceiptStore, TrustedReceiptRegistry, review_for_integration
         from app.validator import validate_proposal
         proposal = DeterministicRiskGenerator().generate(self.context, self.documents)
         report = validate_proposal(proposal, self.context, self.documents)
-        receipt = replace(lab.make_receipt(report.proposal_digest), issued_at="2026-10-21T16:00:00Z", expires_at="2026-10-22T16:00:00Z")
-        result = review_for_integration(report, receipt, evaluation_time=lab.EVALUATION_TIME, store=ReceiptStore())
-        self.assertIn("REVIEW_TIME_INVALID", result.reason_codes)
+        result = review_for_integration(
+            report,
+            ApprovalReceipt("CALLER-FORGED"),
+            registry=TrustedReceiptRegistry(),
+            evaluation_time=lab.EVALUATION_TIME,
+            store=ReceiptStore(),
+        )
+        self.assertEqual(result.reason_codes, ("REVIEW_RECEIPT_NOT_FOUND",))
 
     def test_review_receipt_is_single_use(self):
         result, _ = lab.run_pipeline(replay=True)
         self.assertEqual(result.reason_codes, ("REVIEW_RECEIPT_REPLAYED",))
+
+    def test_durable_receipt_consumption_survives_restart(self):
+        exercise = lab.run_restart_replay_exercise()
+        self.assertEqual(exercise["first_state"], "READY_FOR_INTEGRATION_REVIEW")
+        self.assertTrue(exercise["atomic_uniqueness_enforced"])
 
     def test_specification_change_preserves_authority_and_invalidates_context(self):
         result, trace = lab.run_specification_change()
@@ -170,6 +236,13 @@ class Course17EndToEndPDLCTests(unittest.TestCase):
         self.assertEqual(sequence[2]["depends_on"], [sequence[1]["id"]])
         self.assertTrue(all("production_deployment" in item["excludes"] or "production_release" in item["excludes"] for item in sequence))
 
+    def test_three_real_commits_preserve_dependency_order_and_invalidate_on_change(self):
+        result = lab.run_three_commit_exercise()
+        self.assertEqual(len(set(result["commits"].values())), 3)
+        self.assertTrue(result["dependency_order_valid"])
+        self.assertFalse(result["integration_valid_after_change"])
+        self.assertEqual(result["invalidation_code"], "STALE_CONTRACT_REVISION")
+
     def test_traceability_covers_every_requirement_with_code_test_and_evidence(self):
         requirements = json.loads((SCENARIO / "specs" / "AI-2410" / "requirements.yaml").read_text())
         traceability = json.loads((SCENARIO / "specs" / "AI-2410" / "traceability.json").read_text())
@@ -183,11 +256,37 @@ class Course17EndToEndPDLCTests(unittest.TestCase):
             self.assertTrue(item["tests"])
             self.assertTrue(item["evidence"])
 
+    def test_semantic_traceability_reference_is_clean(self):
+        result = lab.run_traceability_evaluation()
+        self.assertEqual(result["reference_findings"], [])
+
+    def test_semantic_traceability_mutations_are_detected(self):
+        result = lab.run_traceability_evaluation()
+        self.assertEqual((result["passed"], result["total"]), (4, 4))
+        self.assertEqual(
+            {item["expected_code"] for item in result["results"]},
+            {
+                "UNKNOWN_TEST_ID",
+                "UNRELATED_ACCEPTANCE_CRITERION",
+                "STALE_REQUIREMENT_REVISION",
+                "EVIDENCE_SUBJECT_MISMATCH",
+            },
+        )
+
     def test_evidence_manifest_is_bounded_and_revision_bound(self):
         manifest = json.loads((SCENARIO / "evidence" / "manifest.json").read_text())
         self.assertEqual(manifest["subject"]["specification_revision"], 3)
         self.assertEqual(len(manifest["evidence"]), 6)
         self.assertIn("no merge or release authorization", manifest["limitations"])
+        self.assertTrue(manifest["run"]["implementation_digest"].startswith("sha256:"))
+        self.assertTrue(manifest["run"]["dataset_digest"].startswith("sha256:"))
+        for item in manifest["evidence"]:
+            self.assertTrue(item["criterion_ids"])
+            self.assertTrue(item["result_artifact_digest"].startswith("sha256:"))
+
+    def test_evidence_manifest_is_reproduced_by_executed_results(self):
+        stored = json.loads((SCENARIO / "evidence" / "manifest.json").read_text())
+        self.assertEqual(stored, lab.build_evidence_manifest())
 
     def test_reference_lifecycle_does_not_self_authorize_release(self):
         package = json.loads((SCENARIO / "reference" / "lifecycle-package.json").read_text())
