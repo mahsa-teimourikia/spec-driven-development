@@ -3,8 +3,18 @@
   "state": "READY_FOR_INTEGRATION_REVIEW",
   "workflow_mode": "STRUCTURED",
   "root_cause": "HYP-OPERATOR",
+  "root_cause_states": {
+    "unit": "UNIT_CAUSE_CONFIRMED",
+    "production_path": "PRODUCTION_PATH_CAUSE_CONFIRMED"
+  },
   "work_unit": "WU-BUG-2415",
-  "evidence_producer": "northstar-ci",
+  "evidence": {
+    "producer": "northstar-ci",
+    "registry_reference": "CI-RUN-BUG-2415",
+    "candidate_may_submit_receipt": false,
+    "git_diff_derived_by_trusted_harness": true,
+    "oracle_loaded_from_protected_source": true
+  },
   "non_authorities": {
     "mutation_label": false,
     "agent_self_report": false,

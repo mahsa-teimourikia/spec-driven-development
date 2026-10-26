@@ -1,9 +1,17 @@
 {
-  "state": "READY_FOR_INTEGRATION_REVIEW",
+  "course_validation": "PASS",
+  "candidate_assessment": {
+    "status": "READY_FOR_INTEGRATION_REVIEW",
+    "baseline_commit": "251e34415428f8bbf1f1dc93abd9ee10bbaeba42",
+    "candidate_commit": "59a5a362ee4c53b9717a88568590e481fa2d0e89",
+    "specification_revision": 3,
+    "merge_authorized": false,
+    "deployment_authorized": false
+  },
   "producer": "northstar-ci",
   "acceptance_digest": "sha256:3963f109090dde23d8911f6a940505c7bfb5a06c54842d628ce467edc83dde4a",
-  "conformance_digest": "sha256:44b9e3c78ecb643e33468bb1d273b3bb25331fa425919a67ce4c4c1394fa540e",
-  "evaluation_digest": "sha256:0fcf58144da00cc1fb01e836b37d974b3b7f98aa56abef16b31da47a5c1af2ec",
+  "conformance_digest": "sha256:5617941c31354429dea7dddfc7c37d568957e514d125fc1e3a90df873c0e45a0",
+  "evaluation_digest": "sha256:808e98ebcea92c97053013549563cb13b1671aefc1cd1743a761ac17b1c3aa16",
   "conformance": "12/12",
   "evaluation": "30/30",
   "experiments": "10/10",

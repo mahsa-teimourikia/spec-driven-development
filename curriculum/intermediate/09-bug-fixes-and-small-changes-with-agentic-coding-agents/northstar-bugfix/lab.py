@@ -3,153 +3,144 @@
 
 from __future__ import annotations
 
-import copy
 import json
 from dataclasses import replace
 from pathlib import Path
 from typing import Iterable
 
-from bugfix_app.api import identity_normalizer, off_by_one_normalizer
-from bugfix_app.contracts import ChangeRisk, DiffEntry, TestObservation
-from bugfix_app.risk_engine import classify_risk_buggy, classify_risk_fixed
+from bugfix_app.contracts import ChangeRisk
+from bugfix_app.risk_engine import classify_risk_buggy
+from bugfix_app.trusted_harness import (
+    FIXED_RISK_SOURCE,
+    OFF_BY_ONE_API_SOURCE,
+    TrustedBugfixHarness,
+)
 from bugfix_app.workflow import (
     EXPECTED_REPOSITORY_REVISION,
-    build_evidence_receipt,
     canonical_digest,
     direct_agent_baseline,
     evaluate_candidate,
-    investigate_operator_hypothesis,
-    observe_test,
     select_workflow_mode,
 )
 
 ROOT = Path(__file__).resolve().parent
-BASELINE_REVISION = "baseline:bug-2415"
-CANDIDATE_REVISION = "candidate:operator-boundary-fix"
+HARNESS = TrustedBugfixHarness(ROOT)
+_TRUSTED_CONTEXT_CACHE: dict[str, object] = {}
 
 
 def load_json(relative: str) -> dict[str, object]:
     return json.loads((ROOT / relative).read_text(encoding="utf-8"))
 
 
-def _boundary_results(classifier=classify_risk_fixed) -> dict[int, str]:
-    return {score: classifier(score) for score in (0, 49, 50, 79, 80, 81, 100)}
+def _context_key(candidate: dict[str, object]) -> str:
+    return canonical_digest({"files": candidate["files"], "purposes": candidate["purpose_declarations"]})
+
+
+def trusted_context(candidate: dict[str, object]):
+    """Resolve trusted observations outside the candidate payload and cache by source content."""
+    key = _context_key(candidate)
+    if key not in _TRUSTED_CONTEXT_CACHE:
+        _TRUSTED_CONTEXT_CACHE[key] = HARNESS.observe(candidate)
+    return _TRUSTED_CONTEXT_CACHE[key]
+
+
+def assess_candidate(candidate: dict[str, object]):
+    context = trusted_context(candidate)
+    return evaluate_candidate(candidate, context), context
 
 
 def build_candidate(mutations: Iterable[str] = ()) -> dict[str, object]:
-    """Create a candidate from observable artifacts, then apply test mutations."""
-    trusted_contract = load_json("specs/BUG-2415/acceptance-contract.json")
-    work_unit = load_json("specs/BUG-2415/work-unit.json")
-    before = observe_test(
-        test_id="REG-RISK-80",
-        revision=BASELINE_REVISION,
-        classifier=classify_risk_buggy,
-        score=80,
-        expected="HIGH",
-    )
-    after = observe_test(
-        test_id="REG-RISK-80",
-        revision=CANDIDATE_REVISION,
-        classifier=classify_risk_fixed,
-        score=80,
-        expected="HIGH",
+    """Create source artifacts and agent declarations; trusted observations remain external."""
+    files = dict(HARNESS.baseline_files)
+    files["app/risk_engine.py"] = FIXED_RISK_SOURCE
+    files["tests/test_regression.py"] = (
+        "from app.risk_engine import classify_risk\n\n"
+        "def test_score_80_is_high():\n"
+        "    assert classify_risk(80) == 'HIGH'\n"
     )
     candidate: dict[str, object] = {
         "repository_revision": EXPECTED_REPOSITORY_REVISION,
         "specification_revision": 3,
-        "baseline_revision": BASELINE_REVISION,
-        "candidate_revision": CANDIDATE_REVISION,
-        "trusted_acceptance_contract": trusted_contract,
-        "candidate_acceptance_contract": copy.deepcopy(trusted_contract),
-        "writable_paths": work_unit["writable_paths"],
-        "protected_paths": work_unit["protected_paths"],
-        "allowed_purposes": work_unit["allowed_purposes"],
-        "diff_entries": [
-            DiffEntry("M", "app/risk_engine.py", "app/risk_engine.py", "correct_boundary_condition"),
-            DiffEntry("A", None, "tests/test_regression.py", "add_regression_test"),
-        ],
-        "root_cause_evidence": investigate_operator_hypothesis(
-            buggy_classifier=classify_risk_buggy,
-            fixed_classifier=classify_risk_fixed,
-        ),
-        "before_observation": before,
-        "after_observation": after,
-        "boundary_results": _boundary_results(),
-        "classifier": classify_risk_fixed,
-        "normalizer": identity_normalizer,
+        "files": files,
+        "purpose_declarations": {
+            "app/risk_engine.py": "correct_boundary_condition",
+            "tests/test_regression.py": "add_regression_test",
+        },
+        "proposed_hypothesis_id": "HYP-OPERATOR",
         "requirements": {"REQ-RISK-010@3": "HIGH_STARTS_AT_80"},
-        "risk": ChangeRisk(1, 1, 1, 1, 1, 1),
         "declared_mode": "STRUCTURED",
-        "mandatory_mode": None,
+        "evidence_references": ["CI-RUN-BUG-2415"],
         "agent_tests_passed": True,
         "mutation_labels": list(mutations),
     }
-    candidate["evidence_receipt"] = build_evidence_receipt(
-        bug_id="BUG-2415",
-        baseline_revision=BASELINE_REVISION,
-        candidate_revision=CANDIDATE_REVISION,
-        acceptance_contract=trusted_contract,
-        before=before,
-        after=after,
-    )
-
     for mutation in mutations:
-        _apply_mutation(candidate, mutation)
+        _apply_source_or_claim_mutation(candidate, mutation)
+
+    context = trusted_context(candidate)
+    candidate["submitted_before_observation"] = context.before_observation
+    candidate["submitted_after_observation"] = context.after_observation
+    candidate["submitted_boundary_results"] = dict(context.boundary_results)
+    for mutation in mutations:
+        _apply_report_mutation(candidate, mutation)
     return candidate
 
 
-def _apply_mutation(candidate: dict[str, object], mutation: str) -> None:
+def _apply_source_or_claim_mutation(candidate: dict[str, object], mutation: str) -> None:
     if mutation == "stale_repository":
         candidate["repository_revision"] = "stale:repository"
     elif mutation == "stale_specification":
         candidate["specification_revision"] = 2
     elif mutation == "weaken_oracle":
-        contract = copy.deepcopy(candidate["candidate_acceptance_contract"])
+        contract = json.loads(candidate["files"]["specs/BUG-2415/acceptance-contract.json"])
         contract["expectations"][4]["category"] = "MEDIUM"
-        candidate["candidate_acceptance_contract"] = contract
+        candidate["files"]["specs/BUG-2415/acceptance-contract.json"] = json.dumps(contract, indent=2) + "\n"
+        candidate["purpose_declarations"]["specs/BUG-2415/acceptance-contract.json"] = "weaken_acceptance_oracle"
     elif mutation == "scope_expansion":
-        candidate["diff_entries"].append(DiffEntry("M", "app/decision_service.py", "app/decision_service.py", "correct_boundary_condition"))
+        candidate["files"]["app/decision_service.py"] = "# unrelated service edit\n"
+        candidate["purpose_declarations"]["app/decision_service.py"] = "correct_boundary_condition"
     elif mutation == "root_cause_mismatch":
-        candidate["normalizer"] = off_by_one_normalizer
+        candidate["files"]["app/api.py"] = OFF_BY_ONE_API_SOURCE
+        candidate["purpose_declarations"]["app/api.py"] = "correct_boundary_condition"
     elif mutation == "protected_path_change":
-        candidate["diff_entries"].append(DiffEntry("M", "app/authorization.py", "app/authorization.py", "correct_boundary_condition"))
+        candidate["files"]["app/authorization.py"] = "REVIEW_REQUIRED = False\n"
+        candidate["purpose_declarations"]["app/authorization.py"] = "correct_boundary_condition"
     elif mutation == "requirement_conflict":
         candidate["requirements"] = {"REQ-RISK-010@3": "HIGH_STARTS_AT_85"}
     elif mutation == "replay_old_evidence":
-        receipt = candidate["evidence_receipt"]
-        candidate["evidence_receipt"] = replace(receipt, candidate_revision="candidate:old-fix")
-    elif mutation == "missing_reproduction":
-        passing_before = observe_test(test_id="REG-RISK-80", revision=BASELINE_REVISION, classifier=classify_risk_fixed, score=80, expected="HIGH")
-        candidate["before_observation"] = passing_before
-        candidate["evidence_receipt"] = replace(candidate["evidence_receipt"], before=passing_before)
+        candidate["evidence_references"].append("CI-RUN-OLD-CANDIDATE")
     elif mutation == "opportunistic_refactor":
-        candidate["diff_entries"].append(DiffEntry("M", "app/risk_engine.py", "app/risk_engine.py", "architecture_refactor"))
+        candidate["files"]["app/risk_engine.py"] += "\n# unrelated architecture cleanup\n"
+        candidate["purpose_declarations"]["app/risk_engine.py"] = "architecture_refactor"
     elif mutation == "risk_downgrade":
         candidate["declared_mode"] = "LIGHTWEIGHT"
     elif mutation == "untrusted_evidence":
-        candidate["evidence_receipt"] = replace(candidate["evidence_receipt"], producer="agent-self-report")
+        candidate["evidence_references"].append("agent-self-report")
     elif mutation == "stale_acceptance_evidence":
-        candidate["evidence_receipt"] = replace(candidate["evidence_receipt"], acceptance_digest="sha256:stale")
+        candidate["evidence_references"].append("CI-RUN-STALE-ORACLE")
     elif mutation == "invalid_changed_path":
-        candidate["diff_entries"].append(DiffEntry("M", "../secrets.txt", "../secrets.txt", "correct_boundary_condition"))
+        candidate["purpose_declarations"]["../secrets.txt"] = "correct_boundary_condition"
     elif mutation == "bad_boundary_result":
-        results = dict(candidate["boundary_results"])
-        results[79] = "LOW"
-        candidate["boundary_results"] = results
+        candidate["files"]["app/risk_engine.py"] = FIXED_RISK_SOURCE.replace(
+            "def classify_risk(score):\n    validate_score(score)",
+            "def classify_risk(score):\n    validate_score(score)\n    if score == 79:\n        return 'LOW'",
+        )
     elif mutation == "unconfirmed_hypothesis":
-        evidence = candidate["root_cause_evidence"]
-        candidate["root_cause_evidence"] = replace(evidence, status="UNRESOLVED")
+        candidate["proposed_hypothesis_id"] = "HYP-CACHE"
     elif mutation == "fix_not_verified":
-        failing_after = TestObservation("REG-RISK-80", CANDIDATE_REVISION, "HIGH", "MEDIUM", "FAIL")
-        candidate["after_observation"] = failing_after
-        candidate["evidence_receipt"] = replace(candidate["evidence_receipt"], after=failing_after)
-    else:
+        candidate["files"]["app/risk_engine.py"] = HARNESS.baseline_files["app/risk_engine.py"]
+    elif mutation != "missing_reproduction":
         raise ValueError(f"unknown mutation: {mutation}")
+
+
+def _apply_report_mutation(candidate: dict[str, object], mutation: str) -> None:
+    if mutation == "missing_reproduction":
+        before = candidate["submitted_before_observation"]
+        candidate["submitted_before_observation"] = replace(before, actual="HIGH", result="PASS")
 
 
 def _case_result(case: dict[str, object]) -> dict[str, object]:
     candidate = build_candidate(case["mutations"])
-    decision = evaluate_candidate(candidate)
+    decision, _ = assess_candidate(candidate)
     codes = {finding.code for finding in decision.findings}
     expected_state = case.get("expected_state", case.get("state"))
     required_codes = set(case.get("required_codes", case.get("codes", [])))
@@ -196,7 +187,7 @@ def run_experiments() -> list[dict[str, object]]:
         "codes": ["BASELINE_BOUNDARY_DEFECT"],
     }]
     for name, mutations, expected_code in experiments:
-        decision = evaluate_candidate(build_candidate(mutations))
+        decision, _ = assess_candidate(build_candidate(mutations))
         codes = {finding.code for finding in decision.findings}
         passed = decision.state == "PASS" if expected_code is None else expected_code in codes
         rows.append({"experiment": name, "passed": passed, "state": decision.state, "codes": sorted(codes)})
@@ -211,14 +202,29 @@ def build_report() -> dict[str, object]:
     baseline_accepted = sum(direct_agent_baseline(build_candidate(case["mutations"])).state == "PASS" for case in comparison_cases)
     governed_correct = sum(_case_result(case)["passed"] for case in comparison_cases)
     triage = run_triage()
-    ready = (
+    course_ready = (
         conformance["passed"] == conformance["total"] == 12
         and evaluation["passed"] == evaluation["total"] == 30
         and sum(row["passed"] for row in experiments) == 10
         and all(row["passed"] for row in triage)
     )
+    reference_candidate = build_candidate()
+    reference_decision, reference_context = assess_candidate(reference_candidate)
+    candidate_status = "READY_FOR_INTEGRATION_REVIEW" if reference_decision.state == "PASS" else "BLOCKED"
     return {
-        "state": "READY_FOR_INTEGRATION_REVIEW" if ready else "BLOCKED",
+        "course_validation": {"status": "PASS" if course_ready else "FAIL"},
+        "candidate_assessment": {
+            "status": candidate_status,
+            "subject": {
+                "baseline_commit": reference_context.baseline_commit,
+                "candidate_commit": reference_context.candidate_commit,
+                "specification_revision": reference_candidate["specification_revision"],
+                "acceptance_digest": canonical_digest(dict(reference_context.acceptance_contract)),
+            },
+            "finding_codes": [item.code for item in reference_decision.findings],
+            "merge_authorized": False,
+            "deployment_authorized": False,
+        },
         "conformance": conformance,
         "evaluation": evaluation,
         "experiments": {"passed": sum(row["passed"] for row in experiments), "total": 10, "results": experiments},
@@ -240,7 +246,8 @@ def build_report() -> dict[str, object]:
 def main() -> int:
     report = build_report()
     print(json.dumps(report, indent=2))
-    return 0 if report["state"] == "READY_FOR_INTEGRATION_REVIEW" else 1
+    ready = report["course_validation"]["status"] == "PASS" and report["candidate_assessment"]["status"] == "READY_FOR_INTEGRATION_REVIEW"
+    return 0 if ready else 1
 
 
 if __name__ == "__main__":

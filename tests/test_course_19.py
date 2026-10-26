@@ -24,17 +24,16 @@ from bugfix_app.contracts import ChangeRisk, DiffEntry  # noqa: E402
 from bugfix_app.risk_engine import classify_risk_buggy, classify_risk_fixed, validate_score  # noqa: E402
 from bugfix_app.workflow import (  # noqa: E402
     canonical_digest,
-    evaluate_candidate,
     select_workflow_mode,
     validate_diff,
     validate_repository_path,
-    verify_acceptance_oracle,
 )
 
 
 class Course19Tests(unittest.TestCase):
     def codes(self, mutations):
-        return {finding.code for finding in evaluate_candidate(lab.build_candidate(mutations)).findings}
+        decision, _ = lab.assess_candidate(lab.build_candidate(mutations))
+        return {finding.code for finding in decision.findings}
 
     def test_original_defect_is_exactly_reproduced(self):
         self.assertEqual(classify_risk_buggy(80), "MEDIUM")
@@ -68,11 +67,23 @@ class Course19Tests(unittest.TestCase):
         self.assertEqual(select_workflow_mode(ChangeRisk(3, 3, 0, 0, 0, 0)), "GOVERNED")
 
     def test_mandatory_mode_is_a_floor_owned_by_policy(self):
-        risk = ChangeRisk(0, 0, 0, 0, 0, 0)
-        self.assertEqual(select_workflow_mode(risk, mandatory_mode="GOVERNED"), "GOVERNED")
+        low = ChangeRisk(0, 0, 0, 0, 0, 0)
+        high = ChangeRisk(3, 3, 2, 2, 2, 3)
+        self.assertEqual(select_workflow_mode(low, mandatory_mode="GOVERNED"), "GOVERNED")
+        self.assertEqual(select_workflow_mode(high, mandatory_mode="LIGHTWEIGHT"), "GOVERNED")
+
+    def test_unknown_mandatory_mode_is_rejected(self):
+        with self.assertRaises(ValueError):
+            select_workflow_mode(ChangeRisk(0, 0, 0, 0, 0, 0), mandatory_mode="UNKNOWN")
 
     def test_oracle_weakening_is_detected_by_content(self):
         self.assertIn("TEST_ORACLE_CHANGED", self.codes(["weaken_oracle"]))
+
+    def test_approved_oracle_is_loaded_outside_candidate_files(self):
+        candidate = lab.build_candidate(["weaken_oracle"])
+        _, context = lab.assess_candidate(candidate)
+        self.assertEqual(context.acceptance_contract["expectations"][4]["category"], "HIGH")
+        self.assertEqual(context.candidate_acceptance_contract["expectations"][4]["category"], "MEDIUM")
 
     def test_oracle_digest_is_canonical(self):
         left = {"b": 2, "a": 1}
@@ -81,6 +92,24 @@ class Course19Tests(unittest.TestCase):
 
     def test_scope_expansion_is_detected_from_actual_diff(self):
         self.assertIn("SCOPE_EXPANSION", self.codes(["scope_expansion"]))
+
+    def test_trusted_harness_derives_real_git_commits_and_diff(self):
+        candidate = lab.build_candidate()
+        _, context = lab.assess_candidate(candidate)
+        self.assertEqual(len(context.baseline_commit), 40)
+        self.assertEqual(len(context.candidate_commit), 40)
+        self.assertEqual(
+            {entry.new_path for entry in context.actual_diff_entries},
+            {"app/risk_engine.py", "tests/test_regression.py"},
+        )
+
+    def test_omitted_change_declaration_cannot_hide_git_diff(self):
+        candidate = lab.build_candidate(["scope_expansion"])
+        candidate["purpose_declarations"].pop("app/decision_service.py")
+        decision, context = lab.assess_candidate(candidate)
+        self.assertIn("app/decision_service.py", {entry.new_path for entry in context.actual_diff_entries})
+        self.assertIn("SCOPE_EXPANSION", {finding.code for finding in decision.findings})
+        self.assertIn("DECLARED_DIFF_MISMATCH", {finding.code for finding in decision.findings})
 
     def test_rename_checks_old_and_new_paths(self):
         decision = validate_diff(
@@ -108,19 +137,27 @@ class Course19Tests(unittest.TestCase):
 
     def test_red_green_requires_a_real_baseline_failure(self):
         codes = self.codes(["missing_reproduction"])
-        self.assertIn("DEFECT_NOT_REPRODUCED", codes)
-        self.assertIn("RED_GREEN_NOT_PROVEN", codes)
+        self.assertIn("EVIDENCE_OBSERVATION_MISMATCH", codes)
+        self.assertNotIn("DEFECT_NOT_REPRODUCED", codes)
 
     def test_replayed_evidence_is_revision_mismatched(self):
         self.assertIn("STALE_EVIDENCE", self.codes(["replay_old_evidence"]))
 
     def test_red_green_receipt_uses_the_same_regression_identity(self):
         candidate = lab.build_candidate()
-        receipt = candidate["evidence_receipt"]
-        candidate["evidence_receipt"] = replace(receipt, after=replace(receipt.after, test_id="OTHER-TEST"))
-        codes = {finding.code for finding in evaluate_candidate(candidate).findings}
-        self.assertIn("WRONG_REGRESSION_EVIDENCE", codes)
+        candidate["submitted_after_observation"] = replace(
+            candidate["submitted_after_observation"], test_id="OTHER-TEST"
+        )
+        decision, _ = lab.assess_candidate(candidate)
+        codes = {finding.code for finding in decision.findings}
         self.assertIn("EVIDENCE_OBSERVATION_MISMATCH", codes)
+
+    def test_authenticated_registry_produces_red_green_evidence(self):
+        candidate = lab.build_candidate()
+        _, context = lab.assess_candidate(candidate)
+        receipt = context.evidence_registry["CI-RUN-BUG-2415"]
+        self.assertEqual((receipt.before.result, receipt.after.result), ("FAIL", "PASS"))
+        self.assertEqual((receipt.before.revision, receipt.after.revision), (context.baseline_commit, context.candidate_commit))
 
     def test_self_report_is_not_trusted_evidence(self):
         self.assertIn("UNTRUSTED_EVIDENCE_PRODUCER", self.codes(["untrusted_evidence"]))
@@ -128,7 +165,14 @@ class Course19Tests(unittest.TestCase):
     def test_evaluator_does_not_trust_mutation_labels(self):
         candidate = lab.build_candidate()
         candidate["mutation_labels"] = ["protected_path_change", "weaken_oracle"]
-        self.assertEqual(evaluate_candidate(candidate).state, "PASS")
+        decision, _ = lab.assess_candidate(candidate)
+        self.assertEqual(decision.state, "PASS")
+
+    def test_unit_and_production_cause_states_are_separate(self):
+        candidate = lab.build_candidate(["root_cause_mismatch"])
+        _, context = lab.assess_candidate(candidate)
+        self.assertEqual(context.unit_cause_evidence.status, "UNIT_CAUSE_CONFIRMED")
+        self.assertEqual(context.production_cause_evidence.status, "UNRESOLVED")
 
     def test_reference_package_grants_no_release_authority(self):
         package = json.loads((SCENARIO / "reference" / "bugfix-package.json").read_text())
@@ -153,7 +197,10 @@ class Course19Tests(unittest.TestCase):
     def test_lab_report_is_complete(self):
         result = subprocess.run([sys.executable, str(SCENARIO / "lab.py")], cwd=SCENARIO, text=True, capture_output=True, check=True)
         report = json.loads(result.stdout)
-        self.assertEqual(report["state"], "READY_FOR_INTEGRATION_REVIEW")
+        self.assertEqual(report["course_validation"]["status"], "PASS")
+        self.assertEqual(report["candidate_assessment"]["status"], "READY_FOR_INTEGRATION_REVIEW")
+        self.assertFalse(report["candidate_assessment"]["merge_authorized"])
+        self.assertFalse(report["candidate_assessment"]["deployment_authorized"])
         self.assertEqual((report["conformance"]["passed"], report["conformance"]["total"]), (12, 12))
         self.assertEqual((report["evaluation"]["passed"], report["evaluation"]["total"]), (30, 30))
         self.assertEqual((report["experiments"]["passed"], report["experiments"]["total"]), (10, 10))

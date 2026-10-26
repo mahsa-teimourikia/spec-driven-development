@@ -285,7 +285,7 @@ Course 19 applies proportional SDD to bug fixes and small changes. You will:
 - distinguish bug reports and observed symptoms from approved requirements and confirmed causes;
 - select lightweight, structured, or governed workflows from consequence, authority, uncertainty, exposure, and reversibility rather than line count;
 - write a minimal bug-fix contract with exact scope, non-goals, evidence obligations, and stop conditions;
-- prove the red-to-green transition against the same protected oracle and exact baseline/candidate revisions;
+- prove the red-to-green transition through a trusted registry and independent execution against the same protected oracle and exact baseline/candidate Git commits;
 - use discriminating experiments to reject root-cause mismatch on the production path;
 - validate actual diff paths, rename endpoints, protected files, and change purposes;
 - block weakened tests, scope expansion, stale specifications, conflicting requirements, and replayed evidence; and

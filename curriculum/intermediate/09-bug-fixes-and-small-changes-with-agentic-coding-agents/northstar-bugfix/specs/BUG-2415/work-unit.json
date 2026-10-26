@@ -8,6 +8,15 @@
     "specs/BUG-2415/acceptance-contract.json"
   ],
   "allowed_purposes": ["correct_boundary_condition", "add_regression_test"],
+  "trusted_risk": {
+    "consequence": 1,
+    "authority": 1,
+    "scope": 1,
+    "reversibility": 1,
+    "uncertainty": 1,
+    "exposure": 1
+  },
+  "mandatory_mode": "STRUCTURED",
   "required_evidence": [
     "trusted failing observation on the baseline revision",
     "trusted passing observation on the candidate revision",

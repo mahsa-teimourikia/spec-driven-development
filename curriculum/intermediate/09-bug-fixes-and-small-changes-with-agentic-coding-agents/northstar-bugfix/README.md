@@ -30,6 +30,7 @@ The runner prints JSON and makes no network calls.
 | `bugfix_app/risk_engine.py` | Reproducible boundary defect and minimal correction |
 | `bugfix_app/api.py` | Production path and alternative upstream fault |
 | `bugfix_app/workflow.py` | Trusted triage, scope, oracle, evidence, and decision checks |
+| `bugfix_app/trusted_harness.py` | Protected contract/work-unit loading, real Git observation, independent execution, and evidence registry |
 | `specs/BUG-2415/` | Bug, acceptance, hypothesis, work-unit, and evidence contracts |
 | `fixtures/change-requests.json` | Proportional workflow-selection examples |
 | `conformance-suite.json` | Twelve stable decisions |
@@ -42,4 +43,6 @@ The runner prints JSON and makes no network calls.
 
 ## Expected boundary
 
-The reference state is `READY_FOR_INTEGRATION_REVIEW`. It does not authorize merge or deployment. The evidence producer is a deterministic teaching stand-in for trusted CI; production implementations need isolated execution, signed provenance, retained artifacts, repository-derived diffs, and platform-specific path hardening.
+The teaching suite reports `course_validation.status = PASS`. Separately, the exact reference candidate—identified by baseline commit, candidate commit, specification revision, and oracle digest—reports `candidate_assessment.status = READY_FOR_INTEGRATION_REVIEW`. Neither result authorizes merge or deployment.
+
+The harness loads the approved oracle and work unit outside the candidate, creates real Git commits, derives the actual diff, executes the regression and boundary population itself, and resolves evidence through a trusted registry. It remains a deterministic teaching stand-in for CI; production implementations need isolated execution, authenticated workload identity, signed provenance, retained artifacts, protected registries, and platform-specific path hardening.

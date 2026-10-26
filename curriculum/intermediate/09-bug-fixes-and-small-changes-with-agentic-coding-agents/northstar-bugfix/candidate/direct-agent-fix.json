@@ -6,7 +6,8 @@
     "protected acceptance-oracle verification",
     "actual diff boundary validation",
     "root-cause experiment",
-    "evidence receipt bound to the candidate revision"
+    "independently executed regression evidence",
+    "authenticated registry evidence bound to the candidate revision"
   ],
   "authoritative": false
 }

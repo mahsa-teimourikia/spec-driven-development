@@ -7,7 +7,10 @@
     "acceptance_digest"
   ],
   "required_transition": "FAIL_TO_PASS",
+  "reference_resolution": "TRUSTED_REGISTRY",
+  "execution_source": "TRUSTED_HARNESS_AGAINST_GIT_COMMITS",
   "self_report_is_authoritative": false,
+  "candidate_receipt_is_authoritative": false,
   "mutation_label_is_authoritative": false,
   "candidate_manifest_is_authoritative": false
 }

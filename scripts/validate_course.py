@@ -2938,6 +2938,7 @@ def check_course_19_bug_fixes() -> list[str]:
         scenario / "bugfix_app" / "risk_engine.py",
         scenario / "bugfix_app" / "api.py",
         scenario / "bugfix_app" / "workflow.py",
+        scenario / "bugfix_app" / "trusted_harness.py",
         scenario / "fixtures" / "change-requests.json",
         scenario / "specs" / "BUG-2415" / "bug-contract.json",
         scenario / "specs" / "BUG-2415" / "acceptance-contract.json",
@@ -2977,8 +2978,16 @@ def check_course_19_bug_fixes() -> list[str]:
         errors.append("Course 19 lab did not produce its JSON bug-fix report")
         return errors
 
-    if report.get("state") != "READY_FOR_INTEGRATION_REVIEW":
-        errors.append("Course 19 must stop at integration-review eligibility")
+    if report.get("course_validation", {}).get("status") != "PASS":
+        errors.append("Course 19 teaching-suite validation must pass independently")
+    candidate_assessment = report.get("candidate_assessment", {})
+    if candidate_assessment.get("status") != "READY_FOR_INTEGRATION_REVIEW":
+        errors.append("Course 19 exact reference candidate must stop at integration-review eligibility")
+    if candidate_assessment.get("merge_authorized") is not False or candidate_assessment.get("deployment_authorized") is not False:
+        errors.append("Course 19 candidate assessment must not authorize merge or deployment")
+    subject = candidate_assessment.get("subject", {})
+    if len(subject.get("baseline_commit", "")) != 40 or len(subject.get("candidate_commit", "")) != 40:
+        errors.append("Course 19 candidate assessment must bind real baseline and candidate Git commits")
     if (report.get("conformance", {}).get("passed"), report.get("conformance", {}).get("total")) != (12, 12):
         errors.append("Course 19 must retain twelve passing conformance decisions")
     if (report.get("evaluation", {}).get("passed"), report.get("evaluation", {}).get("total")) != (30, 30):
@@ -2996,13 +3005,36 @@ def check_course_19_bug_fixes() -> list[str]:
     for field in ("producer", "acceptance_digest", "conformance_digest", "evaluation_digest"):
         if stored.get(field) != executed_evidence.get(field):
             errors.append(f"Course 19 stored {field} does not reproduce the executed evidence")
-    if stored.get("state") != report.get("state") or stored.get("conformance") != "12/12" or stored.get("evaluation") != "30/30" or stored.get("experiments") != "10/10":
+    stored_candidate = stored.get("candidate_assessment", {})
+    if (
+        stored.get("course_validation") != report.get("course_validation", {}).get("status")
+        or stored_candidate.get("status") != candidate_assessment.get("status")
+        or stored_candidate.get("baseline_commit") != subject.get("baseline_commit")
+        or stored_candidate.get("candidate_commit") != subject.get("candidate_commit")
+        or stored.get("conformance") != "12/12"
+        or stored.get("evaluation") != "30/30"
+        or stored.get("experiments") != "10/10"
+    ):
         errors.append("Course 19 stored evidence summary is stale")
 
     workflow_source = (scenario / "bugfix_app" / "workflow.py").read_text(encoding="utf-8")
     evaluator_source = workflow_source.split("def evaluate_candidate", 1)[1].split("def direct_agent_baseline", 1)[0]
-    if "mutation_labels" in evaluator_source or "agent_tests_passed" in evaluator_source:
+    if (
+        "mutation_labels" in evaluator_source
+        or "agent_tests_passed" in evaluator_source
+        or 'candidate["trusted_acceptance_contract"]' in evaluator_source
+        or 'candidate["diff_entries"]' in evaluator_source
+    ):
         errors.append("Course 19 governed evaluator must derive findings from artifacts, not harness labels or self-reports")
+    harness_source = (scenario / "bugfix_app" / "trusted_harness.py").read_text(encoding="utf-8")
+    required_harness_fragments = [
+        '["git", "diff", "--name-status", "-M"',
+        "candidate_acceptance_contract=MappingProxyType(candidate_contract)",
+        '"CI-RUN-BUG-2415": receipt',
+        '"PRODUCTION_PATH_CAUSE_CONFIRMED"',
+    ]
+    if any(fragment not in harness_source for fragment in required_harness_fragments):
+        errors.append("Course 19 trusted harness is missing Git, protected-oracle, registry, or production-path evidence")
     work_unit = json.loads((scenario / "specs" / "BUG-2415" / "work-unit.json").read_text(encoding="utf-8"))
     if set(work_unit.get("writable_paths", [])) != {"app/risk_engine.py", "tests/test_regression.py"}:
         errors.append("Course 19 work unit must retain its exact two-path write boundary")

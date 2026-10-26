@@ -25,7 +25,7 @@ By the end of this course, you can:
 
 Complete Courses 05–10, 16, and 18. Those courses establish executable requirements, acceptance evidence, quality review, bounded work units, trusted instruction context, and brownfield discovery.
 
-Python 3.11+ is sufficient. The default path is credential-free and uses only the standard library.
+Python 3.11+ and Git are sufficient. The default path is credential-free; Python dependencies are limited to the standard library.
 
 ## Scenario and success boundary
 
@@ -173,7 +173,9 @@ The Course 19 evidence receipt binds:
 - after observation; and
 - trusted producer identity.
 
-This is an educational deterministic receipt, not a cryptographic attestation system. Production systems should add signed provenance, isolated runners, artifact retention, and identity-backed workload authorization.
+The candidate supplies only an evidence reference. A trusted registry resolves that reference, while the harness independently executes the protected regression against real baseline and candidate Git commits. A string such as `producer: northstar-ci` inside candidate data is never treated as authentication.
+
+This is an educational deterministic registry, not a cryptographic attestation system. Production systems should add signed provenance, isolated runners, artifact retention, and identity-backed workload authorization.
 
 ## 6. Protect the oracle
 
@@ -203,7 +205,7 @@ Test names and comments are not authoritative. An agent can label a test `test_s
 - any required evidence metadata; and
 - no unrelated cleanup.
 
-The work unit authorizes purposes as well as paths. If `app/risk_engine.py` is writable for `correct_boundary_condition`, that does not make an architecture refactor authorized inside the same file.
+The work unit authorizes purposes as well as paths. If `app/risk_engine.py` is writable for `correct_boundary_condition`, that does not make an architecture refactor authorized inside the same file. A declared purpose can expose an out-of-scope change, but a matching declaration does not prove semantic justification; the integration reviewer still evaluates the patch.
 
 ### Validate the actual diff
 
@@ -218,7 +220,7 @@ For each diff entry, examine:
 - generated artifacts and lock files; and
 - whether the change purpose matches the work unit.
 
-The lab uses exact paths for clarity and rejects absolute paths, parent traversal, dot components, and backslashes. A production implementation should also harden symlink resolution, submodules, case-folding differences, sparse checkouts, pathspec semantics, and rename/copy detection.
+The lab creates a temporary Git repository, commits the approved baseline and candidate source, and derives name-status entries with rename detection. Agent-declared paths are compared with this observation and cannot hide an extra file. The teaching gate uses exact paths and rejects absolute paths, parent traversal, dot components, and backslashes. A production implementation should also harden symlink resolution, submodules, case-folding differences, sparse checkouts, pathspec semantics, and copy detection.
 
 ## 8. Keep the PR coherent
 
@@ -283,7 +285,7 @@ def classify_risk_fixed(score: int) -> str:
 
 The protected boundaries are `0`, `49`, `50`, `79`, `80`, `81`, and `100`. This set covers both sides of each approved transition and the domain endpoints. It does not prove every property of a future risk model, but it is adequate for this deterministic classifier.
 
-The production-path check calls `risk_response`, not only the classifier. This exposes an upstream `off_by_one_normalizer` mutation that unit-only evidence would miss.
+The trusted harness records two distinct causal states. `UNIT_CAUSE_CONFIRMED` means the operator change repairs the isolated classifier example. `PRODUCTION_PATH_CAUSE_CONFIRMED` additionally requires the relevant input transformation and API execution path to preserve score 80 and change the response from `MEDIUM` to `HIGH`. An upstream `off_by_one_normalizer` therefore leaves the unit state confirmed while the production-path state remains unresolved.
 
 ## 11. Ten executable failure experiments
 
@@ -379,11 +381,12 @@ NIST's Secure Software Development Framework provides a broader vocabulary for i
 
 ## 15. Technology choices
 
-The lab intentionally uses the Python standard library:
+The lab intentionally uses Git plus the Python standard library:
 
 - `dataclasses` make evidence subjects explicit;
 - `hashlib` binds canonical JSON artifacts;
 - `pathlib.PurePosixPath` supports repository-path checks;
+- `subprocess` and `tempfile` create two real commits and obtain the authoritative diff;
 - `unittest` keeps the course dependency-free; and
 - JSON keeps fixtures inspectable by people and tools.
 
@@ -398,14 +401,18 @@ python3 curriculum/intermediate/09-bug-fixes-and-small-changes-with-agentic-codi
 python3 -m unittest tests/test_course_19.py
 ```
 
-The runner makes no network calls. A successful report contains:
+The runner makes no network calls. A successful report separates course health from one exact candidate:
 
 ```text
-state: READY_FOR_INTEGRATION_REVIEW
+course_validation.status: PASS
+candidate_assessment.status: READY_FOR_INTEGRATION_REVIEW
+candidate_assessment.subject: baseline commit + candidate commit + specification revision + oracle digest
 conformance: 12/12
 evaluation: 30/30
 experiments: 10/10
 ```
+
+Course validation says the teaching fixtures behave as designed. Candidate assessment says the named candidate passed its own trusted gates. Neither result authorizes merge or deployment.
 
 Then open `northstar-bugfix/bugfix_small_changes.ipynb` and work through each mutation. Complete the five decisions in `workshop/starter/bugfix-package.json` before comparing it with the reference package.
 

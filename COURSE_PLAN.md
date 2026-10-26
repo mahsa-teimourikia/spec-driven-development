@@ -368,11 +368,11 @@ Course 19 narrows the lens from a brownfield modernization to a one-character bo
 - **Scenario:** Northstar defect `BUG-2415` reports that score 80 is classified as `MEDIUM` even though `REQ-RISK-010@3` places it in `HIGH` and requires human review.
 - **Proportionality:** consequence, authority, scope, reversibility, uncertainty, and exposure select `LIGHTWEIGHT`, `STRUCTURED`, or `GOVERNED`; trusted mandatory modes cannot be downgraded by an agent.
 - **Contract:** the minimal package binds repository/specification revisions, observation, expected behavior, authority, writable/protected paths, non-goals, evidence, and stop conditions.
-- **Causal evidence:** four hypotheses predict different observations. The reference confirms the comparison-operator cause and separately exercises the API path so an upstream normalization fault cannot hide behind a green unit test.
-- **Oracle and scope:** candidate acceptance content is compared with a protected contract digest. Actual diff entries validate additions, modifications, deletions, both rename paths, normalized paths, protected files, and allowed purposes.
-- **Evidence:** the same focused regression fails on the baseline and passes on the candidate. A trusted receipt binds the defect, both revisions, the acceptance digest, and producer identity; stale or self-reported evidence blocks.
+- **Causal evidence:** four hypotheses predict different observations. The trusted harness distinguishes `UNIT_CAUSE_CONFIRMED` from `PRODUCTION_PATH_CAUSE_CONFIRMED`, so an upstream normalization fault cannot hide behind a green unit test.
+- **Oracle and scope:** the approved contract and work unit are loaded outside candidate data. The harness creates real baseline/candidate Git commits, derives additions, modifications, deletions, and rename paths, and treats agent-declared purpose as review metadata rather than proof.
+- **Evidence:** the same focused regression fails on the baseline commit and passes on the candidate commit. The candidate supplies an evidence reference; a trusted registry resolves the independently generated receipt bound to both commits and the protected oracle digest.
 - **Evaluation:** ten executable failure experiments, twelve conformance cases, and 30 single/combined mutations are derived from artifact behavior. A naive self-reported baseline accepts all twelve comparison cases, making its unsafe omissions observable without claiming production performance.
-- **Authority boundary:** success means `READY_FOR_INTEGRATION_REVIEW`; merge and deployment remain separate trusted decisions.
+- **Authority boundary:** course-fixture validation reports `PASS` separately from the exact candidate's `READY_FOR_INTEGRATION_REVIEW` assessment; merge and deployment remain separate trusted decisions.
 - **Production upgrade:** repository-derived rename/copy diffs, symlink and case-folding hardening, isolated runners, workload identity, signed provenance, protected artifact registries, flaky-test controls, historical evaluation populations, and enforced branch policies remain required.
 
 ## Risk boundaries
