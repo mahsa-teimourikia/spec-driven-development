@@ -1,0 +1,6 @@
+{
+  "contract_revision": 2,
+  "ambiguous_requires_review": true,
+  "fail_closed_when_review_unavailable": true,
+  "writes_authoritative_state": false
+}

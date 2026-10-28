@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:northstar:contract:classification:1",
+  "title": "DocumentClassificationProposalV1",
+  "type": "object",
+  "required": ["proposal_id", "document_id", "candidate_requirement_ids", "review_required"],
+  "properties": {
+    "proposal_id": {"type": "string", "minLength": 1},
+    "document_id": {"type": "string", "minLength": 1},
+    "candidate_requirement_ids": {"type": "array", "items": {"type": "string"}},
+    "review_required": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}

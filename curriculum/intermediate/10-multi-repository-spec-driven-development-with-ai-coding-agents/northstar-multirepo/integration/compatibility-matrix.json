@@ -1,0 +1,10 @@
+{
+  "claim": "deterministic training-fixture compatibility, not production telemetry",
+  "combinations": {
+    "ai-v1/review-v1": true,
+    "ai-v1/review-v2": true,
+    "ai-v2/review-v1": false,
+    "ai-v2/review-v2": true
+  },
+  "required_deployment_order": "consumer_first"
+}

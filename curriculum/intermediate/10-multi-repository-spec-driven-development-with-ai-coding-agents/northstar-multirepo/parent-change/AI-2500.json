@@ -1,0 +1,30 @@
+{
+  "change_id": "AI-2500",
+  "title": "Broker Document Review",
+  "revision": 2,
+  "owner": "Underwriting Product Council",
+  "requirements": [
+    {
+      "id": "REQ-DOC-2500-01",
+      "statement": "Supported broker documents SHALL receive a classification proposal."
+    },
+    {
+      "id": "REQ-DOC-2500-02",
+      "statement": "Ambiguous document classifications SHALL be routed for authorized human review."
+    },
+    {
+      "id": "REQ-DOC-2500-03",
+      "statement": "AI-generated classification proposals SHALL NOT independently satisfy underwriting requirements."
+    },
+    {
+      "id": "REQ-DOC-2500-04",
+      "statement": "Classification proposals SHALL preserve document, evidence, and model provenance."
+    }
+  ],
+  "non_authorities": [
+    "repository_local_ci",
+    "coding_agent_role_label",
+    "schema_validation_alone",
+    "integration_test_name"
+  ]
+}

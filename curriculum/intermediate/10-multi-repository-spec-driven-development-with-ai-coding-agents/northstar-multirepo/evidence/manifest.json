@@ -1,0 +1,24 @@
+{
+  "course_validation": "PASS",
+  "candidate_assessment": {
+    "status": "READY_FOR_INTEGRATION_REVIEW",
+    "change_id": "AI-2500",
+    "contract_revision": 2,
+    "component_commits": {
+      "document-service": "e2526b18af88da010348d1e0d835e8a9db2d8e58",
+      "ai-service": "82fcd8453f898de87fdd3a2c9b70775fa33b2ba1",
+      "review-service": "c7dce3874a8619225320942ba58a0a2e92231d19",
+      "underwriting-api": "c77eebf50d2630acde6c3a541ad3014d9337c6e9",
+      "underwriter-ui": "e3be2eb1ece306bc4564da8a885b0a045d3840f6"
+    },
+    "merge_authorized": false,
+    "deployment_authorized": false
+  },
+  "producer": "northstar-integration-ci",
+  "evidence_digest": "sha256:bbc808c4086715e9f73f5c66025bb20685a91ce4ce2aeebb7ebb6d6ebb23789f",
+  "conformance": "16/16",
+  "evaluation": "40/40",
+  "integration_scenarios": "11/11",
+  "compatibility_combinations": "4/4 classified",
+  "claim": "Reproducible training-fixture evidence for one exact revision set; not production telemetry, deployment approval, or general agent accuracy."
+}

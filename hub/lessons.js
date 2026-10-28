@@ -977,6 +977,56 @@ const course19 = {
   }
 };
 
+const course20 = {
+  id: 'c20', course: 20, level: 'intermediate', part: 'IV · Agentic PDLC', status: 'available',
+  title: 'Multi-Repository Spec-Driven Development with AI Coding Agents',
+  summary: 'Coordinate one parent change across independently versioned repositories with canonical contracts, bounded work units, executed compatibility, exact-revision evidence, and recoverable rollout.',
+  outcomes: [
+    'Preserve enterprise, domain, system, repository, and work-unit authority through parent and child specifications.',
+    'Route shared contract changes through accountable ownership, impact analysis, approval, invalidation, and replanning.',
+    'Distinguish requirement, contract, implementation, and deployment dependency graphs.',
+    'Bind work units, actual diffs, integration manifests, and evidence to exact Git commits.',
+    'Derive mixed-version compatibility and a consumer-first rollout from executed behavior.',
+    'Verify negative system paths without treating local CI as system assurance or release authority.'
+  ],
+  readme: `${REPO}/blob/main/curriculum/intermediate/10-multi-repository-spec-driven-development-with-ai-coding-agents/README.md`,
+  notebook: `${REPO}/blob/main/curriculum/intermediate/10-multi-repository-spec-driven-development-with-ai-coding-agents/northstar-multirepo/multirepo_sdd.ipynb`,
+  lab: `${REPO}/blob/main/curriculum/intermediate/10-multi-repository-spec-driven-development-with-ai-coding-agents/northstar-multirepo/lab.py`,
+  repoFixture: `${REPO}/tree/main/curriculum/intermediate/10-multi-repository-spec-driven-development-with-ai-coding-agents/northstar-multirepo`,
+  run: 'python3 curriculum/intermediate/10-multi-repository-spec-driven-development-with-ai-coding-agents/northstar-multirepo/lab.py',
+  labs: [
+    {
+      title: 'Lab A — Execute exact-revision multi-repository controls',
+      description: 'Create five real Git repositories, run 16 conformance cases, 40 labelled evaluations, four compatibility combinations, and 11 system integration scenarios.',
+      command: 'python3 curriculum/intermediate/10-multi-repository-spec-driven-development-with-ai-coding-agents/northstar-multirepo/lab.py',
+      links: [['View the multi-repository lab', `${REPO}/blob/main/curriculum/intermediate/10-multi-repository-spec-driven-development-with-ai-coding-agents/northstar-multirepo/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/intermediate/10-multi-repository-spec-driven-development-with-ai-coding-agents/northstar-multirepo/multirepo_sdd.ipynb`]]
+    },
+    {
+      title: 'Lab B — Govern the AI-2500 integration package',
+      description: 'Resolve six learner decisions covering parent binding, contract authority, graph ordering, exact revisions, mixed-version rollout, and recovery.',
+      command: 'Complete the six starter decisions, run Lab A, then inspect the reference integration handoff.',
+      links: [['Open the AI-2500 workshop', `${REPO}/tree/main/curriculum/intermediate/10-multi-repository-spec-driven-development-with-ai-coding-agents/northstar-multirepo`], ['Complete the starter package', `${REPO}/tree/main/curriculum/intermediate/10-multi-repository-spec-driven-development-with-ai-coding-agents/northstar-multirepo/workshop/starter`], ['Inspect the reference handoff', `${REPO}/blob/main/curriculum/intermediate/10-multi-repository-spec-driven-development-with-ai-coding-agents/northstar-multirepo/reference/integration-package.json`]]
+    }
+  ],
+  references: [
+    ['OpenSpec documentation', 'https://github.com/Fission-AI/OpenSpec/blob/main/docs/README.md'],
+    ['OpenAPI Specification 3.1', 'https://spec.openapis.org/oas/v3.1'],
+    ['JSON Schema Draft 2020-12', 'https://json-schema.org/draft/2020-12'],
+    ['Git diff documentation', 'https://git-scm.com/docs/git-diff'],
+    ['GitHub Actions matrix jobs', 'https://docs.github.com/en/actions/using-jobs/using-a-matrix-for-your-jobs']
+  ],
+  checkpoint: {
+    question: 'All five repository pipelines pass, but AI Service v2 is incompatible with Review Service v1. Is the system ready to deploy?',
+    options: [
+      'No. Local CI does not prove mixed-version system compatibility; deploy and verify the tolerant consumer first.',
+      'Yes. Five green pipelines are sufficient system evidence.',
+      'Yes, if each coding agent reports confidence above 90%.'
+    ],
+    answer: 0,
+    explanation: 'Deployment planning must cover every version combination that can coexist. Agent reports and local suites cannot replace exact-revision compatibility evidence.'
+  }
+};
+
 function planned(course, level, part, title, summary) {
   return {
     id: `c${String(course).padStart(2, '0')}`, course, level, part,
@@ -1007,7 +1057,7 @@ const LESSONS = [
   course17,
   course18,
   course19,
-  planned(20, 'intermediate', 'IV · Agentic PDLC', 'Multi-repository development', 'Coordinate contracts, versions, sequencing, and ownership across repositories.'),
+  course20,
   planned(21, 'intermediate', 'IV · Agentic PDLC', 'Multi-repository parallel-agent delivery', 'Extend bounded coordination across repository, contract, release, and integration boundaries.'),
   planned(22, 'intermediate', 'IV · Agentic PDLC', 'PR and review strategy', 'Design changes and evidence so humans can review agent output efficiently.'),
   planned(23, 'intermediate', 'IV · Agentic PDLC', 'Human approval gates', 'Place accountable decisions at risk-bearing transitions without becoming a bottleneck.'),

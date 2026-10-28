@@ -1,0 +1,19 @@
+{
+  "change_id": "AI-2500",
+  "contract_revision": 2,
+  "component_commits": {
+    "document-service": "RESOLVED_FULL_GIT_SHA",
+    "ai-service": "RESOLVED_FULL_GIT_SHA",
+    "review-service": "RESOLVED_FULL_GIT_SHA",
+    "underwriting-api": "RESOLVED_FULL_GIT_SHA",
+    "underwriter-ui": "RESOLVED_FULL_GIT_SHA"
+  },
+  "required_evidence": [
+    "producer_consumer_contracts",
+    "cross_service_authorization",
+    "ambiguous_document_review",
+    "idempotent_review_submission",
+    "mixed_version_compatibility",
+    "rollback_compatibility"
+  ]
+}

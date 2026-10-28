@@ -1,0 +1,37 @@
+{
+  "change_id": "AI-2500",
+  "state": "READY_FOR_INTEGRATION_REVIEW",
+  "parent_revision": 2,
+  "contract": {
+    "id": "CONTRACT-CLASSIFICATION-001",
+    "revision": 2,
+    "owner": "Enterprise Integration Architecture"
+  },
+  "component_commits": {
+    "document-service": "e2526b18af88da010348d1e0d835e8a9db2d8e58",
+    "ai-service": "82fcd8453f898de87fdd3a2c9b70775fa33b2ba1",
+    "review-service": "c7dce3874a8619225320942ba58a0a2e92231d19",
+    "underwriting-api": "c77eebf50d2630acde6c3a541ad3014d9337c6e9",
+    "underwriter-ui": "e3be2eb1ece306bc4564da8a885b0a045d3840f6"
+  },
+  "compatibility": {
+    "ai-v1/review-v1": true,
+    "ai-v1/review-v2": true,
+    "ai-v2/review-v1": false,
+    "ai-v2/review-v2": true
+  },
+  "deployment_order": [
+    "deploy-review-v2",
+    "verify-review-v2-accepts-ai-v1",
+    "deploy-ai-v2-disabled",
+    "verify-ai-v2-review-v2",
+    "enable-bounded-traffic"
+  ],
+  "integration_evidence": "INT-RUN-AI2500",
+  "non_authorities": {
+    "merge_authorized": false,
+    "deployment_authorized": false,
+    "activation_authorized": false,
+    "v1_retirement_authorized": false
+  }
+}

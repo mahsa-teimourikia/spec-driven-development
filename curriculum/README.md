@@ -7,7 +7,7 @@ This curriculum develops one idea across 38 courses: an enterprise should conver
 | Level | Global courses | Program parts | Status |
 | --- | ---: | --- | --- |
 | [Beginner](beginner/README.md) | 01–10 | SDD foundations; executable specifications | Courses 01–10 available |
-| [Intermediate](intermediate/README.md) | 11–23 | Agentic execution; frameworks; Agentic PDLC | Courses 11–19 available |
+| [Intermediate](intermediate/README.md) | 11–23 | Agentic execution; frameworks; Agentic PDLC | Courses 11–20 available |
 | [Advanced](advanced/README.md) | 24–38 | Enterprise controls; advanced agentic SDD | Planned |
 | [Enterprise Agent](enterprise-agent/README.md) | Capstone | Design a real enterprise Agentic PDLC | Planned |
 
@@ -32,6 +32,7 @@ This curriculum develops one idea across 38 courses: an enterprise should conver
 17. [From Idea to Verified Implementation: The End-to-End Agentic PDLC](intermediate/07-idea-discovery-spec-design-implementation/README.md) — [notebook](intermediate/07-idea-discovery-spec-design-implementation/northstar-risk-summary/end_to_end_agentic_pdlc.ipynb) · [vertical-slice lab](intermediate/07-idea-discovery-spec-design-implementation/northstar-risk-summary/lab.py) · [AI-2410 lifecycle workshop](intermediate/07-idea-discovery-spec-design-implementation/northstar-risk-summary/README.md)
 18. [Brownfield Development with Agentic Coding Agents](intermediate/08-brownfield-development-with-agentic-coding-agents/README.md) — [notebook](intermediate/08-brownfield-development-with-agentic-coding-agents/northstar-underwriter-modernization/brownfield_agentic_development.ipynb) · [modernization lab](intermediate/08-brownfield-development-with-agentic-coding-agents/northstar-underwriter-modernization/lab.py) · [AI-2410 brownfield workshop](intermediate/08-brownfield-development-with-agentic-coding-agents/northstar-underwriter-modernization/README.md)
 19. [Bug Fixes and Small Changes with Agentic Coding Agents](intermediate/09-bug-fixes-and-small-changes-with-agentic-coding-agents/README.md) — [notebook](intermediate/09-bug-fixes-and-small-changes-with-agentic-coding-agents/northstar-bugfix/bugfix_small_changes.ipynb) · [bug-fix lab](intermediate/09-bug-fixes-and-small-changes-with-agentic-coding-agents/northstar-bugfix/lab.py) · [BUG-2415 workshop](intermediate/09-bug-fixes-and-small-changes-with-agentic-coding-agents/northstar-bugfix/README.md)
+20. [Multi-Repository Spec-Driven Development with AI Coding Agents](intermediate/10-multi-repository-spec-driven-development-with-ai-coding-agents/README.md) — [notebook](intermediate/10-multi-repository-spec-driven-development-with-ai-coding-agents/northstar-multirepo/multirepo_sdd.ipynb) · [multi-repository lab](intermediate/10-multi-repository-spec-driven-development-with-ai-coding-agents/northstar-multirepo/lab.py) · [AI-2500 workshop](intermediate/10-multi-repository-spec-driven-development-with-ai-coding-agents/northstar-multirepo/README.md)
 
 Each completed course is a vertical slice: chapter, guided notebook, reusable lab, checkpoint, references, and automated validation. Planned cards remain visible in the [deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/) without presenting unfinished content as complete.
 
