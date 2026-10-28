@@ -928,6 +928,55 @@ const course18 = {
   }
 };
 
+const course19 = {
+  id: 'c19', course: 19, level: 'intermediate', part: 'IV · Agentic PDLC', status: 'available',
+  title: 'Bug Fixes and Small Changes with Agentic Coding Agents',
+  summary: 'Use proportional SDD to turn a reported symptom into a bounded patch with a protected oracle, confirmed cause, actual-diff scope, and revision-bound red-green evidence.',
+  outcomes: [
+    'Separate observations, expectations, requirements, causal hypotheses, and approved fixes.',
+    'Select lightweight, structured, or governed workflows from trusted change risk rather than diff size.',
+    'Write a minimal bug-fix contract with exact scope, non-goals, evidence, and stop conditions.',
+    'Protect the acceptance oracle and prove the same regression fails before and passes after.',
+    'Validate actual changed paths, rename endpoints, protected files, and authorized purposes.',
+    'Stop at integration-review eligibility without self-authorizing merge or deployment.'
+  ],
+  readme: `${REPO}/blob/main/curriculum/intermediate/09-bug-fixes-and-small-changes-with-agentic-coding-agents/README.md`,
+  notebook: `${REPO}/blob/main/curriculum/intermediate/09-bug-fixes-and-small-changes-with-agentic-coding-agents/northstar-bugfix/bugfix_small_changes.ipynb`,
+  lab: `${REPO}/blob/main/curriculum/intermediate/09-bug-fixes-and-small-changes-with-agentic-coding-agents/northstar-bugfix/lab.py`,
+  repoFixture: `${REPO}/tree/main/curriculum/intermediate/09-bug-fixes-and-small-changes-with-agentic-coding-agents/northstar-bugfix`,
+  run: 'python3 curriculum/intermediate/09-bug-fixes-and-small-changes-with-agentic-coding-agents/northstar-bugfix/lab.py',
+  labs: [
+    {
+      title: 'Lab A — Execute a proportional bug-fix workflow',
+      description: 'Run twelve conformance cases, 30 evaluation mutations, ten failure experiments, trusted workflow triage, actual-diff checks, and revision-bound evidence verification.',
+      command: 'python3 curriculum/intermediate/09-bug-fixes-and-small-changes-with-agentic-coding-agents/northstar-bugfix/lab.py',
+      links: [['View the bug-fix lab', `${REPO}/blob/main/curriculum/intermediate/09-bug-fixes-and-small-changes-with-agentic-coding-agents/northstar-bugfix/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/intermediate/09-bug-fixes-and-small-changes-with-agentic-coding-agents/northstar-bugfix/bugfix_small_changes.ipynb`]]
+    },
+    {
+      title: 'Lab B — Govern the BUG-2415 repair package',
+      description: 'Confirm the cause, preserve the oracle, constrain the patch, bind red-green evidence, and complete the five learner decisions before comparing with the reference handoff.',
+      command: 'Complete the five starter decisions, run Lab A, then inspect the reference handoff.',
+      links: [['Open the BUG-2415 workshop', `${REPO}/tree/main/curriculum/intermediate/09-bug-fixes-and-small-changes-with-agentic-coding-agents/northstar-bugfix`], ['Complete the starter package', `${REPO}/tree/main/curriculum/intermediate/09-bug-fixes-and-small-changes-with-agentic-coding-agents/northstar-bugfix/workshop/starter`], ['Inspect the reference handoff', `${REPO}/blob/main/curriculum/intermediate/09-bug-fixes-and-small-changes-with-agentic-coding-agents/northstar-bugfix/reference/bugfix-package.json`]]
+    }
+  ],
+  references: [
+    ['Git diff documentation', 'https://git-scm.com/docs/git-diff'],
+    ['GitHub CODEOWNERS documentation', 'https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners'],
+    ['GitHub protected branches', 'https://docs.github.com/en/repositories/configuring-branches-and-merges/managing-protected-branches/about-protected-branches'],
+    ['NIST Secure Software Development Framework', 'https://csrc.nist.gov/pubs/sp/800/218/final']
+  ],
+  checkpoint: {
+    question: 'A one-line authorization fix is easy to reverse. Does that automatically make it a lightweight change?',
+    options: [
+      'No. Consequence and authority can require a governed workflow even when the diff is tiny.',
+      'Yes. Line count is the primary change-risk measure.',
+      'Yes, if the coding agent reports that all tests pass.'
+    ],
+    answer: 0,
+    explanation: 'Workflow depth follows consequence, authority, uncertainty, exposure, and reversibility—not diff size or an agent confidence claim.'
+  }
+};
+
 function planned(course, level, part, title, summary) {
   return {
     id: `c${String(course).padStart(2, '0')}`, course, level, part,
@@ -957,7 +1006,7 @@ const LESSONS = [
   course16,
   course17,
   course18,
-  planned(19, 'intermediate', 'IV · Agentic PDLC', 'Bug fixes and small changes', 'Use a proportional workflow that preserves evidence without process theatre.'),
+  course19,
   planned(20, 'intermediate', 'IV · Agentic PDLC', 'Multi-repository development', 'Coordinate contracts, versions, sequencing, and ownership across repositories.'),
   planned(21, 'intermediate', 'IV · Agentic PDLC', 'Multi-repository parallel-agent delivery', 'Extend bounded coordination across repository, contract, release, and integration boundaries.'),
   planned(22, 'intermediate', 'IV · Agentic PDLC', 'PR and review strategy', 'Design changes and evidence so humans can review agent output efficiently.'),

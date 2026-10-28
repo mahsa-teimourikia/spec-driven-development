@@ -2909,10 +2909,10 @@ def check_course_18_brownfield_development() -> list[str]:
         errors.append("Course 18 starter must retain exactly five learner decisions")
 
     quiz_source = (ROOT / "quiz" / "questions.js").read_text(encoding="utf-8")
-    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 242:
-        errors.append("Course 18 cumulative quiz must contain 242 questions")
-    if "Courses 01–18" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
-        errors.append("Course 18 cumulative quiz must identify Courses 01–18")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) < 242:
+        errors.append("Course 18 cumulative quiz must retain all 242 questions from Courses 01–18")
+    if "Courses 01–" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
+        errors.append("Course 18 cumulative quiz must identify the published course range")
     hub = (ROOT / "hub" / "lessons.js").read_text(encoding="utf-8")
     hub_fragments = [
         "const course18 = {",
@@ -2922,6 +2922,145 @@ def check_course_18_brownfield_development() -> list[str]:
     ]
     if any(fragment not in hub for fragment in hub_fragments):
         errors.append("Course 18 Learning Hub entry is incomplete or points outside the workshop package")
+    return errors
+
+
+def check_course_19_bug_fixes() -> list[str]:
+    errors: list[str] = []
+    lesson = ROOT / "curriculum" / "intermediate" / "09-bug-fixes-and-small-changes-with-agentic-coding-agents"
+    scenario = lesson / "northstar-bugfix"
+    required = [
+        lesson / "README.md",
+        scenario / "README.md",
+        scenario / "lab.py",
+        scenario / "bugfix_small_changes.ipynb",
+        scenario / "bugfix_app" / "contracts.py",
+        scenario / "bugfix_app" / "risk_engine.py",
+        scenario / "bugfix_app" / "api.py",
+        scenario / "bugfix_app" / "workflow.py",
+        scenario / "bugfix_app" / "trusted_harness.py",
+        scenario / "fixtures" / "change-requests.json",
+        scenario / "specs" / "BUG-2415" / "bug-contract.json",
+        scenario / "specs" / "BUG-2415" / "acceptance-contract.json",
+        scenario / "specs" / "BUG-2415" / "hypotheses.json",
+        scenario / "specs" / "BUG-2415" / "work-unit.json",
+        scenario / "specs" / "BUG-2415" / "evidence-policy.json",
+        scenario / "candidate" / "direct-agent-fix.json",
+        scenario / "reference" / "bugfix-package.json",
+        scenario / "workshop" / "starter" / "bugfix-package.json",
+        scenario / "conformance-suite.json",
+        scenario / "evaluation-cases.json",
+        scenario / "evidence" / "manifest.json",
+        scenario / "assets" / "bugfix-workflow-spec.json",
+        scenario / "assets" / "render_diagram.py",
+        scenario / "assets" / "bugfix-workflow.svg",
+        scenario / ".github" / "workflows" / "validation.yml",
+        ROOT / "tests" / "test_course_19.py",
+    ]
+    for path in required:
+        if not path.exists():
+            errors.append(f"Course 19 missing required artifact: {path.relative_to(ROOT)}")
+    if errors:
+        return errors
+
+    result = subprocess.run(
+        [sys.executable, str(scenario / "lab.py")],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    try:
+        report = json.loads(result.stdout) if result.returncode == 0 else {}
+    except json.JSONDecodeError:
+        report = {}
+    if not report:
+        errors.append("Course 19 lab did not produce its JSON bug-fix report")
+        return errors
+
+    if report.get("course_validation", {}).get("status") != "PASS":
+        errors.append("Course 19 teaching-suite validation must pass independently")
+    candidate_assessment = report.get("candidate_assessment", {})
+    if candidate_assessment.get("status") != "READY_FOR_INTEGRATION_REVIEW":
+        errors.append("Course 19 exact reference candidate must stop at integration-review eligibility")
+    if candidate_assessment.get("merge_authorized") is not False or candidate_assessment.get("deployment_authorized") is not False:
+        errors.append("Course 19 candidate assessment must not authorize merge or deployment")
+    subject = candidate_assessment.get("subject", {})
+    if len(subject.get("baseline_commit", "")) != 40 or len(subject.get("candidate_commit", "")) != 40:
+        errors.append("Course 19 candidate assessment must bind real baseline and candidate Git commits")
+    if (report.get("conformance", {}).get("passed"), report.get("conformance", {}).get("total")) != (12, 12):
+        errors.append("Course 19 must retain twelve passing conformance decisions")
+    if (report.get("evaluation", {}).get("passed"), report.get("evaluation", {}).get("total")) != (30, 30):
+        errors.append("Course 19 must retain 30 passing evaluation cases")
+    if (report.get("experiments", {}).get("passed"), report.get("experiments", {}).get("total")) != (10, 10):
+        errors.append("Course 19 must retain all ten focused experiments")
+    comparison = report.get("comparison", {})
+    if comparison != {"baseline_cases_accepted": 12, "governed_cases_correct": 12, "total": 12}:
+        errors.append("Course 19 must preserve its complete direct-versus-governed comparison")
+    if not all(row.get("passed") for row in report.get("triage", [])) or len(report.get("triage", [])) != 4:
+        errors.append("Course 19 proportional triage must retain four trusted decisions")
+
+    stored = json.loads((scenario / "evidence" / "manifest.json").read_text(encoding="utf-8"))
+    executed_evidence = report.get("evidence", {})
+    for field in ("producer", "acceptance_digest", "conformance_digest", "evaluation_digest"):
+        if stored.get(field) != executed_evidence.get(field):
+            errors.append(f"Course 19 stored {field} does not reproduce the executed evidence")
+    stored_candidate = stored.get("candidate_assessment", {})
+    if (
+        stored.get("course_validation") != report.get("course_validation", {}).get("status")
+        or stored_candidate.get("status") != candidate_assessment.get("status")
+        or stored_candidate.get("baseline_commit") != subject.get("baseline_commit")
+        or stored_candidate.get("candidate_commit") != subject.get("candidate_commit")
+        or stored.get("conformance") != "12/12"
+        or stored.get("evaluation") != "30/30"
+        or stored.get("experiments") != "10/10"
+    ):
+        errors.append("Course 19 stored evidence summary is stale")
+
+    workflow_source = (scenario / "bugfix_app" / "workflow.py").read_text(encoding="utf-8")
+    evaluator_source = workflow_source.split("def evaluate_candidate", 1)[1].split("def direct_agent_baseline", 1)[0]
+    if (
+        "mutation_labels" in evaluator_source
+        or "agent_tests_passed" in evaluator_source
+        or 'candidate["trusted_acceptance_contract"]' in evaluator_source
+        or 'candidate["diff_entries"]' in evaluator_source
+    ):
+        errors.append("Course 19 governed evaluator must derive findings from artifacts, not harness labels or self-reports")
+    harness_source = (scenario / "bugfix_app" / "trusted_harness.py").read_text(encoding="utf-8")
+    required_harness_fragments = [
+        '["git", "diff", "--name-status", "-M"',
+        "candidate_acceptance_contract=MappingProxyType(candidate_contract)",
+        '"CI-RUN-BUG-2415": receipt',
+        '"PRODUCTION_PATH_CAUSE_CONFIRMED"',
+    ]
+    if any(fragment not in harness_source for fragment in required_harness_fragments):
+        errors.append("Course 19 trusted harness is missing Git, protected-oracle, registry, or production-path evidence")
+    work_unit = json.loads((scenario / "specs" / "BUG-2415" / "work-unit.json").read_text(encoding="utf-8"))
+    if set(work_unit.get("writable_paths", [])) != {"app/risk_engine.py", "tests/test_regression.py"}:
+        errors.append("Course 19 work unit must retain its exact two-path write boundary")
+    if "specs/BUG-2415/acceptance-contract.json" not in work_unit.get("protected_paths", []):
+        errors.append("Course 19 acceptance oracle must remain protected")
+    reference = json.loads((scenario / "reference" / "bugfix-package.json").read_text(encoding="utf-8"))
+    if reference.get("state") != "READY_FOR_INTEGRATION_REVIEW" or any(reference.get("non_authorities", {}).values()):
+        errors.append("Course 19 reference package must retain explicit non-authorities")
+    starter = (scenario / "workshop" / "starter" / "bugfix-package.json").read_text(encoding="utf-8")
+    if starter.count("TODO:") != 5:
+        errors.append("Course 19 starter must retain exactly five learner decisions")
+
+    quiz_source = (ROOT / "quiz" / "questions.js").read_text(encoding="utf-8")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 254:
+        errors.append("Course 19 cumulative quiz must contain 254 questions")
+    if "Courses 01–19" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
+        errors.append("Course 19 cumulative quiz must identify Courses 01–19")
+    hub = (ROOT / "hub" / "lessons.js").read_text(encoding="utf-8")
+    hub_fragments = [
+        "const course19 = {",
+        "09-bug-fixes-and-small-changes-with-agentic-coding-agents/northstar-bugfix/bugfix_small_changes.ipynb",
+        "09-bug-fixes-and-small-changes-with-agentic-coding-agents/northstar-bugfix/workshop/starter",
+        "twelve conformance cases, 30 evaluation mutations, ten failure experiments",
+    ]
+    if any(fragment not in hub for fragment in hub_fragments):
+        errors.append("Course 19 Learning Hub entry is incomplete or points outside the workshop package")
     return errors
 
 
@@ -2949,6 +3088,7 @@ def main() -> None:
         "Course 16 governance control plane": check_course_16_governance_control_plane,
         "Course 17 end-to-end Agentic PDLC": check_course_17_end_to_end_agentic_pdlc,
         "Course 18 brownfield development": check_course_18_brownfield_development,
+        "Course 19 bug fixes and small changes": check_course_19_bug_fixes,
         "diagrams": render_and_validate_diagrams,
         "labs": run_labs,
         "repository labs": run_repository_labs,

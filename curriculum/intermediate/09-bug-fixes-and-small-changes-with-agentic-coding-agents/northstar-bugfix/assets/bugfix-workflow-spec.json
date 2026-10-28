@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "id": "course19-governed-bugfix",
+  "title": "A proportional, evidence-bound bug-fix workflow",
+  "purpose": "Show how an observed defect becomes a bounded patch supported by independent, revision-bound evidence.",
+  "output": {
+    "svg": "bugfix-workflow.svg",
+    "alt_text": "A bug report enters trusted risk triage, then reproduction and discriminating experiments, a bounded agent patch, and independent diff and oracle verification. A clean result becomes eligible for integration review. Verification failures return to investigation. Merge and deployment authority remain outside this workflow.",
+    "render_source": "render_diagram.py"
+  },
+  "canvas": {"width": 1680, "height": 650, "background": "#F7F9FC", "margin": 50},
+  "style": {
+    "font_family": "Inter, Arial, sans-serif",
+    "semantic_colors": {
+      "observation": {"fill": "#FFFFFF", "stroke": "#52606D"},
+      "control": {"fill": "#FFF1DF", "stroke": "#D97706"},
+      "investigation": {"fill": "#EAF1FF", "stroke": "#2F6BFF"},
+      "agent": {"fill": "#F0EEFF", "stroke": "#7667E8"},
+      "evidence": {"fill": "#E5F7F6", "stroke": "#087F7B"},
+      "review": {"fill": "#E5F7F6", "stroke": "#087F7B"}
+    }
+  },
+  "nodes": [
+    {"id": "report", "label_lines": ["Bug report", "observation, not truth"], "type": "observation", "bounds": {"x": 50, "y": 220, "width": 220, "height": 180}, "ports": {"out": {"side": "right", "offset": 0.5}}},
+    {"id": "triage", "label_lines": ["Trusted risk triage", "select workflow mode"], "type": "control", "bounds": {"x": 320, "y": 220, "width": 220, "height": 180}, "ports": {"in": {"side": "left", "offset": 0.5}, "out": {"side": "right", "offset": 0.5}}},
+    {"id": "investigate", "label_lines": ["Reproduce + discriminate", "confirm root cause"], "type": "investigation", "bounds": {"x": 590, "y": 220, "width": 220, "height": 180}, "ports": {"in": {"side": "left", "offset": 0.5}, "out": {"side": "right", "offset": 0.5}, "feedback": {"side": "bottom", "offset": 0.5}}},
+    {"id": "patch", "label_lines": ["Bounded agent patch", "minimal sufficient change"], "type": "agent", "bounds": {"x": 860, "y": 220, "width": 220, "height": 180}, "ports": {"in": {"side": "left", "offset": 0.5}, "out": {"side": "right", "offset": 0.5}}},
+    {"id": "verify", "label_lines": ["Independent verification", "diff + oracle + red/green"], "type": "evidence", "bounds": {"x": 1130, "y": 220, "width": 220, "height": 180}, "ports": {"in": {"side": "left", "offset": 0.5}, "out": {"side": "right", "offset": 0.5}, "feedback": {"side": "bottom", "offset": 0.5}}},
+    {"id": "review", "label_lines": ["Integration review", "eligible, not merged"], "type": "review", "bounds": {"x": 1400, "y": 220, "width": 220, "height": 180}, "ports": {"in": {"side": "left", "offset": 0.5}}}
+  ],
+  "edges": [
+    {"id": "report-triage", "from": {"node": "report", "port": "out"}, "to": {"node": "triage", "port": "in"}, "kind": "primary", "route": [[270, 310], [320, 310]]},
+    {"id": "triage-investigate", "from": {"node": "triage", "port": "out"}, "to": {"node": "investigate", "port": "in"}, "kind": "primary", "route": [[540, 310], [590, 310]]},
+    {"id": "investigate-patch", "from": {"node": "investigate", "port": "out"}, "to": {"node": "patch", "port": "in"}, "kind": "primary", "route": [[810, 310], [860, 310]]},
+    {"id": "patch-verify", "from": {"node": "patch", "port": "out"}, "to": {"node": "verify", "port": "in"}, "kind": "primary", "route": [[1080, 310], [1130, 310]]},
+    {"id": "verify-review", "from": {"node": "verify", "port": "out"}, "to": {"node": "review", "port": "in"}, "kind": "primary", "route": [[1350, 310], [1400, 310]]},
+    {"id": "feedback", "from": {"node": "verify", "port": "feedback"}, "to": {"node": "investigate", "port": "feedback"}, "kind": "feedback", "label": "mismatch or stale evidence → investigate again", "route": [[1240, 400], [1240, 515], [700, 515], [700, 400]]}
+  ],
+  "validation": {"no_overlaps": true, "route_around_nodes": true, "min_text_padding": 16, "verify_port_attachment": true, "verify_contrast": true}
+}

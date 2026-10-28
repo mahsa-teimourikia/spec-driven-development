@@ -1,0 +1,32 @@
+{
+  "hypotheses": [
+    {
+      "id": "HYP-OPERATOR",
+      "claim": "The high-risk comparison excludes the exact score-80 boundary.",
+      "prediction": "The buggy classifier returns MEDIUM at 80; changing only > to >= returns HIGH.",
+      "experiment": "EXP-DIRECT-BOUNDARY",
+      "status": "CONFIRMED"
+    },
+    {
+      "id": "HYP-NORMALIZATION",
+      "claim": "The API subtracts one before classification.",
+      "prediction": "The production response reports a normalized score of 79.",
+      "experiment": "EXP-PRODUCTION-PATH",
+      "status": "NOT_SUPPORTED"
+    },
+    {
+      "id": "HYP-CACHE",
+      "claim": "A stale cached decision is returned.",
+      "prediction": "A new submission ID avoids the defect.",
+      "experiment": "EXP-UNIQUE-SUBMISSION",
+      "status": "NOT_SUPPORTED"
+    },
+    {
+      "id": "HYP-SERIALIZATION",
+      "claim": "Serialization changes HIGH to MEDIUM.",
+      "prediction": "The in-memory category is HIGH while the response is MEDIUM.",
+      "experiment": "EXP-RESPONSE-BOUNDARY",
+      "status": "NOT_SUPPORTED"
+    }
+  ]
+}

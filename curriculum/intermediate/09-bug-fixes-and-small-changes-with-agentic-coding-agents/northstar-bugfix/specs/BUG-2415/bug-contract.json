@@ -1,0 +1,25 @@
+{
+  "bug_id": "BUG-2415",
+  "title": "Boundary score 80 is classified as MEDIUM",
+  "repository_revision": "c66ebb3dd7a72028dae35f15e8fb52fe03cc2a86",
+  "specification_revision": 3,
+  "observation": {
+    "input": {"submission_id": "SUB-2415", "score": 80},
+    "actual": {"risk_category": "MEDIUM", "review_required": false}
+  },
+  "expected": {"risk_category": "HIGH", "review_required": true},
+  "governing_requirement": "REQ-RISK-010@3",
+  "authorized_paths": ["app/risk_engine.py", "tests/test_regression.py"],
+  "non_goals": [
+    "redesign the risk taxonomy",
+    "refactor the decision service",
+    "change authorization policy",
+    "change the acceptance oracle"
+  ],
+  "stop_conditions": [
+    "approved requirements conflict",
+    "the observed failure cannot be reproduced",
+    "the production path has a different root cause",
+    "a protected path must change"
+  ]
+}

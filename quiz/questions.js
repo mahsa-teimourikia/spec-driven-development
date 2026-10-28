@@ -1692,5 +1692,89 @@ const QUESTIONS = [
     options: ['The deterministic teaching package is reproducible; production modernization safety and model quality remain unproven', 'The legacy path may now be retired', 'Deployment is authorized', 'All brownfield repositories are covered'],
     answer: 0,
     explanation: 'The evidence is bounded to declared fixtures and controls. Production still needs real identities, telemetry, consumers, databases, representative populations, and accountable authorization.'
+  },
+  {
+    category: 'Course 19 proportionality',
+    question: 'A one-line change alters who receives mandatory underwriting review. Which factor should determine workflow depth?',
+    options: ['Consequence, authority, uncertainty, exposure, and reversibility', 'The number of changed lines', 'The agent’s confidence score', 'Whether the file is short'],
+    answer: 0,
+    explanation: 'Small scope does not imply low risk. A tiny diff can change a consequential authority boundary.'
+  },
+  {
+    category: 'Course 19 reports',
+    question: 'A reporter says score 80 should be HIGH. What does the report establish by itself?',
+    options: ['An observation and expectation to verify, not normative truth', 'The approved requirement', 'The root cause', 'Permission to deploy a fix'],
+    answer: 0,
+    explanation: 'Approved requirements establish expected behavior. Reports, causes, and proposed fixes require separate verification.'
+  },
+  {
+    category: 'Course 19 causality',
+    question: 'What makes an experiment useful for root-cause analysis?',
+    options: ['Competing hypotheses predict different observable results', 'It runs the largest possible suite', 'The implementation agent wrote it', 'It produces a green result after editing'],
+    answer: 0,
+    explanation: 'A discriminating experiment eliminates explanations because they predict different observations.'
+  },
+  {
+    category: 'Course 19 evidence',
+    question: 'A regression passes on the candidate revision, but nobody ran it on the baseline. What is missing?',
+    options: ['Proof that the test reproduces the reported defect before the patch', 'A larger refactor', 'A second agent confidence report', 'Permission to change the expectation'],
+    answer: 0,
+    explanation: 'Red-green evidence requires the same protected regression to fail before and pass after.'
+  },
+  {
+    category: 'Course 19 oracle',
+    question: 'The agent changes the score-80 expected value from HIGH to MEDIUM and the suite turns green. What should the gate do?',
+    options: ['Block because the protected acceptance oracle changed', 'Accept because tests are green', 'Accept if the production diff is one line', 'Let the test name decide'],
+    answer: 0,
+    explanation: 'A coding agent must not make its own implementation conform by weakening independently owned expectations.'
+  },
+  {
+    category: 'Course 19 scope',
+    question: 'The authorized file is renamed to a protected path. Which paths must diff validation inspect?',
+    options: ['Both the old and new paths', 'Only the new path', 'Only the old path', 'Neither if Git marks it as a rename'],
+    answer: 0,
+    explanation: 'Rename and copy semantics can cross boundaries; both endpoints must be evaluated.'
+  },
+  {
+    category: 'Course 19 work units',
+    question: 'A file is writable for a boundary correction. May the agent also refactor its architecture?',
+    options: ['No. Authorized path and authorized purpose are separate constraints', 'Yes. File access authorizes every edit', 'Yes, if no new files are added', 'Yes, if the agent calls it cleanup'],
+    answer: 0,
+    explanation: 'A minimal work unit constrains why a path may change as well as which path may change.'
+  },
+  {
+    category: 'Course 19 production path',
+    question: 'The corrected classifier returns HIGH at 80, but the API normalizes 80 to 79 first. What does this show?',
+    options: ['The proposed root cause does not fully explain the production-path defect', 'The unit test authorizes release', 'The acceptance contract is wrong', 'The API should be added to scope automatically'],
+    answer: 0,
+    explanation: 'A green unit fix with a failing production path indicates root-cause mismatch and requires renewed investigation.'
+  },
+  {
+    category: 'Course 19 conflicts',
+    question: 'Two approved requirements disagree about whether HIGH begins at 80 or 85. What should the coding agent do?',
+    options: ['Stop and route the normative conflict to the accountable owner', 'Choose the nearest file', 'Choose the newest timestamp automatically', 'Implement both meanings randomly'],
+    answer: 0,
+    explanation: 'Conflicting approved meaning is an owner decision unless an explicit precedence rule resolves it.'
+  },
+  {
+    category: 'Course 19 freshness',
+    question: 'Why can an old green evidence receipt not be reused for a new candidate?',
+    options: ['Evidence is valid only for the exact code and oracle revisions it evaluated', 'Green results never expire', 'Candidate identity is documentation only', 'The agent can re-label the receipt'],
+    answer: 0,
+    explanation: 'Subject and revision binding prevents replaying evidence produced for different artifacts.'
+  },
+  {
+    category: 'Course 19 lightweight path',
+    question: 'When is a lightweight workflow most defensible?',
+    options: ['Low consequence, known local cause, narrow reversible scope, and no protected contract change', 'Whenever fewer than ten lines change', 'Whenever a senior agent writes the patch', 'Whenever full tests are slow'],
+    answer: 0,
+    explanation: 'The lightweight path is a risk decision, not a line-count shortcut.'
+  },
+  {
+    category: 'Course 19 authority',
+    question: 'The lab passes 12 conformance cases, 30 evaluations, and ten experiments. What is established?',
+    options: ['The teaching package is reproducible and eligible for integration review; release remains unapproved', 'The patch is deployed', 'All bug fixes are safe', 'The policy owner approved every future boundary'],
+    answer: 0,
+    explanation: 'Bounded evidence supports a bounded review state. It does not grant merge or deployment authority.'
   }
 ];

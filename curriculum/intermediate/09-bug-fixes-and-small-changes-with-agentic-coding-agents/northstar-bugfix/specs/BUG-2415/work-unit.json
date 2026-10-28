@@ -1,0 +1,34 @@
+{
+  "id": "WU-BUG-2415",
+  "objective": "Make score 80 satisfy REQ-RISK-010@3 without changing adjacent approved behavior.",
+  "writable_paths": ["app/risk_engine.py", "tests/test_regression.py"],
+  "protected_paths": [
+    "app/authorization.py",
+    "database/migrations/schema.sql",
+    "specs/BUG-2415/acceptance-contract.json"
+  ],
+  "allowed_purposes": ["correct_boundary_condition", "add_regression_test"],
+  "trusted_risk": {
+    "consequence": 1,
+    "authority": 1,
+    "scope": 1,
+    "reversibility": 1,
+    "uncertainty": 1,
+    "exposure": 1
+  },
+  "mandatory_mode": "STRUCTURED",
+  "required_evidence": [
+    "trusted failing observation on the baseline revision",
+    "trusted passing observation on the candidate revision",
+    "boundary regression results",
+    "confirmed root-cause experiment",
+    "actual diff conformance"
+  ],
+  "stop_conditions": [
+    "oracle change",
+    "scope expansion",
+    "root-cause mismatch",
+    "requirement conflict",
+    "protected-path change"
+  ]
+}
