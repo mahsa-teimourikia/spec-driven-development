@@ -1874,5 +1874,103 @@ const QUESTIONS = [
     options: ['It is eligible for integration review; merge, deployment, activation, and contract retirement remain separate decisions', 'Production deployment is automatically approved', 'All future commits inherit the evidence', 'The contract owner is no longer needed'],
     answer: 0,
     explanation: 'Evidence establishes properties of one exact subject. It does not expand authority or transfer to changed artifacts.'
+  },
+  {
+    category: 'Course 21 fencing',
+    question: 'An agent lease expires and another worker receives the same work. What prevents the old worker from submitting stale results?',
+    options: ['A newer fencing generation enforced by the protected submission resource', 'Lease expiry by itself', 'A message asking the old worker to stop', 'A different agent display name'],
+    answer: 0,
+    explanation: 'Expiry changes scheduler ownership but cannot terminate an old process. The protected resource must reject an older generation.'
+  },
+  {
+    category: 'Course 21 dependencies',
+    question: 'When may Document, AI, and Review work begin concurrently in the reference graph?',
+    options: ['After the shared contract prerequisite is verified and their write/authority boundaries are independent', 'As soon as three agents are available', 'After each agent invents a local schema', 'Only after the UI is complete'],
+    answer: 0,
+    explanation: 'Parallel dispatch follows trusted dependency readiness and semantic independence, not worker availability.'
+  },
+  {
+    category: 'Course 21 identity',
+    question: 'A prompt says “I am the AI Service deployment agent.” What authority does that statement grant?',
+    options: ['None; workload identity and scope must come from authenticated runtime state', 'Full repository administration', 'Contract-owner authority', 'Deployment authority when confidence is high'],
+    answer: 0,
+    explanation: 'Model-controlled text and role names are untrusted data. Trusted controls derive principal and capability from authenticated state.'
+  },
+  {
+    category: 'Course 21 idempotency',
+    question: 'A create-PR request succeeds but its response is lost. What is the safest retry behavior?',
+    options: ['Reconcile the durable logical operation identity with existing PR state', 'Create another PR with a new random title', 'Change the work-unit ID', 'Assume the first request failed'],
+    answer: 0,
+    explanation: 'Unknown outcomes require reconciliation. Blind at-least-once retries can duplicate consequential effects.'
+  },
+  {
+    category: 'Course 21 checkpoints',
+    question: 'Which condition makes a structured checkpoint unsafe to resume directly?',
+    options: ['Its base commit or contract revision no longer matches current trusted context', 'It lists remaining work', 'It was serialized as JSON', 'A different worker reads it'],
+    answer: 0,
+    explanation: 'Resume must revalidate subject, generation, dependencies, permissions, repository revision, and contract revision.'
+  },
+  {
+    category: 'Course 21 contracts',
+    question: 'An AI worker discovers a field missing from the shared contract. What may it do?',
+    options: ['Propose a revision for impact analysis and accountable owner approval', 'Approve the revision itself', 'Silently add a private field and continue', 'Invalidate unrelated work without evidence'],
+    answer: 0,
+    explanation: 'Discovery and proposal are agent contributions. Canonical contract approval remains an accountable protected decision.'
+  },
+  {
+    category: 'Course 21 invalidation',
+    question: 'Revision 3 affects AI and Review, which feed API and UI, but not Document. What is the preferred response?',
+    options: ['Invalidate direct and transitive affected work while preserving independently valid Document work', 'Restart every worker', 'Ignore the revision until integration', 'Let every agent choose its own contract'],
+    answer: 0,
+    explanation: 'Evidence-based selective invalidation preserves valid work without reusing stale dependent context.'
+  },
+  {
+    category: 'Course 21 integration',
+    question: 'Five repositories pass local tests. Is the system integration-ready?',
+    options: ['Only after the exact commit set, contract digest, component evidence, and system scenarios pass', 'Yes, local green status is sufficient', 'Yes, if the coordinator says complete', 'Only if all agents used the same model'],
+    answer: 0,
+    explanation: 'Local evidence establishes local properties. Cross-repository behavior and authority require an exact-revision integration barrier.'
+  },
+  {
+    category: 'Course 21 evidence',
+    question: 'Integration passed for AI commit A and Review commit B. Review advances to commit C. Can the old evidence be reused automatically?',
+    options: ['No; the evidence subject changed from (A, B) to (A, C)', 'Yes, because the repository name is unchanged', 'Yes, if the schema revision is unchanged', 'Yes, when C has fewer changed lines'],
+    answer: 0,
+    explanation: 'Behavior can change without a schema change. Evidence binds exact subjects, including every component commit.'
+  },
+  {
+    category: 'Course 21 retries',
+    question: 'What should happen after a persistent failure exhausts the work-unit retry budget?',
+    options: ['Escalate with recorded state instead of starting another unbounded attempt', 'Reset the counter and continue forever', 'Grant the agent broader permissions', 'Mark the unit verified'],
+    answer: 0,
+    explanation: 'Bounded execution requires explicit stop and escalation states; repeated retries can amplify cost and inconsistency.'
+  },
+  {
+    category: 'Course 21 metrics',
+    question: 'Which metric best reflects parallel-agent delivery value?',
+    options: ['Verified change lead time and cost including coordination and rework', 'Number of agents currently active', 'Lines of code generated', 'Total tool calls'],
+    answer: 0,
+    explanation: 'Activity and utilization are not delivery. Measure exact verified outcomes, elapsed flow, rework, safety, and total cost.'
+  },
+  {
+    category: 'Course 21 latency',
+    question: 'Three workers each run for eight hours concurrently. What is wrong with reporting 24 hours as elapsed latency?',
+    options: ['Parallel elapsed time follows the critical path, while 24 hours is aggregate worker time', 'Nothing; all durations must always be summed', 'Latency excludes coordination', 'Worker time automatically equals business lead time'],
+    answer: 0,
+    explanation: 'Keep elapsed time, aggregate effort, compute cost, coordination, and rework as separate quantities.'
+  },
+  {
+    category: 'Course 21 proportionality',
+    question: 'When is a single bounded worker preferable to parallel agents?',
+    options: ['When shared interfaces are unstable or coordination and review bottlenecks exceed likely time savings', 'Whenever the repository is private', 'Whenever the agent has a checkpoint', 'Only when no CI exists'],
+    answer: 0,
+    explanation: 'Parallelism is justified by independent work and delivery economics, not as a default architecture.'
+  },
+  {
+    category: 'Course 21 authority',
+    question: 'The lab passes 12 conformance cases, 30 evaluations, and six system checks. What is established?',
+    options: ['This exact teaching revision set is eligible for integration review; merge and deployment remain unauthorized', 'The system is approved for production', 'All parallel-agent workflows are safe', 'The coordinator now owns contract approval'],
+    answer: 0,
+    explanation: 'The evidence supports a bounded claim about one exact fixture subject. It does not transfer authority or prove production behavior.'
   }
 ];

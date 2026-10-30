@@ -1,0 +1,4 @@
+{
+  "baseline": {"contract_revision": 2, "behavior": "requirement-state-v1", "authoritative": true},
+  "candidate": {"contract_revision": 2, "behavior": "review-bound-requirement-state", "authoritative": true}
+}

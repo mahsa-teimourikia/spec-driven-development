@@ -1,0 +1,14 @@
+{
+  "required_system_checks": [
+    "ambiguity_routes_to_review",
+    "tenant_isolation",
+    "duplicate_operation_reconciled",
+    "provenance_preserved",
+    "proposal_not_authoritative",
+    "exact_revision_set"
+  ],
+  "contract_owner": "northstar-contract-owner",
+  "integration_verifier": "northstar-integration-ci",
+  "release_authority_in_fixture": false,
+  "unknown_dependency_behavior": "REQUIRE_REVIEW"
+}

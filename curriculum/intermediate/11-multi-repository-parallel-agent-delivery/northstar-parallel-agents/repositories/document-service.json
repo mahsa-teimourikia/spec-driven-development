@@ -1,0 +1,4 @@
+{
+  "baseline": {"contract_revision": 2, "behavior": "extract-v1", "authoritative": false},
+  "candidate": {"contract_revision": 2, "behavior": "extract-with-provenance", "authoritative": false}
+}

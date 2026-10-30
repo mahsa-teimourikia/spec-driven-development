@@ -1,0 +1,9 @@
+{
+  "change_id": "AI-2500",
+  "work_partition": "TODO: identify the dependency-safe parallel wave and explain why its work units are independent",
+  "workload_identity": "TODO: bind each worker to authenticated repository and path scope",
+  "lease_and_fencing": "TODO: define expiry, renewal, generation, and protected-resource enforcement",
+  "checkpoint_and_retry": "TODO: define durable resume validation, logical operation identity, and retry budget",
+  "contract_change": "TODO: identify affected work, accountable approval, selective invalidation, and replanning",
+  "integration_barrier": "TODO: bind exact commits, contracts, evidence, system scenarios, and explicit non-authorities"
+}

@@ -1,0 +1,13 @@
+{
+  "nodes": ["WU-CONTRACT", "WU-DOC", "WU-AI", "WU-REVIEW", "WU-API", "WU-UI"],
+  "dependencies": {
+    "WU-CONTRACT": [],
+    "WU-DOC": ["WU-CONTRACT"],
+    "WU-AI": ["WU-CONTRACT"],
+    "WU-REVIEW": ["WU-CONTRACT"],
+    "WU-API": ["WU-DOC", "WU-REVIEW"],
+    "WU-UI": ["WU-API"]
+  },
+  "contract_dependents": ["WU-AI", "WU-REVIEW"],
+  "integration_requires": ["WU-DOC", "WU-AI", "WU-REVIEW", "WU-API", "WU-UI"]
+}

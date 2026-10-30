@@ -1,0 +1,4 @@
+{
+  "baseline": {"contract_revision": 2, "behavior": "manual-review-baseline", "authoritative": false},
+  "candidate": {"contract_revision": 2, "behavior": "authorized-idempotent-review", "authoritative": false}
+}

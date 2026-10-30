@@ -12,8 +12,8 @@ This path turns specification skills into repeatable delivery flows.
 18. [Brownfield Development with Agentic Coding Agents](08-brownfield-development-with-agentic-coding-agents/README.md) — available
 19. [Bug Fixes and Small Changes with Agentic Coding Agents](09-bug-fixes-and-small-changes-with-agentic-coding-agents/README.md) — available
 20. [Multi-Repository Spec-Driven Development with AI Coding Agents](10-multi-repository-spec-driven-development-with-ai-coding-agents/README.md) — available
-21. Multi-repository parallel-agent delivery
+21. [Multi-Repository Parallel-Agent Delivery](11-multi-repository-parallel-agent-delivery/README.md) — available
 22. PR and review strategy
 23. Human approval gates
 
-Courses 11–20 are available. The remaining courses will be published as complete vertical slices; see the [course plan](../../COURSE_PLAN.md).
+Courses 11–21 are available. The remaining courses will be published as complete vertical slices; see the [course plan](../../COURSE_PLAN.md).

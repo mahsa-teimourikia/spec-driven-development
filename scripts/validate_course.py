@@ -3210,10 +3210,11 @@ def check_course_20_multirepository() -> list[str]:
         errors.append("Course 20 reference package must retain explicit non-authorities")
 
     quiz_source = (ROOT / "quiz/questions.js").read_text(encoding="utf-8")
-    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 268:
-        errors.append("Course 20 cumulative quiz must contain 268 questions")
-    if "Courses 01–20" not in (ROOT / "quiz/index.html").read_text(encoding="utf-8"):
-        errors.append("Course 20 cumulative quiz must identify Courses 01–20")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) < 268:
+        errors.append("Course 20 cumulative quiz must retain at least 268 questions")
+    quiz_index = (ROOT / "quiz/index.html").read_text(encoding="utf-8")
+    if "Courses 01–20" not in quiz_index and "Courses 01–21" not in quiz_index:
+        errors.append("Course 20 cumulative quiz must identify coverage through Course 20")
     hub = (ROOT / "hub/lessons.js").read_text(encoding="utf-8")
     hub_fragments = [
         "const course20 = {",
@@ -3223,6 +3224,151 @@ def check_course_20_multirepository() -> list[str]:
     ]
     if any(fragment not in hub for fragment in hub_fragments):
         errors.append("Course 20 Learning Hub entry is incomplete or points outside the workshop package")
+    return errors
+
+
+def check_course_21_parallel_delivery() -> list[str]:
+    errors: list[str] = []
+    lesson = ROOT / "curriculum/intermediate/11-multi-repository-parallel-agent-delivery"
+    scenario = lesson / "northstar-parallel-agents"
+    required = [
+        lesson / "README.md",
+        scenario / "README.md",
+        scenario / "lab.py",
+        scenario / "parallel_agent_delivery.ipynb",
+        scenario / "parallel_app/__init__.py",
+        scenario / "parallel_app/control_plane.py",
+        scenario / "parallel_app/git_harness.py",
+        scenario / "parallel_app/simulation.py",
+        scenario / "parent-change/AI-2500.json",
+        scenario / "parent-change/dependency-graph.json",
+        scenario / "parent-change/work-units.json",
+        scenario / "parent-change/integration-policy.json",
+        scenario / "contracts/classification-v2.schema.json",
+        scenario / "contracts/classification-v3.schema.json",
+        scenario / "contracts/classification.behavior.md",
+        scenario / "conformance-suite.json",
+        scenario / "evaluation-cases.json",
+        scenario / "evidence/manifest.json",
+        scenario / "reference/integration-package.json",
+        scenario / "workshop/starter/integration-package.json",
+        scenario / "openspec/changes/AI-2500-parallel-delivery/proposal.md",
+        scenario / "openspec/changes/AI-2500-parallel-delivery/specs/parallel-agent-delivery/spec.md",
+        scenario / "openspec/changes/AI-2500-parallel-delivery/tasks.md",
+        scenario / ".github/workflows/validation.yml",
+        ROOT / "tests/test_course_21.py",
+    ]
+    required.extend((scenario / "repositories").glob("*.json"))
+    required.extend((scenario / "scenarios").glob("*.json"))
+    for path in required:
+        if not path.exists():
+            errors.append(f"Course 21 missing required artifact: {path.relative_to(ROOT)}")
+    if len(list((scenario / "repositories").glob("*.json"))) != 5:
+        errors.append("Course 21 must define exactly five repository fixtures")
+    if len(list((scenario / "scenarios").glob("*.json"))) != 6:
+        errors.append("Course 21 must retain six documented failure/integration scenarios")
+    if errors:
+        return errors
+
+    result = subprocess.run(
+        [sys.executable, str(scenario / "lab.py")],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    try:
+        report = json.loads(result.stdout) if result.returncode == 0 else {}
+    except json.JSONDecodeError:
+        report = {}
+    if not report:
+        errors.append("Course 21 lab did not produce its JSON report")
+        return errors
+    if report.get("course_validation", {}).get("status") != "PASS":
+        errors.append("Course 21 teaching-suite validation must pass")
+    assessment = report.get("candidate_assessment", {})
+    if assessment.get("status") != "READY_FOR_INTEGRATION_REVIEW":
+        errors.append("Course 21 reference must stop at integration-review eligibility")
+    if any(
+        assessment.get(field) is not False
+        for field in ("merge_authorized", "deployment_authorized", "release_authorized")
+    ):
+        errors.append("Course 21 package must not authorize merge, deployment, or release")
+    commits = assessment.get("component_commits", {})
+    if len(commits) != 5 or any(len(value) != 40 for value in commits.values()):
+        errors.append("Course 21 integration subject must bind five full Git commits")
+    if (report.get("conformance", {}).get("passed"), report.get("conformance", {}).get("total")) != (12, 12):
+        errors.append("Course 21 must retain twelve passing conformance scenarios")
+    if (report.get("evaluation", {}).get("passed"), report.get("evaluation", {}).get("total")) != (30, 30):
+        errors.append("Course 21 must retain thirty passing evaluation decisions")
+    if report.get("evaluation", {}).get("population") != {
+        "positive": 7,
+        "negative": 15,
+        "boundary": 5,
+        "failure_recovery": 3,
+    }:
+        errors.append("Course 21 evaluation population is missing or mislabeled")
+    if (report.get("system_scenarios", {}).get("passed"), report.get("system_scenarios", {}).get("total")) != (6, 6):
+        errors.append("Course 21 must retain six passing system scenarios")
+    comparison = report.get("scheduling_comparison", {})
+    if (
+        comparison.get("sequential", {}).get("elapsed_hours") != 30
+        or comparison.get("naive_parallel", {}).get("elapsed_hours") != 23
+        or comparison.get("governed_parallel", {}).get("elapsed_hours") != 20
+        or comparison.get("naive_parallel", {}).get("rework_hours") != 15
+    ):
+        errors.append("Course 21 scheduling comparison is stale")
+
+    stored = json.loads((scenario / "evidence/manifest.json").read_text(encoding="utf-8"))
+    stored_assessment = stored.get("candidate_assessment", {})
+    if (
+        stored.get("course_validation") != "PASS"
+        or stored_assessment.get("status") != assessment.get("status")
+        or stored_assessment.get("component_commits") != commits
+        or stored_assessment.get("revision_set_digest") != assessment.get("revision_set_digest")
+        or stored.get("conformance") != "12/12"
+        or stored.get("evaluation") != "30/30"
+        or stored.get("system_scenarios") != "6/6"
+    ):
+        errors.append("Course 21 stored evidence summary is stale")
+
+    control_plane = (scenario / "parallel_app/control_plane.py").read_text(encoding="utf-8")
+    required_controls = [
+        "STALE_FENCING_TOKEN",
+        "UNAUTHENTICATED_WORKLOAD",
+        "UNAUTHORIZED_PATH_MODIFICATION",
+        "IDEMPOTENCY_KEY_REUSED_FOR_DIFFERENT_REQUEST",
+        "CHECKPOINT_CONTRACT_STALE",
+        "CONTRACT_OWNER_APPROVAL_REQUIRED",
+        "INTEGRATION_REVISION_SET_MISMATCH",
+        "SEPARATE_RELEASE_AUTHORITY_REQUIRED",
+    ]
+    if any(fragment not in control_plane for fragment in required_controls):
+        errors.append("Course 21 trusted control plane is missing required execution controls")
+    simulation = (scenario / "parallel_app/simulation.py").read_text(encoding="utf-8")
+    if "scenarios/" in simulation or '["expected"]' in simulation:
+        errors.append("Course 21 evaluator must execute controls rather than trust scenario labels")
+    starter = (scenario / "workshop/starter/integration-package.json").read_text(encoding="utf-8")
+    if starter.count("TODO:") != 6:
+        errors.append("Course 21 starter must retain exactly six learner decisions")
+    reference = json.loads((scenario / "reference/integration-package.json").read_text(encoding="utf-8"))
+    if reference.get("state") != "READY_FOR_INTEGRATION_REVIEW" or any(reference.get("non_authorities", {}).values()):
+        errors.append("Course 21 reference package must retain explicit non-authorities")
+
+    quiz_source = (ROOT / "quiz/questions.js").read_text(encoding="utf-8")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 282:
+        errors.append("Course 21 cumulative quiz must contain 282 questions")
+    if "Courses 01–21" not in (ROOT / "quiz/index.html").read_text(encoding="utf-8"):
+        errors.append("Course 21 cumulative quiz must identify Courses 01–21")
+    hub = (ROOT / "hub/lessons.js").read_text(encoding="utf-8")
+    hub_fragments = [
+        "const course21 = {",
+        "11-multi-repository-parallel-agent-delivery/northstar-parallel-agents/parallel_agent_delivery.ipynb",
+        "11-multi-repository-parallel-agent-delivery/northstar-parallel-agents/workshop/starter/integration-package.json",
+        "12 conformance scenarios, 30 labelled evaluation decisions, and six exact-revision system checks",
+    ]
+    if any(fragment not in hub for fragment in hub_fragments):
+        errors.append("Course 21 Learning Hub entry is incomplete or points outside the workshop package")
     return errors
 
 
@@ -3252,6 +3398,7 @@ def main() -> None:
         "Course 18 brownfield development": check_course_18_brownfield_development,
         "Course 19 bug fixes and small changes": check_course_19_bug_fixes,
         "Course 20 multi-repository development": check_course_20_multirepository,
+        "Course 21 parallel-agent delivery": check_course_21_parallel_delivery,
         "diagrams": render_and_validate_diagrams,
         "labs": run_labs,
         "repository labs": run_repository_labs,

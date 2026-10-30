@@ -1,0 +1,1 @@
+{"id":"NORMAL-PARALLEL","action":"dispatch only ready work, verify exact commits, cross integration barrier","expected":"READY_FOR_INTEGRATION_REVIEW"}
