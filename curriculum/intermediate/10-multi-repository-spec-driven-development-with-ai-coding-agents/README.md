@@ -165,7 +165,7 @@ Contracts cover more than payload fields:
 - errors, timeouts, retries, and idempotency; and
 - supported producer/consumer version combinations.
 
-Course 20 includes [JSON Schema revisions 1 and 2](northstar-multirepo/contracts/) plus an illustrative OpenAPI description. Revision 2 adds required evidence and model provenance.
+Course 20 includes [JSON Schema revisions 1 and 2](northstar-multirepo/contracts/) plus an illustrative OpenAPI description. Revision 2 adds tenant identity, trusted ambiguity status, observable model confidence, required evidence, and model provenance. The adjacent [behavioral contract](northstar-multirepo/contracts/classification-v2.behavior.md) defines the review, tenant, idempotency, and authority obligations that JSON Schema cannot express.
 
 ## 9. Structural validity is not behavioral correctness
 
@@ -260,7 +260,7 @@ The lab executes this matrix:
 | v2 | v1 | incompatible | old consumer cannot process revision 2 |
 | v2 | v2 | compatible | new pair is verified |
 
-These are deterministic teaching-fixture results, not production observations.
+Each result comes from actual producer output passed into the corresponding consumer implementation. The matrix does not infer compatibility from configured version lists. These are deterministic teaching-fixture results, not production observations.
 
 ## 16. Consumer-first rollout
 
@@ -314,6 +314,8 @@ The [Course 20 work units](northstar-multirepo/parent-change/work-units.json) bi
 
 A work-unit document is not a runtime permission. The execution platform must authenticate the workload, issue a subset of authorized capabilities, enforce paths and tools, and revoke access when the lease ends.
 
+The [repository dispositions](northstar-multirepo/parent-change/repository-dispositions.json) classify all five repositories. AI Service and Review Service are `CHANGED` and require validated work units. Document Service, Underwriting API, and Underwriter UI are `UNCHANGED_DEPENDENCY` and require executable compatibility evidence against their exact committed revisions.
+
 ## 21. Stale work invalidation
 
 A new parent revision, contract revision, repository base commit, or protected architecture decision invalidates affected work units. The coordinator pauses and replans rather than silently rebasing semantic assumptions.
@@ -334,13 +336,13 @@ The unsafe baseline in the lab accepts all 16 conformance cases because it trust
 
 ## 24. The integration manifest
 
-An [integration manifest](northstar-multirepo/integration/integration-manifest.template.json) names the change, contract revision, five full Git commits, and required evidence. A report that says “integration passed” without naming its exact component revisions is not replay-resistant system evidence.
+An [integration manifest](northstar-multirepo/integration/integration-manifest.template.json) names the change, contract digest and revision, five full Git commits, and the executed result-artifact digest. The evidence receipt also maps each parent requirement to named executed tests. A report that says “integration passed” without naming its exact component revisions and result artifact is not replay-resistant system evidence.
 
 Branch names and tags are movable. Use immutable full commit identities for evidence subjects.
 
 ## 25. System scenarios
 
-The trusted runner executes 11 scenarios:
+The trusted runner executes 12 scenarios by importing and calling the implementations committed in the temporary repositories:
 
 | Scenario | Required result |
 | --- | --- |
@@ -354,6 +356,7 @@ The trusted runner executes 11 scenarios:
 | old producer / new consumer | compatible behavior |
 | new producer / old consumer | deployment prevented |
 | stale approval | protected action blocked |
+| unauthorized reviewer | protected action blocked |
 | authority ownership | only Underwriting API owns authoritative state |
 
 Negative cases are first-class evidence, not optional hardening.
@@ -393,8 +396,9 @@ The [Northstar multi-repository fixture](northstar-multirepo/) includes five rep
 3. applies and commits candidate content independently;
 4. runs repository-local tests;
 5. derives actual changed paths and full commit IDs from Git;
-6. executes mixed-version and system scenarios; and
-7. evaluates the candidate package against protected artifacts.
+6. passes real v1/v2 producer output through real v1/v2 consumers;
+7. executes tenant, review, provenance, idempotency, outage, and authority behavior; and
+8. evaluates the candidate package against protected artifacts.
 
 The temporary repositories are deleted after evidence is collected. Their deterministic commit IDs remain stable for the same content and metadata.
 
@@ -406,7 +410,7 @@ Expected result: contract approval precedes parallel producer and consumer work;
 
 ## 30. Lab B — Mixed-version rollout
 
-Run all four producer/consumer combinations. Derive the compatibility matrix from behavior, select a consumer-first rollout, and prove the rollback pair before enabling traffic.
+Run all four producer/consumer combinations. Derive the compatibility matrix from behavior, select a consumer-first rollout, and prove the rollback pair before requesting traffic activation. The [rollout transition record](northstar-multirepo/integration/rollout-transitions.json) binds every step to prerequisites and observed evidence; its final state is only `READY_FOR_ACCOUNTABLE_APPROVAL`.
 
 Expected result: `AI v2 / Review v1` is blocked; `AI v1 / Review v2` remains compatible.
 
@@ -414,7 +418,7 @@ Expected result: `AI v2 / Review v1` is blocked; `AI v1 / Review v2` remains com
 
 Inject cross-tenant leakage, missing provenance enforcement, duplicate effects, stale approval acceptance, review-dependency failure, and dual-write authority. Observe that local tests may remain green while system verification blocks.
 
-Expected result: evidence binds the exact five commits and contract revision; merge and deployment remain unauthorized.
+Expected result: evidence binds the exact five commits, contract digest, executed result digest, and requirement obligations; merge, deployment, and activation remain unauthorized.
 
 ## 32. Workshop
 
@@ -430,7 +434,7 @@ Complete six decisions in the [starter package](northstar-multirepo/workshop/sta
 | --- | ---: | ---: | --- |
 | conformance decisions | 16 exact matches | 16 labelled cases | named control behavior |
 | mutation decisions | 40 exact matches | 40 labelled cases | labelled fixture coverage |
-| integration scenarios | 11 passed | 11 defined scenarios | one deterministic revision set |
+| integration scenarios | 12 passed | 12 defined scenarios | one deterministic revision set |
 | compatibility classification | 4 classified | 4 declared combinations | fixture producer/consumer behavior |
 
 The metrics do not measure general coding-agent accuracy, production reliability, or the completeness of an enterprise consumer inventory.

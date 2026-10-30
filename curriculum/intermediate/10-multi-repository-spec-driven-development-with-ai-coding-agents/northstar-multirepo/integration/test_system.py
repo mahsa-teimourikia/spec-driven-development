@@ -24,6 +24,20 @@ class SystemIntegrationSmokeTests(unittest.TestCase):
         self.assertTrue(all(candidate["local_ci"].values()))
         self.assertEqual(decision.state, "BLOCKED")
 
+    def test_review_authority_and_high_confidence_ambiguity_are_executed(self):
+        _, context = assess_candidate(build_candidate())
+        self.assertTrue(context.scenario_results["ambiguous_mapping"])
+        self.assertTrue(context.scenario_results["unauthorized_reviewer"])
+        self.assertTrue(context.scenario_results["stale_approval"])
+
+    def test_requirement_evidence_is_bound_to_executed_scenarios(self):
+        _, context = assess_candidate(build_candidate())
+        self.assertEqual(
+            set(context.requirement_evidence),
+            {"REQ-DOC-2500-01", "REQ-DOC-2500-02", "REQ-DOC-2500-03", "REQ-DOC-2500-04"},
+        )
+        self.assertTrue(all(item["passed"] for item in context.requirement_evidence.values()))
+
 
 if __name__ == "__main__":
     unittest.main()

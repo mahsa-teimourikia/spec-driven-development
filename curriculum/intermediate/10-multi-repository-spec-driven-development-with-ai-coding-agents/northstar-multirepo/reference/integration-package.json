@@ -5,15 +5,18 @@
   "contract": {
     "id": "CONTRACT-CLASSIFICATION-001",
     "revision": 2,
-    "owner": "Enterprise Integration Architecture"
+    "owner": "Enterprise Integration Architecture",
+    "digest": "sha256:9fdc6ce96bcb7a57127edb8531b5cb873da02f9224b6548fd92fb77d38e6b0cd"
   },
   "component_commits": {
     "document-service": "e2526b18af88da010348d1e0d835e8a9db2d8e58",
-    "ai-service": "82fcd8453f898de87fdd3a2c9b70775fa33b2ba1",
-    "review-service": "c7dce3874a8619225320942ba58a0a2e92231d19",
+    "ai-service": "f5284577b27147c84f8f309fc15fcce5bed10924",
+    "review-service": "a04637219ce90223453491dcc3733b80f618eb10",
     "underwriting-api": "c77eebf50d2630acde6c3a541ad3014d9337c6e9",
     "underwriter-ui": "e3be2eb1ece306bc4564da8a885b0a045d3840f6"
   },
+  "result_artifact_digest": "sha256:d057ab5b865acce2837958d05a65243fd4213df4ce92e3de7b2ba77b2d9fff10",
+  "requirement_evidence": "integration/requirement-evidence.json",
   "compatibility": {
     "ai-v1/review-v1": true,
     "ai-v1/review-v2": true,

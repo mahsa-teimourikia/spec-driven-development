@@ -3078,13 +3078,17 @@ def check_course_20_multirepository() -> list[str]:
         scenario / "multirepo_app/control_plane.py",
         scenario / "parent-change/AI-2500.json",
         scenario / "parent-change/dependency-graph.json",
+        scenario / "parent-change/repository-dispositions.json",
         scenario / "parent-change/work-units.json",
         scenario / "contracts/classification-v1.schema.json",
         scenario / "contracts/classification-v2.schema.json",
+        scenario / "contracts/classification-v2.behavior.md",
         scenario / "contracts/classification.openapi.json",
         scenario / "integration/compatibility-matrix.json",
         scenario / "integration/integration-manifest.template.json",
         scenario / "integration/recovery-plan.json",
+        scenario / "integration/requirement-evidence.json",
+        scenario / "integration/rollout-transitions.json",
         scenario / "integration/test_system.py",
         scenario / "openspec/changes/AI-2500/proposal.md",
         scenario / "openspec/changes/AI-2500/specs/broker-document-review/spec.md",
@@ -3154,8 +3158,8 @@ def check_course_20_multirepository() -> list[str]:
     if (report.get("evaluation", {}).get("passed"), report.get("evaluation", {}).get("total")) != (40, 40):
         errors.append("Course 20 must retain forty passing evaluation decisions")
     scenarios = report.get("integration_scenarios", {})
-    if (scenarios.get("passed"), scenarios.get("total")) != (11, 11):
-        errors.append("Course 20 must retain eleven passing integration scenarios")
+    if (scenarios.get("passed"), scenarios.get("total")) != (12, 12):
+        errors.append("Course 20 must retain twelve passing integration scenarios")
     if report.get("compatibility") != {
         "ai-v1/review-v1": True,
         "ai-v1/review-v2": True,
@@ -3179,7 +3183,7 @@ def check_course_20_multirepository() -> list[str]:
         or stored.get("evidence_digest") != report.get("coordination", {}).get("evidence_digest")
         or stored.get("conformance") != "16/16"
         or stored.get("evaluation") != "40/40"
-        or stored.get("integration_scenarios") != "11/11"
+        or stored.get("integration_scenarios") != "12/12"
     ):
         errors.append("Course 20 stored evidence summary is stale")
 
@@ -3215,7 +3219,7 @@ def check_course_20_multirepository() -> list[str]:
         "const course20 = {",
         "10-multi-repository-spec-driven-development-with-ai-coding-agents/northstar-multirepo/multirepo_sdd.ipynb",
         "10-multi-repository-spec-driven-development-with-ai-coding-agents/northstar-multirepo/workshop/starter",
-        "16 conformance cases, 40 labelled evaluations, four compatibility combinations, and 11 system integration scenarios",
+        "16 conformance cases, 40 labelled evaluations, four executable compatibility combinations, and 12 system integration scenarios",
     ]
     if any(fragment not in hub for fragment in hub_fragments):
         errors.append("Course 20 Learning Hub entry is incomplete or points outside the workshop package")

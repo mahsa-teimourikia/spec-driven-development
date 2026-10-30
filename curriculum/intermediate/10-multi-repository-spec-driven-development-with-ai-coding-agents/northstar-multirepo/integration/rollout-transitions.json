@@ -1,0 +1,48 @@
+{
+  "transitions": [
+    {
+      "id": "deploy-review-v2",
+      "prerequisites": [],
+      "evidence": ["local-ci:review-service"],
+      "observed_status": "SUCCEEDED"
+    },
+    {
+      "id": "verify-review-v2-accepts-ai-v1",
+      "prerequisites": ["deploy-review-v2"],
+      "evidence": ["compatibility:ai-v1/review-v2"],
+      "observed_status": "SUCCEEDED"
+    },
+    {
+      "id": "deploy-ai-v2-disabled",
+      "prerequisites": ["verify-review-v2-accepts-ai-v1"],
+      "evidence": ["local-ci:ai-service"],
+      "observed_status": "SUCCEEDED"
+    },
+    {
+      "id": "verify-ai-v2-review-v2",
+      "prerequisites": ["deploy-ai-v2-disabled"],
+      "evidence": [
+        "compatibility:ai-v2/review-v2",
+        "scenario:ambiguous_mapping",
+        "scenario:cross_tenant_reference",
+        "scenario:single_authority"
+      ],
+      "observed_status": "SUCCEEDED"
+    },
+    {
+      "id": "enable-bounded-traffic",
+      "prerequisites": ["verify-ai-v2-review-v2"],
+      "evidence": [
+        "scenario:duplicate_event",
+        "scenario:review_service_unavailable",
+        "scenario:stale_approval"
+      ],
+      "observed_status": "READY_FOR_ACCOUNTABLE_APPROVAL"
+    }
+  ],
+  "activation_controls": {
+    "new_behavior_disable_control_verified": true,
+    "queued_work_compatible_or_quarantined": true,
+    "activation_authorized": false
+  }
+}

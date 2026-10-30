@@ -108,11 +108,35 @@ class Course20Tests(unittest.TestCase):
             },
         )
 
+    def test_high_confidence_ambiguity_cannot_bypass_review(self):
+        _, context = lab.assess_candidate(lab.build_candidate())
+        self.assertTrue(context.scenario_results["ambiguous_mapping"])
+
+    def test_behavioral_contract_is_normative_beyond_schema(self):
+        contract = (SCENARIO / "contracts/classification-v2.behavior.md").read_text()
+        self.assertIn("regardless of model confidence", contract)
+        self.assertIn("MUST NOT", contract)
+
     def test_matrix_overclaim_blocks(self):
         self.assertIn("COMPATIBILITY_OVERCLAIM", self.codes(["matrix_overclaim"]))
 
     def test_consumer_first_rollout_is_required(self):
         self.assertIn("UNSAFE_DEPLOYMENT_ORDER", self.codes(["unsafe_rollout"]))
+
+    def test_failed_consumer_transition_blocks_downstream_rollout(self):
+        codes = self.codes(["failed_consumer_deploy"])
+        self.assertIn("ROLLOUT_TRANSITION_FAILED", codes)
+        self.assertIn("ROLLOUT_PREREQUISITE_MISSING", codes)
+
+    def test_activation_needs_disable_control_and_separate_authority(self):
+        self.assertIn(
+            "ACTIVATION_PREREQUISITE_MISSING",
+            self.codes(["activation_without_disable_control"]),
+        )
+        self.assertIn(
+            "SELF_AUTHORIZED_ACTIVATION",
+            self.codes(["self_authorized_activation"]),
+        )
 
     def test_rollback_compatibility_is_derived_not_self_asserted(self):
         codes = self.codes(["new_consumer_rejects_v1"])
@@ -131,10 +155,11 @@ class Course20Tests(unittest.TestCase):
 
     def test_trusted_scenarios_include_negative_paths(self):
         _, context = lab.assess_candidate(lab.build_candidate())
-        self.assertEqual(len(context.scenario_results), 11)
+        self.assertEqual(len(context.scenario_results), 12)
         self.assertTrue(all(context.scenario_results.values()))
         for name in ("cross_tenant_reference", "duplicate_event", "stale_approval", "single_authority"):
             self.assertIn(name, context.scenario_results)
+        self.assertIn("unauthorized_reviewer", context.scenario_results)
 
     def test_cross_tenant_leak_blocks_despite_green_local_ci(self):
         candidate = lab.build_candidate(["cross_tenant_leak"])
@@ -167,6 +192,30 @@ class Course20Tests(unittest.TestCase):
         expected = {name: revision.candidate_commit for name, revision in context.repositories.items()}
         self.assertEqual(dict(receipt.component_commits), expected)
         self.assertEqual(receipt.contract_revision, 2)
+        self.assertTrue(receipt.contract_digest.startswith("sha256:"))
+        self.assertTrue(receipt.result_artifact_digest.startswith("sha256:"))
+        self.assertEqual(set(receipt.claim_coverage), {item["id"] for item in context.parent_change["requirements"]})
+
+    def test_stale_result_artifact_digest_blocks(self):
+        self.assertIn("RESULT_ARTIFACT_DIGEST_MISMATCH", self.codes(["stale_result_digest"]))
+
+    def test_every_parent_requirement_has_passing_executable_evidence(self):
+        _, context = lab.assess_candidate(lab.build_candidate())
+        required = {item["id"] for item in context.parent_change["requirements"]}
+        self.assertEqual(set(context.requirement_evidence), required)
+        self.assertTrue(all(item["passed"] for item in context.requirement_evidence.values()))
+
+    def test_every_repository_has_an_enforced_disposition(self):
+        candidate = lab.build_candidate()
+        self.assertEqual(set(candidate["repository_dispositions"]), set(REPOSITORIES))
+        self.assertIn(
+            "REPOSITORY_DISPOSITION_INCOMPLETE",
+            self.codes(["missing_repository_disposition"]),
+        )
+        self.assertIn(
+            "DISPOSITION_DIFF_CONFLICT",
+            self.codes(["unchanged_dependency_modified"]),
+        )
 
     def test_untrusted_and_old_evidence_block(self):
         self.assertIn("UNTRUSTED_INTEGRATION_EVIDENCE", self.codes(["untrusted_evidence"]))
@@ -199,7 +248,7 @@ class Course20Tests(unittest.TestCase):
         self.assertFalse(report["candidate_assessment"]["deployment_authorized"])
         self.assertEqual((report["conformance"]["passed"], report["conformance"]["total"]), (16, 16))
         self.assertEqual((report["evaluation"]["passed"], report["evaluation"]["total"]), (40, 40))
-        self.assertEqual((report["integration_scenarios"]["passed"], report["integration_scenarios"]["total"]), (11, 11))
+        self.assertEqual((report["integration_scenarios"]["passed"], report["integration_scenarios"]["total"]), (12, 12))
 
     def test_openspec_package_preserves_release_boundary(self):
         proposal = (SCENARIO / "openspec/changes/AI-2500/proposal.md").read_text()

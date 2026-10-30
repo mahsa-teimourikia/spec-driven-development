@@ -997,7 +997,7 @@ const course20 = {
   labs: [
     {
       title: 'Lab A — Execute exact-revision multi-repository controls',
-      description: 'Create five real Git repositories, run 16 conformance cases, 40 labelled evaluations, four compatibility combinations, and 11 system integration scenarios.',
+      description: 'Create five real Git repositories, run 16 conformance cases, 40 labelled evaluations, four executable compatibility combinations, and 12 system integration scenarios.',
       command: 'python3 curriculum/intermediate/10-multi-repository-spec-driven-development-with-ai-coding-agents/northstar-multirepo/lab.py',
       links: [['View the multi-repository lab', `${REPO}/blob/main/curriculum/intermediate/10-multi-repository-spec-driven-development-with-ai-coding-agents/northstar-multirepo/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/intermediate/10-multi-repository-spec-driven-development-with-ai-coding-agents/northstar-multirepo/multirepo_sdd.ipynb`]]
     },

@@ -65,6 +65,10 @@ def build_candidate(mutations: list[str] | tuple[str, ...] = ()) -> dict[str, ob
             "digest": canonical_digest(HARNESS.canonical_contract),
         },
         "dependency_graph": load_json(ROOT / "parent-change/dependency-graph.json"),
+        "repository_dispositions": load_json(
+            ROOT / "parent-change/repository-dispositions.json"
+        ),
+        "rollout_transitions": load_json(ROOT / "integration/rollout-transitions.json"),
         "rollout_order": [
             "deploy-review-v2",
             "verify-review-v2-accepts-ai-v1",
@@ -84,15 +88,20 @@ def build_candidate(mutations: list[str] | tuple[str, ...] = ()) -> dict[str, ob
     for mutation in mutations:
         _apply_source_mutation(candidate, mutation)
     context = trusted_context(candidate)
+    candidate["local_ci"] = dict(context.local_ci_results)
     candidate["work_units"] = _work_units(context)
     candidate["declared_compatibility"] = dict(context.compatibility_matrix)
     candidate["integration_manifest"] = {
         "change_id": "AI-2500",
         "contract_revision": 2,
+        "contract_digest": canonical_digest(HARNESS.canonical_contract),
         "component_commits": {
             repository: revision.candidate_commit
             for repository, revision in context.repositories.items()
         },
+        "result_artifact_digest": context.evidence_registry[
+            "INT-RUN-AI2500"
+        ].result_artifact_digest,
     }
     candidate["submitted_scenario_results"] = dict(context.scenario_results)
     for mutation in mutations:
@@ -101,25 +110,119 @@ def build_candidate(mutations: list[str] | tuple[str, ...] = ()) -> dict[str, ob
 
 
 def _apply_source_mutation(candidate: dict[str, object], mutation: str) -> None:
-    configs = candidate["repository_configs"]
     if mutation == "cross_tenant_leak":
-        configs["review-service"]["enforces_tenant_scope"] = False
+        _replace_source(
+            candidate,
+            "review-service",
+            "src/review.py",
+            '''        proposal_tenant = proposal.get("tenant_id", authorized_tenant)\n        if proposal_tenant != authorized_tenant:\n            raise PermissionError("proposal tenant does not match authenticated tenant")\n        for evidence_ref in proposal.get("evidence_refs", []):\n            if evidence_tenants.get(str(evidence_ref)) != authorized_tenant:\n                raise PermissionError("evidence is missing or belongs to another tenant")\n''',
+            '''        # Unsafe mutation: tenant and evidence ownership are trusted without verification.\n''',
+        )
+        candidate["repository_extra_files"]["review-service"]["tests/test_contract.py"] = (
+            "import unittest\n\n"
+            "class ShallowLocalTest(unittest.TestCase):\n"
+            "    def test_configuration_exists(self):\n"
+            "        self.assertTrue(True)\n"
+        )
     elif mutation == "duplicate_effect":
-        configs["review-service"]["idempotent_submission"] = False
+        _replace_source(
+            candidate,
+            "review-service",
+            "src/review.py",
+            'return {**existing[1], "duplicate": True, "side_effect_count": 0}',
+            'return {**existing[1], "duplicate": True, "side_effect_count": 1}',
+        )
+        candidate["repository_extra_files"]["review-service"]["tests/test_contract.py"] = (
+            "import unittest\n\n"
+            "class ShallowLocalTest(unittest.TestCase):\n"
+            "    def test_configuration_exists(self):\n"
+            "        self.assertTrue(True)\n"
+        )
     elif mutation == "missing_provenance_accepted":
-        configs["review-service"]["requires_evidence_refs"] = False
+        _replace_source(
+            candidate,
+            "review-service",
+            "src/review.py",
+            '        "model_provenance",\n',
+            "",
+        )
+        _replace_source(
+            candidate,
+            "review-service",
+            "src/review.py",
+            '        and bool(proposal["model_provenance"])\n',
+            "        and True\n",
+        )
+        candidate["repository_extra_files"]["review-service"]["tests/test_contract.py"] = (
+            "import unittest\n\n"
+            "class ShallowLocalTest(unittest.TestCase):\n"
+            "    def test_configuration_exists(self):\n"
+            "        self.assertTrue(True)\n"
+        )
     elif mutation == "unsafe_review_outage":
-        configs["ai-service"]["fail_closed_when_review_unavailable"] = False
+        _replace_source(
+            candidate,
+            "review-service",
+            "src/review.py",
+            "            if not review_available:\n",
+            "            if False and not review_available:\n",
+        )
     elif mutation == "review_bypass_behavior":
-        configs["ai-service"]["ambiguous_requires_review"] = False
+        _replace_source(
+            candidate,
+            "ai-service",
+            "src/classifier.py",
+            '        "review_required": ambiguity_status in {"AMBIGUOUS", "UNSUPPORTED"},',
+            '        "review_required": False,',
+        )
     elif mutation == "stale_approval_accepted":
-        configs["review-service"]["rejects_stale_approval"] = False
+        _replace_source(
+            candidate,
+            "review-service",
+            "src/review.py",
+            "            if expires_at <= now.astimezone(timezone.utc):\n",
+            "            if False and expires_at <= now.astimezone(timezone.utc):\n",
+        )
     elif mutation == "dual_write_authority":
-        configs["ai-service"]["writes_authoritative_state"] = True
+        _replace_source(
+            candidate,
+            "review-service",
+            "src/review.py",
+            '            "authoritative_mutation_count": 0,',
+            '            "authoritative_mutation_count": 1,',
+        )
     elif mutation == "new_consumer_rejects_v1":
-        configs["review-service"]["accepted_contract_revisions"] = [2]
+        _replace_source(
+            candidate,
+            "review-service",
+            "src/review.py",
+            "    return contract_revision in {1, 2}\n",
+            "    return contract_revision == 2\n",
+        )
     elif mutation == "scope_expansion":
         candidate["repository_extra_files"]["ai-service"]["src/unapproved.py"] = "SIDE_EFFECT = True\n"
+    elif mutation == "unchanged_dependency_modified":
+        candidate["repository_extra_files"]["document-service"]["src/unplanned.py"] = (
+            "UNPLANNED_CHANGE = True\n"
+        )
+
+
+def _replace_source(
+    candidate: dict[str, object],
+    repository: str,
+    relative_path: str,
+    old: str,
+    new: str,
+) -> None:
+    extras = candidate["repository_extra_files"][repository]
+    content = extras.get(relative_path)
+    if content is None:
+        content = (
+            ROOT / "repositories" / repository / "candidate" / relative_path
+        ).read_text(encoding="utf-8")
+    if old not in content:
+        raise ValueError(f"mutation target not found in {repository}/{relative_path}")
+    extras[relative_path] = content.replace(old, new, 1)
 
 
 def _apply_claim_mutation(candidate: dict[str, object], mutation: str) -> None:
@@ -149,6 +252,16 @@ def _apply_claim_mutation(candidate: dict[str, object], mutation: str) -> None:
         candidate["declared_compatibility"]["ai-v2/review-v1"] = True
     elif mutation == "unsafe_rollout":
         candidate["rollout_order"][0] = "deploy-ai-v2-disabled"
+    elif mutation == "failed_consumer_deploy":
+        candidate["rollout_transitions"]["transitions"][0]["observed_status"] = "FAILED"
+    elif mutation == "activation_without_disable_control":
+        candidate["rollout_transitions"]["activation_controls"][
+            "new_behavior_disable_control_verified"
+        ] = False
+    elif mutation == "self_authorized_activation":
+        candidate["rollout_transitions"]["activation_controls"][
+            "activation_authorized"
+        ] = True
     elif mutation == "rollback_unverified":
         candidate["rollback_compatibility_verified"] = False
     elif mutation == "stale_manifest":
@@ -157,6 +270,8 @@ def _apply_claim_mutation(candidate: dict[str, object], mutation: str) -> None:
         candidate["integration_manifest"]["component_commits"]["ai-service"] = "main"
     elif mutation == "wrong_integration_subject":
         candidate["integration_manifest"]["change_id"] = "AI-2499"
+    elif mutation == "stale_result_digest":
+        candidate["integration_manifest"]["result_artifact_digest"] = "sha256:" + "0" * 64
     elif mutation == "false_integration_report":
         candidate["submitted_scenario_results"] = {
             key: True for key in candidate["submitted_scenario_results"]
@@ -177,6 +292,8 @@ def _apply_claim_mutation(candidate: dict[str, object], mutation: str) -> None:
         candidate["evidence_references"] = []
     elif mutation == "missing_requirement_allocation":
         candidate["child_specs"]["AI-2500-UNDERWRITING"]["implements"] = []
+    elif mutation == "missing_repository_disposition":
+        candidate["repository_dispositions"].pop("underwriter-ui")
 
 
 def assess_candidate(candidate: dict[str, object]):

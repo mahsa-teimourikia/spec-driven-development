@@ -1,6 +1,6 @@
 # Northstar AI-2500 multi-repository lab
 
-This credential-free fixture turns Course 20 into an executable system. It creates five temporary Git repositories, commits their baseline and candidate states independently, runs local tests, derives actual diffs, computes a mixed-version compatibility matrix, executes 11 system scenarios, and evaluates a package bound to exact commits.
+This credential-free fixture turns Course 20 into an executable system. It creates five temporary Git repositories, commits their baseline and candidate states independently, runs local tests, derives actual diffs, passes real producer output through real consumers, executes 12 system scenarios, and evaluates a package bound to exact commits and result artifacts.
 
 ## Run
 
@@ -17,7 +17,7 @@ Expected reference outcome:
 - candidate: `READY_FOR_INTEGRATION_REVIEW`;
 - conformance: `16/16`;
 - evaluation: `40/40`;
-- integration scenarios: `11/11`;
+- integration scenarios: `12/12`;
 - repository revisions: five full Git commit IDs; and
 - merge/deployment authority: `false`.
 
@@ -25,12 +25,12 @@ Expected reference outcome:
 
 | Path | Purpose |
 | --- | --- |
-| `parent-change/` | canonical AI-2500 requirements, child specs, graph, and work units |
-| `contracts/` | classification revisions 1 and 2 plus OpenAPI description |
+| `parent-change/` | canonical AI-2500 requirements, child specs, graph, dispositions, and work units |
+| `contracts/` | classification revisions 1 and 2, normative behavior, and OpenAPI description |
 | `repositories/` | five baseline/candidate repository templates with source and tests |
 | `multirepo_app/git_harness.py` | real Git commits, local tests, compatibility, and trusted observations |
 | `multirepo_app/control_plane.py` | parent/child, graph, scope, manifest, evidence, and authority gates |
-| `integration/` | matrix and exact-revision manifest template |
+| `integration/` | executable matrix evidence, requirement obligations, rollout transitions, and manifest template |
 | `openspec/changes/AI-2500/` | proposal, delta spec, and tasks |
 | `candidate/` | unsafe local-CI-only comparison |
 | `reference/` | bounded integration-review handoff |
@@ -41,7 +41,7 @@ Expected reference outcome:
 
 ## Trust boundary
 
-The candidate can propose repository content, child specs, dependencies, rollout, and evidence references. The trusted harness loads the parent and canonical contract independently, creates the Git repositories, runs their tests, derives commit IDs and diffs, computes compatibility, executes system scenarios, resolves evidence references, and decides readiness.
+The candidate can propose repository content, child specs, dependencies, rollout, and evidence references. The trusted harness loads the parent and canonical contract independently, creates the Git repositories, runs their tests, derives commit IDs and diffs, executes each producer/consumer pairing and system behavior, resolves requirement-level evidence, and decides readiness. Configuration flags are descriptive inputs, never proof that a control executed.
 
 Repository-local CI is useful evidence for local properties. It never becomes proof of end-to-end behavior or release authority merely because all repositories are green.
 
