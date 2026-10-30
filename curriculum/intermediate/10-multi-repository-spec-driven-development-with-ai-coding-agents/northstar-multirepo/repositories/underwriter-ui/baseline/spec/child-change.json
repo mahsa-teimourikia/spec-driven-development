@@ -1,0 +1,5 @@
+{
+  "child_change": "AI-2500-UI",
+  "parent_change": "AI-2500@2",
+  "consumes": ["CONTRACT-UNDERWRITING-STATE-001@4"]
+}

@@ -1,0 +1,10 @@
+{
+  "change_id": "AI-2500",
+  "parent_binding": "TODO: bind all child changes to the exact parent revision",
+  "contract_authority": "TODO: name the canonical contract owner and approved revision",
+  "implementation_graph": "TODO: order contract, repository, and integration work",
+  "revision_manifest": "TODO: pin the exact full Git commit for every repository",
+  "mixed_version_rollout": "TODO: choose a rollout compatible with every temporary version combination",
+  "recovery_plan": "TODO: define disablement, quarantine, rollback compatibility, reconciliation, and invariant checks",
+  "may_not_authorize": ["contract_approval", "architecture_approval", "merge", "deployment", "activation", "contract_retirement"]
+}

@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "id": "course20-multirepo-control-plane",
+  "title": "Contract-first coordination across independently versioned repositories",
+  "output": {
+    "svg": "multirepo-control-plane.svg",
+    "alt_text": "A parent change and canonical contract feed two bounded repository work units. Their exact Git commits flow into trusted compatibility and integration verification, then become eligible for integration review. A failed check returns to replanning. Deployment authority remains outside the workflow."
+  },
+  "canvas": {"width": 1680, "height": 680, "background": "#F7F9FC"},
+  "nodes": [
+    {"id": "parent", "title": "Parent change", "subtitle": "requirements + authority", "type": "control", "x": 50, "y": 220, "w": 220, "h": 170},
+    {"id": "contract", "title": "Canonical contract", "subtitle": "owner-approved revision", "type": "contract", "x": 320, "y": 220, "w": 220, "h": 170},
+    {"id": "ai", "title": "AI Service AWU", "subtitle": "exact base commit", "type": "agent", "x": 590, "y": 130, "w": 220, "h": 170},
+    {"id": "review", "title": "Review Service AWU", "subtitle": "tolerant consumer", "type": "agent", "x": 590, "y": 350, "w": 220, "h": 170},
+    {"id": "verify", "title": "Trusted integration", "subtitle": "matrix + failure paths", "type": "evidence", "x": 910, "y": 220, "w": 250, "h": 170},
+    {"id": "manifest", "title": "Revision manifest", "subtitle": "five full Git SHAs", "type": "evidence", "x": 1210, "y": 220, "w": 220, "h": 170},
+    {"id": "reviewgate", "title": "Integration review", "subtitle": "eligible, not deployed", "type": "review", "x": 1480, "y": 220, "w": 150, "h": 170}
+  ],
+  "edges": [
+    {"from": "parent", "to": "contract"},
+    {"from": "contract", "to": "ai"},
+    {"from": "contract", "to": "review"},
+    {"from": "ai", "to": "verify"},
+    {"from": "review", "to": "verify"},
+    {"from": "verify", "to": "manifest"},
+    {"from": "manifest", "to": "reviewgate"}
+  ]
+}

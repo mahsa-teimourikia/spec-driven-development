@@ -1,0 +1,26 @@
+{
+  "openapi": "3.1.0",
+  "info": {"title": "Northstar Classification Proposal API", "version": "2.0.0-training"},
+  "paths": {
+    "/classification-proposals": {
+      "post": {
+        "operationId": "submitClassificationProposal",
+        "description": "Submit a non-authoritative classification proposal for validation and review routing.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "./classification-v2.schema.json"}
+            }
+          }
+        },
+        "responses": {
+          "202": {"description": "Proposal accepted for review processing"},
+          "400": {"description": "Invalid contract or missing provenance"},
+          "403": {"description": "Tenant or subject authorization denied"},
+          "409": {"description": "Conflicting idempotency key"}
+        }
+      }
+    }
+  }
+}

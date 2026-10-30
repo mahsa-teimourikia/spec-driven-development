@@ -1,0 +1,23 @@
+{
+  "pattern": "anti-pattern",
+  "summary": "Each repository agent changes its local interface, reports green CI, and treats those reports as system release evidence.",
+  "local_ci": {
+    "document-service": "PASS",
+    "ai-service": "PASS",
+    "review-service": "PASS",
+    "underwriting-api": "PASS",
+    "underwriter-ui": "PASS"
+  },
+  "missing_controls": [
+    "canonical_contract_owner",
+    "parent_child_revision_binding",
+    "actual_change_dependency_graph",
+    "mixed_version_compatibility",
+    "exact_integration_manifest",
+    "system_failure_path_evidence",
+    "rollback_compatibility",
+    "accountable_release_authority"
+  ],
+  "system_assurance": "UNVERIFIED",
+  "release_authorized": false
+}

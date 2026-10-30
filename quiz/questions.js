@@ -1776,5 +1776,103 @@ const QUESTIONS = [
     options: ['The teaching package is reproducible and eligible for integration review; release remains unapproved', 'The patch is deployed', 'All bug fixes are safe', 'The policy owner approved every future boundary'],
     answer: 0,
     explanation: 'Bounded evidence supports a bounded review state. It does not grant merge or deployment authority.'
+  },
+  {
+    category: 'Course 20 hierarchy',
+    question: 'A repository child spec introduces a confidence threshold that bypasses parent-required human review. How should the control plane classify it?',
+    options: ['As a parent-child semantic conflict requiring accountable resolution', 'As a local implementation detail', 'As automatically approved because the child is more specific', 'As valid when local tests pass'],
+    answer: 0,
+    explanation: 'Specificity and repository proximity do not grant authority to weaken parent behavior.'
+  },
+  {
+    category: 'Course 20 contracts',
+    question: 'An AI Service agent discovers that the shared contract lacks provenance. What is the safe next action?',
+    options: ['Propose a contract revision for impact analysis and owner review', 'Edit the canonical contract and require all consumers to adapt', 'Add a private undocumented field', 'Treat the gap as proof that provenance is optional'],
+    answer: 0,
+    explanation: 'Shared-contract change follows proposal, impact analysis, accountable approval, invalidation, and replanning.'
+  },
+  {
+    category: 'Course 20 graphs',
+    question: 'Why can implementation order differ from deployment order?',
+    options: ['A producer can be implemented against an approved contract while safe rollout still requires a tolerant consumer first', 'Git ignores dependency graphs', 'Deployment never involves contracts', 'Agents choose deployment order randomly'],
+    answer: 0,
+    explanation: 'Implementation prerequisites and temporary runtime compatibility are different relationships.'
+  },
+  {
+    category: 'Course 20 compatibility',
+    question: 'AI v2 works with Review v2, but not Review v1. Review v2 works with AI v1. Which rollout follows the evidence?',
+    options: ['Deploy and verify Review v2 first, then deploy AI v2 disabled and enable it gradually', 'Deploy AI v2 first', 'Deploy both simultaneously and skip intermediate checks', 'Retire v1 before either deployment'],
+    answer: 0,
+    explanation: 'Consumer-first expansion makes both the forward rollout and restoration of the old producer compatible.'
+  },
+  {
+    category: 'Course 20 work units',
+    question: 'What does a repository-local Agent Work Unit authorize by itself?',
+    options: ['A bounded implementation plan, but not runtime permissions or production effects', 'Every write in the repository', 'Contract approval', 'Deployment to production'],
+    answer: 0,
+    explanation: 'The execution platform must separately authenticate and enforce capabilities, paths, leases, and tool access.'
+  },
+  {
+    category: 'Course 20 local CI',
+    question: 'All five repository pipelines are green. What remains unproven?',
+    options: ['Compatibility and end-to-end behavior for the exact integrated revision set', 'That each repository compiled locally', 'That five jobs ran', 'That branch names exist'],
+    answer: 0,
+    explanation: 'Local evidence establishes local properties, not cross-service authorization, version compatibility, or system invariants.'
+  },
+  {
+    category: 'Course 20 manifests',
+    question: 'Why should an integration manifest use full Git commits rather than branch names?',
+    options: ['Full commits identify immutable evidence subjects; branch names can move', 'Branch names are always private', 'Git cannot compare branches', 'Commits automatically authorize release'],
+    answer: 0,
+    explanation: 'Evidence must be replay-resistant and bound to the exact artifacts tested. A commit still does not grant release authority.'
+  },
+  {
+    category: 'Course 20 recovery',
+    question: 'Review v2 rejects AI v1. Why is that a rollback blocker?',
+    options: ['Restoring the old producer would not recover a compatible system', 'Rollback only changes the UI', 'New consumers never need old payload support', 'Git cannot restore v1'],
+    answer: 0,
+    explanation: 'Rollback compatibility must be exercised before rollout, not asserted after an incident.'
+  },
+  {
+    category: 'Course 20 consistency',
+    question: 'AI Service calls Review Service and Underwriting API; one call succeeds and one fails. What assumption caused the risk?',
+    options: ['Treating two distributed calls as one atomic transaction', 'Using exact commit IDs', 'Requiring evidence provenance', 'Deploying a tolerant consumer'],
+    answer: 0,
+    explanation: 'Distributed effects require an explicit consistency strategy such as outbox, durable workflow state, idempotency, and reconciliation.'
+  },
+  {
+    category: 'Course 20 evidence',
+    question: 'The candidate reports every integration scenario passed, but trusted execution finds cross-tenant leakage. Which result governs?',
+    options: ['The trusted execution blocks and records a report mismatch', 'The candidate report because it is newer', 'Whichever result is green', 'The model confidence score'],
+    answer: 0,
+    explanation: 'Candidate reports are claims. Trusted execution recomputes consequential evidence against protected inputs.'
+  },
+  {
+    category: 'Course 20 OpenSpec',
+    question: 'What authority does an OpenSpec-style proposal grant in this course?',
+    options: ['None by itself; it makes the change reviewable but does not approve contracts, architecture, or deployment', 'Automatic contract approval', 'Production write access', 'Permission to retire old consumers'],
+    answer: 0,
+    explanation: 'Framework artifacts organize intent and deltas. Enterprise authority comes from separate authenticated controls and accountable owners.'
+  },
+  {
+    category: 'Course 20 evaluation',
+    question: 'The lab passes 40 labelled evaluation cases. What is the bounded claim?',
+    options: ['The deterministic controls match the declared fixture outcomes, not that all multi-repository changes are safe', 'The coding agent has 100% production accuracy', 'Contract revision 1 may be retired', 'Deployment is approved'],
+    answer: 0,
+    explanation: 'The population, numerator, denominator, and fixture boundary determine what a metric can support.'
+  },
+  {
+    category: 'Course 20 proportionality',
+    question: 'Which change least needs the full multi-repository workflow?',
+    options: ['A local reversible documentation correction with no shared behavior or deployment impact', 'A shared event schema change', 'A new cross-service authorization path', 'An independently deployed producer revision'],
+    answer: 0,
+    explanation: 'Use the full workflow when ownership, contracts, deployments, authority, or mixed-version risk cross repository boundaries.'
+  },
+  {
+    category: 'Course 20 authority',
+    question: 'The exact five-commit package passes all integration checks. What may it conclude?',
+    options: ['It is eligible for integration review; merge, deployment, activation, and contract retirement remain separate decisions', 'Production deployment is automatically approved', 'All future commits inherit the evidence', 'The contract owner is no longer needed'],
+    answer: 0,
+    explanation: 'Evidence establishes properties of one exact subject. It does not expand authority or transfer to changed artifacts.'
   }
 ];

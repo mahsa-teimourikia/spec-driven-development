@@ -1,0 +1,26 @@
+{
+  "change_id": "AI-2500",
+  "trigger": "unexpected producer-consumer incompatibility or protected-invariant failure",
+  "preconditions": [
+    "review-v2_accepts_ai-v1_verified",
+    "new_behavior_has_independent_disable_control",
+    "pending_work_can_be_identified_and_quarantined",
+    "known_good_ai-v1_artifact_is_available"
+  ],
+  "steps": [
+    "disable_new_ai_behavior",
+    "stop_new_incompatible_messages",
+    "drain_or_quarantine_pending_work",
+    "restore_known_good_ai-v1",
+    "verify_review-v2_accepts_ai-v1",
+    "reconcile_in_flight_operations",
+    "confirm_tenant_provenance_idempotency_and_authority_invariants"
+  ],
+  "stop_conditions": [
+    "rollback_pair_is_not_compatible",
+    "pending_work_cannot_be_bounded",
+    "durable_state_requires_forward_repair",
+    "authoritative_state_divergence_detected"
+  ],
+  "authority": "This plan does not authorize rollback execution; incident and release controls remain authoritative."
+}

@@ -1,0 +1,10 @@
+{
+  "id": "AI-2500-UNDERWRITING",
+  "parent_change": "AI-2500",
+  "parent_revision": 2,
+  "repository": "northstar/underwriting-api",
+  "implements": ["REQ-DOC-2500-03"],
+  "consumes": ["CONTRACT-REVIEW-001@2"],
+  "produces": ["CONTRACT-UNDERWRITING-STATE-001@4"],
+  "allows_review_bypass": false
+}

@@ -1,0 +1,27 @@
+{
+  "document-service": {
+    "disposition": "UNCHANGED_DEPENDENCY",
+    "affected": true,
+    "compatibility_evidence": ["supported_document", "cross_tenant_reference"]
+  },
+  "ai-service": {
+    "disposition": "CHANGED",
+    "affected": true,
+    "work_unit": "AWU-AI2500-CLASSIFIER"
+  },
+  "review-service": {
+    "disposition": "CHANGED",
+    "affected": true,
+    "work_unit": "AWU-AI2500-REVIEW"
+  },
+  "underwriting-api": {
+    "disposition": "UNCHANGED_DEPENDENCY",
+    "affected": true,
+    "compatibility_evidence": ["single_authority"]
+  },
+  "underwriter-ui": {
+    "disposition": "UNCHANGED_DEPENDENCY",
+    "affected": true,
+    "compatibility_evidence": ["single_authority", "ambiguous_mapping"]
+  }
+}

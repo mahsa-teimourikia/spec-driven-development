@@ -1,0 +1,8 @@
+{
+  "accepted_contract_revisions": [1, 2],
+  "unsupported_routes_to_review": true,
+  "idempotent_submission": true,
+  "requires_evidence_refs": true,
+  "enforces_tenant_scope": true,
+  "rejects_stale_approval": true
+}

@@ -1,0 +1,21 @@
+{
+  "claim": "Sixteen deterministic cases exercise named controls; they do not certify production multi-repository delivery.",
+  "cases": [
+    {"id": "CONF-01", "mutations": [], "expected_state": "READY_FOR_INTEGRATION_REVIEW", "required_codes": []},
+    {"id": "CONF-02", "mutations": ["stale_parent"], "expected_state": "BLOCKED", "required_codes": ["STALE_PARENT_REVISION"]},
+    {"id": "CONF-03", "mutations": ["semantic_bypass"], "expected_state": "BLOCKED", "required_codes": ["PARENT_CHILD_SEMANTIC_CONFLICT"]},
+    {"id": "CONF-04", "mutations": ["contract_drift"], "expected_state": "BLOCKED", "required_codes": ["CANONICAL_CONTRACT_DRIFT"]},
+    {"id": "CONF-05", "mutations": ["missing_contract_dependency"], "expected_state": "BLOCKED", "required_codes": ["DEPENDENCY_PLAN_INCOMPLETE"]},
+    {"id": "CONF-06", "mutations": ["dependency_cycle"], "expected_state": "BLOCKED", "required_codes": ["CHANGE_GRAPH_INVALID"]},
+    {"id": "CONF-07", "mutations": ["stale_repo_context"], "expected_state": "BLOCKED", "required_codes": ["STALE_REPOSITORY_CONTEXT"]},
+    {"id": "CONF-08", "mutations": ["widened_authority"], "expected_state": "BLOCKED", "required_codes": ["WORK_UNIT_AUTHORITY_WIDENED"]},
+    {"id": "CONF-09", "mutations": ["matrix_overclaim"], "expected_state": "BLOCKED", "required_codes": ["COMPATIBILITY_OVERCLAIM"]},
+    {"id": "CONF-10", "mutations": ["unsafe_rollout"], "expected_state": "BLOCKED", "required_codes": ["UNSAFE_DEPLOYMENT_ORDER"]},
+    {"id": "CONF-11", "mutations": ["stale_manifest"], "expected_state": "BLOCKED", "required_codes": ["INTEGRATION_MANIFEST_STALE"]},
+    {"id": "CONF-12", "mutations": ["cross_tenant_leak"], "expected_state": "BLOCKED", "required_codes": ["SYSTEM_INTEGRATION_FAILED"]},
+    {"id": "CONF-13", "mutations": ["missing_provenance_accepted"], "expected_state": "BLOCKED", "required_codes": ["SYSTEM_INTEGRATION_FAILED"]},
+    {"id": "CONF-14", "mutations": ["duplicate_effect"], "expected_state": "BLOCKED", "required_codes": ["SYSTEM_INTEGRATION_FAILED"]},
+    {"id": "CONF-15", "mutations": ["local_ci_as_system_evidence"], "expected_state": "BLOCKED", "required_codes": ["LOCAL_CI_TREATED_AS_SYSTEM_EVIDENCE"]},
+    {"id": "CONF-16", "mutations": ["self_authorized_release"], "expected_state": "BLOCKED", "required_codes": ["SELF_AUTHORIZED_RELEASE"]}
+  ]
+}

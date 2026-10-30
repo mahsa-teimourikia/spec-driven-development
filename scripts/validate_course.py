@@ -3048,10 +3048,10 @@ def check_course_19_bug_fixes() -> list[str]:
         errors.append("Course 19 starter must retain exactly five learner decisions")
 
     quiz_source = (ROOT / "quiz" / "questions.js").read_text(encoding="utf-8")
-    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 254:
-        errors.append("Course 19 cumulative quiz must contain 254 questions")
-    if "Courses 01–19" not in (ROOT / "quiz" / "index.html").read_text(encoding="utf-8"):
-        errors.append("Course 19 cumulative quiz must identify Courses 01–19")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) < 254:
+        errors.append("Course 19 cumulative quiz must retain at least 254 questions")
+    if "Course 19 authority" not in quiz_source:
+        errors.append("Course 19 cumulative quiz coverage is missing")
     hub = (ROOT / "hub" / "lessons.js").read_text(encoding="utf-8")
     hub_fragments = [
         "const course19 = {",
@@ -3061,6 +3061,168 @@ def check_course_19_bug_fixes() -> list[str]:
     ]
     if any(fragment not in hub for fragment in hub_fragments):
         errors.append("Course 19 Learning Hub entry is incomplete or points outside the workshop package")
+    return errors
+
+
+def check_course_20_multirepository() -> list[str]:
+    errors: list[str] = []
+    lesson = ROOT / "curriculum/intermediate/10-multi-repository-spec-driven-development-with-ai-coding-agents"
+    scenario = lesson / "northstar-multirepo"
+    required = [
+        lesson / "README.md",
+        scenario / "README.md",
+        scenario / "lab.py",
+        scenario / "multirepo_sdd.ipynb",
+        scenario / "multirepo_app/contracts.py",
+        scenario / "multirepo_app/git_harness.py",
+        scenario / "multirepo_app/control_plane.py",
+        scenario / "parent-change/AI-2500.json",
+        scenario / "parent-change/dependency-graph.json",
+        scenario / "parent-change/repository-dispositions.json",
+        scenario / "parent-change/work-units.json",
+        scenario / "contracts/classification-v1.schema.json",
+        scenario / "contracts/classification-v2.schema.json",
+        scenario / "contracts/classification-v2.behavior.md",
+        scenario / "contracts/classification.openapi.json",
+        scenario / "integration/compatibility-matrix.json",
+        scenario / "integration/integration-manifest.template.json",
+        scenario / "integration/recovery-plan.json",
+        scenario / "integration/requirement-evidence.json",
+        scenario / "integration/rollout-transitions.json",
+        scenario / "integration/test_system.py",
+        scenario / "openspec/changes/AI-2500/proposal.md",
+        scenario / "openspec/changes/AI-2500/specs/broker-document-review/spec.md",
+        scenario / "openspec/changes/AI-2500/tasks.md",
+        scenario / "candidate/independent-agent-rollout.json",
+        scenario / "reference/integration-package.json",
+        scenario / "workshop/starter/integration-package.json",
+        scenario / "conformance-suite.json",
+        scenario / "evaluation-cases.json",
+        scenario / "evidence/manifest.json",
+        scenario / "assets/multirepo-control-plane-spec.json",
+        scenario / "assets/render_diagram.py",
+        scenario / "assets/multirepo-control-plane.svg",
+        scenario / ".github/workflows/validation.yml",
+        ROOT / "tests/test_course_20.py",
+    ]
+    for repository in (
+        "document-service",
+        "ai-service",
+        "review-service",
+        "underwriting-api",
+        "underwriter-ui",
+    ):
+        required.extend(
+            [
+                scenario / "repositories" / repository / "baseline/config.json",
+                scenario / "repositories" / repository / "baseline/src",
+                scenario / "repositories" / repository / "baseline/tests",
+                scenario / "repositories" / repository / "baseline/spec/child-change.json",
+            ]
+        )
+    required.extend((scenario / "parent-change/children").glob("*.json"))
+    for path in required:
+        if not path.exists():
+            errors.append(f"Course 20 missing required artifact: {path.relative_to(ROOT)}")
+    if errors:
+        return errors
+
+    result = subprocess.run(
+        [sys.executable, str(scenario / "lab.py")],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    try:
+        report = json.loads(result.stdout) if result.returncode == 0 else {}
+    except json.JSONDecodeError:
+        report = {}
+    if not report:
+        errors.append("Course 20 lab did not produce its JSON multi-repository report")
+        return errors
+
+    if report.get("course_validation", {}).get("status") != "PASS":
+        errors.append("Course 20 teaching-suite validation must pass independently")
+    assessment = report.get("candidate_assessment", {})
+    if assessment.get("status") != "READY_FOR_INTEGRATION_REVIEW":
+        errors.append("Course 20 reference package must stop at integration-review eligibility")
+    if assessment.get("merge_authorized") is not False or assessment.get("deployment_authorized") is not False:
+        errors.append("Course 20 package must not authorize merge or deployment")
+    subject = assessment.get("subject", {})
+    commits = subject.get("component_commits", {})
+    if len(commits) != 5 or any(len(value) != 40 for value in commits.values()):
+        errors.append("Course 20 integration manifest must bind five full Git commits")
+    if (report.get("conformance", {}).get("passed"), report.get("conformance", {}).get("total")) != (16, 16):
+        errors.append("Course 20 must retain sixteen passing conformance decisions")
+    if (report.get("evaluation", {}).get("passed"), report.get("evaluation", {}).get("total")) != (40, 40):
+        errors.append("Course 20 must retain forty passing evaluation decisions")
+    scenarios = report.get("integration_scenarios", {})
+    if (scenarios.get("passed"), scenarios.get("total")) != (12, 12):
+        errors.append("Course 20 must retain twelve passing integration scenarios")
+    if report.get("compatibility") != {
+        "ai-v1/review-v1": True,
+        "ai-v1/review-v2": True,
+        "ai-v2/review-v1": False,
+        "ai-v2/review-v2": True,
+    }:
+        errors.append("Course 20 compatibility matrix is stale or unsafe")
+    if report.get("comparison") != {
+        "baseline_cases_accepted": 16,
+        "governed_cases_correct": 16,
+        "total": 16,
+    }:
+        errors.append("Course 20 must preserve the local-CI versus governed comparison")
+
+    stored = json.loads((scenario / "evidence/manifest.json").read_text(encoding="utf-8"))
+    stored_assessment = stored.get("candidate_assessment", {})
+    if (
+        stored.get("course_validation") != report["course_validation"]["status"]
+        or stored_assessment.get("status") != assessment.get("status")
+        or stored_assessment.get("component_commits") != commits
+        or stored.get("evidence_digest") != report.get("coordination", {}).get("evidence_digest")
+        or stored.get("conformance") != "16/16"
+        or stored.get("evaluation") != "40/40"
+        or stored.get("integration_scenarios") != "12/12"
+    ):
+        errors.append("Course 20 stored evidence summary is stale")
+
+    evaluator = (scenario / "multirepo_app/control_plane.py").read_text(encoding="utf-8")
+    evaluator = evaluator.split("def evaluate_candidate", 1)[1].split("def direct_agent_baseline", 1)[0]
+    if "mutation_labels" in evaluator or 'candidate["local_ci"]' in evaluator:
+        errors.append("Course 20 governed evaluator trusts candidate labels or local-CI claims")
+    harness = (scenario / "multirepo_app/git_harness.py").read_text(encoding="utf-8")
+    required_harness = [
+        '["git", "init", "-q"]',
+        '["git", "rev-parse", "HEAD"]',
+        '"unittest", "discover"',
+        '"cross_tenant_reference"',
+        '"new_producer_old_consumer_blocked"',
+        '"INT-RUN-AI2500": receipt',
+    ]
+    if any(fragment not in harness for fragment in required_harness):
+        errors.append("Course 20 trusted harness is missing Git, local-test, compatibility, or evidence controls")
+    starter = (scenario / "workshop/starter/integration-package.json").read_text(encoding="utf-8")
+    if starter.count("TODO:") != 6:
+        errors.append("Course 20 starter must retain exactly six learner decisions")
+    reference = json.loads((scenario / "reference/integration-package.json").read_text(encoding="utf-8"))
+    if reference.get("state") != "READY_FOR_INTEGRATION_REVIEW" or any(reference.get("non_authorities", {}).values()):
+        errors.append("Course 20 reference package must retain explicit non-authorities")
+
+    quiz_source = (ROOT / "quiz/questions.js").read_text(encoding="utf-8")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 268:
+        errors.append("Course 20 cumulative quiz must contain 268 questions")
+    if "Courses 01–20" not in (ROOT / "quiz/index.html").read_text(encoding="utf-8"):
+        errors.append("Course 20 cumulative quiz must identify Courses 01–20")
+    hub = (ROOT / "hub/lessons.js").read_text(encoding="utf-8")
+    hub_fragments = [
+        "const course20 = {",
+        "10-multi-repository-spec-driven-development-with-ai-coding-agents/northstar-multirepo/multirepo_sdd.ipynb",
+        "10-multi-repository-spec-driven-development-with-ai-coding-agents/northstar-multirepo/workshop/starter",
+        "16 conformance cases, 40 labelled evaluations, four executable compatibility combinations, and 12 system integration scenarios",
+    ]
+    if any(fragment not in hub for fragment in hub_fragments):
+        errors.append("Course 20 Learning Hub entry is incomplete or points outside the workshop package")
     return errors
 
 
@@ -3089,6 +3251,7 @@ def main() -> None:
         "Course 17 end-to-end Agentic PDLC": check_course_17_end_to_end_agentic_pdlc,
         "Course 18 brownfield development": check_course_18_brownfield_development,
         "Course 19 bug fixes and small changes": check_course_19_bug_fixes,
+        "Course 20 multi-repository development": check_course_20_multirepository,
         "diagrams": render_and_validate_diagrams,
         "labs": run_labs,
         "repository labs": run_repository_labs,

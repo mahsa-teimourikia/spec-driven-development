@@ -1,0 +1,5 @@
+{
+  "child_change": "AI-2500-AI",
+  "parent_change": "AI-2500@2",
+  "produces": "CONTRACT-CLASSIFICATION-001@1"
+}

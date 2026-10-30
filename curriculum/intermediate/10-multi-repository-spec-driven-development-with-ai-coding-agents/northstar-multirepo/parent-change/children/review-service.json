@@ -1,0 +1,10 @@
+{
+  "id": "AI-2500-REVIEW",
+  "parent_change": "AI-2500",
+  "parent_revision": 2,
+  "repository": "northstar/review-service",
+  "implements": ["REQ-DOC-2500-02", "REQ-DOC-2500-04"],
+  "consumes": ["CONTRACT-CLASSIFICATION-001@1", "CONTRACT-CLASSIFICATION-001@2"],
+  "produces": ["CONTRACT-REVIEW-001@2"],
+  "allows_review_bypass": false
+}

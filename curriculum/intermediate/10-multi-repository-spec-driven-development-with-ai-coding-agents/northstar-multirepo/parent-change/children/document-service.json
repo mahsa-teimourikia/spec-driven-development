@@ -1,0 +1,10 @@
+{
+  "id": "AI-2500-DOCUMENT",
+  "parent_change": "AI-2500",
+  "parent_revision": 2,
+  "repository": "northstar/document-service",
+  "implements": ["REQ-DOC-2500-04"],
+  "consumes": [],
+  "produces": ["CONTRACT-DOCUMENT-001@3"],
+  "allows_review_bypass": false
+}
