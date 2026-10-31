@@ -1,0 +1,21 @@
+{
+  "course_validation": "PASS",
+  "candidate_assessment": {
+    "status": "READY_FOR_INTEGRATION_REVIEW",
+    "component_commits": {
+      "document-service": "550ba299d18492495d516ee43f7f9e763a0e166d",
+      "ai-service": "5c66737d77d4a6d4935febf304c25c9a93511618",
+      "review-service": "4d2d315ed382288b18be9813c0f5195962f94185",
+      "underwriting-api": "7610de52dbaf77022e5bb4ec6d4ee96fa41edaf9",
+      "underwriter-ui": "f7f680aba1ca30e4c6ae0150eaabfd85bf29ea89"
+    },
+    "revision_set_digest": "sha256:210ff50a2fad6819ae0e725b4047b71051f4e63f3dd1fb36a38129b2633a7657",
+    "merge_authorized": false,
+    "deployment_authorized": false,
+    "release_authorized": false
+  },
+  "conformance": "12/12",
+  "evaluation": "30/30",
+  "system_scenarios": "6/6",
+  "measurement_boundary": "deterministic teaching fixture, not production performance"
+}

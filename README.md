@@ -4,7 +4,7 @@
 
 ## Start here
 
-Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through Course 19, then complete [Course 20: Multi-Repository Spec-Driven Development with AI Coding Agents](curriculum/intermediate/10-multi-repository-spec-driven-development-with-ai-coding-agents/README.md) with its guided [notebook](curriculum/intermediate/10-multi-repository-spec-driven-development-with-ai-coding-agents/northstar-multirepo/multirepo_sdd.ipynb), deterministic [multi-repository lab](curriculum/intermediate/10-multi-repository-spec-driven-development-with-ai-coding-agents/northstar-multirepo/lab.py), [AI-2500 workshop](curriculum/intermediate/10-multi-repository-spec-driven-development-with-ai-coding-agents/northstar-multirepo/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
+Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through Course 20, then complete [Course 21: Multi-Repository Parallel-Agent Delivery](curriculum/intermediate/11-multi-repository-parallel-agent-delivery/README.md) with its guided [notebook](curriculum/intermediate/11-multi-repository-parallel-agent-delivery/northstar-parallel-agents/parallel_agent_delivery.ipynb), deterministic [parallel-delivery lab](curriculum/intermediate/11-multi-repository-parallel-agent-delivery/northstar-parallel-agents/lab.py), [AI-2500 workshop](curriculum/intermediate/11-multi-repository-parallel-agent-delivery/northstar-parallel-agents/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
 
 This is not simply a tutorial for one specification framework. The central skill is turning organizational intent, architecture rules, product requirements, and engineering constraints into a hierarchy of durable specifications that agents can execute—and humans can govern.
 
@@ -302,11 +302,25 @@ Course 20 coordinates one system change across five independently versioned repo
 - derive mixed-version compatibility and a consumer-first rollout rather than trusting declared matrices;
 - test tenant isolation, provenance, idempotency, dependency failure, stale approval, and single-authority invariants at system level;
 - prove rollback compatibility and define disablement, quarantine, reconciliation, and recovery steps; and
-- compare a local-CI-only baseline with governed delivery across 16 conformance cases, 40 evaluation cases, four compatibility combinations, and 11 integration scenarios.
+- compare a local-CI-only baseline with governed delivery across 16 conformance cases, 40 evaluation cases, four compatibility combinations, and 12 integration scenarios.
+
+## Course 21 outcome
+
+Course 21 adds safe concurrent execution across the five Course 20 repositories. You will:
+
+- decide whether parallelism beats sequential delivery after coordination and rework;
+- dispatch only dependency-ready, semantically independent work units;
+- bind authenticated workers to repositories, paths, exact base commits, contracts, and permissions;
+- enforce expiring leases and monotonically increasing fencing generations at submission;
+- reconcile unknown outcomes through durable idempotency records and validate checkpoints before resume;
+- route shared-contract changes through owner approval and selective transitive invalidation;
+- recover after worker or coordinator failure without duplicating effects or widening authority;
+- bind trusted evidence to an exact five-commit system revision set; and
+- compare sequential, naive-parallel, and governed-parallel delivery across 12 conformance cases, 30 evaluation decisions, and six system checks.
 
 ## Run locally
 
-Everything in Courses 01–20 is credential-free and uses the Python standard library. Course 20 also invokes the installed Git executable to create isolated local repositories.
+Everything in Courses 01–21 is credential-free and uses the Python standard library. Courses 20–21 also invoke the installed Git executable to create isolated local repositories.
 
 ```bash
 python3 curriculum/beginner/01-why-agentic-coding-changes-pdlc/lab.py
@@ -330,6 +344,7 @@ python3 curriculum/intermediate/07-idea-discovery-spec-design-implementation/nor
 python3 curriculum/intermediate/08-brownfield-development-with-agentic-coding-agents/northstar-underwriter-modernization/lab.py
 python3 curriculum/intermediate/09-bug-fixes-and-small-changes-with-agentic-coding-agents/northstar-bugfix/lab.py
 python3 curriculum/intermediate/10-multi-repository-spec-driven-development-with-ai-coding-agents/northstar-multirepo/lab.py
+python3 curriculum/intermediate/11-multi-repository-parallel-agent-delivery/northstar-parallel-agents/lab.py
 python3 -m unittest discover -s tests -v
 python3 scripts/validate_course.py
 ```

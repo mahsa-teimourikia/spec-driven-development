@@ -1,0 +1,24 @@
+{
+  "change_id": "AI-2500",
+  "state": "READY_FOR_INTEGRATION_REVIEW",
+  "contract_revision": 2,
+  "contract_digest": "sha256:0a96a8f5c6366add994af87c48a5a9d2cad9ba1676a58728f26f2319beb7990b",
+  "component_commits": {
+    "document-service": "550ba299d18492495d516ee43f7f9e763a0e166d",
+    "ai-service": "5c66737d77d4a6d4935febf304c25c9a93511618",
+    "review-service": "4d2d315ed382288b18be9813c0f5195962f94185",
+    "underwriting-api": "7610de52dbaf77022e5bb4ec6d4ee96fa41edaf9",
+    "underwriter-ui": "f7f680aba1ca30e4c6ae0150eaabfd85bf29ea89"
+  },
+  "evidence_ids": ["EVID-WU-DOC-550ba299d184", "EVID-WU-AI-5c66737d77d4", "EVID-WU-REVIEW-4d2d315ed382", "EVID-WU-API-7610de52dbaf", "EVID-WU-UI-f7f680aba1ca"],
+  "system_evidence_id": "SYSTEM-31c01ab9d647a509",
+  "revision_set_digest": "sha256:210ff50a2fad6819ae0e725b4047b71051f4e63f3dd1fb36a38129b2633a7657",
+  "non_authorities": {
+    "contract_approval": false,
+    "architecture_approval": false,
+    "merge": false,
+    "deployment": false,
+    "activation": false,
+    "contract_retirement": false
+  }
+}

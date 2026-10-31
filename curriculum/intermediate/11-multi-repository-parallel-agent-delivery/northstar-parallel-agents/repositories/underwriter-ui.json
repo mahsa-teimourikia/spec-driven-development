@@ -1,0 +1,4 @@
+{
+  "baseline": {"contract_revision": 2, "behavior": "document-status", "authoritative": false},
+  "candidate": {"contract_revision": 2, "behavior": "proposal-and-authoritative-state", "authoritative": false}
+}

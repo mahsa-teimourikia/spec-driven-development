@@ -1,0 +1,8 @@
+{
+  "WU-CONTRACT": {"repository": "contract-registry", "dependencies": [], "allowed_paths": ["contracts", "spec"], "duration": 3},
+  "WU-DOC": {"repository": "document-service", "dependencies": ["WU-CONTRACT"], "allowed_paths": ["src", "tests", "spec"], "duration": 5},
+  "WU-AI": {"repository": "ai-service", "dependencies": ["WU-CONTRACT"], "allowed_paths": ["src", "tests", "spec"], "duration": 8},
+  "WU-REVIEW": {"repository": "review-service", "dependencies": ["WU-CONTRACT"], "allowed_paths": ["src", "tests", "spec"], "duration": 7},
+  "WU-API": {"repository": "underwriting-api", "dependencies": ["WU-DOC", "WU-REVIEW"], "allowed_paths": ["src", "tests", "spec"], "duration": 4},
+  "WU-UI": {"repository": "underwriter-ui", "dependencies": ["WU-API"], "allowed_paths": ["src", "tests", "spec"], "duration": 3}
+}

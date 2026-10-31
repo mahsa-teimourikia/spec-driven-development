@@ -1027,6 +1027,56 @@ const course20 = {
   }
 };
 
+const course21 = {
+  id: 'c21', course: 21, level: 'intermediate', part: 'IV · Agentic PDLC', status: 'available',
+  title: 'Multi-Repository Parallel-Agent Delivery',
+  summary: 'Turn concurrent coding activity into governed delivery with dependency-aware dispatch, authenticated workers, leases, fencing, idempotency, recovery, and exact-revision integration evidence.',
+  outcomes: [
+    'Decide when parallel delivery saves time after coordination, review, and rework costs.',
+    'Partition a parent change into semantically independent dependency-bound work units.',
+    'Authenticate workload identity and attenuate repository, path, tool, and decision scope.',
+    'Enforce leases and monotonically increasing fencing generations at protected resources.',
+    'Reconcile uncertain retries and validate durable checkpoints before resume.',
+    'Invalidate affected work after contract change and verify one exact system revision set.'
+  ],
+  readme: `${REPO}/blob/main/curriculum/intermediate/11-multi-repository-parallel-agent-delivery/README.md`,
+  notebook: `${REPO}/blob/main/curriculum/intermediate/11-multi-repository-parallel-agent-delivery/northstar-parallel-agents/parallel_agent_delivery.ipynb`,
+  lab: `${REPO}/blob/main/curriculum/intermediate/11-multi-repository-parallel-agent-delivery/northstar-parallel-agents/lab.py`,
+  repoFixture: `${REPO}/tree/main/curriculum/intermediate/11-multi-repository-parallel-agent-delivery/northstar-parallel-agents`,
+  run: 'python3 curriculum/intermediate/11-multi-repository-parallel-agent-delivery/northstar-parallel-agents/lab.py',
+  labs: [
+    {
+      title: 'Lab A — Execute governed parallel delivery',
+      description: 'Create five real Git repositories, compare three scheduling strategies, and run 12 conformance scenarios, 30 labelled evaluation decisions, and six exact-revision system checks.',
+      command: 'python3 curriculum/intermediate/11-multi-repository-parallel-agent-delivery/northstar-parallel-agents/lab.py',
+      links: [['View the parallel-delivery lab', `${REPO}/blob/main/curriculum/intermediate/11-multi-repository-parallel-agent-delivery/northstar-parallel-agents/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/intermediate/11-multi-repository-parallel-agent-delivery/northstar-parallel-agents/parallel_agent_delivery.ipynb`]]
+    },
+    {
+      title: 'Lab B — Govern the AI-2500 parallel integration package',
+      description: 'Resolve six learner decisions covering partitioning, workload identity, fenced ownership, idempotent recovery, contract invalidation, and the exact-revision integration barrier.',
+      command: 'Complete the six starter decisions, run Lab A, then inspect the reference integration package.',
+      links: [['Open the AI-2500 parallel workshop', `${REPO}/tree/main/curriculum/intermediate/11-multi-repository-parallel-agent-delivery/northstar-parallel-agents`], ['Complete the starter package', `${REPO}/blob/main/curriculum/intermediate/11-multi-repository-parallel-agent-delivery/northstar-parallel-agents/workshop/starter/integration-package.json`], ['Inspect the reference handoff', `${REPO}/blob/main/curriculum/intermediate/11-multi-repository-parallel-agent-delivery/northstar-parallel-agents/reference/integration-package.json`]]
+    }
+  ],
+  references: [
+    ['Leases paper (Gray and Cheriton)', 'https://doi.org/10.1145/74850.74870'],
+    ['GitHub Actions concurrency', 'https://docs.github.com/en/actions/concepts/workflows-and-actions/concurrency'],
+    ['SPIFFE Workload API', 'https://spiffe.io/docs/latest/spiffe-specs/spiffe_workload_api/'],
+    ['SLSA provenance', 'https://slsa.dev/spec/v1.0/provenance'],
+    ['OpenTelemetry traces', 'https://opentelemetry.io/docs/specs/otel/trace/']
+  ],
+  checkpoint: {
+    question: 'A worker with lease generation 41 reconnects after generation 42 was issued. What makes the old submission safe to reject?',
+    options: [
+      'The protected submission service compares the supplied generation with the current trusted generation.',
+      'The old worker received a stop message.',
+      'The scheduler changed the work-unit state label.'
+    ],
+    answer: 0,
+    explanation: 'A lease timeout does not stop an old process. Fencing works only when the consequential resource enforces the newest generation.'
+  }
+};
+
 function planned(course, level, part, title, summary) {
   return {
     id: `c${String(course).padStart(2, '0')}`, course, level, part,
@@ -1058,7 +1108,7 @@ const LESSONS = [
   course18,
   course19,
   course20,
-  planned(21, 'intermediate', 'IV · Agentic PDLC', 'Multi-repository parallel-agent delivery', 'Extend bounded coordination across repository, contract, release, and integration boundaries.'),
+  course21,
   planned(22, 'intermediate', 'IV · Agentic PDLC', 'PR and review strategy', 'Design changes and evidence so humans can review agent output efficiently.'),
   planned(23, 'intermediate', 'IV · Agentic PDLC', 'Human approval gates', 'Place accountable decisions at risk-bearing transitions without becoming a bottleneck.'),
   planned(24, 'advanced', 'V · Enterprise controls', 'Security and privacy', 'Translate threat, data, identity, and privacy obligations into preventive and detective controls.'),

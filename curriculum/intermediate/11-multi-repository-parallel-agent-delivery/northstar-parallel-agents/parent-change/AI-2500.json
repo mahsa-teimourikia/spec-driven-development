@@ -1,0 +1,20 @@
+{
+  "id": "AI-2500",
+  "revision": 2,
+  "title": "Broker document review",
+  "owner": "Underwriting Product Council",
+  "requirements": [
+    {"id": "REQ-2500-01", "text": "Generate classification proposals for supported documents."},
+    {"id": "REQ-2500-02", "text": "Route ambiguous classifications to authorized human review."},
+    {"id": "REQ-2500-03", "text": "Prevent AI proposals from independently satisfying underwriting requirements."},
+    {"id": "REQ-2500-04", "text": "Preserve document, evidence, and model provenance."}
+  ],
+  "protected_decisions": [
+    "contract approval",
+    "architecture approval",
+    "merge",
+    "deployment",
+    "activation",
+    "contract retirement"
+  ]
+}
