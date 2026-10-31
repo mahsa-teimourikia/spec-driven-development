@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "paths": {
+    "specifications/": ["domain_owner"],
+    "contracts/": ["contract_owner"],
+    "tests/protected/": ["quality_owner"],
+    "src/authorization.py": ["security_owner"],
+    "src/": ["engineering_reviewer"],
+    "tests/": ["engineering_reviewer"]
+  },
+  "separation_of_duties": {
+    "author_cannot_approve_own_change": true,
+    "github_review_is_not_deployment_approval": true
+  }
+}

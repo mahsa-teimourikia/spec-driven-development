@@ -1972,5 +1972,110 @@ const QUESTIONS = [
     options: ['This exact teaching revision set is eligible for integration review; merge and deployment remain unauthorized', 'The system is approved for production', 'All parallel-agent workflows are safe', 'The coordinator now owns contract approval'],
     answer: 0,
     explanation: 'The evidence supports a bounded claim about one exact fixture subject. It does not transfer authority or prove production behavior.'
+  },
+  {
+    category: 'Course 22 boundaries',
+    question: 'What is the most useful default boundary for an agent-generated pull request?',
+    options: ['The smallest coherent set of changes that can be meaningfully reviewed together', 'Exactly one file', 'All changes produced during one agent session', 'A fixed line-count limit regardless of risk'],
+    answer: 0,
+    explanation: 'Review boundaries should organize coherent decisions. File count, session boundaries, and line count are diagnostics rather than complete decision models.'
+  },
+  {
+    category: 'Course 22 strategy',
+    question: 'When is a spec-first staged PR strategy most useful?',
+    options: ['When shared requirements, architecture, or contracts need accountable approval before implementation', 'For every typo', 'Only when CI is unavailable', 'Whenever one agent writes tests'],
+    answer: 0,
+    explanation: 'Staging earns its coordination cost when normative or shared decisions must be established before dependent implementation.'
+  },
+  {
+    category: 'Course 22 authority',
+    question: 'An agent changes an approved requirement, implementation, and tests so they agree. All tests pass. What is the primary risk?',
+    options: ['A self-confirming but unauthorized behavior change', 'The PR necessarily contains a syntax error', 'Every generated test is invalid', 'The PR must use a merge commit'],
+    answer: 0,
+    explanation: 'Consistency is not correctness when the implementation author can rewrite both the authority and the oracle.'
+  },
+  {
+    category: 'Course 22 oracles',
+    question: 'Why protect consequential acceptance tests from the implementation agent?',
+    options: ['Expected outcomes must remain independently derived from approved intent', 'Protected tests always run faster', 'Contributors should never add tests', 'It eliminates the need for human review'],
+    answer: 0,
+    explanation: 'Agents may propose tests, but they must not silently weaken the independent oracle that defines approved behavior.'
+  },
+  {
+    category: 'Course 22 Git',
+    question: 'A PR description declares only two changed paths. What should a trusted review gate use?',
+    options: ['A diff derived from the resolved base and head commits', 'The description because the agent generated it', 'The branch name', 'The issue labels'],
+    answer: 0,
+    explanation: 'Contributor metadata is a claim. Changed paths and ancestry must be established from trusted Git state.'
+  },
+  {
+    category: 'Course 22 freshness',
+    question: 'A reviewer approves commit A and the agent pushes commit B. What is the safe default for a consequential change?',
+    options: ['Reevaluate review and evidence freshness against B', 'Reuse every approval automatically', 'Approve B using the agent completion report', 'Delete the pull request'],
+    answer: 0,
+    explanation: 'The review subject changed. Exact-head review or trusted scoped impact analysis is required.'
+  },
+  {
+    category: 'Course 22 evidence',
+    question: 'CI evidence passes for one head commit but the PR now points to another. What finding applies?',
+    options: ['The evidence subject is mismatched', 'The evidence remains valid because the repository is the same', 'Only the contract digest matters', 'The agent may re-label the evidence'],
+    answer: 0,
+    explanation: 'Evidence binds the exact revision and applicable specification and contract, not merely a repository name.'
+  },
+  {
+    category: 'Course 22 ownership',
+    question: 'What does CODEOWNERS primarily provide in this operating model?',
+    options: ['Review routing and repository enforcement support, not every enterprise decision authority', 'Automatic production approval', 'Proof that the reviewer understood the change', 'Cross-repository atomicity'],
+    answer: 0,
+    explanation: 'Code-owner review is useful enforcement, but policy exceptions, architecture decisions, deployment, and release may have separate authorities.'
+  },
+  {
+    category: 'Course 22 separation',
+    question: 'May an implementation agent satisfy the required review by approving its own PR with a trusted role name in metadata?',
+    options: ['No; identity and reviewer authority come from authenticated state and separation of duties applies', 'Yes, if all unit tests pass', 'Yes, for fewer than 100 lines', 'Yes, when confidence exceeds 95%'],
+    answer: 0,
+    explanation: 'Role text is not authority, and the author cannot independently approve its own protected change.'
+  },
+  {
+    category: 'Course 22 merge groups',
+    question: 'Two pull requests pass individually but conflict when combined. Which check addresses this?',
+    options: ['Validation of the proposed merge-group state', 'Rerunning only the original branch unit tests', 'A longer PR description', 'Agent self-review'],
+    answer: 0,
+    explanation: 'Each branch can be green against an earlier base while the combined candidate is incompatible.'
+  },
+  {
+    category: 'Course 22 multi-repository',
+    question: 'What does a repository merge queue not establish by itself?',
+    options: ['Compatibility of an exact candidate set across independent repositories', 'Compatibility with earlier queued changes in that repository', 'Required checks for the merge group', 'The target branch used by that repository'],
+    answer: 0,
+    explanation: 'Cross-repository integration needs its own exact revision manifest and system evidence.'
+  },
+  {
+    category: 'Course 22 Actions',
+    question: 'Which GitHub Actions event must be included when a required workflow should run for merge queue candidates?',
+    options: ['merge_group', 'issues', 'discussion', 'release_only'],
+    answer: 0,
+    explanation: 'GitHub documents merge_group as a separate trigger from pull_request and push for merge queue checks.'
+  },
+  {
+    category: 'Course 22 security',
+    question: 'Why is running fork code in a privileged pull_request_target workflow dangerous?',
+    options: ['Untrusted code can execute with base-repository token or secret access', 'It makes Git SHAs longer', 'It disables CODEOWNERS syntax', 'It prevents all merge conflicts'],
+    answer: 0,
+    explanation: 'Untrusted execution and privileged credentials must be separated; use least privilege and isolated execution.'
+  },
+  {
+    category: 'Course 22 metrics',
+    question: 'Which comparison best evaluates a PR strategy?',
+    options: ['Lead time, review effort, rework, meaningful defect detection, integration conflicts, escaped defects, and cost per verified change', 'PR count alone', 'Lines generated per agent', 'Approval speed alone'],
+    answer: 0,
+    explanation: 'Single activity or speed metrics invite shallow optimization. Review strategies affect flow, quality, integration, and total cost.'
+  },
+  {
+    category: 'Course 22 authority boundary',
+    question: 'The lab returns ELIGIBLE_FOR_MERGE_REVIEW after 12 conformance cases, 28 evaluations, and 10 Git experiments. What follows?',
+    options: ['The exact teaching subject may proceed to accountable merge review; merge, deployment, and release remain separate', 'The change is automatically deployed', 'The agent now owns release approval', 'All future revisions inherit the result'],
+    answer: 0,
+    explanation: 'A bounded review decision neither transfers authority nor applies automatically to a changed subject.'
   }
 ];

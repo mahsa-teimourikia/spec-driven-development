@@ -1,0 +1,24 @@
+name: Course 22 trusted PR review
+
+on:
+  pull_request:
+  merge_group:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  protected-review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Execute the trusted teaching gate
+        run: |
+          python3 curriculum/intermediate/12-pull-request-review-strategies-agentic-sdd/northstar-pr-review/lab.py
+          python3 -m unittest tests.test_course_22 -v

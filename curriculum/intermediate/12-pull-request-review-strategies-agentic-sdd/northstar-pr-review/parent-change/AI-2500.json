@@ -1,0 +1,8 @@
+{
+  "change_id": "AI-2500",
+  "title": "Broker document review",
+  "revision": 2,
+  "status": "APPROVED_FOR_IMPLEMENTATION",
+  "repositories": ["ai-service", "review-service", "underwriter-ui"],
+  "protected_outcome": "Ambiguous classifications always require human review, regardless of confidence."
+}

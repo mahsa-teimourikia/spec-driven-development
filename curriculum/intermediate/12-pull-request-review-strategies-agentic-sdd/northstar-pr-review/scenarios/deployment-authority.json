@@ -1,0 +1,1 @@
+{"id":"PR-EXP-010","stimulus":"All PR review checks pass","expected_finding":"DEPLOYMENT_AUTHORITY_SEPARATE","derived_from":"explicit non-authority invariant"}

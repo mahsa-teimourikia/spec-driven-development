@@ -1,0 +1,8 @@
+{
+  "id": "parallel_repositories",
+  "prerequisite": "approved shared contract",
+  "repositories": ["ai-service", "review-service", "underwriter-ui"],
+  "integration_barrier": "exact revision set",
+  "synthetic_metrics": {"lead_time_hours": 21, "review_effort_hours": 9, "rework_hours": 4, "late_contract_conflicts": 1},
+  "warning": "Values are illustrative simulation inputs, not measured organizational performance."
+}

@@ -111,7 +111,7 @@ Each future course follows this learning arc, adapted where the subject demands 
 | 19 | intermediate/09 | Bug fixes and small changes | **Available** | C17–C18 | BUG-2415 proportional triage, minimal contract, causal experiment, protected oracle, actual-diff scope, revision-bound red-green receipt, twelve conformance cases, ten experiments, and 30-case evaluation |
 | 20 | intermediate/10 | Multi-repository development | **Available** | C10, C17 | AI-2500 parent/child specifications, five real Git repositories, canonical behavioral contracts, executed mixed-version compatibility, exact-revision manifests, rollout/recovery controls, 16 conformance cases, 40 evaluations, and 12 system scenarios |
 | 21 | intermediate/11 | Multi-repository parallel-agent delivery | **Available** | C11, C17, C20 | AI-2500 dependency-aware fan-out, authenticated worker scope, resource-enforced leases and fencing, idempotent operations, checkpoint/restart recovery, selective contract invalidation, five-commit integration evidence, 12 conformance cases, and 30 labelled evaluations |
-| 22 | intermediate/12 | PR and review strategy | Planned | C17–C21 | Spec → design → implementation PR series compared with a mega-PR using latency, depth, rework, conflict, exception, and size evidence |
+| 22 | intermediate/12 | Pull Request and Review Strategies for Agentic SDD | **Available** | C17–C21 | AI-2500 Git-backed review subjects, protected intent and test oracles, exact-head approval/evidence binding, merge-group conflict detection, 12 conformance cases, 28 labelled evaluations, and 10 review experiments |
 | 23 | intermediate/13 | Human approval gates | Planned | C04, C22 | Risk-tiered approvals, expiry, revocation, audit trail |
 
 ## Part V — Enterprise controls

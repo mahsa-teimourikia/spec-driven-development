@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "decisions": [
+    {"path": "specifications/approved-requirements.json", "owner": "domain_owner", "agent_may_approve": false},
+    {"path": "contracts/classification-v2.schema.json", "owner": "contract_owner", "agent_may_approve": false},
+    {"path": "tests/protected/test_acceptance.py", "owner": "quality_owner", "agent_may_approve": false}
+  ]
+}

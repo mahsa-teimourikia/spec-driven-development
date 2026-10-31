@@ -1,0 +1,6 @@
+{
+  "id": "staged_prs",
+  "sequence": ["specification_and_contract", "implementation", "integration_readiness"],
+  "synthetic_metrics": {"lead_time_hours": 26, "review_effort_hours": 8, "rework_hours": 3, "late_contract_conflicts": 0},
+  "warning": "Values are illustrative simulation inputs, not measured organizational performance."
+}

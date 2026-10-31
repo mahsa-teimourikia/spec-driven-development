@@ -1,0 +1,1 @@
+{"id":"PR-EXP-009","stimulus":"Agent author presents its own approval","expected_finding":"SELF_APPROVAL_DENIED","derived_from":"authenticated author and reviewer identities"}

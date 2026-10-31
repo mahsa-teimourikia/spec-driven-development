@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "tiers": {
+    "localized_reversible": {"starting_strategy": "single_pr", "exact_head_approval": true},
+    "shared_contract": {"starting_strategy": "spec_first_staged", "exact_head_approval": true},
+    "multi_repository": {"starting_strategy": "parallel_after_contract", "exact_revision_manifest": true},
+    "protected_decision": {"starting_strategy": "independent_normative_approval", "exact_head_approval": true}
+  }
+}

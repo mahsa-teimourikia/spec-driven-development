@@ -1,0 +1,8 @@
+# Illustrative Northstar routing fixture. These teams do not exist in this repository.
+/.github/                                  @northstar/repository-admins
+/specifications/                          @northstar/underwriting
+/contracts/                               @northstar/architecture
+/tests/protected/                         @northstar/quality
+/src/authorization.py                     @northstar/security
+/src/                                     @northstar/engineering
+/tests/                                   @northstar/engineering

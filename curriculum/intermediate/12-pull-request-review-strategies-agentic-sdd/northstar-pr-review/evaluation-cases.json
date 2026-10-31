@@ -1,0 +1,6 @@
+{
+  "suite": "course-22-evaluation",
+  "population": {"positive": 8, "negative": 12, "boundary": 4, "failure_recovery": 4},
+  "case_count": 28,
+  "note": "The executable evaluator derives every outcome from Git, approval, evidence, and policy inputs rather than expected labels."
+}
