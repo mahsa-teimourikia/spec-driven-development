@@ -4,14 +4,14 @@
     {"id": "PAR-GOLDEN-001", "invariant": "Only one active lease generation can own a work unit."},
     {"id": "PAR-GOLDEN-002", "invariant": "The protected submission service rejects a stale fencing generation."},
     {"id": "PAR-GOLDEN-003", "invariant": "An unmet dependency blocks dispatch."},
-    {"id": "PAR-GOLDEN-004", "invariant": "Actual changed paths remain within authenticated repository scope."},
-    {"id": "PAR-GOLDEN-005", "invariant": "Only the contract owner approves a revision and affected work is selectively invalidated."},
-    {"id": "PAR-GOLDEN-006", "invariant": "A retried logical PR operation produces one effect."},
+    {"id": "PAR-GOLDEN-004", "invariant": "Trusted Git derives actual changed paths and rejects unauthorized scope."},
+    {"id": "PAR-GOLDEN-005", "invariant": "Owner-approved contract change selectively invalidates work and revokes active execution authority."},
+    {"id": "PAR-GOLDEN-006", "invariant": "A current lease subject can reconcile one logical PR effect without duplication."},
     {"id": "PAR-GOLDEN-007", "invariant": "A checkpoint cannot resume against stale repository context."},
     {"id": "PAR-GOLDEN-008", "invariant": "Agent completion does not imply trusted verification."},
     {"id": "PAR-GOLDEN-009", "invariant": "Integration evidence binds the exact component revision set."},
     {"id": "PAR-GOLDEN-010", "invariant": "The coordinator cannot self-authorize release."},
     {"id": "PAR-GOLDEN-011", "invariant": "Retry exhaustion escalates rather than looping indefinitely."},
-    {"id": "PAR-GOLDEN-012", "invariant": "Coordinator restart preserves fencing and idempotent operation state."}
+    {"id": "PAR-GOLDEN-012", "invariant": "Coordinator restart preserves fencing and requires UNKNOWN_OUTCOME reconciliation."}
   ]
 }

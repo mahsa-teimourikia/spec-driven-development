@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Callable, Mapping
@@ -10,14 +11,20 @@ from typing import Callable, Mapping
 from .control_plane import (
     Checkpoint,
     ControlPlane,
-    EvidenceReceipt,
     IntegrationDecision,
+    UnknownOperationOutcome,
     WorkState,
     WorkUnit,
     WorkerPrincipal,
     canonical_digest,
 )
-from .git_harness import REPOSITORIES, RepositoryRevision, TrustedGitHarness
+from .evidence_service import ExecutedEvidenceService
+from .git_harness import (
+    REPOSITORIES,
+    RepositoryRevision,
+    TrustedGitHarness,
+    TrustedGitService,
+)
 
 
 NOW = datetime(2026, 10, 30, 12, 0, tzinfo=timezone.utc)
@@ -70,41 +77,15 @@ def make_plane(root: Path, revisions: Mapping[str, RepositoryRevision]) -> Contr
                 state=state,
             )
         )
+    git_service = TrustedGitService(revisions)
     return ControlPlane(
         work_units=units,
         workers=_workers(),
         contract_revision=2,
         contract_digest=canonical_digest(contract),
         contract_owner="northstar-contract-owner",
-    )
-
-
-def _receipt(
-    plane: ControlPlane,
-    work_unit_id: str,
-    revision: RepositoryRevision,
-    *,
-    passed: bool | None = None,
-    commit: str | None = None,
-    producer: str | None = None,
-) -> EvidenceReceipt:
-    return EvidenceReceipt(
-        evidence_id=f"EVID-{work_unit_id}",
-        producer_identity=producer or plane.integration_verifier,
-        work_unit_id=work_unit_id,
-        repository=revision.repository,
-        candidate_commit=commit or revision.candidate_commit,
-        contract_revision=plane.contract_revision,
-        contract_digest=plane.contract_digest,
-        result_digest=canonical_digest(
-            {
-                "work_unit_id": work_unit_id,
-                "commit": commit or revision.candidate_commit,
-                "tests_passed": revision.tests_passed,
-            }
-        ),
-        checks=("local-tests", "scope", "contract", "authority"),
-        passed=revision.tests_passed if passed is None else passed,
+        git_service=git_service,
+        evidence_service=ExecutedEvidenceService(git_service),
     )
 
 
@@ -126,15 +107,10 @@ def complete_unit(
         lease,
         authenticated_identity=identity,
         now=now + timedelta(minutes=1),
-        base_commit=revision.baseline_commit,
         candidate_commit=revision.candidate_commit,
         contract_revision=2,
-        changed_paths=revision.changed_paths,
     )
-    plane.verify(
-        _receipt(plane, work_unit_id, revision),
-        authenticated_identity=plane.integration_verifier,
-    )
+    plane.verify(work_unit_id, authenticated_identity=plane.integration_verifier)
 
 
 def system_scenarios(
@@ -142,55 +118,8 @@ def system_scenarios(
     plane: ControlPlane,
     revisions: Mapping[str, RepositoryRevision],
 ) -> dict[str, bool]:
-    behavior = (root / "contracts/classification.behavior.md").read_text(encoding="utf-8")
-    fixtures = TrustedGitHarness(root).fixtures
-    effect_count = 0
-
-    def create_pr() -> Mapping[str, object]:
-        nonlocal effect_count
-        effect_count += 1
-        return {"pull_request": 182, "effect_count": effect_count}
-
-    request = {
-        "change_id": "AI-2500",
-        "work_unit_id": "WU-AI",
-        "action": "CREATE_OR_UPDATE_PR",
-        "branch": "agent/AI-2500-WU-AI",
-    }
-    first, first_reconciled = plane.execute_idempotent(
-        operation_id="AI-2500:WU-AI:CREATE_OR_UPDATE_PR:2",
-        authenticated_identity="agent-ai-a",
-        request=request,
-        effect=create_pr,
-    )
-    second, second_reconciled = plane.execute_idempotent(
-        operation_id="AI-2500:WU-AI:CREATE_OR_UPDATE_PR:2",
-        authenticated_identity="agent-ai-a",
-        request=request,
-        effect=create_pr,
-    )
-    return {
-        "ambiguity_routes_to_review": "regardless of model confidence" in behavior,
-        "tenant_isolation": "tenant **MUST** match" in behavior,
-        "duplicate_operation_reconciled": (
-            not first_reconciled
-            and second_reconciled
-            and first == second
-            and effect_count == 1
-        ),
-        "provenance_preserved": (
-            "evidence_refs" in load_json(root / "contracts/classification-v2.schema.json")["required"]
-            and "model_revision" in load_json(root / "contracts/classification-v2.schema.json")["required"]
-        ),
-        "proposal_not_authoritative": (
-            fixtures["ai-service"]["candidate"]["authoritative"] is False
-            and fixtures["underwriting-api"]["candidate"]["authoritative"] is True
-        ),
-        "exact_revision_set": all(
-            len(revision.candidate_commit) == 40 and revision.tests_passed
-            for revision in revisions.values()
-        ),
-    }
+    del root, plane
+    return dict(getattr(revisions, "system_results", {}))
 
 
 def run_reference(root: Path) -> tuple[
@@ -210,7 +139,6 @@ def run_reference(root: Path) -> tuple[
         ("WU-UI", "underwriter-ui", "agent-ui"),
     ):
         complete_unit(plane, work_unit_id, revisions[repository], identity)
-    results = system_scenarios(root, plane, revisions)
     manifest: dict[str, object] = {
         "change_id": "AI-2500",
         "parent_revision": 2,
@@ -223,9 +151,15 @@ def run_reference(root: Path) -> tuple[
         "evidence_ids": sorted(plane.evidence),
         "release_authorized": False,
     }
+    system_receipt = plane.run_system_verification(
+        component_commits=manifest["component_commits"],
+        authenticated_identity=plane.integration_verifier,
+    )
+    manifest["system_evidence_id"] = system_receipt.evidence_id
+    results = dict(system_receipt.results)
     decision = plane.integration_barrier(
         manifest=manifest,
-        system_results=results,
+        system_evidence_id=system_receipt.evidence_id,
         authenticated_identity=plane.integration_verifier,
     )
     return plane, revisions, manifest, results, decision
@@ -314,15 +248,17 @@ def golden_scenarios(root: Path) -> dict[str, bool]:
             lease,
             authenticated_identity="agent-ai-a",
             now=NOW + timedelta(minutes=2),
-            base_commit=revisions["ai-service"].baseline_commit,
             candidate_commit=revisions["ai-service"].candidate_commit,
             contract_revision=2,
-            changed_paths=revisions["ai-service"].changed_paths,
         ),
     )
 
     plane, revisions = _fresh(root)
     outcomes["PAR-GOLDEN-003"] = "WU-API" not in plane.ready_units()
+    revisions = TrustedGitHarness(root).observe(
+        extra_files={"ai-service": {"infra/production-admin.tf": "resource = 'forbidden'\n"}}
+    )
+    plane = make_plane(root, revisions)
     lease = plane.acquire_lease("WU-AI", authenticated_identity="agent-ai-a", now=NOW)
     plane.start(lease, authenticated_identity="agent-ai-a", now=NOW)
     outcomes["PAR-GOLDEN-004"] = _raises(
@@ -331,14 +267,27 @@ def golden_scenarios(root: Path) -> dict[str, bool]:
             lease,
             authenticated_identity="agent-ai-a",
             now=NOW + timedelta(minutes=1),
-            base_commit=revisions["ai-service"].baseline_commit,
             candidate_commit=revisions["ai-service"].candidate_commit,
             contract_revision=2,
-            changed_paths=("infra/production-admin.tf",),
         ),
     )
 
     plane, revisions = _fresh(root)
+    active_lease = plane.acquire_lease(
+        "WU-AI",
+        authenticated_identity="agent-ai-a",
+        now=NOW,
+    )
+    plane.start(active_lease, authenticated_identity="agent-ai-a", now=NOW)
+    plane.execute_idempotent(
+        active_lease,
+        now=NOW + timedelta(seconds=1),
+        operation_id="OP-CONTRACT-INVALIDATION",
+        authenticated_identity="agent-ai-a",
+        request={"action": "CREATE_OR_UPDATE_PR"},
+        effect=lambda: {"pull_request": 180},
+    )
+    active_generation = active_lease.generation
     contract_v3 = load_json(root / "contracts/classification-v3.schema.json")
     proposal = plane.propose_contract_change(
         authenticated_identity="agent-ai-a",
@@ -364,9 +313,26 @@ def golden_scenarios(root: Path) -> dict[str, bool]:
         "WU-REVIEW",
         "WU-API",
         "WU-UI",
-    } and plane.work_units["WU-DOC"].state == WorkState.READY
+    } and plane.work_units["WU-DOC"].state == WorkState.READY and (
+        "WU-AI" not in plane.leases
+        and plane.work_units["WU-AI"].generation > active_generation
+        and plane.operations["OP-CONTRACT-INVALIDATION"].state.value == "REVOKED"
+        and _raises(
+            "STALE_FENCING_TOKEN",
+            lambda: plane.execute_idempotent(
+                active_lease,
+                now=NOW + timedelta(minutes=1),
+                operation_id="OP-CONTRACT-INVALIDATION",
+                authenticated_identity="agent-ai-a",
+                request={"action": "CREATE_OR_UPDATE_PR"},
+                effect=lambda: {"pull_request": 181},
+            ),
+        )
+    )
 
     plane, _ = _fresh(root)
+    lease = plane.acquire_lease("WU-AI", authenticated_identity="agent-ai-a", now=NOW)
+    plane.start(lease, authenticated_identity="agent-ai-a", now=NOW)
     effects = 0
 
     def effect() -> Mapping[str, object]:
@@ -376,12 +342,16 @@ def golden_scenarios(root: Path) -> dict[str, bool]:
 
     request = {"branch": "agent/AI-2500-WU-AI", "action": "CREATE_OR_UPDATE_PR"}
     first, _ = plane.execute_idempotent(
+        lease,
+        now=NOW + timedelta(minutes=1),
         operation_id="OP-2500-031",
         authenticated_identity="agent-ai-a",
         request=request,
         effect=effect,
     )
     second, reconciled = plane.execute_idempotent(
+        lease,
+        now=NOW + timedelta(minutes=1),
         operation_id="OP-2500-031",
         authenticated_identity="agent-ai-a",
         request=request,
@@ -420,10 +390,8 @@ def golden_scenarios(root: Path) -> dict[str, bool]:
         lease,
         authenticated_identity="agent-ai-a",
         now=NOW + timedelta(minutes=1),
-        base_commit=revisions["ai-service"].baseline_commit,
         candidate_commit=revisions["ai-service"].candidate_commit,
         contract_revision=2,
-        changed_paths=revisions["ai-service"].changed_paths,
     )
     outcomes["PAR-GOLDEN-008"] = _raises(
         "AGENT_CANNOT_SELF_VERIFY",
@@ -438,7 +406,7 @@ def golden_scenarios(root: Path) -> dict[str, bool]:
     }
     decision = reference_plane.integration_barrier(
         manifest=stale_manifest,
-        system_results=results,
+        system_evidence_id=next(iter(reference_plane.system_evidence)),
         authenticated_identity=reference_plane.integration_verifier,
     )
     outcomes["PAR-GOLDEN-009"] = (
@@ -461,25 +429,48 @@ def golden_scenarios(root: Path) -> dict[str, bool]:
         )
         identity = lease.holder
         plane.start(lease, authenticated_identity=identity, now=NOW + timedelta(minutes=attempt))
-        plane.fail_and_retry("WU-AI", reason="PERSISTENT_TOOL_FAILURE")
-    outcomes["PAR-GOLDEN-011"] = plane.work_units["WU-AI"].state == WorkState.ESCALATED
+        plane.fail_and_retry(
+            lease,
+            authenticated_identity=identity,
+            now=NOW + timedelta(minutes=attempt),
+            reason="PERSISTENT_TOOL_FAILURE",
+        )
+    outcomes["PAR-GOLDEN-011"] = (
+        plane.work_units["WU-AI"].state == WorkState.ESCALATED
+        and "WU-AI" not in plane.leases
+        and plane.work_units["WU-AI"].generation > lease.generation
+    )
 
     plane, _ = _fresh(root)
     lease = plane.acquire_lease("WU-AI", authenticated_identity="agent-ai-a", now=NOW)
-    plane.execute_idempotent(
-        operation_id="OP-RESTART",
-        authenticated_identity="agent-ai-a",
-        request={"action": "CREATE_OR_UPDATE_PR"},
-        effect=lambda: {"pull_request": 183},
+    plane.start(lease, authenticated_identity="agent-ai-a", now=NOW)
+    remote_result = {"pull_request": 183}
+
+    def uncertain_effect() -> Mapping[str, object]:
+        raise UnknownOperationOutcome("REMOTE_RESULT_UNKNOWN")
+
+    _raises(
+        "REMOTE_RESULT_UNKNOWN",
+        lambda: plane.execute_idempotent(
+            lease,
+            now=NOW + timedelta(minutes=1),
+            operation_id="OP-RESTART",
+            authenticated_identity="agent-ai-a",
+            request={"action": "CREATE_OR_UPDATE_PR"},
+            effect=uncertain_effect,
+        ),
     )
     snapshot = plane.snapshot()
     restored, _ = _fresh(root)
     restored.restore_snapshot(snapshot)
     result, reconciled = restored.execute_idempotent(
+        lease,
+        now=NOW + timedelta(minutes=2),
         operation_id="OP-RESTART",
         authenticated_identity="agent-ai-a",
         request={"action": "CREATE_OR_UPDATE_PR"},
         effect=lambda: {"pull_request": 999},
+        reconcile=lambda: remote_result,
     )
     outcomes["PAR-GOLDEN-012"] = (
         restored.leases["WU-AI"].generation == lease.generation
@@ -520,16 +511,14 @@ def evaluation_checks(root: Path) -> dict[str, bool]:
     )
     lease = plane.acquire_lease("WU-AI", authenticated_identity="agent-ai-a", now=NOW)
     plane.start(lease, authenticated_identity="agent-ai-a", now=NOW)
-    checks["EVAL-018-stale-base-denied"] = _raises(
-        "STALE_REPOSITORY_CONTEXT",
+    checks["EVAL-018-unresolved-candidate-denied"] = _raises(
+        "CANDIDATE_COMMIT_NOT_FOUND",
         lambda: plane.submit(
             lease,
             authenticated_identity="agent-ai-a",
             now=NOW + timedelta(minutes=1),
-            base_commit="0" * 40,
-            candidate_commit=revisions["ai-service"].candidate_commit,
+            candidate_commit="0" * 40,
             contract_revision=2,
-            changed_paths=revisions["ai-service"].changed_paths,
         ),
     )
     checks["EVAL-019-stale-contract-denied"] = _raises(
@@ -538,10 +527,8 @@ def evaluation_checks(root: Path) -> dict[str, bool]:
             lease,
             authenticated_identity="agent-ai-a",
             now=NOW + timedelta(minutes=1),
-            base_commit=revisions["ai-service"].baseline_commit,
             candidate_commit=revisions["ai-service"].candidate_commit,
             contract_revision=1,
-            changed_paths=revisions["ai-service"].changed_paths,
         ),
     )
     checks["EVAL-020-symbolic-revision-denied"] = _raises(
@@ -550,10 +537,8 @@ def evaluation_checks(root: Path) -> dict[str, bool]:
             lease,
             authenticated_identity="agent-ai-a",
             now=NOW + timedelta(minutes=1),
-            base_commit=revisions["ai-service"].baseline_commit,
             candidate_commit="feature/latest",
             contract_revision=2,
-            changed_paths=revisions["ai-service"].changed_paths,
         ),
     )
 
@@ -564,39 +549,41 @@ def evaluation_checks(root: Path) -> dict[str, bool]:
         lease,
         authenticated_identity="agent-ai-a",
         now=NOW + timedelta(minutes=1),
-        base_commit=revisions["ai-service"].baseline_commit,
         candidate_commit=revisions["ai-service"].candidate_commit,
         contract_revision=2,
-        changed_paths=revisions["ai-service"].changed_paths,
     )
     checks["EVAL-021-untrusted-verifier-denied"] = _raises(
         "UNTRUSTED_EVIDENCE_PRODUCER",
-        lambda: plane.verify(
-            _receipt(plane, "WU-AI", revisions["ai-service"]),
-            authenticated_identity="agent-ai-a",
-        ),
+        lambda: plane.verify("WU-AI", authenticated_identity="agent-ai-a"),
     )
-    checks["EVAL-022-wrong-evidence-subject-denied"] = _raises(
-        "EVIDENCE_SUBJECT_MISMATCH",
-        lambda: plane.verify(
-            _receipt(plane, "WU-AI", revisions["ai-service"], commit="f" * 40),
-            authenticated_identity=plane.integration_verifier,
-        ),
+    plane.verify("WU-AI", authenticated_identity=plane.integration_verifier)
+    checks["EVAL-022-evidence-is-executed-and-bound"] = all(
+        receipt.work_unit_id == "WU-AI"
+        and receipt.candidate_commit == revisions["ai-service"].candidate_commit
+        and "repository-tests-executed" in receipt.checks
+        and receipt.passed
+        for receipt in plane.evidence.values()
     )
 
     plane, _ = _fresh(root)
+    lease = plane.acquire_lease("WU-AI", authenticated_identity="agent-ai-a", now=NOW)
+    plane.start(lease, authenticated_identity="agent-ai-a", now=NOW)
     plane.execute_idempotent(
+        lease,
+        now=NOW + timedelta(minutes=1),
         operation_id="OP-CONFLICT",
         authenticated_identity="agent-ai-a",
-        request={"branch": "one"},
+        request={"action": "CREATE_OR_UPDATE_PR", "branch": "one"},
         effect=lambda: {"pull_request": 1},
     )
     checks["EVAL-023-idempotency-key-conflict-denied"] = _raises(
         "IDEMPOTENCY_KEY_REUSED_FOR_DIFFERENT_REQUEST",
         lambda: plane.execute_idempotent(
+            lease,
+            now=NOW + timedelta(minutes=1),
             operation_id="OP-CONFLICT",
             authenticated_identity="agent-ai-a",
-            request={"branch": "two"},
+            request={"action": "CREATE_OR_UPDATE_PR", "branch": "two"},
             effect=lambda: {"pull_request": 2},
         ),
     )
@@ -605,11 +592,26 @@ def evaluation_checks(root: Path) -> dict[str, bool]:
     checks["EVAL-024-reference-ready-for-review"] = reference_decision.state == "READY_FOR_INTEGRATION_REVIEW"
     checks["EVAL-025-reference-never-authorizes-merge"] = reference_decision.merge_authorized is False
     checks["EVAL-026-reference-never-authorizes-deploy"] = reference_decision.deployment_authorized is False
-    failed_results = dict(system_results)
+    system_evidence_id = next(iter(reference_plane.system_evidence))
+    system_receipt = reference_plane.system_evidence[system_evidence_id]
+    failed_results = dict(system_receipt.results)
     failed_results["tenant_isolation"] = False
+    failed_receipt = replace(
+        system_receipt,
+        evidence_id="SYSTEM-FAILED-SCENARIO",
+        results=failed_results,
+        result_digest=canonical_digest(
+            {
+                "component_commits": dict(system_receipt.component_commits),
+                "results": failed_results,
+            }
+        ),
+        passed=False,
+    )
+    reference_plane.system_evidence[failed_receipt.evidence_id] = failed_receipt
     failed_decision = reference_plane.integration_barrier(
         manifest=manifest,
-        system_results=failed_results,
+        system_evidence_id=failed_receipt.evidence_id,
         authenticated_identity=reference_plane.integration_verifier,
     )
     checks["EVAL-027-failed-system-scenario-blocks"] = "SYSTEM_SCENARIO_FAILED" in failed_decision.findings
@@ -617,7 +619,7 @@ def evaluation_checks(root: Path) -> dict[str, bool]:
     self_authorized["release_authorized"] = True
     self_decision = reference_plane.integration_barrier(
         manifest=self_authorized,
-        system_results=system_results,
+        system_evidence_id=system_evidence_id,
         authenticated_identity=reference_plane.integration_verifier,
     )
     checks["EVAL-028-self-authorized-release-blocks"] = "COORDINATOR_SELF_AUTHORIZED_RELEASE" in self_decision.findings

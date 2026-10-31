@@ -13,11 +13,11 @@ import hashlib
 import json
 import re
 import threading
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta, timezone
 from enum import Enum
 from pathlib import PurePosixPath
-from typing import Callable, Iterable, Mapping
+from typing import Callable, Iterable, Mapping, Protocol
 
 
 FULL_SHA = re.compile(r"^[0-9a-f]{40}$")
@@ -44,6 +44,13 @@ class WorkState(str, Enum):
     REWORK_REQUIRED = "REWORK_REQUIRED"
     INVALIDATED = "INVALIDATED"
     ESCALATED = "ESCALATED"
+
+
+class OperationState(str, Enum):
+    PENDING = "PENDING"
+    COMPLETED = "COMPLETED"
+    UNKNOWN_OUTCOME = "UNKNOWN_OUTCOME"
+    REVOKED = "REVOKED"
 
 
 ACTIVE_STATES = {
@@ -99,6 +106,39 @@ class Lease:
 
 
 @dataclass(frozen=True)
+class PathChange:
+    """One trusted Git diff entry, including both sides of a rename."""
+
+    status: str
+    path: str
+    source_path: str | None = None
+    object_type: str = "blob"
+
+
+@dataclass(frozen=True)
+class RevisionObservation:
+    """Facts derived by the trusted Git service, never supplied by a worker."""
+
+    repository: str
+    baseline_commit: str
+    candidate_commit: str
+    changes: tuple[PathChange, ...]
+    candidate_exists: bool
+    base_is_ancestor: bool
+    tests_passed: bool
+    test_result_digest: str
+
+    @property
+    def changed_paths(self) -> tuple[str, ...]:
+        paths: list[str] = []
+        for change in self.changes:
+            if change.source_path:
+                paths.append(change.source_path)
+            paths.append(change.path)
+        return tuple(dict.fromkeys(paths))
+
+
+@dataclass(frozen=True)
 class Checkpoint:
     checkpoint_id: str
     work_unit_id: str
@@ -126,6 +166,59 @@ class EvidenceReceipt:
     result_digest: str
     checks: tuple[str, ...]
     passed: bool
+
+
+@dataclass(frozen=True)
+class SystemEvidenceReceipt:
+    evidence_id: str
+    producer_identity: str
+    component_commits: Mapping[str, str]
+    results: Mapping[str, bool]
+    result_digest: str
+    passed: bool
+
+
+@dataclass
+class OperationRecord:
+    operation_id: str
+    work_unit_id: str
+    repository: str
+    holder: str
+    generation: int
+    request_digest: str
+    state: OperationState
+    result: dict[str, object] | None = None
+
+
+class UnknownOperationOutcome(RuntimeError):
+    """The remote effect may have happened and must be reconciled before retry."""
+
+
+class TrustedGitService(Protocol):
+    def resolve(
+        self, repository: str, base_commit: str, candidate_commit: str
+    ) -> RevisionObservation: ...
+
+
+class TrustedEvidenceService(Protocol):
+    def attest_candidate(
+        self,
+        *,
+        producer_identity: str,
+        work_unit_id: str,
+        repository: str,
+        base_commit: str,
+        candidate_commit: str,
+        contract_revision: int,
+        contract_digest: str,
+    ) -> EvidenceReceipt: ...
+
+    def attest_system(
+        self,
+        *,
+        producer_identity: str,
+        component_commits: Mapping[str, str],
+    ) -> SystemEvidenceReceipt: ...
 
 
 @dataclass(frozen=True)
@@ -176,6 +269,8 @@ class ControlPlane:
         contract_revision: int,
         contract_digest: str,
         contract_owner: str,
+        git_service: TrustedGitService,
+        evidence_service: TrustedEvidenceService,
         integration_verifier: str = "northstar-integration-ci",
         coordinator_identity: str = "northstar-coordinator",
     ):
@@ -184,12 +279,15 @@ class ControlPlane:
         self.contract_revision = contract_revision
         self.contract_digest = contract_digest
         self.contract_owner = contract_owner
+        self.git_service = git_service
+        self.evidence_service = evidence_service
         self.integration_verifier = integration_verifier
         self.coordinator_identity = coordinator_identity
         self.leases: dict[str, Lease] = {}
         self.checkpoints: dict[str, Checkpoint] = {}
         self.evidence: dict[str, EvidenceReceipt] = {}
-        self.operations: dict[str, dict[str, object]] = {}
+        self.system_evidence: dict[str, SystemEvidenceReceipt] = {}
+        self.operations: dict[str, OperationRecord] = {}
         self.contract_proposals: dict[str, dict[str, object]] = {}
         self.events: list[dict[str, object]] = []
         self._lock = threading.RLock()
@@ -282,13 +380,52 @@ class ControlPlane:
         unit = self.work_units[lease.work_unit_id]
         if authenticated_identity != lease.holder:
             raise PermissionError("LEASE_IDENTITY_MISMATCH")
-        if current is None or current.generation != lease.generation:
+        if (
+            current is None
+            or current.lease_id != lease.lease_id
+            or current.holder != lease.holder
+            or current.generation != lease.generation
+        ):
             raise PermissionError("STALE_FENCING_TOKEN")
         if unit.generation != lease.generation:
             raise PermissionError("STALE_FENCING_TOKEN")
         if now.astimezone(timezone.utc) >= lease.expires_at:
             raise PermissionError("LEASE_EXPIRED")
         return unit
+
+    def _revoke_authority(self, work_unit_id: str, *, reason: str) -> None:
+        """Fence active execution and invalidate resumable or effect authority."""
+
+        unit = self.work_units[work_unit_id]
+        lease = self.leases.pop(work_unit_id, None)
+        if lease is not None:
+            unit.generation = max(unit.generation, lease.generation) + 1
+            self._event(
+                "LEASE_REVOKED",
+                work_unit_id=work_unit_id,
+                lease_id=lease.lease_id,
+                generation=lease.generation,
+                reason=reason,
+            )
+        for checkpoint_id, checkpoint in tuple(self.checkpoints.items()):
+            if checkpoint.work_unit_id == work_unit_id:
+                self.checkpoints.pop(checkpoint_id)
+                self._event(
+                    "CHECKPOINT_INVALIDATED",
+                    checkpoint_id=checkpoint_id,
+                    work_unit_id=work_unit_id,
+                    reason=reason,
+                )
+        for operation in self.operations.values():
+            if operation.work_unit_id == work_unit_id and operation.state != OperationState.REVOKED:
+                operation.state = OperationState.REVOKED
+                operation.result = None
+                self._event(
+                    "OPERATION_AUTHORITY_REVOKED",
+                    operation_id=operation.operation_id,
+                    work_unit_id=work_unit_id,
+                    reason=reason,
+                )
 
     def start(self, lease: Lease, *, authenticated_identity: str, now: datetime) -> None:
         unit = self._assert_current_lease(
@@ -303,12 +440,12 @@ class ControlPlane:
                 raise ValueError("LEASE_STILL_ACTIVE")
             unit = self.work_units[work_unit_id]
             self._transition(unit, WorkState.LEASE_EXPIRED)
+            self._revoke_authority(work_unit_id, reason="LEASE_EXPIRED")
             unit.retry_count += 1
             if unit.retry_count > unit.retry_budget:
                 self._transition(unit, WorkState.ESCALATED, "RETRY_BUDGET_EXHAUSTED")
             else:
                 self._transition(unit, WorkState.READY)
-            self._event("LEASE_REVOKED", work_unit_id=work_unit_id, generation=lease.generation)
 
     @staticmethod
     def _path_allowed(path: str, allowed_paths: tuple[str, ...]) -> bool:
@@ -324,24 +461,36 @@ class ControlPlane:
         *,
         authenticated_identity: str,
         now: datetime,
-        base_commit: str,
         candidate_commit: str,
         contract_revision: int,
-        changed_paths: Iterable[str],
     ) -> None:
         unit = self._assert_current_lease(
             lease, authenticated_identity=authenticated_identity, now=now
         )
         if unit.state != WorkState.RUNNING:
             raise ValueError("WORK_UNIT_NOT_RUNNING")
-        if base_commit != unit.base_commit:
-            raise ValueError("STALE_REPOSITORY_CONTEXT")
         if contract_revision != self.contract_revision or contract_revision != unit.contract_revision:
             raise ValueError("STALE_CONTRACT_CONTEXT")
         if not FULL_SHA.fullmatch(candidate_commit):
             raise ValueError("UNPINNED_CANDIDATE_REVISION")
-        if any(not self._path_allowed(path, unit.allowed_paths) for path in changed_paths):
+        observation = self.git_service.resolve(
+            unit.repository,
+            unit.base_commit,
+            candidate_commit,
+        )
+        if not observation.candidate_exists:
+            raise ValueError("CANDIDATE_COMMIT_NOT_FOUND")
+        if not observation.base_is_ancestor:
+            raise ValueError("APPROVED_BASE_NOT_ANCESTOR")
+        if observation.repository != unit.repository or observation.baseline_commit != unit.base_commit:
+            raise ValueError("STALE_REPOSITORY_CONTEXT")
+        if any(
+            not self._path_allowed(path, unit.allowed_paths)
+            for path in observation.changed_paths
+        ):
             raise PermissionError("UNAUTHORIZED_PATH_MODIFICATION")
+        if any(change.object_type in {"symlink", "submodule"} for change in observation.changes):
+            raise PermissionError("UNSUPPORTED_REPOSITORY_OBJECT")
         unit.candidate_commit = candidate_commit
         self._transition(unit, WorkState.SUBMITTED)
         self._event(
@@ -349,6 +498,7 @@ class ControlPlane:
             work_unit_id=unit.work_unit_id,
             candidate_commit=candidate_commit,
             generation=lease.generation,
+            changed_paths=observation.changed_paths,
         )
 
     def agent_claims_complete(self, work_unit_id: str, *, authenticated_identity: str) -> None:
@@ -360,26 +510,41 @@ class ControlPlane:
             raise PermissionError("AGENT_CANNOT_SELF_VERIFY")
         raise ValueError("WORK_UNIT_NOT_SUBMITTED")
 
-    def verify(
-        self,
-        receipt: EvidenceReceipt,
-        *,
-        authenticated_identity: str,
-    ) -> None:
+    def verify(self, work_unit_id: str, *, authenticated_identity: str) -> None:
         if authenticated_identity != self.integration_verifier:
             raise PermissionError("UNTRUSTED_EVIDENCE_PRODUCER")
-        unit = self.work_units[receipt.work_unit_id]
+        unit = self.work_units[work_unit_id]
         if unit.state != WorkState.SUBMITTED:
             raise ValueError("WORK_UNIT_NOT_SUBMITTED")
         self._transition(unit, WorkState.VERIFYING)
+        receipt = self.evidence_service.attest_candidate(
+            producer_identity=authenticated_identity,
+            work_unit_id=unit.work_unit_id,
+            repository=unit.repository,
+            base_commit=unit.base_commit,
+            candidate_commit=str(unit.candidate_commit),
+            contract_revision=self.contract_revision,
+            contract_digest=self.contract_digest,
+        )
+        observation = self.git_service.resolve(
+            unit.repository,
+            unit.base_commit,
+            str(unit.candidate_commit),
+        )
+        required_checks = {
+            "candidate-commit-exists",
+            "approved-base-is-ancestor",
+            "repository-tests-executed",
+        }
         matches = (
             receipt.producer_identity == authenticated_identity
             and receipt.repository == unit.repository
             and receipt.candidate_commit == unit.candidate_commit
             and receipt.contract_revision == self.contract_revision
             and receipt.contract_digest == self.contract_digest
+            and receipt.result_digest == observation.test_result_digest
             and receipt.passed
-            and bool(receipt.checks)
+            and required_checks.issubset(receipt.checks)
         )
         if not matches:
             self._transition(unit, WorkState.REWORK_REQUIRED, "EVIDENCE_SUBJECT_MISMATCH")
@@ -389,17 +554,29 @@ class ControlPlane:
         self._transition(unit, WorkState.VERIFIED)
         self.refresh_readiness()
 
-    def fail_and_retry(self, work_unit_id: str, *, reason: str) -> None:
-        unit = self.work_units[work_unit_id]
-        if unit.state not in {WorkState.RUNNING, WorkState.REWORK_REQUIRED, WorkState.FAILED}:
-            raise ValueError("WORK_UNIT_NOT_RETRYABLE")
-        if unit.state == WorkState.RUNNING:
+    def fail_and_retry(
+        self,
+        lease: Lease,
+        *,
+        authenticated_identity: str,
+        now: datetime,
+        reason: str,
+    ) -> None:
+        with self._lock:
+            unit = self._assert_current_lease(
+                lease,
+                authenticated_identity=authenticated_identity,
+                now=now,
+            )
+            if unit.state != WorkState.RUNNING:
+                raise ValueError("WORK_UNIT_NOT_RETRYABLE")
             self._transition(unit, WorkState.FAILED, reason)
-        unit.retry_count += 1
-        if unit.retry_count > unit.retry_budget:
-            self._transition(unit, WorkState.ESCALATED, "RETRY_BUDGET_EXHAUSTED")
-        else:
-            self._transition(unit, WorkState.READY)
+            self._revoke_authority(unit.work_unit_id, reason=reason)
+            unit.retry_count += 1
+            if unit.retry_count > unit.retry_budget:
+                self._transition(unit, WorkState.ESCALATED, "RETRY_BUDGET_EXHAUSTED")
+            else:
+                self._transition(unit, WorkState.READY)
 
     def create_checkpoint(
         self,
@@ -464,29 +641,106 @@ class ControlPlane:
 
     def execute_idempotent(
         self,
+        lease: Lease,
         *,
+        now: datetime,
         operation_id: str,
         authenticated_identity: str,
         request: Mapping[str, object],
         effect: Callable[[], Mapping[str, object]],
+        reconcile: Callable[[], Mapping[str, object] | None] | None = None,
     ) -> tuple[Mapping[str, object], bool]:
-        principal = self.workers.get(authenticated_identity)
-        if principal is None:
-            raise PermissionError("UNAUTHENTICATED_WORKLOAD")
+        unit = self._assert_current_lease(
+            lease,
+            authenticated_identity=authenticated_identity,
+            now=now,
+        )
+        if unit.state != WorkState.RUNNING:
+            raise ValueError("WORK_UNIT_NOT_RUNNING")
+        action = str(request.get("action", ""))
+        required_permission = {
+            "CREATE_OR_UPDATE_PR": "write_bounded_branch",
+            "RUN_TESTS": "run_tests",
+            "PUBLISH_CHECKPOINT": "write_bounded_branch",
+        }.get(action)
+        if required_permission is None:
+            raise PermissionError("OPERATION_NOT_ALLOWLISTED")
+        if required_permission not in lease.permissions:
+            raise PermissionError("OPERATION_CAPABILITY_DENIED")
+        if request.get("work_unit_id", unit.work_unit_id) != unit.work_unit_id:
+            raise PermissionError("OPERATION_WORK_UNIT_SCOPE_DENIED")
+        if request.get("repository", unit.repository) != unit.repository:
+            raise PermissionError("OPERATION_REPOSITORY_SCOPE_DENIED")
         request_digest = canonical_digest(request)
         with self._lock:
             existing = self.operations.get(operation_id)
-            if existing:
-                if existing["request_digest"] != request_digest:
+            if existing is not None:
+                if existing.request_digest != request_digest:
                     raise ValueError("IDEMPOTENCY_KEY_REUSED_FOR_DIFFERENT_REQUEST")
-                return copy.deepcopy(existing["result"]), True
-            result = dict(effect())
-            self.operations[operation_id] = {
-                "identity": authenticated_identity,
-                "request_digest": request_digest,
-                "result": result,
-            }
-            self._event("IDEMPOTENT_EFFECT_RECORDED", operation_id=operation_id)
+                binding = (
+                    existing.work_unit_id == unit.work_unit_id
+                    and existing.repository == unit.repository
+                    and existing.holder == authenticated_identity
+                    and existing.generation == lease.generation
+                )
+                if not binding:
+                    raise PermissionError("IDEMPOTENCY_SUBJECT_MISMATCH")
+                if existing.state == OperationState.REVOKED:
+                    raise PermissionError("OPERATION_AUTHORITY_REVOKED")
+                if existing.state == OperationState.COMPLETED:
+                    return copy.deepcopy(existing.result or {}), True
+                if existing.state == OperationState.PENDING:
+                    raise RuntimeError("OPERATION_ALREADY_IN_PROGRESS")
+                if existing.state == OperationState.UNKNOWN_OUTCOME:
+                    if reconcile is None:
+                        raise RuntimeError("OPERATION_OUTCOME_RECONCILIATION_REQUIRED")
+                    reconciled = reconcile()
+                    if reconciled is not None:
+                        existing.result = dict(reconciled)
+                        existing.state = OperationState.COMPLETED
+                        self._event(
+                            "UNKNOWN_OPERATION_RECONCILED",
+                            operation_id=operation_id,
+                            work_unit_id=unit.work_unit_id,
+                        )
+                        return copy.deepcopy(existing.result), True
+                    existing.state = OperationState.PENDING
+            else:
+                self.operations[operation_id] = OperationRecord(
+                    operation_id=operation_id,
+                    work_unit_id=unit.work_unit_id,
+                    repository=unit.repository,
+                    holder=authenticated_identity,
+                    generation=lease.generation,
+                    request_digest=request_digest,
+                    state=OperationState.PENDING,
+                )
+            record = self.operations[operation_id]
+            self._event(
+                "IDEMPOTENT_EFFECT_PENDING",
+                operation_id=operation_id,
+                work_unit_id=unit.work_unit_id,
+            )
+            try:
+                result = dict(effect())
+            except UnknownOperationOutcome:
+                record.state = OperationState.UNKNOWN_OUTCOME
+                self._event(
+                    "IDEMPOTENT_EFFECT_OUTCOME_UNKNOWN",
+                    operation_id=operation_id,
+                    work_unit_id=unit.work_unit_id,
+                )
+                raise
+            except Exception:
+                self.operations.pop(operation_id, None)
+                raise
+            record.result = result
+            record.state = OperationState.COMPLETED
+            self._event(
+                "IDEMPOTENT_EFFECT_RECORDED",
+                operation_id=operation_id,
+                work_unit_id=unit.work_unit_id,
+            )
             return copy.deepcopy(result), False
 
     def propose_contract_change(
@@ -521,36 +775,41 @@ class ControlPlane:
     ) -> tuple[str, ...]:
         if authenticated_identity != self.contract_owner:
             raise PermissionError("CONTRACT_OWNER_APPROVAL_REQUIRED")
-        proposal = self.contract_proposals[proposal_id]
-        proposal["state"] = "OWNER_APPROVED"
-        self.contract_revision = int(proposal["revision"])
-        self.contract_digest = str(proposal["digest"])
-        affected = set(direct_dependents)
-        changed = True
-        while changed:
-            changed = False
-            for unit in self.work_units.values():
-                if unit.work_unit_id in affected:
-                    continue
-                if any(dependency in affected for dependency in unit.dependencies):
-                    affected.add(unit.work_unit_id)
-                    changed = True
-        for work_unit_id in sorted(affected):
-            unit = self.work_units[work_unit_id]
-            if unit.state != WorkState.INVALIDATED:
-                self._transition(unit, WorkState.INVALIDATED, "APPROVED_CONTRACT_REVISION")
-            unit.contract_revision = self.contract_revision
-            unit.candidate_commit = None
-            for evidence_id in unit.evidence_ids:
-                self.evidence.pop(evidence_id, None)
-            unit.evidence_ids = ()
-        self._event(
-            "CONTRACT_REVISION_APPROVED",
-            proposal_id=proposal_id,
-            revision=self.contract_revision,
-            affected=tuple(sorted(affected)),
-        )
-        return tuple(sorted(affected))
+        with self._lock:
+            proposal = self.contract_proposals[proposal_id]
+            proposal["state"] = "OWNER_APPROVED"
+            self.contract_revision = int(proposal["revision"])
+            self.contract_digest = str(proposal["digest"])
+            affected = set(direct_dependents)
+            changed = True
+            while changed:
+                changed = False
+                for unit in self.work_units.values():
+                    if unit.work_unit_id in affected:
+                        continue
+                    if any(dependency in affected for dependency in unit.dependencies):
+                        affected.add(unit.work_unit_id)
+                        changed = True
+            for work_unit_id in sorted(affected):
+                unit = self.work_units[work_unit_id]
+                if unit.state != WorkState.INVALIDATED:
+                    self._transition(unit, WorkState.INVALIDATED, "APPROVED_CONTRACT_REVISION")
+                self._revoke_authority(
+                    work_unit_id,
+                    reason="APPROVED_CONTRACT_REVISION",
+                )
+                unit.contract_revision = self.contract_revision
+                unit.candidate_commit = None
+                for evidence_id in unit.evidence_ids:
+                    self.evidence.pop(evidence_id, None)
+                unit.evidence_ids = ()
+            self._event(
+                "CONTRACT_REVISION_APPROVED",
+                proposal_id=proposal_id,
+                revision=self.contract_revision,
+                affected=tuple(sorted(affected)),
+            )
+            return tuple(sorted(affected))
 
     def replan_invalidated(self, work_unit_ids: Iterable[str]) -> None:
         for work_unit_id in work_unit_ids:
@@ -565,7 +824,7 @@ class ControlPlane:
         self,
         *,
         manifest: Mapping[str, object],
-        system_results: Mapping[str, bool],
+        system_evidence_id: str,
         authenticated_identity: str,
     ) -> IntegrationDecision:
         findings: list[str] = []
@@ -595,8 +854,28 @@ class ControlPlane:
             receipt = self.evidence.get(evidence_id)
             if receipt is None or receipt.candidate_commit not in supplied_commits.values():
                 findings.append(f"STALE_OR_UNKNOWN_EVIDENCE:{evidence_id}")
-        if not system_results or not all(system_results.values()):
-            findings.append("SYSTEM_SCENARIO_FAILED")
+        system_receipt = self.system_evidence.get(system_evidence_id)
+        system_results: Mapping[str, bool] = {}
+        if system_receipt is None:
+            findings.append("UNKNOWN_SYSTEM_EVIDENCE")
+        else:
+            if manifest.get("system_evidence_id") != system_evidence_id:
+                findings.append("SYSTEM_EVIDENCE_MANIFEST_MISMATCH")
+            system_results = system_receipt.results
+            expected_system_digest = canonical_digest(
+                {
+                    "component_commits": dict(system_receipt.component_commits),
+                    "results": dict(system_receipt.results),
+                }
+            )
+            if (
+                system_receipt.producer_identity != self.integration_verifier
+                or dict(system_receipt.component_commits) != supplied_commits
+                or system_receipt.result_digest != expected_system_digest
+            ):
+                findings.append("SYSTEM_EVIDENCE_SUBJECT_MISMATCH")
+            if not system_receipt.passed or not system_results or not all(system_results.values()):
+                findings.append("SYSTEM_SCENARIO_FAILED")
         if manifest.get("release_authorized") is True:
             findings.append("COORDINATOR_SELF_AUTHORIZED_RELEASE")
         digest = None
@@ -618,6 +897,26 @@ class ControlPlane:
             contract_revision=self.contract_revision,
             revision_set_digest=digest,
         )
+
+    def run_system_verification(
+        self,
+        *,
+        component_commits: Mapping[str, str],
+        authenticated_identity: str,
+    ) -> SystemEvidenceReceipt:
+        if authenticated_identity != self.integration_verifier:
+            raise PermissionError("UNTRUSTED_EVIDENCE_PRODUCER")
+        receipt = self.evidence_service.attest_system(
+            producer_identity=authenticated_identity,
+            component_commits=component_commits,
+        )
+        self.system_evidence[receipt.evidence_id] = receipt
+        self._event(
+            "SYSTEM_EVIDENCE_RECORDED",
+            evidence_id=receipt.evidence_id,
+            passed=receipt.passed,
+        )
+        return receipt
 
     def authorize_release(self, *, authenticated_identity: str) -> None:
         if authenticated_identity in {self.coordinator_identity, self.integration_verifier}:
@@ -643,7 +942,13 @@ class ControlPlane:
                 }
                 for key, value in self.leases.items()
             },
-            "operations": copy.deepcopy(self.operations),
+            "operations": {
+                key: {
+                    **asdict(value),
+                    "state": value.state.value,
+                }
+                for key, value in self.operations.items()
+            },
             "events": copy.deepcopy(self.events),
         }
 
@@ -668,5 +973,12 @@ class ControlPlane:
             item["expires_at"] = datetime.fromisoformat(item["expires_at"])
             restored_leases[key] = Lease(**item)
         self.leases = restored_leases
-        self.operations = copy.deepcopy(dict(snapshot["operations"]))
+        restored_operations: dict[str, OperationRecord] = {}
+        for key, value in dict(snapshot["operations"]).items():
+            item = dict(value)
+            item["state"] = OperationState(item["state"])
+            if item.get("result") is not None:
+                item["result"] = dict(item["result"])
+            restored_operations[key] = OperationRecord(**item)
+        self.operations = restored_operations
         self.events = copy.deepcopy(list(snapshot["events"]))

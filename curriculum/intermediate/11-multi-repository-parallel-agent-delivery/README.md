@@ -241,6 +241,12 @@ submission service receives 42 → evaluate identity, scope, context, and artifa
 
 Generating a token is not enforcement. The repository mutation, artifact, or submission service must compare the token with the current trusted generation.
 
+The same rule applies at every effect boundary. In the reference implementation, an idempotency key is accepted only with the current lease, authenticated holder, repository, work unit, generation, and allowlisted capability. Authentication alone is insufficient, and a replacement worker cannot recover another worker's prior result by guessing its operation ID.
+
+## 12.1 Trusted Git resolution
+
+A worker submits only an immutable candidate commit. The trusted Git service resolves that commit in the authorized repository, proves that the approved base is an ancestor, and derives the actual diff. The worker does not report its own changed paths. Rename checks cover both old and new paths; deletions remain scope checked; the teaching policy rejects symlinks and submodules rather than allowing them to widen the work unit indirectly.
+
 ## 13. Atomic acquisition
 
 A production scheduler should atomically verify `READY`, increment the generation, write the lease, and transition to `LEASED`. This typically requires a transaction, compare-and-swap, or other storage-specific concurrency primitive. An in-memory mutex in the lab teaches the invariant but is not a production distributed lock.
@@ -265,13 +271,13 @@ Distinguish:
 
 ## 16. Effectively-once outcomes
 
-The lab persists a request digest and result under:
+The lab creates a durable-shaped operation record under:
 
 ```text
 AI-2500:WU-AI:CREATE_OR_UPDATE_PR:2
 ```
 
-The same logical request returns the recorded result. Reusing the key for a different branch or operation is rejected. A production adapter should also reconcile the external system using a managed branch, metadata, or provider idempotency primitive before retrying an unknown result.
+The record transitions through `PENDING`, `COMPLETED`, or `UNKNOWN_OUTCOME`. The same authorized logical request returns a completed result. Reusing the key for a different request or execution subject is rejected. If an effect may have happened before acknowledgement, retry is blocked until the adapter reconciles the external system using the stable logical identity. A production implementation needs durable atomic storage plus an outbox, provider idempotency primitive, or remote reconciliation; the in-memory fixture does not claim distributed exactly-once execution.
 
 ## 17. Retry policy
 
@@ -324,7 +330,7 @@ Failure produces replan or revalidation, not blind continuation.
 
 ## 20. Coordinator restart
 
-Durable state includes work-unit versions, lease generations, idempotency records, checkpoints, and event history. The lab snapshots and restores these records, then proves that an already recorded PR operation still reconciles and that the current generation survives restart.
+Durable state includes work-unit versions, lease generations, idempotency records, checkpoints, and event history. The lab snapshots an `UNKNOWN_OUTCOME`, restores it, reconciles the remote object by stable identity, and proves that it does not create a duplicate effect.
 
 Production storage must additionally handle optimistic concurrency, queue redelivery, partial transactions, retention, disaster recovery, and tamper evidence.
 
@@ -368,6 +374,8 @@ If dependency completeness is uncertain, create review obligations rather than s
 
 Evidence is bound to the contract digest and candidate commit. Changing either changes the evidence subject. Old green receipts may still describe historical execution, but they cannot prove the new candidate.
 
+Approval also revokes execution authority, not only logical status. For every affected unit the control plane removes the active lease, advances the fencing generation, revokes operation authority, invalidates checkpoints and evidence, and requires a fresh plan and lease. Retry uses the same transactional revoke-and-requeue rule so a failed holder never remains logically current.
+
 ---
 
 # Part VIII — Integration barriers and revision sets
@@ -392,7 +400,8 @@ The lab produces:
     "underwriting-api": "<full-sha>",
     "underwriter-ui": "<full-sha>"
   },
-  "evidence_ids": ["EVID-WU-DOC", "EVID-WU-AI", "EVID-WU-REVIEW", "EVID-WU-API", "EVID-WU-UI"]
+  "evidence_ids": ["EVID-WU-DOC-<sha>", "EVID-WU-AI-<sha>", "EVID-WU-REVIEW-<sha>", "EVID-WU-API-<sha>", "EVID-WU-UI-<sha>"],
+  "system_evidence_id": "SYSTEM-<digest>"
 }
 ```
 
@@ -400,13 +409,17 @@ A multi-repository system has no single Git commit. The manifest is the system r
 
 ## 26. Integration checks
 
+Workers never submit evidence objects. A trusted evidence service resolves the candidate in the Git registry, observes repository test execution, computes the result digest, and registers the receipt. The trusted system harness then executes producer, Review Service, and Underwriting API calls against the exact component revision manifest.
+
+Its negative scenarios attempt a high-confidence ambiguous classification, a cross-tenant proposal, a duplicate review operation, an expired approval, and an unauthorized authoritative mutation. The checks therefore fail on unsafe runtime behavior even if a Markdown contract or fixture flag still says the right thing.
+
 The trusted barrier requires:
 
 - all component work units in `VERIFIED`;
 - five immutable full commit IDs matching submitted candidates;
 - the exact approved contract revision and digest;
 - trusted evidence for each component commit;
-- passing system scenarios for ambiguity, tenant isolation, idempotency, provenance, authority, and revision binding; and
+- a system-evidence receipt whose subject is the exact component revision set and whose executed scenarios cover ambiguity, tenant isolation, idempotency, expiry, provenance, and authority; and
 - no attempted coordinator release authorization.
 
 Passing produces `READY_FOR_INTEGRATION_REVIEW`. It never sets merge, deployment, activation, or retirement approval.
@@ -466,7 +479,7 @@ The fixture executes:
 - 12 golden conformance scenarios;
 - 30 labelled decisions: 7 positive, 15 negative, 5 boundary, and 3 failure/recovery;
 - 6 system integration checks; and
-- 30 focused unit tests.
+- 34 focused unit tests.
 
 `30/30` means the deterministic controls match this declared fixture population. It does not mean 100% model accuracy or production safety.
 

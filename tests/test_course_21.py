@@ -19,7 +19,8 @@ lab = importlib.util.module_from_spec(SPEC)
 sys.modules[SPEC.name] = lab
 SPEC.loader.exec_module(lab)
 
-from parallel_app.control_plane import WorkState  # noqa: E402
+from parallel_app.control_plane import OperationState, WorkState  # noqa: E402
+from parallel_app.git_harness import TrustedGitHarness  # noqa: E402
 from parallel_app.simulation import (  # noqa: E402
     NOW,
     complete_unit,
@@ -79,9 +80,9 @@ class Course21Tests(unittest.TestCase):
         self.assertTrue(checks["EVAL-016-unauthenticated-worker-denied"])
         self.assertTrue(checks["EVAL-017-wrong-repository-denied"])
 
-    def test_stale_base_contract_and_symbolic_commit_are_rejected(self):
+    def test_unresolved_contract_stale_and_symbolic_commits_are_rejected(self):
         checks = evaluation_checks(SCENARIO)
-        self.assertTrue(checks["EVAL-018-stale-base-denied"])
+        self.assertTrue(checks["EVAL-018-unresolved-candidate-denied"])
         self.assertTrue(checks["EVAL-019-stale-contract-denied"])
         self.assertTrue(checks["EVAL-020-symbolic-revision-denied"])
 
@@ -91,7 +92,105 @@ class Course21Tests(unittest.TestCase):
     def test_evidence_requires_trusted_producer_and_exact_subject(self):
         checks = evaluation_checks(SCENARIO)
         self.assertTrue(checks["EVAL-021-untrusted-verifier-denied"])
-        self.assertTrue(checks["EVAL-022-wrong-evidence-subject-denied"])
+        self.assertTrue(checks["EVAL-022-evidence-is-executed-and-bound"])
+
+    def test_submission_uses_trusted_git_diff_not_worker_metadata(self):
+        revisions = TrustedGitHarness(SCENARIO).observe(
+            extra_files={"ai-service": {"infra/production-admin.tf": "forbidden = true\n"}}
+        )
+        plane = make_plane(SCENARIO, revisions)
+        lease = plane.acquire_lease("WU-AI", authenticated_identity="agent-ai-a", now=NOW)
+        plane.start(lease, authenticated_identity="agent-ai-a", now=NOW)
+        with self.assertRaisesRegex(PermissionError, "UNAUTHORIZED_PATH_MODIFICATION"):
+            plane.submit(
+                lease,
+                authenticated_identity="agent-ai-a",
+                now=NOW + timedelta(minutes=1),
+                candidate_commit=revisions["ai-service"].candidate_commit,
+                contract_revision=2,
+            )
+
+    def test_idempotent_effect_requires_current_lease_and_same_subject(self):
+        plane = self.fresh()
+        first = plane.acquire_lease("WU-AI", authenticated_identity="agent-ai-a", now=NOW)
+        plane.start(first, authenticated_identity="agent-ai-a", now=NOW)
+        request = {"action": "CREATE_OR_UPDATE_PR", "repository": "ai-service"}
+        plane.execute_idempotent(
+            first,
+            now=NOW + timedelta(seconds=1),
+            operation_id="OP-SUBJECT",
+            authenticated_identity="agent-ai-a",
+            request=request,
+            effect=lambda: {"pull_request": 1},
+        )
+        plane.fail_and_retry(
+            first,
+            authenticated_identity="agent-ai-a",
+            now=NOW + timedelta(seconds=2),
+            reason="TRANSIENT_FAILURE",
+        )
+        replacement = plane.acquire_lease(
+            "WU-AI",
+            authenticated_identity="agent-ai-b",
+            now=NOW + timedelta(seconds=3),
+        )
+        plane.start(
+            replacement,
+            authenticated_identity="agent-ai-b",
+            now=NOW + timedelta(seconds=3),
+        )
+        with self.assertRaisesRegex(PermissionError, "IDEMPOTENCY_SUBJECT_MISMATCH"):
+            plane.execute_idempotent(
+                replacement,
+                now=NOW + timedelta(seconds=4),
+                operation_id="OP-SUBJECT",
+                authenticated_identity="agent-ai-b",
+                request=request,
+                effect=lambda: {"pull_request": 2},
+            )
+
+    def test_contract_change_revokes_lease_operation_and_fencing_generation(self):
+        plane = self.fresh()
+        lease = plane.acquire_lease("WU-AI", authenticated_identity="agent-ai-a", now=NOW)
+        plane.start(lease, authenticated_identity="agent-ai-a", now=NOW)
+        plane.execute_idempotent(
+            lease,
+            now=NOW + timedelta(seconds=1),
+            operation_id="OP-REVOKE",
+            authenticated_identity="agent-ai-a",
+            request={"action": "CREATE_OR_UPDATE_PR"},
+            effect=lambda: {"pull_request": 1},
+        )
+        contract_v3 = load_json(SCENARIO / "contracts/classification-v3.schema.json")
+        proposal = plane.propose_contract_change(
+            authenticated_identity="agent-ai-a",
+            proposed_revision=3,
+            proposed_contract=contract_v3,
+            affected_hint=("WU-AI",),
+        )
+        plane.approve_contract_change(
+            proposal,
+            authenticated_identity="northstar-contract-owner",
+            direct_dependents=("WU-AI",),
+        )
+        self.assertNotIn("WU-AI", plane.leases)
+        self.assertGreater(plane.work_units["WU-AI"].generation, lease.generation)
+        self.assertEqual(plane.operations["OP-REVOKE"].state, OperationState.REVOKED)
+
+    def test_cross_service_scenarios_execute_protected_behaviors(self):
+        results = self.revisions.system_results
+        self.assertEqual(
+            set(results),
+            {
+                "ambiguity_routes_to_review",
+                "tenant_isolation",
+                "duplicate_operation_reconciled",
+                "expired_approval_rejected",
+                "proposal_not_authoritative",
+                "provenance_preserved",
+            },
+        )
+        self.assertTrue(all(results.values()))
 
     def test_duplicate_pr_operation_has_one_effect(self):
         self.assertTrue(golden_scenarios(SCENARIO)["PAR-GOLDEN-006"])

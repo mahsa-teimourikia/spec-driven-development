@@ -84,14 +84,17 @@ def build_report() -> dict[str, object]:
                 "candidate_commit",
                 "contract_revision",
                 "evidence_id",
+                "evidence_result_digest",
+                "operation_state",
                 "terminal_state",
             ],
             "private_reasoning_recorded": False,
         },
         "limitations": [
             "Elapsed hours are deterministic event-simulation values, not production benchmarks.",
+            "The snapshot fixture demonstrates PENDING, COMPLETED, and UNKNOWN_OUTCOME recovery, but production idempotency requires durable atomic storage plus remote reconciliation or an outbox.",
             "In-memory locking demonstrates semantics but is not a distributed consensus implementation.",
-            "Production adoption requires authenticated workload identity, durable transactional storage, signed provenance, and enforced repository and release controls.",
+            "Production adoption requires authenticated workload identity, durable transactional storage, signed evidence, trusted Git hosting, and enforced repository and release controls.",
         ],
     }
 

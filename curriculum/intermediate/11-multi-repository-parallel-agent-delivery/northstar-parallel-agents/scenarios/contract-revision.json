@@ -1,1 +1,1 @@
-{"id":"CONTRACT-REVISION","action":"approve revision 3 through the contract owner","expected":"selective transitive invalidation"}
+{"id":"CONTRACT-REVISION","action":"approve revision 3 through the contract owner while AI work is active","expected":"selective transitive invalidation plus lease, operation, checkpoint, evidence, and generation revocation"}

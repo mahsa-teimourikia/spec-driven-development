@@ -3238,8 +3238,10 @@ def check_course_21_parallel_delivery() -> list[str]:
         scenario / "parallel_agent_delivery.ipynb",
         scenario / "parallel_app/__init__.py",
         scenario / "parallel_app/control_plane.py",
+        scenario / "parallel_app/evidence_service.py",
         scenario / "parallel_app/git_harness.py",
         scenario / "parallel_app/simulation.py",
+        scenario / "parallel_app/system_harness.py",
         scenario / "parent-change/AI-2500.json",
         scenario / "parent-change/dependency-graph.json",
         scenario / "parent-change/work-units.json",
@@ -3338,9 +3340,13 @@ def check_course_21_parallel_delivery() -> list[str]:
         "UNAUTHENTICATED_WORKLOAD",
         "UNAUTHORIZED_PATH_MODIFICATION",
         "IDEMPOTENCY_KEY_REUSED_FOR_DIFFERENT_REQUEST",
+        "IDEMPOTENCY_SUBJECT_MISMATCH",
+        "OPERATION_OUTCOME_RECONCILIATION_REQUIRED",
+        "CANDIDATE_COMMIT_NOT_FOUND",
         "CHECKPOINT_CONTRACT_STALE",
         "CONTRACT_OWNER_APPROVAL_REQUIRED",
         "INTEGRATION_REVISION_SET_MISMATCH",
+        "SYSTEM_EVIDENCE_SUBJECT_MISMATCH",
         "SEPARATE_RELEASE_AUTHORITY_REQUIRED",
     ]
     if any(fragment not in control_plane for fragment in required_controls):
@@ -3352,7 +3358,13 @@ def check_course_21_parallel_delivery() -> list[str]:
     if starter.count("TODO:") != 6:
         errors.append("Course 21 starter must retain exactly six learner decisions")
     reference = json.loads((scenario / "reference/integration-package.json").read_text(encoding="utf-8"))
-    if reference.get("state") != "READY_FOR_INTEGRATION_REVIEW" or any(reference.get("non_authorities", {}).values()):
+    if (
+        reference.get("state") != "READY_FOR_INTEGRATION_REVIEW"
+        or any(reference.get("non_authorities", {}).values())
+        or reference.get("component_commits") != commits
+        or reference.get("revision_set_digest") != assessment.get("revision_set_digest")
+        or not reference.get("system_evidence_id")
+    ):
         errors.append("Course 21 reference package must retain explicit non-authorities")
 
     quiz_source = (ROOT / "quiz/questions.js").read_text(encoding="utf-8")

@@ -3,15 +3,16 @@
   "candidate_assessment": {
     "status": "READY_FOR_INTEGRATION_REVIEW",
     "component_commits": {
-      "document-service": "62230ecf626122c24a91b818f9dc726ebbe7a54c",
-      "ai-service": "7d3a4200696af08196b9c84608828993737147c8",
-      "review-service": "7f3b99581b57a9a069890359a80507b18f63bf53",
-      "underwriting-api": "9abf6111c94561765f3c58542199ae0db4673c0a",
-      "underwriter-ui": "a3c98a4d50d2ef9ef614d065d9c5d9ebe2f5594d"
+      "document-service": "550ba299d18492495d516ee43f7f9e763a0e166d",
+      "ai-service": "5c66737d77d4a6d4935febf304c25c9a93511618",
+      "review-service": "4d2d315ed382288b18be9813c0f5195962f94185",
+      "underwriting-api": "7610de52dbaf77022e5bb4ec6d4ee96fa41edaf9",
+      "underwriter-ui": "f7f680aba1ca30e4c6ae0150eaabfd85bf29ea89"
     },
-    "revision_set_digest": "sha256:bd395fd42077bc7830006f1c7ea2ffa8d4d5e89dc3bd7317eaf06c30d8a1911d",
+    "revision_set_digest": "sha256:210ff50a2fad6819ae0e725b4047b71051f4e63f3dd1fb36a38129b2633a7657",
     "merge_authorized": false,
-    "deployment_authorized": false
+    "deployment_authorized": false,
+    "release_authorized": false
   },
   "conformance": "12/12",
   "evaluation": "30/30",

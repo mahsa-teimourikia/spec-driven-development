@@ -1,6 +1,6 @@
 # Northstar AI-2500 parallel-agent delivery lab
 
-This credential-free fixture turns Course 21 into an executable distributed-delivery model. It creates five real temporary Git repositories, derives immutable commits and actual diffs, then drives work through a trusted state machine with authenticated worker scope, leases, fencing, idempotency, checkpoints, selective invalidation, evidence, and an exact-revision integration barrier.
+This credential-free fixture turns Course 21 into an executable distributed-delivery model. It creates five real temporary Git repositories, derives immutable commits and rename-aware diffs, executes cross-service behaviors, then drives work through a trusted state machine with authenticated worker scope, leases, fencing, recoverable idempotency, checkpoints, selective invalidation, generated evidence, and an exact-revision integration barrier.
 
 ## Run
 
@@ -37,6 +37,8 @@ Expected reference outcome:
 | --- | --- |
 | `parallel_app/control_plane.py` | state, identity, leases, fencing, scope, evidence, invalidation, and barrier |
 | `parallel_app/git_harness.py` | real temporary repositories, commits, diffs, and local tests |
+| `parallel_app/evidence_service.py` | receipts generated from observed Git and executed test results |
+| `parallel_app/system_harness.py` | executable classifier, review, tenant, approval, replay, and authority scenarios |
 | `parallel_app/simulation.py` | reference delivery, failure injection, scheduling comparison, and evaluation |
 | `repositories/` | maintained baseline/candidate inputs for five repository subjects |
 | `parent-change/` | requirements, graph, work units, and integration policy |
@@ -50,7 +52,7 @@ Expected reference outcome:
 
 ## Trust boundary
 
-The worker proposes code, checkpoints, or a contract change. The trusted control plane authenticates identity, evaluates dependency readiness, issues a bounded lease, enforces the current generation and path scope, resolves evidence, invalidates stale subjects, and decides integration-review eligibility. No model response, role name, branch, checkpoint, or green local suite can approve its own authority.
+The worker proposes code, checkpoints, or a contract change. The trusted control plane authenticates identity, evaluates dependency readiness, issues a bounded lease, enforces the current generation and effect capability, asks trusted Git to derive the real diff, generates evidence from executed checks, revokes stale authority, and decides integration-review eligibility. No model response, role name, branch, worker-supplied path list, receipt-shaped object, checkpoint, or green local suite can approve its own authority.
 
 ## Scenario descriptors are not proof
 
@@ -58,4 +60,4 @@ Files under `scenarios/` document the intended failure injection. The lab does n
 
 ## Fixture boundary
 
-The lock and durable snapshot are deterministic in-process teaching mechanisms. Production adoption needs transactional storage, authenticated workload identity, protected repository mutation endpoints, signed provenance, isolated execution, queue-redelivery handling, clock and failover testing, real CI integrations, and accountable release controls.
+The lock and snapshot are deterministic in-process teaching mechanisms. The snapshot preserves `PENDING`, `COMPLETED`, and `UNKNOWN_OUTCOME` operation state and demonstrates reconciliation, not distributed exactly-once execution. Production adoption needs transactional storage, an outbox or provider reconciliation, authenticated workload identity, protected repository mutation endpoints, signed evidence, isolated execution, queue-redelivery handling, clock and failover testing, real CI integrations, and accountable release controls.
