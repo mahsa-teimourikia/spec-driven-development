@@ -2150,10 +2150,10 @@ const QUESTIONS = [
   },
   {
     category: 'Course 23 audit',
-    question: 'What does a hash-linked audit chain demonstrate in the teaching lab?',
-    options: ['Simple earlier-event mutation is detectable', 'Database administrators can never alter evidence', 'Every approver understood the change', 'The external deployment succeeded'],
+    question: 'What does the hash-linked chain plus separately retained checkpoint demonstrate in the teaching lab?',
+    options: ['Earlier-event mutation and retained-chain tail truncation are detectable', 'Database administrators can never alter evidence', 'Every approver understood the change', 'The external deployment succeeded'],
     answer: 0,
-    explanation: 'Tamper-evident is not tamper-proof; production needs stronger storage and administrative separation.'
+    explanation: 'Tamper-evident is not tamper-proof; an operator who can rewrite both stores remains a threat, so production needs independent storage and administrative separation.'
   },
   {
     category: 'Course 23 policy',

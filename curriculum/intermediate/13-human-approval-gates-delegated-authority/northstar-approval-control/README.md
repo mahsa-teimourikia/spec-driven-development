@@ -1,6 +1,6 @@
 # Northstar human approval control-plane lab
 
-This credential-free fixture implements Course 23 as a trusted application boundary. It authenticates synthetic sessions, resolves resource-scoped authority from protected registries, issues revision-bound approval receipts, attenuates delegation, atomically consumes single-use receipts, constrains emergency actions to active incidents, and hash-links audit records.
+This credential-free fixture implements Course 23 as a trusted application boundary. It authenticates synthetic sessions, resolves resource-scoped authority from protected registries, issues revision-bound approval receipts, durably persists attenuated delegation and grant changes, atomically consumes single-use receipts, performs and verifies simulated protected-resource transitions, constrains emergency actions to active incidents, and verifies hash-linked audit records against a separately retained checkpoint.
 
 ## Run
 
@@ -43,7 +43,7 @@ The evaluator never reads scenario `expected` fields. They document intent for l
 
 ## Decision codes
 
-Positive execution returns `EXECUTED`. Fail-closed codes include `UNAUTHENTICATED_PRINCIPAL`, `POLICY_REVISION_MISMATCH`, `APPROVAL_POLICY_UNRESOLVED`, `AUTHORITY_SCOPE_DENIED`, `SEPARATION_OF_DUTIES_VIOLATION`, `DELEGATION_SCOPE_EXPANSION`, `DELEGATED_AUTHORITY_REVOKED`, `APPROVAL_SUBJECT_MISMATCH`, `APPROVAL_EXPIRED`, `APPROVAL_REVOKED`, `APPROVAL_ALREADY_CONSUMED`, `UNTRUSTED_RECEIPT`, `REQUIRED_APPROVAL_MISSING`, `EMERGENCY_AUTHORIZATION_DENIED`, and `EMERGENCY_SCOPE_VIOLATION`.
+Positive execution returns `SUCCEEDED` only after the simulator verifies the protected-resource effect. Durable operation events record `AUTHORIZED`, `DISPATCHED`, and `SUCCEEDED`; the model also reserves `FAILED` and `UNKNOWN_OUTCOME` for external adapters. Fail-closed codes include `UNAUTHENTICATED_PRINCIPAL`, `POLICY_REVISION_MISMATCH`, `APPROVAL_POLICY_UNRESOLVED`, `AUTHORITY_SCOPE_DENIED`, `SEPARATION_OF_DUTIES_VIOLATION`, `DELEGATION_SCOPE_EXPANSION`, `DELEGATED_AUTHORITY_REVOKED`, `RECEIPT_LIFETIME_EXCEEDED`, `REQUEST_NOT_AUTHORIZED`, `APPROVAL_SUBJECT_MISMATCH`, `APPROVAL_EXPIRED`, `APPROVAL_REVOKED`, `APPROVAL_ALREADY_CONSUMED`, `UNTRUSTED_RECEIPT`, `REQUIRED_APPROVAL_MISSING`, `EMERGENCY_AUTHORIZATION_DENIED`, and `EMERGENCY_SCOPE_VIOLATION`.
 
 ## Conformance populations
 
@@ -58,10 +58,13 @@ Positive execution returns `EXECUTED`. Fail-closed codes include `UNAUTHENTICATE
 - Production deployment requires two roles exercised by distinct principals.
 - Requesters and implementation authors cannot approve their own protected request.
 - Delegation cannot exceed the parent action, resource, environment, risk, or time scope.
-- Parent revocation invalidates delegated authority at execution.
+- The delegated role must equal the parent role, and current containment is rechecked after parent narrowing.
+- Delegations and grant revocations survive service restart; parent revocation invalidates delegated authority at execution.
+- Receipt lifetime cannot exceed its policy maximum or underlying direct/delegated authority.
+- Each receipt retains the authority-registry revision and an immutable issuance-time authority snapshot.
 - Emergency action requires an active affected incident and a dedicated policy revision.
-- Receipt consumption and operation registration share one transaction.
+- Receipt consumption, simulated resource mutation, effect verification, operation success, and audit evidence share one transaction.
 
 ## Limitations
 
-Synthetic sessions do not implement workforce identity. In-memory delegation does not survive process restart. The hash chain detects simple event mutation but is not immutable storage. SQLite demonstrates transactional semantics; deployment at scale may require a network database and carefully chosen isolation. A local transaction cannot atomically commit an external side effect, so production needs idempotency, durable workflow state, and reconciliation. The lab report grants no production authority.
+Synthetic sessions do not implement workforce identity. The separately retained checkpoint demonstrates tail-truncation detection but is only a local sidecar, not independently administered immutable storage. SQLite demonstrates transactional semantics and a local resource simulator; deployment at scale may require a network database and carefully chosen isolation. A local transaction cannot atomically commit an external side effect, so production needs idempotency, durable workflow state, explicit `UNKNOWN_OUTCOME` reconciliation, and protected checkpoint storage. The lab report grants no production authority.

@@ -1,1 +1,1 @@
-{"scenario":"valid_exact_artifact","mutation":"none","expected":"EXECUTED","invariant":"two current distinct authorities approve the exact subject"}
+{"scenario":"valid_exact_artifact","mutation":"none","expected":"SUCCEEDED","invariant":"two current distinct authorities approve the exact subject and the protected resource reaches the verified target state"}

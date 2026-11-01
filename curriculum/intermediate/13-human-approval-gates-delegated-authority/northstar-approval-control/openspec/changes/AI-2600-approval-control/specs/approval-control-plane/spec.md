@@ -13,7 +13,7 @@ The control plane SHALL bind every approval receipt to the digest of the action,
 
 ### Requirement: trusted current authority
 
-The control plane SHALL authenticate the approver, resolve direct or delegated authority from protected state, and revalidate that authority at execution. Caller-supplied role labels SHALL NOT establish authority.
+The control plane SHALL authenticate the approver, resolve direct or delegated authority from protected state, retain the issuance-time authority-registry revision and grant-chain snapshot, and revalidate current authority at execution. Delegated role SHALL equal parent role, and every use SHALL recheck child containment within the current parent. Caller-supplied role labels SHALL NOT establish authority.
 
 #### Scenario: parent grant is revoked
 
@@ -26,7 +26,7 @@ The requester and implementation author SHALL NOT approve their own protected re
 
 ### Requirement: atomic single-use consumption
 
-Receipt validation, conditional consumption, and operation registration SHALL occur in one transaction.
+Receipt validation, conditional consumption, simulated protected-resource mutation, effect verification, operation success, and audit evidence SHALL occur in one transaction. Durable operation states SHALL distinguish `AUTHORIZED`, `DISPATCHED`, `SUCCEEDED`, `FAILED`, and `UNKNOWN_OUTCOME`; only a verified effect may reach `SUCCEEDED`.
 
 #### Scenario: two workers race
 
@@ -39,4 +39,8 @@ Emergency authorization SHALL require an active qualifying incident, affected re
 
 ### Requirement: reconstructable audit
 
-The service SHALL record request, approval, denial, revocation, delegation, execution, and reason-code events in an ordered integrity-verifiable chain.
+The service SHALL record request, approval, denial, revocation, delegation, operation transition, effect, and reason-code events in an ordered integrity-verifiable chain. Verification SHALL compare the local chain with a separately retained latest-sequence checkpoint so modification and tail truncation are detectable.
+
+### Requirement: lifecycle and lifetime consistency
+
+A rejected request SHALL atomically revoke outstanding approval receipts. Receipt expiry SHALL be later than issuance and no later than either the policy maximum or the underlying direct/delegated authority expiry.

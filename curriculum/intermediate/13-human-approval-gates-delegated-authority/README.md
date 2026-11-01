@@ -132,7 +132,7 @@ Rejection and expiry are terminal for the receipt, not necessarily the change. A
 
 A receipt is a durable authorization fact issued by a trusted service after it verifies identity, role, authority scope, policy, evidence, and separation of duties. It is a reference, not a bearer string whose contents callers may invent.
 
-The reference implementation stores receipts in SQLite and accepts only receipt identifiers at the protected execution boundary. Every fact is re-resolved from trusted state.
+The reference implementation stores receipts in SQLite and accepts only receipt identifiers at the protected execution boundary. It retains the authority-registry revision and an immutable snapshot of the direct grant or delegation chain used at issuance, then separately re-resolves current authority at execution.
 
 ### 7. Exact binding prevents approval drift
 
@@ -158,7 +158,7 @@ The executor must verify immediately before the side effect:
 5. approvers are distinct when dual control applies;
 6. each principal still has current direct or delegated authority;
 7. receipts are approved, unexpired, unrevoked, and unused; and
-8. consumption and operation registration occur atomically.
+8. consumption, protected-resource mutation, effect verification, operation success, and audit evidence occur atomically for the local simulator.
 
 A UI check is advisory if the backend can execute without repeating these checks.
 
@@ -226,7 +226,7 @@ The delegate receives neither the director's title nor unrelated authority. The 
 
 ### 13. Verify the complete delegation chain
 
-At decision time and again at execution time, verify the parent exists, remains active, belongs to the delegator, permits delegation, covers the child scope, and has not expired. Parent revocation invalidates downstream authority even if a receipt was issued earlier.
+At decision time and again at execution time, verify the parent exists, remains active, belongs to the delegator, permits delegation, has the same role, still covers the child action/resource/environment/risk/time scope, and has not expired. Parent revocation or narrowing invalidates downstream authority even if a receipt was issued earlier. The lab persists both delegation records and grant overrides so this remains true after restart.
 
 This distinction is important: approval issuance records a decision; execution still depends on current authority when policy requires it.
 
@@ -255,9 +255,11 @@ State transitions are append-audited. Consumers cannot move `REVOKED`, `EXPIRED`
 
 Checking `state == APPROVED` and updating later creates a time-of-check/time-of-use race. Two workers can both observe the same valid receipt.
 
-The lab starts a SQLite `BEGIN IMMEDIATE` transaction, revalidates all receipts, marks them consumed with a conditional update, registers the operation, and commits. A two-worker test proves exactly one execution succeeds.
+The lab starts a SQLite `BEGIN IMMEDIATE` transaction, revalidates all receipts, marks them consumed with a conditional update, moves the durable operation through `AUTHORIZED` and `DISPATCHED`, mutates a simulated protected resource, verifies the defined effect, records `SUCCEEDED`, and commits. A two-worker test proves exactly one operation succeeds.
 
-For an external deployment API, a local database transaction cannot make the remote side effect atomic. Production systems also need an idempotency key, durable outbox or workflow state, reconciliation, and explicit handling of “remote succeeded, local acknowledgement failed.”
+For an external deployment API, a local database transaction cannot make the remote side effect atomic. Production systems also need an idempotency key, durable outbox or workflow state, `FAILED` and `UNKNOWN_OUTCOME` states, reconciliation, and explicit handling of “remote succeeded, local acknowledgement failed.”
+
+Receipt issuance has its own bounds: expiry must be later than issuance, no later than the underlying direct or delegated authority, and within the policy-defined maximum lifetime. A short receipt cannot extend an expiring grant.
 
 ---
 
@@ -344,9 +346,9 @@ Saving only the final “approved” status destroys the relationships needed to
 
 ### 26. Tamper-evident is not tamper-proof
 
-The lab hash-links each audit event to the previous event and proves that modifying an earlier reason code breaks chain verification. This detects a class of after-the-fact alteration. It does not prevent a privileged database operator from rewriting the entire chain.
+The lab hash-links each audit event to the previous event and records the latest sequence and digest in a separate checkpoint file. It proves that modifying an earlier reason code or deleting the chain tail breaks verification. This detects two classes of after-the-fact alteration. It does not prevent a privileged operator who can rewrite both the database and checkpoint.
 
-Production evidence needs append controls, restricted administration, external anchoring or signed attestations where appropriate, retention policy, time integrity, monitoring, and independent recovery.
+Production evidence needs append controls, restricted administration, independently protected external anchoring or signed attestations where appropriate, retention policy, time integrity, monitoring, and independent recovery.
 
 ---
 
@@ -376,7 +378,7 @@ protected executor
 | Path | Purpose |
 | --- | --- |
 | `approval_app/models.py` | typed action, authority, delegation, receipt result, and error contracts |
-| `approval_app/control_plane.py` | trusted resolution, decision, consumption, and hash-linked audit boundary |
+| `approval_app/control_plane.py` | trusted resolution, durable authority, lifecycle, protected-resource transition, operation state, and checkpointed audit boundary |
 | `approval_app/simulation.py` | golden scenarios, adversarial evaluations, concurrency, and audit mutation |
 | `policies/` | versioned normal, emergency, risk, separation, and illustrative Rego policy |
 | `registry/` | synthetic authenticated sessions, direct grants, incidents, and protected resources |
@@ -386,11 +388,11 @@ protected executor
 
 ### 29. Trusted approval decision
 
-The production deployment requires `release_authority` and `ai_governance_owner`. The requester and implementation author cannot satisfy either approval. Both receipt records bind the same subject digest and are rechecked against current grants at execution.
+The production deployment requires `release_authority` and `ai_governance_owner`. The requester and implementation author cannot satisfy either approval. Both receipt records bind the same subject digest, policy and authority-registry revisions, and issuance-time authority snapshots; current grants are rechecked at execution.
 
 ### 30. Single-use authorization
 
-The executor uses receipt identifiers, not caller-provided receipt bodies. It rejects unknown, mismatched, revoked, expired, consumed, policy-stale, or currently unauthorized records with stable reason codes.
+The executor uses receipt identifiers, not caller-provided receipt bodies. It rejects unknown, mismatched, revoked, expired, consumed, policy-stale, provenance-incomplete, or currently unauthorized records with stable reason codes. A rejection moves the request to `REJECTED` and atomically revokes its outstanding receipts, so request and receipt state cannot contradict each other.
 
 ---
 
@@ -471,13 +473,13 @@ Faster approval is not automatically better. A healthy model reduces unnecessary
 
 ### What the teaching system proves
 
-For synthetic subjects, it proves exact-subject binding, direct and delegated scope checks, requester/author separation, dual control, current-parent validation, expiry, revocation, replay prevention, one-winner concurrent consumption, incident-scoped emergency containment, and audit-chain tamper detection.
+For synthetic subjects, it proves exact-subject binding, issuance-time authority provenance, direct and delegated scope checks, role-compatible and restart-durable delegation, requester/author separation, dual control, current-parent revocation and narrowing, bounded receipt lifetime, lifecycle-consistent rejection, replay prevention, one-winner concurrent consumption, verified resource mutation, incident-scoped emergency containment, and audit modification and tail-truncation detection.
 
 ### What it does not prove
 
 - The synthetic session map is enterprise authentication.
 - SQLite is the required production database.
-- A hash chain alone provides immutable audit storage.
+- A local hash chain and checkpoint provide independently protected immutable audit storage.
 - A human understood the evidence or made a wise decision.
 - A local commit is atomic with an external deployment API.
 - The example policy satisfies every legal or regulatory obligation.
@@ -485,7 +487,7 @@ For synthetic subjects, it proves exact-subject binding, direct and delegated sc
 
 ### Production upgrades
 
-Add workforce identity and strong authentication, authoritative group and resource ownership, durable and highly available policy and grant stores, signed policy bundles, denial-safe outages, database isolation appropriate to the workload, idempotent external operations, outbox/reconciliation, monitored revocation propagation, append-protected audit, secrets management, disaster recovery, approval-service SLOs, privileged-administration separation, and periodic access review.
+Add workforce identity and strong authentication, authoritative group and resource ownership, durable and highly available policy and grant stores, signed policy bundles, denial-safe outages, database isolation appropriate to the workload, idempotent external operations, outbox/reconciliation for `UNKNOWN_OUTCOME`, monitored revocation propagation, independently protected append-only audit checkpoints, secrets management, disaster recovery, approval-service SLOs, privileged-administration separation, and periodic access review.
 
 Use an existing platform gate when it expresses the required semantics. GitHub environments, for example, support required reviewers and an option to prevent self-review, but the documented model allows one listed required reviewer to approve. A consequential dual-role enterprise decision may therefore need a custom protection service rather than assuming a platform click implements the whole policy.
 

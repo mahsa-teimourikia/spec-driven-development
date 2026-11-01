@@ -13,10 +13,10 @@ LESSON = ROOT / "curriculum/intermediate/13-human-approval-gates-delegated-autho
 SCENARIO = LESSON / "northstar-approval-control"
 sys.path.insert(0, str(SCENARIO))
 
-from approval_app.control_plane import ApprovalControlPlane  # noqa: E402
+from approval_app.control_plane import ApprovalControlPlane, OPERATION_STATES  # noqa: E402
 from approval_app.models import ControlError, DelegationGrant  # noqa: E402
 from approval_app.simulation import (  # noqa: E402
-    DELEGATION_END, FUTURE, LATER, NOW, audit_scenario, concurrency_scenario,
+    DELEGATION_END, FUTURE, LATER, NOW, SHORT_FUTURE, audit_scenario, concurrency_scenario,
     emergency_subject, evaluation_cases, exception_subject, golden_scenarios,
     production_subject, run_reference, staging_subject,
 )
@@ -87,7 +87,13 @@ class Course23Tests(unittest.TestCase):
         subject = self.request()
         receipts = self.approve_production()
         decision = self.plane.execute("REQ-TEST", receipts, subject, "EXEC", LATER)
-        self.assertEqual((decision.state, self.plane.operation_count("REQ-TEST")), ("EXECUTED", 1))
+        self.assertEqual((decision.state, self.plane.operation_count("REQ-TEST")), ("SUCCEEDED", 1))
+        self.assertEqual(self.plane.operation("EXEC")["state"], "SUCCEEDED")
+        self.assertEqual([item["state"] for item in self.plane.operation_events("EXEC")], ["AUTHORIZED", "DISPATCHED", "SUCCEEDED"])
+        self.assertEqual(self.plane.resource_state(subject.resource)["state"]["deployed_artifact_digest"], subject.artifact_digest)
+
+    def test_operation_model_distinguishes_terminal_uncertainty(self):
+        self.assertEqual(OPERATION_STATES, {"AUTHORIZED", "DISPATCHED", "SUCCEEDED", "FAILED", "UNKNOWN_OUTCOME"})
 
     def test_changed_artifact_is_denied(self):
         subject = self.request()
@@ -97,7 +103,7 @@ class Course23Tests(unittest.TestCase):
 
     def test_expired_receipt_is_denied(self):
         subject = self.request()
-        receipts = self.approve_production(expires=NOW)
+        receipts = self.approve_production(expires=SHORT_FUTURE)
         self.assertControlError("APPROVAL_EXPIRED", lambda: self.plane.execute("REQ-TEST", receipts, subject, "EXEC", LATER))
 
     def test_revoked_receipt_is_denied(self):
@@ -144,7 +150,7 @@ class Course23Tests(unittest.TestCase):
         self.plane.issue_delegation(self.valid_delegation(), "SESSION-SECURITY-DIRECTOR", NOW)
         self.request(subject=subject)
         receipt = self.plane.decide("REQ-TEST", "SESSION-SECURITY-LEAD", "security_exception_approver", "APPROVED", NOW, FUTURE).receipt_ids
-        self.plane.revoke_grant("GRANT-SECURITY-EXCEPTION")
+        self.plane.revoke_grant("GRANT-SECURITY-EXCEPTION", LATER)
         self.assertControlError("DELEGATED_AUTHORITY_REVOKED", lambda: self.plane.execute("REQ-TEST", receipt, subject, "EXEC", LATER))
 
     def test_emergency_requires_active_incident(self):
@@ -167,6 +173,89 @@ class Course23Tests(unittest.TestCase):
         result = audit_scenario(SCENARIO)
         self.assertTrue(result["valid_before_tamper"] and result["tamper_detected"])
         self.assertFalse(result["valid_after_tamper"])
+        self.assertTrue(result["tail_truncation_detected"])
+
+    def test_delegation_role_must_match_parent(self):
+        mismatched = replace(self.valid_delegation(), role="release_authority")
+        self.assertControlError("DELEGATION_SCOPE_EXPANSION", lambda: self.plane.issue_delegation(mismatched, "SESSION-SECURITY-DIRECTOR", NOW))
+
+    def test_parent_scope_narrowing_invalidates_child(self):
+        subject = exception_subject()
+        self.plane.issue_delegation(self.valid_delegation(), "SESSION-SECURITY-DIRECTOR", NOW)
+        self.request(subject=subject)
+        receipt = self.plane.decide("REQ-TEST", "SESSION-SECURITY-LEAD", "security_exception_approver", "APPROVED", NOW, FUTURE).receipt_ids
+        self.plane.narrow_grant("GRANT-SECURITY-EXCEPTION", LATER, resources=frozenset())
+        self.assertControlError("DELEGATED_AUTHORITY_REVOKED", lambda: self.plane.execute("REQ-TEST", receipt, subject, "EXEC", LATER))
+
+    def test_delegation_survives_service_restart(self):
+        subject = exception_subject()
+        self.plane.issue_delegation(self.valid_delegation(), "SESSION-SECURITY-DIRECTOR", NOW)
+        restarted = ApprovalControlPlane(self.plane.db_path, SCENARIO)
+        restarted.create_request("REQ-RESTART", "SESSION-REQUESTER", "agent-ai-a", subject, NOW)
+        decision = restarted.decide("REQ-RESTART", "SESSION-SECURITY-LEAD", "security_exception_approver", "APPROVED", NOW, FUTURE)
+        self.assertEqual(decision.state, "APPROVED")
+
+    def test_grant_revocation_survives_service_restart(self):
+        self.plane.revoke_grant("GRANT-SECURITY-EXCEPTION", LATER)
+        restarted = ApprovalControlPlane(self.plane.db_path, SCENARIO)
+        self.assertEqual(restarted.grants["GRANT-SECURITY-EXCEPTION"].state, "REVOKED")
+
+    def test_rejection_after_partial_approval_revokes_receipt(self):
+        subject = self.request()
+        release = self.plane.decide("REQ-TEST", "SESSION-RELEASE", "release_authority", "APPROVED", NOW, FUTURE)
+        self.assertEqual(self.plane.request_state("REQ-TEST"), "PARTIALLY_APPROVED")
+        self.plane.decide("REQ-TEST", "SESSION-GOVERNANCE", "ai_governance_owner", "REJECTED", NOW, FUTURE)
+        self.assertEqual(self.plane.request_state("REQ-TEST"), "REJECTED")
+        self.assertEqual(self.plane.receipt(release.receipt_ids[0])["state"], "REVOKED")
+        self.assertControlError("REQUEST_NOT_AUTHORIZED", lambda: self.plane.execute("REQ-TEST", release.receipt_ids, subject, "EXEC", LATER))
+
+    def test_rejection_after_complete_approval_revokes_all_receipts(self):
+        self.request()
+        receipts = self.approve_production()
+        self.plane.decide("REQ-TEST", "SESSION-GOVERNANCE", "ai_governance_owner", "REJECTED", NOW, FUTURE)
+        self.assertEqual(self.plane.request_state("REQ-TEST"), "REJECTED")
+        self.assertEqual({self.plane.receipt(item)["state"] for item in receipts}, {"REVOKED"})
+
+    def test_completed_operation_is_terminal_for_later_rejection(self):
+        subject = self.request()
+        receipts = self.approve_production()
+        self.plane.execute("REQ-TEST", receipts, subject, "EXEC", LATER)
+        self.assertControlError(
+            "INVALID_REQUEST_TRANSITION",
+            lambda: self.plane.decide("REQ-TEST", "SESSION-GOVERNANCE", "ai_governance_owner", "REJECTED", LATER, FUTURE),
+        )
+
+    def test_receipt_cannot_outlive_policy_maximum(self):
+        self.request(subject=staging_subject())
+        self.assertControlError(
+            "RECEIPT_LIFETIME_EXCEEDED",
+            lambda: self.plane.decide("REQ-TEST", "SESSION-RELEASE", "release_authority", "APPROVED", NOW, "2026-10-31T21:00:00Z"),
+        )
+
+    def test_receipt_cannot_outlive_authority(self):
+        self.request(subject=staging_subject())
+        self.assertControlError(
+            "RECEIPT_LIFETIME_EXCEEDED",
+            lambda: self.plane.decide("REQ-TEST", "SESSION-RELEASE", "release_authority", "APPROVED", NOW, "2027-02-01T00:00:00Z"),
+        )
+
+    def test_receipt_retains_issuance_authority_snapshot(self):
+        self.request(subject=staging_subject())
+        receipt_id = self.plane.decide("REQ-TEST", "SESSION-RELEASE", "release_authority", "APPROVED", NOW, FUTURE).receipt_ids[0]
+        receipt = self.plane.receipt(receipt_id)
+        self.assertEqual(receipt["authority_registry_revision"], "AUTHORITY-REGISTRY@7")
+        self.assertEqual(receipt["authority_snapshot"]["kind"], "direct")
+        self.assertEqual(receipt["authority_snapshot"]["grant"]["grant_id"], "GRANT-RELEASE-PROD")
+
+    def test_emergency_action_changes_protected_resource_state(self):
+        subject = emergency_subject()
+        self.request(subject=subject)
+        receipt = self.plane.decide("REQ-TEST", "SESSION-EMERGENCY", "emergency_responder", "APPROVED", NOW, FUTURE).receipt_ids
+        decision = self.plane.execute("REQ-TEST", receipt, subject, "EXEC-EMERGENCY", LATER)
+        state = self.plane.resource_state(subject.resource)["state"]
+        self.assertEqual(decision.state, "SUCCEEDED")
+        self.assertFalse(state["ai_classification_enabled"])
+        self.assertTrue(state["manual_review_required"])
 
     def test_golden_population_is_twelve(self):
         results = golden_scenarios(SCENARIO)

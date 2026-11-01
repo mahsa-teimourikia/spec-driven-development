@@ -1,6 +1,7 @@
 {
   "revision": "APPROVAL-POLICY@4",
   "distinct_principals": true,
+  "max_approval_lifetime_minutes": 120,
   "required_roles": {
     "deploy|production|CONSEQUENTIAL": [
       "release_authority",

@@ -12,6 +12,7 @@ from .control_plane import ApprovalControlPlane
 from .models import ActionSubject, ControlError, DelegationGrant
 
 NOW = "2026-10-31T18:00:00Z"
+SHORT_FUTURE = "2026-10-31T18:05:00Z"
 LATER = "2026-10-31T18:10:00Z"
 FUTURE = "2026-10-31T19:00:00Z"
 DELEGATION_END = "2026-12-01T00:00:00Z"
@@ -104,7 +105,15 @@ def _valid_exact_subject(root: Path, directory: str) -> dict:
     _request(plane, "REQ-VALID", subject)
     receipts = _approve_production(plane, "REQ-VALID")
     result = plane.execute("REQ-VALID", receipts, subject, "EXEC-VALID", LATER)
-    return {"state": result.state, "operation_count": plane.operation_count("REQ-VALID")}
+    operation_states = [item["state"] for item in plane.operation_events("EXEC-VALID")]
+    resource = plane.resource_state(subject.resource)
+    return {
+        "state": result.state,
+        "operation_count": plane.operation_count("REQ-VALID"),
+        "operation_states": operation_states,
+        "deployed_artifact_digest": resource["state"]["deployed_artifact_digest"],
+        "success_condition_verified": plane.operation("EXEC-VALID")["state"] == "SUCCEEDED",
+    }
 
 
 def _changed_artifact(root: Path, directory: str) -> str:
@@ -118,7 +127,7 @@ def _changed_artifact(root: Path, directory: str) -> str:
 def _expired(root: Path, directory: str) -> str:
     plane, subject = _plane(root, directory), production_subject()
     _request(plane, "REQ-EXPIRED", subject)
-    receipts = _approve_production(plane, "REQ-EXPIRED", expires_at=NOW)
+    receipts = _approve_production(plane, "REQ-EXPIRED", expires_at=SHORT_FUTURE)
     return _expected_error("APPROVAL_EXPIRED", lambda: plane.execute("REQ-EXPIRED", receipts, subject, "EXEC-EXPIRED", LATER))
 
 
@@ -179,7 +188,7 @@ def _delegated_parent_revoked(root: Path, directory: str) -> str:
     plane.issue_delegation(delegation, "SESSION-SECURITY-DIRECTOR", NOW)
     _request(plane, "REQ-DELEGATED", subject)
     receipt = plane.decide("REQ-DELEGATED", "SESSION-SECURITY-LEAD", "security_exception_approver", "APPROVED", NOW, FUTURE).receipt_ids
-    plane.revoke_grant("GRANT-SECURITY-EXCEPTION")
+    plane.revoke_grant("GRANT-SECURITY-EXCEPTION", LATER)
     return _expected_error("DELEGATED_AUTHORITY_REVOKED", lambda: plane.execute("REQ-DELEGATED", receipt, subject, "EXEC-DELEGATED", LATER))
 
 
@@ -190,14 +199,13 @@ def concurrency_scenario(root: Path, directory: str) -> dict:
 
     def execute(execution_id: str) -> str:
         try:
-            _plane(root, directory).execute("REQ-CONCURRENT", receipt, subject, execution_id, LATER)
-            return "EXECUTED"
+            return _plane(root, directory).execute("REQ-CONCURRENT", receipt, subject, execution_id, LATER).state
         except ControlError as exc:
             return exc.code
 
     with ThreadPoolExecutor(max_workers=2) as executor:
         outcomes = sorted(executor.map(execute, ("EXEC-RACE-A", "EXEC-RACE-B")))
-    result = {"outcomes": outcomes, "executed": outcomes.count("EXECUTED"), "operation_count": plane.operation_count("REQ-CONCURRENT")}
+    result = {"outcomes": outcomes, "executed": outcomes.count("SUCCEEDED"), "operation_count": plane.operation_count("REQ-CONCURRENT")}
     if result["executed"] != 1 or result["operation_count"] != 1 or "APPROVAL_ALREADY_CONSUMED" not in outcomes:
         raise AssertionError(result)
     return result
@@ -208,7 +216,15 @@ def _emergency(root: Path, directory: str) -> dict:
     _request(plane, "REQ-EMERGENCY", subject)
     receipt = plane.decide("REQ-EMERGENCY", "SESSION-EMERGENCY", "emergency_responder", "APPROVED", NOW, FUTURE).receipt_ids
     result = plane.execute("REQ-EMERGENCY", receipt, subject, "EXEC-EMERGENCY", LATER)
-    return {"state": result.state, "incident_id": subject.incident_id, "containment_action": subject.action}
+    state = plane.resource_state(subject.resource)["state"]
+    return {
+        "state": result.state,
+        "incident_id": subject.incident_id,
+        "containment_action": subject.action,
+        "ai_classification_enabled": state["ai_classification_enabled"],
+        "manual_review_required": state["manual_review_required"],
+        "success_condition_verified": plane.operation("EXEC-EMERGENCY")["state"] == "SUCCEEDED",
+    }
 
 
 SCENARIOS: tuple[tuple[str, Callable[[Path, str], object]], ...] = (
@@ -274,12 +290,33 @@ def audit_scenario(root: Path) -> dict:
         receipt = plane.decide("REQ-AUDIT", "SESSION-RELEASE", "release_authority", "APPROVED", NOW, FUTURE).receipt_ids
         plane.execute("REQ-AUDIT", receipt, subject, "EXEC-AUDIT", LATER)
         valid_before = plane.verify_audit_chain()
-        with sqlite3.connect(plane.db_path) as connection:
+        connection = sqlite3.connect(plane.db_path)
+        try:
             connection.execute("UPDATE audit_events SET reason_code = 'ALTERED' WHERE sequence = 1")
+            connection.commit()
+        finally:
+            connection.close()
         valid_after = plane.verify_audit_chain()
-    if not valid_before or valid_after:
+    with tempfile.TemporaryDirectory(prefix="course23-audit-truncation-") as directory:
+        plane, subject = _plane(root, directory), staging_subject(change_id="CHG-AUDIT-TRUNCATION")
+        _request(plane, "REQ-AUDIT-TRUNCATION", subject)
+        receipt = plane.decide("REQ-AUDIT-TRUNCATION", "SESSION-RELEASE", "release_authority", "APPROVED", NOW, FUTURE).receipt_ids
+        plane.execute("REQ-AUDIT-TRUNCATION", receipt, subject, "EXEC-AUDIT-TRUNCATION", LATER)
+        connection = sqlite3.connect(plane.db_path)
+        try:
+            connection.execute("DELETE FROM audit_events WHERE sequence = (SELECT MAX(sequence) FROM audit_events)")
+            connection.commit()
+        finally:
+            connection.close()
+        truncation_detected = not plane.verify_audit_chain()
+    if not valid_before or valid_after or not truncation_detected:
         raise AssertionError("audit tampering was not detected")
-    return {"valid_before_tamper": valid_before, "valid_after_tamper": valid_after, "tamper_detected": True}
+    return {
+        "valid_before_tamper": valid_before,
+        "valid_after_tamper": valid_after,
+        "tamper_detected": True,
+        "tail_truncation_detected": truncation_detected,
+    }
 
 
 def run_reference(root: Path) -> dict:

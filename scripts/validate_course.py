@@ -3627,9 +3627,21 @@ def check_course_23_approval_control() -> list[str]:
     )
     if concurrency.get("executed") != 1 or concurrency.get("operation_count") != 1 or "APPROVAL_ALREADY_CONSUMED" not in concurrency.get("outcomes", []):
         errors.append("Course 23 concurrency scenario must prove exactly one operation")
+    valid = next(
+        (item.get("evidence", {}) for item in golden.get("results", []) if item.get("scenario") == "valid_exact_artifact"),
+        {},
+    )
+    if valid.get("state") != "SUCCEEDED" or valid.get("operation_states") != ["AUTHORIZED", "DISPATCHED", "SUCCEEDED"] or not valid.get("success_condition_verified"):
+        errors.append("Course 23 normal action must reach verified SUCCEEDED through durable operation states")
+    emergency = next(
+        (item.get("evidence", {}) for item in golden.get("results", []) if item.get("scenario") == "emergency_containment"),
+        {},
+    )
+    if emergency.get("ai_classification_enabled") is not False or emergency.get("manual_review_required") is not True or not emergency.get("success_condition_verified"):
+        errors.append("Course 23 emergency action must verify AI disablement and manual-review restoration")
     audit = report.get("audit_integrity", {})
-    if audit != {"tamper_detected": True, "valid_after_tamper": False, "valid_before_tamper": True}:
-        errors.append("Course 23 audit mutation must be valid before and invalid after tampering")
+    if audit != {"tail_truncation_detected": True, "tamper_detected": True, "valid_after_tamper": False, "valid_before_tamper": True}:
+        errors.append("Course 23 audit checkpoint must detect modification and tail truncation")
     if len(report.get("non_authorities", [])) < 3:
         errors.append("Course 23 report must preserve explicit non-authorities")
 
@@ -3638,9 +3650,14 @@ def check_course_23_approval_control() -> list[str]:
         "POLICY_REVISION_MISMATCH",
         "SEPARATION_OF_DUTIES_VIOLATION",
         "DELEGATION_SCOPE_EXPANSION",
+        "delegation.role == parent.role",
+        "RECEIPT_LIFETIME_EXCEEDED",
+        "authority_snapshot_digest",
         "APPROVAL_SUBJECT_MISMATCH",
         "APPROVAL_ALREADY_CONSUMED",
         "EMERGENCY_SCOPE_VIOLATION",
+        "PROTECTED_ACTION_SUCCEEDED",
+        "UNKNOWN_OUTCOME",
         "BEGIN IMMEDIATE",
         "verify_audit_chain",
     ]
@@ -3660,6 +3677,8 @@ def check_course_23_approval_control() -> list[str]:
         or stored.get("adversarial_evaluations") != {"passed": 12, "total": 12}
         or stored.get("concurrency_invariant", {}).get("operations") != 1
         or stored.get("audit_mutation", {}).get("valid_after") is not False
+        or stored.get("audit_mutation", {}).get("tail_truncation_detected") is not True
+        or stored.get("operation_state_machine") != ["AUTHORIZED", "DISPATCHED", "SUCCEEDED", "FAILED", "UNKNOWN_OUTCOME"]
     ):
         errors.append("Course 23 stored evidence summary is stale")
 

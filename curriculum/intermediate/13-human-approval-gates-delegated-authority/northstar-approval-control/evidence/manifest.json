@@ -5,7 +5,10 @@
   "golden_scenarios": {"passed": 12, "total": 12},
   "adversarial_evaluations": {"passed": 12, "total": 12},
   "concurrency_invariant": {"attempts": 2, "executions": 1, "operations": 1},
-  "audit_mutation": {"valid_before": true, "valid_after": false},
+  "operation_state_machine": ["AUTHORIZED", "DISPATCHED", "SUCCEEDED", "FAILED", "UNKNOWN_OUTCOME"],
+  "verified_effects": ["deployment_artifact_changed", "ai_classification_disabled", "manual_review_required"],
+  "durability": ["delegation_survives_restart", "grant_revocation_survives_restart"],
+  "audit_mutation": {"valid_before": true, "valid_after": false, "tail_truncation_detected": true},
   "generated_by": "python3 lab.py",
   "non_authority": "Stored teaching evidence does not authorize an external action."
 }
