@@ -2182,5 +2182,110 @@ const QUESTIONS = [
     options: ['Nothing external; it is bounded teaching evidence for accountable review', 'Immediate production deployment', 'A permanent policy exception', 'Automatic release of future artifacts'],
     answer: 0,
     explanation: 'The report deliberately stops before merge, deployment, release, or enterprise policy authority.'
+  },
+  {
+    category: 'Course 24 artifact identity',
+    question: 'Why should production deployment reference an immutable artifact digest rather than a mutable tag?',
+    options: ['A tag may point to different artifact bytes after verification', 'Digests make the application faster', 'Tags cannot be used with containers', 'A digest proves business correctness'],
+    answer: 0,
+    explanation: 'Evidence for one byte identity cannot authorize whatever a mutable tag resolves to later.'
+  },
+  {
+    category: 'Course 24 provenance',
+    question: 'A signed provenance statement is authentic, but the build came from an unapproved branch. What should happen?',
+    options: ['Reject it under build and source policy', 'Allow it because the signature is valid', 'Ignore the source branch', 'Ask the coding agent to approve it'],
+    answer: 0,
+    explanation: 'Authenticity establishes who made the statement; policy still determines whether the described build is acceptable.'
+  },
+  {
+    category: 'Course 24 AI identity',
+    question: 'The application image is unchanged but the model revision changes. What is required?',
+    options: ['Reassess model-dependent evaluation evidence', 'No action', 'Only rerun lint', 'Automatically roll back the database'],
+    answer: 0,
+    explanation: 'Model revision is part of effective AI release identity and can change behavior without changing the container.'
+  },
+  {
+    category: 'Course 24 runtime',
+    question: 'A deployment is healthy, but ambiguous documents bypass required human review. What should the controller do?',
+    options: ['Halt or contain rollout according to approved safety policy', 'Continue because containers are healthy', 'Wait for the next quarterly review', 'Mark the release active'],
+    answer: 0,
+    explanation: 'Infrastructure health cannot override a protected behavioral invariant.'
+  },
+  {
+    category: 'Course 24 trust',
+    question: 'Which statement best describes a trusted release gate?',
+    options: ['A policy decision over authenticated, revision-bound evidence and authorization', 'A collection of green checks reported by the agent', 'A human approving any YAML file', 'A successful container build'],
+    answer: 0,
+    explanation: 'The gate resolves evidence from trusted producers and binds its decision to an exact release subject.'
+  },
+  {
+    category: 'Course 24 SBOM',
+    question: 'What does an SBOM establish by itself?',
+    options: ['An inventory of identified components for a named subject', 'That the application is secure', 'That all licenses are accepted', 'That production behavior is correct'],
+    answer: 0,
+    explanation: 'Inventory is an input to vulnerability, license, and provenance policy; it is not their conclusion.'
+  },
+  {
+    category: 'Course 24 policy',
+    question: 'Why is a Rego allow result insufficient by itself to deploy?',
+    options: ['Inputs still require authentication and a protected executor must enforce the decision', 'Rego cannot evaluate JSON', 'Policy decisions never affect releases', 'Only agents can execute deployments'],
+    answer: 0,
+    explanation: 'Policy evaluation does not authenticate its inputs, consume approvals, or perform and verify the external effect.'
+  },
+  {
+    category: 'Course 24 CI security',
+    question: 'Why is privileged execution of untrusted PR code dangerous?',
+    options: ['The code can access protected credentials or modify authoritative evidence', 'It always slows tests', 'Pull requests cannot contain source code', 'Read-only jobs automatically sign artifacts'],
+    answer: 0,
+    explanation: 'Untrusted code must be isolated from signing, publication, evidence, and deployment authority.'
+  },
+  {
+    category: 'Course 24 approval',
+    question: 'What must the executor do after approval but before deployment?',
+    options: ['Reverify the stored manifest, registry artifact, current evidence, policy, and scoped authority', 'Trust the earlier green gate forever', 'Ask the coding agent whether anything changed', 'Rebuild from a mutable tag'],
+    answer: 0,
+    explanation: 'Approval does not eliminate time-of-check/time-of-use risk; current protected state must still satisfy policy.'
+  },
+  {
+    category: 'Course 24 uncertainty',
+    question: 'A deployment API times out after receiving the request. What is the safe next state?',
+    options: ['UNKNOWN_OUTCOME pending target-state reconciliation', 'FAILED followed by immediate blind retry', 'ACTIVE because the request was sent', 'CANCELLED with receipt reuse'],
+    answer: 0,
+    explanation: 'Timeout does not prove failure; reconcile the stable operation against the target before retrying.'
+  },
+  {
+    category: 'Course 24 recovery',
+    question: 'Why can restoring the previous container still leave the AI system unsafe?',
+    options: ['Model, prompt, retrieval, tools, schema, or consequential state may remain changed', 'Containers cannot be rolled back', 'Previous artifacts are always deleted', 'Telemetry prevents rollback'],
+    answer: 0,
+    explanation: 'Recovery must address the complete effective identity and any irreversible or business-state effects.'
+  },
+  {
+    category: 'Course 24 telemetry',
+    question: 'Why cannot a caller-provided passing observation activate a release?',
+    options: ['Runtime evidence must come from an authenticated registry bound to the operation, manifest, environment, source, and window', 'JSON values cannot be true', 'Only source tests matter', 'Activation never needs runtime evidence'],
+    answer: 0,
+    explanation: 'A boolean claim is not an observation; the verifier independently resolves trusted records and coverage.'
+  },
+  {
+    category: 'Course 24 evidence reuse',
+    question: 'How should a release system decide whether evidence can be reused after a change?',
+    options: ['Use an approved dependency and impact model for that evidence type', 'Reuse all green evidence forever', 'Rerun every check for every text edit', 'Let the coding agent choose'],
+    answer: 0,
+    explanation: 'Targeted invalidation avoids both stale evidence and unjustified full recomputation.'
+  },
+  {
+    category: 'Course 24 rollout',
+    question: 'What must happen before a recovery can become RECOVERED?',
+    options: ['An exact recovery receipt must authorize the effect, and observed configuration plus authenticated reconciliation evidence must pass', 'The caller must provide expected component strings', 'The old image tag must be selected', 'A model must say recovery succeeded'],
+    answer: 0,
+    explanation: 'Recovery authority, restoration, and verification are separate controls; none can be replaced by asserted values.'
+  },
+  {
+    category: 'Course 24 authority boundary',
+    question: 'The lab reports ELIGIBLE_FOR_ACCOUNTABLE_REVIEW. What does that authorize?',
+    options: ['Nothing external; it is bounded local evidence for accountable review', 'Immediate production deployment', 'SLSA certification', 'Permanent model approval'],
+    answer: 0,
+    explanation: 'The lab stops before organizational policy approval, builder certification, and real deployment authority.'
   }
 ];

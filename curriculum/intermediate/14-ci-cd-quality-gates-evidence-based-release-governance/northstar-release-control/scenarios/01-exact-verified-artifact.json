@@ -1,0 +1,1 @@
+{"id":"REL-GOLDEN-001","scenario":"exact_verified_artifact","expected":"ACTIVE","proof":"actual artifact digest equals deployed manifest digest and runtime invariants pass"}

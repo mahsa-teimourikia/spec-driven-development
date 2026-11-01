@@ -1,0 +1,43 @@
+{
+  "revision": "RELEASE-TRUST@4",
+  "builders": {
+    "northstar-release-builder": {
+      "key_id": "builder-verification-v1",
+      "workflow_revision": "release-build.yml@7",
+      "source_branches": ["refs/heads/main"],
+      "source_repositories": ["https://github.com/northstar/underwriting-ai.git"]
+    }
+  },
+  "evidence_producers": {
+    "sbom": {"northstar-sbom-generator": "sbom-verification-v1"},
+    "functional": {"northstar-trusted-test-runner": "functional-verification-v1"},
+    "ai_evaluation": {"northstar-ai-evaluation-service": "evaluation-verification-v1"},
+    "security": {"northstar-security-runner": "security-verification-v1"}
+  },
+  "runtime_observation_producers": {
+    "northstar-runtime-monitor": "runtime-monitor-verification-v1"
+  },
+  "reconciliation_evidence_producers": {
+    "northstar-recovery-verifier": "recovery-verification-v1"
+  },
+  "authority": {
+    "release-manager-1": {
+      "roles": ["release_authority"],
+      "environments": ["staging", "production"],
+      "capabilities": ["*"],
+      "status": "ACTIVE"
+    },
+    "ai-governance-owner-1": {
+      "roles": ["ai_governance_owner"],
+      "environments": ["staging", "production"],
+      "capabilities": ["underwriting_classification"],
+      "status": "ACTIVE"
+    },
+    "incident-commander-1": {
+      "roles": ["recovery_authority"],
+      "environments": ["production"],
+      "capabilities": ["underwriting_classification"],
+      "status": "ACTIVE"
+    }
+  }
+}

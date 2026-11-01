@@ -1,0 +1,33 @@
+{
+  "change_id": "AI-2500",
+  "decision": "ELIGIBLE_FOR_ACCOUNTABLE_REVIEW",
+  "workflow_trust_zones": {
+    "untrusted_pr": ["compile", "unit_test", "safe_static_check"],
+    "trusted_release": ["build", "provenance", "publish", "evidence_verify", "approve", "deploy"]
+  },
+  "effective_release_identity": [
+    "source_commit",
+    "artifact_digest",
+    "model_revision",
+    "prompt_digest",
+    "retrieval_revision",
+    "tool_policy_revision",
+    "schema_revision",
+    "evaluation_contract_revision",
+    "dataset_digest",
+    "environment",
+    "risk_tier",
+    "capability"
+  ],
+  "evidence_dependencies": {
+    "functional": ["source_commit", "artifact_digest"],
+    "ai_evaluation": ["artifact_digest", "model_revision", "prompt_digest", "retrieval_revision", "tool_policy_revision", "evaluation_contract_revision", "dataset_digest"],
+    "security": ["artifact_digest", "tool_policy_revision"]
+  },
+  "approval_subject": ["release_id", "manifest_digest", "environment", "capability", "policy_revision", "authority_revision", "principal", "role", "issued_at", "expires_at", "state"],
+  "point_of_use_revalidation": ["stored_manifest", "registry_artifact", "provenance", "current_evidence", "current_policy", "current_authority"],
+  "unknown_outcome_reconciliation": "observe the target by stable operation identity before retry",
+  "rollout_invariants": ["signed_operation_bound_observations", "minimum_coverage", "tenant_authorized", "ambiguous_requires_review", "no_protected_mutation"],
+  "recovery_completion": ["incident_scoped_authorization", "observed_complete_manifest", "authenticated_reconciliation_evidence", "manual_review_restored", "unauthorized_mutations_disabled", "production_health_checks"],
+  "non_authority": "Reference design only; not production approval or certification."
+}

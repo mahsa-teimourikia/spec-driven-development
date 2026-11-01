@@ -1,0 +1,18 @@
+{
+  "change_id": "AI-2500",
+  "revision": 5,
+  "requirements": [
+    {"id": "REL-001", "text": "The system SHALL promote the exact verified artifact digest."},
+    {"id": "REL-002", "text": "The system SHALL bind AI evaluation to the effective release identity."},
+    {"id": "REL-003", "text": "The system SHALL halt rollout when a protected invariant fails."},
+    {"id": "REL-004", "text": "The system SHALL reconcile unknown deployment outcomes before retry."},
+    {"id": "REL-005", "text": "The system SHALL keep manual review available during containment and recovery."},
+    {"id": "REL-006", "text": "The deployment executor SHALL reverify the stored manifest, registry artifact, current evidence, policy, and scoped authority before consuming approval."},
+    {"id": "REL-007", "text": "Functional, AI, and security evaluation SHALL execute the exact packaged artifact identified by its digest."},
+    {"id": "REL-008", "text": "Runtime activation SHALL resolve authenticated operation-bound observations and enforce minimum population coverage."},
+    {"id": "REL-009", "text": "Recovery SHALL require incident-scoped authorization before effects and independently verify observed configuration and reconciliation evidence."},
+    {"id": "REL-010", "text": "Approval requirements SHALL be selected by environment, risk tier, and affected capability and SHALL fail closed for unknown combinations."},
+    {"id": "REL-011", "text": "Evaluation thresholds SHALL be derived from the approved evaluation contract revision."},
+    {"id": "REL-012", "text": "Build provenance SHALL derive source revision from a clean trusted Git checkout."}
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "suite": "course-24-release-governance",
+  "claim": "named deterministic scenarios, not general control-plane correctness",
+  "scenarios": [
+    "exact_verified_artifact",
+    "artifact_modified_after_testing",
+    "untrusted_build_provenance",
+    "missing_sbom",
+    "critical_dependency_policy_violation",
+    "model_changed_after_evaluation",
+    "prompt_changed_after_evaluation",
+    "unauthorized_tool_configuration",
+    "approval_references_different_artifact",
+    "trusted_canary_detects_review_bypass",
+    "rollback_restores_image_not_prompt",
+    "state_reconciliation_remains_open"
+  ]
+}

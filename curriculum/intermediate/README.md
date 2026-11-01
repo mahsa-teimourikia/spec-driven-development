@@ -15,5 +15,6 @@ This path turns specification skills into repeatable delivery flows.
 21. [Multi-Repository Parallel-Agent Delivery](11-multi-repository-parallel-agent-delivery/README.md) — available
 22. [Pull Request and Review Strategies for Agentic SDD](12-pull-request-review-strategies-agentic-sdd/README.md) — available
 23. [Human Approval Gates and Delegated Authority in Agentic SDD](13-human-approval-gates-delegated-authority/README.md) — available
+24. [CI/CD Quality Gates and Evidence-Based Release Governance](14-ci-cd-quality-gates-evidence-based-release-governance/README.md) — available
 
-Courses 11–23 are available. The remaining courses will be published as complete vertical slices; see the [course plan](../../COURSE_PLAN.md).
+Courses 11–24 are available. The remaining courses will be published as complete vertical slices; see the [course plan](../../COURSE_PLAN.md).

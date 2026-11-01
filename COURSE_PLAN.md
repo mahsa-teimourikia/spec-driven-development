@@ -17,8 +17,8 @@ The primary audience is senior software engineers, technical product managers, a
 The six conceptual parts are preserved below. Repository folders also expose learning levels for Hub filtering:
 
 - **Beginner:** Courses 01–10, foundations and executable requirements.
-- **Intermediate:** Courses 11–23, multi-agent execution, frameworks, and end-to-end Agentic PDLC practices.
-- **Advanced:** Courses 24–38, enterprise controls and advanced agentic SDD.
+- **Intermediate:** Courses 11–24, multi-agent execution, frameworks, end-to-end Agentic PDLC practices, and release governance.
+- **Advanced:** Courses 25–38, enterprise controls and advanced agentic SDD.
 - **Enterprise Agent:** final operating-model capstone integrating the program.
 
 Course numbers are global identifiers even though folders live under level directories.
@@ -112,32 +112,32 @@ Each future course follows this learning arc, adapted where the subject demands 
 | 20 | intermediate/10 | Multi-repository development | **Available** | C10, C17 | AI-2500 parent/child specifications, five real Git repositories, canonical behavioral contracts, executed mixed-version compatibility, exact-revision manifests, rollout/recovery controls, 16 conformance cases, 40 evaluations, and 12 system scenarios |
 | 21 | intermediate/11 | Multi-repository parallel-agent delivery | **Available** | C11, C17, C20 | AI-2500 dependency-aware fan-out, authenticated worker scope, resource-enforced leases and fencing, idempotent operations, checkpoint/restart recovery, selective contract invalidation, five-commit integration evidence, 12 conformance cases, and 30 labelled evaluations |
 | 22 | intermediate/12 | Pull Request and Review Strategies for Agentic SDD | **Available** | C17–C21 | AI-2500 Git-backed review subjects, protected intent and test oracles, exact-head approval/evidence binding, merge-group conflict detection, 12 conformance cases, 28 labelled evaluations, and 10 review experiments |
-| 23 | intermediate/13 | Human approval gates | Planned | C04, C22 | Risk-tiered approvals, expiry, revocation, audit trail |
+| 23 | intermediate/13 | Human approval gates | **Available** | C04, C22 | Exact-subject receipts, dual control, attenuated delegation, bounded emergency containment, atomic single-use execution, durable authority, and audit checkpoints |
+| 24 | intermediate/14 | CI/CD Quality Gates and Evidence-Based Release Governance | **Available** | C14–C17, C20–C23 | Real artifact bytes, authenticated teaching provenance, SBOM and revision-bound evidence, manifest-bound approvals, runtime acceptance, unknown-outcome reconciliation, 12 golden scenarios, and 12 adversarial evaluations |
 
 ## Part V — Enterprise controls
 
 | Course | Level folder | Topic | Status | Prerequisite | Learner evidence |
 | --- | --- | --- | --- | --- | --- |
-| 24 | advanced/01 | Security and privacy | Planned | C17–C23 | Threat model, least privilege, data/egress gates, abuse tests |
-| 25 | advanced/02 | AI governance | Planned | C23–C24 | Model/use-case registry, evaluation and oversight policy |
-| 26 | advanced/03 | Architecture governance | Planned | C09, C16–C23 | Automated standards plus exception and ADR workflow |
-| 27 | advanced/04 | Testing and quality | Planned | C07–C08, C17 | Evidence portfolio, mutation/failure injection, release criteria |
-| 28 | advanced/05 | Observability | Planned | C10, C27 | Delivery/runtime traces, redaction, correlation, SLOs |
-| 29 | advanced/06 | Compliance | Planned | C23–C28 | Control-to-evidence mapping and reproducible audit bundle |
-| 30 | advanced/07 | Supply-chain controls | Planned | C24, C27 | Provenance, dependency policy, attestations, release gate |
-| 31 | advanced/08 | CI/CD enforcement | Planned | C24–C30 | Fail-closed policy pipeline, exceptions, rollback test |
+| 25 | advanced/01 | AI governance | Planned | C23–C24 | Model/use-case registry, evaluation and oversight policy |
+| 26 | advanced/02 | Architecture governance | Planned | C09, C16–C23 | Automated standards plus exception and ADR workflow |
+| 27 | advanced/03 | Testing and quality | Planned | C07–C08, C17 | Evidence portfolio, mutation/failure injection, release criteria |
+| 28 | advanced/04 | Observability | Planned | C10, C27 | Delivery/runtime traces, redaction, correlation, SLOs |
+| 29 | advanced/05 | Compliance | Planned | C23–C28 | Control-to-evidence mapping and reproducible audit bundle |
+| 30 | advanced/06 | Supply-chain controls | Planned | C24, C27 | Provenance, dependency policy, attestations, release gate |
+| 31 | advanced/07 | CI/CD enforcement | Planned | C24–C30 | Fail-closed policy pipeline, exceptions, rollback test |
 
 ## Part VI — Advanced agentic SDD
 
 | Course | Level folder | Topic | Status | Prerequisite | Learner evidence |
 | --- | --- | --- | --- | --- | --- |
-| 32 | advanced/09 | Agent context engineering | Planned | C03–C04, C14, C31 | Context manifest, provenance, retrieval/evaluation harness |
-| 33 | advanced/10 | Specification decomposition | Planned | C10, C20–C23, C32 | Work graph with contracts, owners, dependencies, stop rules |
-| 34 | advanced/11 | Context compression | Planned | C32–C33 | Loss-aware compression and rare-control recall evaluation |
-| 35 | advanced/12 | Multi-agent orchestration | Planned | C21, C33–C34 | Coordinator/worker protocol, budgets, idempotency, recovery |
-| 36 | advanced/13 | Spec drift | Planned | C10, C28, C32–C35 | Drift detector, taxonomy, repair decision |
-| 37 | advanced/14 | Continuous specification | Planned | C28, C31, C36 | Runtime feedback loop and governed spec evolution |
-| 38 | advanced/15 | Specification-driven evaluation | Planned | C07–C10, C27, C32–C37 | Traceable eval dataset, independent judge design, release signal |
+| 32 | advanced/08 | Agent context engineering | Planned | C03–C04, C14, C31 | Context manifest, provenance, retrieval/evaluation harness |
+| 33 | advanced/09 | Specification decomposition | Planned | C10, C20–C23, C32 | Work graph with contracts, owners, dependencies, stop rules |
+| 34 | advanced/10 | Context compression | Planned | C32–C33 | Loss-aware compression and rare-control recall evaluation |
+| 35 | advanced/11 | Multi-agent orchestration | Planned | C21, C33–C34 | Coordinator/worker protocol, budgets, idempotency, recovery |
+| 36 | advanced/12 | Spec drift | Planned | C10, C28, C32–C35 | Drift detector, taxonomy, repair decision |
+| 37 | advanced/13 | Continuous specification | Planned | C28, C31, C36 | Runtime feedback loop and governed spec evolution |
+| 38 | advanced/14 | Specification-driven evaluation | Planned | C07–C10, C27, C32–C37 | Traceable eval dataset, independent judge design, release signal |
 
 ## Enterprise Agent capstone — Design the operating model
 

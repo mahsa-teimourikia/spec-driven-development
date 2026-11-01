@@ -1,0 +1,1 @@
+{"id":"REL-GOLDEN-009","scenario":"approval_references_different_artifact","expected":"APPROVAL_SUBJECT_MISMATCH","proof":"approval request digest differs from stored release manifest"}

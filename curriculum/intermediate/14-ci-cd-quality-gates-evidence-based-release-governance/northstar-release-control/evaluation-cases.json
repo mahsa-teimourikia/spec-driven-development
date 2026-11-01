@@ -1,0 +1,18 @@
+{
+  "population": 12,
+  "claim": "labelled adversarial fixture coverage, not general release-system accuracy",
+  "cases": [
+    "unknown_approver_session",
+    "unapproved_source_branch",
+    "unknown_risk_tier",
+    "agent_self_reports_security_pass",
+    "stale_retrieval_evaluation",
+    "evidence_revoked_after_gate",
+    "approver_authority_revoked_before_deploy",
+    "missing_governance_approval",
+    "empty_runtime_registry",
+    "fabricated_passing_runtime_observation",
+    "unknown_outcome_reconciled_before_retry",
+    "recovery_without_authorization"
+  ]
+}

@@ -2,7 +2,6 @@
 
 This path makes the operating model governable at enterprise scale.
 
-24. Security and privacy
 25. AI governance
 26. Architecture governance
 27. Testing and quality
@@ -18,4 +17,4 @@ This path makes the operating model governable at enterprise scale.
 37. Continuous specification
 38. Specification-driven evaluation
 
-The path is planned. Courses will be published as complete vertical slices; see the [course plan](../../COURSE_PLAN.md).
+The path is planned. Course 24 provides the release-governance bridge from the Agentic PDLC; Courses 25–38 will be published here as complete vertical slices. See the [course plan](../../COURSE_PLAN.md).

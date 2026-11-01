@@ -1,0 +1,30 @@
+{
+  "revision": "RELEASE-POLICY@6",
+  "required_evidence": {
+    "LOW": ["sbom", "functional"],
+    "CONTROLLED": ["sbom", "functional", "security"],
+    "CONSEQUENTIAL": ["sbom", "functional", "ai_evaluation", "security"]
+  },
+  "evidence_dependencies": {
+    "sbom": ["artifact_digest"],
+    "functional": ["source_commit", "artifact_digest"],
+    "ai_evaluation": ["artifact_digest", "model_revision", "prompt_digest", "retrieval_revision", "tool_policy_revision", "evaluation_contract_revision", "dataset_digest"],
+    "security": ["artifact_digest", "tool_policy_revision"]
+  },
+  "approved_tool_policy_revisions": ["TOOL-POLICY@9"],
+  "prohibited_components": ["unsafe-deserializer@0.1.0"],
+  "approval_matrix": {
+    "staging": {
+      "LOW": {"*": ["release_authority"]},
+      "CONTROLLED": {"*": ["release_authority"]},
+      "CONSEQUENTIAL": {"underwriting_classification": ["release_authority", "ai_governance_owner"]}
+    },
+    "production": {
+      "LOW": {"*": ["release_authority"]},
+      "CONTROLLED": {"*": ["release_authority", "ai_governance_owner"]},
+      "CONSEQUENTIAL": {"underwriting_classification": ["release_authority", "ai_governance_owner"]}
+    }
+  },
+  "runtime_observation_minimum": 2,
+  "required_reconciliation": ["manual_review_restored", "unauthorized_mutations_disabled", "production_health_checks"]
+}

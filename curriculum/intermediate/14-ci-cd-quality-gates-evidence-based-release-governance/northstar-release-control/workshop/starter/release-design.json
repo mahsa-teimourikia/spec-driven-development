@@ -1,0 +1,20 @@
+{
+  "change_id": "AI-2500",
+  "learner_decisions": {
+    "workflow_trust_zones": null,
+    "effective_release_identity": null,
+    "evidence_dependencies": null,
+    "approval_subject": null,
+    "unknown_outcome_reconciliation": null,
+    "rollout_invariants": null,
+    "recovery_completion": null
+  },
+  "stop_conditions": [
+    "authority_unknown",
+    "artifact_identity_mismatch",
+    "evidence_missing_or_stale",
+    "protected_invariant_failure",
+    "deployment_outcome_unknown",
+    "reconciliation_incomplete"
+  ]
+}

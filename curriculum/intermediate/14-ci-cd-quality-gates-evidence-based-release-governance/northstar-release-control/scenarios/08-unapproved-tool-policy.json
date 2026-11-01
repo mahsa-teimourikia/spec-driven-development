@@ -1,0 +1,1 @@
+{"id":"REL-GOLDEN-008","scenario":"unauthorized_tool_configuration","expected":"TOOL_POLICY_UNAPPROVED","proof":"manifest tool policy is not approved by protected release policy"}

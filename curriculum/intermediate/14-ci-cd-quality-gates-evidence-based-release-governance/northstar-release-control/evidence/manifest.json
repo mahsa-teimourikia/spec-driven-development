@@ -1,0 +1,11 @@
+{
+  "course": 24,
+  "change_id": "AI-2500",
+  "claim": "executable local release-governance fixture, not production certification",
+  "golden_scenarios": 12,
+  "adversarial_evaluations": 12,
+  "operation_states": ["AUTHORIZED", "DISPATCHED", "VERIFYING", "ACTIVE", "HALTED", "UNKNOWN_OUTCOME"],
+  "verified_effects": ["exact_digest_deployed", "point_of_use_revalidation", "signed_runtime_observation_resolved", "manual_review_preserved", "unsafe_canary_contained", "unknown_outcome_reconciled", "authorized_recovery_verified"],
+  "recovery_states": ["RECOVERY_INCOMPLETE", "RECOVERY_IN_PROGRESS", "RECOVERED"],
+  "non_authorities": ["production_deployment", "production_identity", "production_monitoring_coverage", "SLSA_certification", "Sigstore_integration", "authenticated_external_configuration_registries", "general_model_quality"]
+}
