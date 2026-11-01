@@ -2241,10 +2241,10 @@ const QUESTIONS = [
   },
   {
     category: 'Course 24 approval',
-    question: 'What must a production release approval name?',
-    options: ['The exact manifest digest and environment, with principal, role, issuance, expiry, and state', 'Only the feature name', 'Only the image tag', 'Any passing workflow run'],
+    question: 'What must the executor do after approval but before deployment?',
+    options: ['Reverify the stored manifest, registry artifact, current evidence, policy, and scoped authority', 'Trust the earlier green gate forever', 'Ask the coding agent whether anything changed', 'Rebuild from a mutable tag'],
     answer: 0,
-    explanation: 'Exact subject binding prevents an approval for one configuration from authorizing another.'
+    explanation: 'Approval does not eliminate time-of-check/time-of-use risk; current protected state must still satisfy policy.'
   },
   {
     category: 'Course 24 uncertainty',
@@ -2262,10 +2262,10 @@ const QUESTIONS = [
   },
   {
     category: 'Course 24 telemetry',
-    question: 'What does an OpenTelemetry trace prove about a classification?',
-    options: ['Which observed components and timing participated, not that the classification was correct', 'That the model is unbiased', 'That policy approved the release', 'That every tenant was isolated'],
+    question: 'Why cannot a caller-provided passing observation activate a release?',
+    options: ['Runtime evidence must come from an authenticated registry bound to the operation, manifest, environment, source, and window', 'JSON values cannot be true', 'Only source tests matter', 'Activation never needs runtime evidence'],
     answer: 0,
-    explanation: 'Operational telemetry must be combined with behavioral evaluation and protected invariant checks.'
+    explanation: 'A boolean claim is not an observation; the verifier independently resolves trusted records and coverage.'
   },
   {
     category: 'Course 24 evidence reuse',
@@ -2276,10 +2276,10 @@ const QUESTIONS = [
   },
   {
     category: 'Course 24 rollout',
-    question: 'When should a deployed release become ACTIVE?',
-    options: ['After defined operational and behavioral runtime acceptance conditions pass', 'When the deployment API returns success', 'When the image downloads', 'When the coding agent reports completion'],
+    question: 'What must happen before a recovery can become RECOVERED?',
+    options: ['An exact recovery receipt must authorize the effect, and observed configuration plus authenticated reconciliation evidence must pass', 'The caller must provide expected component strings', 'The old image tag must be selected', 'A model must say recovery succeeded'],
     answer: 0,
-    explanation: 'Deployment success is an intermediate state; activation requires the owned runtime acceptance contract.'
+    explanation: 'Recovery authority, restoration, and verification are separate controls; none can be replaced by asserted values.'
   },
   {
     category: 'Course 24 authority boundary',

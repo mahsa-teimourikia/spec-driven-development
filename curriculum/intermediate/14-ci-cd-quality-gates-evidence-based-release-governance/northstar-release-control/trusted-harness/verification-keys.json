@@ -1,0 +1,9 @@
+{
+  "builder-verification-v1": "course24-local-builder-key",
+  "sbom-verification-v1": "course24-sbom-producer-key",
+  "functional-verification-v1": "course24-functional-producer-key",
+  "evaluation-verification-v1": "course24-evaluation-producer-key",
+  "security-verification-v1": "course24-security-producer-key",
+  "runtime-monitor-verification-v1": "course24-runtime-monitor-key",
+  "recovery-verification-v1": "course24-recovery-verifier-key"
+}

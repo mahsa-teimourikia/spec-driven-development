@@ -1,6 +1,7 @@
 {
   "sessions": {
     "SESSION-RELEASE": "release-manager-1",
-    "SESSION-AI-GOV": "ai-governance-owner-1"
+    "SESSION-AI-GOV": "ai-governance-owner-1",
+    "SESSION-INCIDENT": "incident-commander-1"
   }
 }

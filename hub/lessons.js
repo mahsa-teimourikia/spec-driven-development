@@ -1183,10 +1183,10 @@ const course24 = {
   outcomes: [
     'Separate source, provenance, artifact, test, approval, deployment, and runtime evidence.',
     'Build once and promote an immutable artifact while governing environment-specific AI configuration.',
-    'Bind SBOM, functional, security, and AI evaluation evidence to the full release manifest.',
+    'Execute functional, security, and AI evaluation against the exact packaged artifact.',
     'Invalidate evidence when model, prompt, retrieval, tool, dataset, or contract dependencies change.',
-    'Consume exact-manifest dual approval transactionally before deployment.',
-    'Reconcile unknown outcomes and require complete-manifest recovery plus business-state closure.'
+    'Revalidate the registry artifact, evidence, policy, and current scoped authority before consuming approval.',
+    'Activate and recover only from authenticated operational observations and exact authorization.'
   ],
   readme: `${REPO}/blob/main/curriculum/intermediate/14-ci-cd-quality-gates-evidence-based-release-governance/README.md`,
   notebook: `${REPO}/blob/main/curriculum/intermediate/14-ci-cd-quality-gates-evidence-based-release-governance/northstar-release-control/release_governance.ipynb`,
@@ -1196,7 +1196,7 @@ const course24 = {
   labs: [
     {
       title: 'Lab A — Execute the trusted release-control chain',
-      description: 'Run 12 golden scenarios and 12 adversarial evaluations over real artifact bytes, trusted evidence, approvals, rollout, unknown outcomes, and recovery.',
+      description: 'Run 12 golden scenarios and 12 adversarial evaluations over a Git-derived executable artifact, point-of-use revalidation, signed observations, unknown outcomes, and authorized recovery.',
       command: 'python3 curriculum/intermediate/14-ci-cd-quality-gates-evidence-based-release-governance/northstar-release-control/lab.py',
       links: [['View the release lab', `${REPO}/blob/main/curriculum/intermediate/14-ci-cd-quality-gates-evidence-based-release-governance/northstar-release-control/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/intermediate/14-ci-cd-quality-gates-evidence-based-release-governance/northstar-release-control/release_governance.ipynb`]]
     },

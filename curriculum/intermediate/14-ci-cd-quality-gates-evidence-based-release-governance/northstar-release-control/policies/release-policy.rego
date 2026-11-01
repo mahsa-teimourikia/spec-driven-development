@@ -12,6 +12,10 @@ allow if {
         input.verified_checks[check] == "PASS"
     }
     input.artifact_digest == input.approved_artifact_digest
+    input.point_of_use_revalidation == "PASS"
+    input.approval_policy_revision == input.current_policy_revision
+    input.approval_authority_revision == input.current_authority_revision
+    input.current_scoped_authority == "ACTIVE"
     input.release_approval_valid
     input.ai_governance_approval_valid
 }

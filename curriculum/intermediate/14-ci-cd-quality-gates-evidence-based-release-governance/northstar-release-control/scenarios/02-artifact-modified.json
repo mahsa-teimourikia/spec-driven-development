@@ -1,1 +1,1 @@
-{"id":"REL-GOLDEN-002","scenario":"artifact_modified_after_testing","expected":"ARTIFACT_MISMATCH","proof":"artifact bytes are mutated before the trusted gate recomputes the digest"}
+{"id":"REL-GOLDEN-002","scenario":"artifact_modified_after_testing","expected":"POINT_OF_USE_REVALIDATION_FAILED","proof":"registry bytes are mutated after eligibility and the deployment transaction recomputes the digest before consuming approval"}

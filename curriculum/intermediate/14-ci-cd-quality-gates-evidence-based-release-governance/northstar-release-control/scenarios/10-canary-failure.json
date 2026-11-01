@@ -1,1 +1,1 @@
-{"id":"REL-GOLDEN-010","scenario":"canary_review_bypass","expected":"HALTED","proof":"observed ambiguous request bypasses required human review and containment disables feature"}
+{"id":"REL-GOLDEN-010","scenario":"trusted_canary_detects_review_bypass","expected":"HALTED","proof":"authenticated operation-bound monitoring observes a review bypass and containment disables the feature"}

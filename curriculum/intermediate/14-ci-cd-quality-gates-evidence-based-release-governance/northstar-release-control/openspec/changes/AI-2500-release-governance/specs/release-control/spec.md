@@ -12,6 +12,11 @@
 - **REL-008:** A protected-invariant failure SHALL halt and contain the feature while preserving manual review.
 - **REL-009:** An unknown external outcome SHALL be reconciled against target state before retry.
 - **REL-010:** Recovery SHALL compare the complete effective release identity and remain incomplete while consequential reconciliation is open.
+- **REL-011:** Deployment authorization SHALL reverify the stored manifest, immutable registry artifact, provenance, current evidence, current policy, and current scoped authority before consuming receipts.
+- **REL-012:** Functional, AI, and security evaluation SHALL execute the exact packaged artifact identified by the evidence subject digest.
+- **REL-013:** Runtime activation SHALL resolve authenticated, operation-bound observations from a protected registry and enforce minimum coverage.
+- **REL-014:** Recovery SHALL require incident-scoped authorization before effects and independently observe restored state and authenticated reconciliation evidence before activation.
+- **REL-015:** Evaluation thresholds SHALL be resolved from the approved contract revision rather than duplicated in evaluator code.
 
 ## Evidence boundary
 

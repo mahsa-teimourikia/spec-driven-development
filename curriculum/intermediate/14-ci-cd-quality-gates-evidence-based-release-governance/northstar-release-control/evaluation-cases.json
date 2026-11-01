@@ -7,12 +7,12 @@
     "unknown_risk_tier",
     "agent_self_reports_security_pass",
     "stale_retrieval_evaluation",
-    "stale_dataset_evaluation",
-    "expired_deployment_approval",
+    "evidence_revoked_after_gate",
+    "approver_authority_revoked_before_deploy",
     "missing_governance_approval",
-    "deployment_replay",
-    "empty_runtime_evidence",
+    "empty_runtime_registry",
+    "fabricated_passing_runtime_observation",
     "unknown_outcome_reconciled_before_retry",
-    "cross_tenant_runtime_observation"
+    "recovery_without_authorization"
   ]
 }

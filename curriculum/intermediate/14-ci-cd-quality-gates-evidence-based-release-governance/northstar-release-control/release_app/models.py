@@ -32,6 +32,7 @@ class ReleaseManifest:
     dataset_digest: str
     environment: str = "production"
     risk_tier: str = "CONSEQUENTIAL"
+    capability: str = "underwriting_classification"
 
     @property
     def dependencies(self) -> dict[str, str]:
@@ -46,6 +47,8 @@ class ReleaseManifest:
             "evaluation_contract_revision": self.evaluation_contract_revision,
             "dataset_digest": self.dataset_digest,
             "environment": self.environment,
+            "risk_tier": self.risk_tier,
+            "capability": self.capability,
         }
 
     @property
@@ -75,3 +78,39 @@ class Decision:
     release_id: str
     manifest_digest: str
     operation_id: str | None = None
+
+
+@dataclass(frozen=True)
+class RuntimeObservation:
+    observation_id: str
+    operation_id: str
+    release_id: str
+    manifest_digest: str
+    environment: str
+    source: str
+    window_start: str
+    window_end: str
+    tenant_authorized: bool
+    ambiguous: bool
+    human_review_required: bool
+    protected_mutation: bool
+
+    @property
+    def digest(self) -> str:
+        return canonical_digest(asdict(self))
+
+
+@dataclass(frozen=True)
+class ReconciliationEvidence:
+    evidence_id: str
+    incident_id: str
+    target_release: str
+    manifest_digest: str
+    check: str
+    producer: str
+    status: str
+    observed_at: str
+
+    @property
+    def digest(self) -> str:
+        return canonical_digest(asdict(self))

@@ -6,7 +6,7 @@ Green pull-request checks do not prove that the tested artifact and effective AI
 
 ## Proposed change
 
-Introduce a trusted release-control boundary that authenticates build and evidence producers, binds evidence and approvals to the full release manifest, promotes immutable artifact identity, verifies runtime protected invariants, reconciles unknown deployment outcomes, and governs recovery.
+Introduce a trusted release-control boundary that derives source identity from Git, executes the exact packaged artifact, authenticates build and evidence producers, revalidates immutable artifact and evidence state at deployment, rechecks scoped authority, resolves protected runtime observations, reconciles unknown deployment outcomes, and requires authorized, independently observed recovery.
 
 ## Non-authorities
 

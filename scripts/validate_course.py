@@ -3719,6 +3719,8 @@ def check_course_24_release_governance() -> list[str]:
         scenario / "policies/trust-policy.json",
         scenario / "policies/release-policy.rego",
         scenario / "registry/principals.json",
+        scenario / "trusted-harness/verification-keys.json",
+        scenario / "trusted-harness/README.md",
         scenario / "specifications/AI-2500/requirements.json",
         scenario / "specifications/AI-2500/evaluation-contract.json",
         scenario / "specifications/AI-2500/evaluation-dataset.json",
@@ -3799,6 +3801,11 @@ def check_course_24_release_governance() -> list[str]:
         "RECOVERY_INCOMPLETE",
         "RECOVERY_IN_PROGRESS",
         "RECOVERY_TARGET_UNTRUSTED",
+        "POINT_OF_USE_REVALIDATION_FAILED",
+        "APPROVAL_AUTHORITY_REVOKED",
+        "RUNTIME_OBSERVATION_AUTHENTICITY_UNVERIFIED",
+        "RECOVERY_AUTHORIZATION_MISSING",
+        "RECONCILIATION_EVIDENCE_AUTHENTICITY_UNVERIFIED",
         "BEGIN IMMEDIATE",
         "file_digest(artifact_path)",
     ]
@@ -3807,6 +3814,12 @@ def check_course_24_release_governance() -> list[str]:
     simulation = (scenario / "release_app/simulation.py").read_text(encoding="utf-8")
     if "scenarios/" in simulation or "evaluation-cases.json" in simulation:
         errors.append("Course 24 evaluator must execute controls rather than trust documented labels")
+    builder = (scenario / "release_app/builder.py").read_text(encoding="utf-8")
+    if "build_from_git" not in builder or "load_classifier_from_artifact" not in builder:
+        errors.append("Course 24 must derive source identity from Git and execute the packaged artifact")
+    trust_policy = (scenario / "policies/trust-policy.json").read_text(encoding="utf-8")
+    if "verification_key" in trust_policy or "runtime_observation_producers" not in trust_policy:
+        errors.append("Course 24 trust policy must use harness-injected key IDs and protected observation producers")
 
     starter = json.loads((scenario / "workshop/starter/release-design.json").read_text(encoding="utf-8"))
     reference_design = (scenario / "reference/release-design.json").read_text(encoding="utf-8")

@@ -1,6 +1,6 @@
 # Northstar trusted AI release-control lab
 
-This credential-free fixture implements Course 24 as an executable delivery trust chain. It builds real local artifact bytes, authenticates a teaching provenance statement, parses a lockfile into an SBOM, executes functional/security/AI evaluation checks, binds evidence to the full effective release manifest, issues dual manifest-bound approvals, performs an observable deployment transition, verifies runtime invariants, reconciles unknown outcomes, and evaluates complete recovery.
+This credential-free fixture implements Course 24 as an executable delivery trust chain. It derives source identity from a clean Git commit, packages an executable local artifact, runs functional/security/AI evaluations against those exact bytes, authenticates teaching provenance and evidence, applies risk-adaptive approval, revalidates trust at deployment, performs an observable transition, resolves signed runtime observations, reconciles unknown outcomes, and verifies authorized recovery from protected state.
 
 ## Run
 
@@ -32,6 +32,6 @@ The report must show:
 
 ## Trust boundaries
 
-The coding agent may propose source, configuration, or evidence candidates. The trusted application authenticates producers, resolves stored evidence, applies policy, consumes approvals, mutates environment state, verifies effects, and records terminal state.
+The coding agent may propose source, configuration, or evidence candidates. The trusted application authenticates producers, resolves stored evidence, applies policy, rechecks current authority, consumes approvals, mutates environment state, verifies effects from protected observation registries, and records terminal state.
 
-The local HMAC fixture demonstrates authenticated provenance flow only. Its synthetic keys and external configuration identifiers are repository fixtures, not protected production trust roots or authenticated model/retrieval registries. It is intentionally not labelled as a Sigstore integration or SLSA certification. Remote deployment needs durable delivery, idempotency, retries, and target-state reconciliation beyond this local transaction. Recovery targets must be verified in the lab, but production recovery still requires applicable emergency or release authorization.
+The local HMAC fixture demonstrates signature-verification flow only. Trust policy contains key IDs; public deterministic keys are injected from `trusted-harness/` and never passed to the packaged candidate. They are not protected production trust roots. The fixture is intentionally not labelled as a Sigstore integration or SLSA certification. Production requires workload identity, isolated secret management, rotation, revocation, externally verified attestations, durable delivery, idempotency, bounded retries, and authenticated target-state observation.

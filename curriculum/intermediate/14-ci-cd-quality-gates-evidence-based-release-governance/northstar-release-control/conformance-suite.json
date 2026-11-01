@@ -11,7 +11,7 @@
     "prompt_changed_after_evaluation",
     "unauthorized_tool_configuration",
     "approval_references_different_artifact",
-    "canary_review_bypass",
+    "trusted_canary_detects_review_bypass",
     "rollback_restores_image_not_prompt",
     "state_reconciliation_remains_open"
   ]

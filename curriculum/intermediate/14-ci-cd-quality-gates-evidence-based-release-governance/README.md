@@ -121,7 +121,9 @@ Build provenance should bind the artifact subject to source revision, builder id
 
 A correctly signed artifact built from an unapproved branch must still be rejected.
 
-The lab uses an HMAC-authenticated teaching record so that producer authentication is executable offline. Production systems should use approved provenance schemas and a protected trust root; the HMAC fixture is not presented as Sigstore or SLSA certification.
+The lab uses HMAC-authenticated teaching records so producer verification is executable offline. Key IDs live in trust policy while deterministic key material is injected by a separate `trusted-harness/` boundary that the packaged candidate never receives. Because those keys remain repository-visible fixtures, they demonstrate verification mechanics rather than secrecy or independent workload identity. Production systems should use approved provenance schemas, workload identity, isolated secret management, rotation, revocation, and externally verified attestations; the fixture is not presented as Sigstore or SLSA certification.
+
+The trusted builder creates a real Git checkout, derives the commit from `git rev-parse HEAD`, rejects dirty source, and packages the committed classifier source as the executable artifact. A caller cannot assign an unrelated commit string to arbitrary source bytes.
 
 ## 6. SBOMs and dependency policy
 
@@ -325,14 +327,19 @@ collect → authenticate → validate applicability → evaluate policy → auth
 
 A passing gate produces `ELIGIBLE_FOR_RELEASE_REVIEW`. It does not deploy automatically.
 
-Production deployment requires distinct, authenticated release and AI-governance approvals bound to:
+Approval requirements are resolved by environment, risk tier, and affected capability. Low-risk staging work needs a release authority; consequential production AI behavior needs distinct release and AI-governance authorities. Unknown combinations block. Every approval is bound to:
 
 - release ID and full manifest digest;
 - target environment;
+- affected capability, policy revision, and authority-registry revision;
 - approver principal and role;
 - issuance, expiry, and state.
 
-Receipts are consumed transactionally. Reuse and changed-subject attempts fail.
+The protected executor rechecks current scoped authority and receipt revocation at execution time. Receipts are consumed transactionally. Reuse, stale policy, revoked authority, and changed-subject attempts fail.
+
+## 19.1 Reverify at the point of execution
+
+Eligibility is a prior decision, not a cached authorization fact. Inside the deployment transaction, the lab independently resolves the stored manifest, immutable registry artifact, authenticated provenance, current evidence records, current policy, and current approval authority. A registry artifact changed after evaluation or evidence revoked after approval blocks with `POINT_OF_USE_REVALIDATION_FAILED` before receipts are consumed.
 
 ---
 
@@ -347,6 +354,8 @@ Illustrative rollout stages include dark launch, canary, expansion, and full exp
 ## 21. Operational and behavioral evidence
 
 Use operational telemetry for availability, latency, errors, and request flow. Combine it with behavioral checks for human-review routing, authorization, protected mutations, grounding, and approved outcome samples.
+
+The lab admits observations only through a protected registry. Each signed record is bound to the deployment operation, release and manifest digest, environment, trusted instrumentation source, and observation window. Activation resolves those records itself and requires a minimum population. A caller-supplied passing dictionary cannot override a trusted review-bypass observation.
 
 OpenTelemetry can correlate traces, metrics, logs, and context, but telemetry collection alone does not prove correct classification. Avoid placing document content, secrets, or unnecessary personal data in telemetry.
 
@@ -395,11 +404,11 @@ Rollback, roll-forward, and containment are distinct mechanisms.
 
 ## 25. Complete recovery identity
 
-The lab first requires a previously verified target manifest, then compares every target dependency. Restoring only the image yields `RECOVERY_INCOMPLETE`. Restoring the complete manifest while leaving business obligations open yields `RECOVERY_IN_PROGRESS`. Only a complete identity plus required reconciliation can become `RECOVERED`.
+The lab first requires a previously verified target manifest and an incident-scoped, single-use recovery receipt for the exact target and environment. The protected restore executor then changes observable environment state. The recovery verifier reads that state rather than accepting claimed restored-component strings. Restoring only the image yields `RECOVERY_INCOMPLETE`. Restoring the complete manifest while authoritative reconciliation records remain missing or open yields `RECOVERY_IN_PROGRESS`. Only exact observed identity plus authenticated reconciliation evidence can become `RECOVERED`.
 
 Required reconciliation includes manual-review restoration, protected-mutation disablement, and production health checks. An open historical-submission audit keeps recovery in progress.
 
-The fixture evaluates recovery eligibility; it does not model a separate emergency recovery approval. A production adapter must enforce whichever release or incident authority applies before performing recovery effects.
+Recovery authority is checked when the receipt is issued, again before the restore effect, and again before activation. Revoked authority, stale policy, expiry, subject mismatch, or receipt reuse blocks recovery.
 
 ---
 
@@ -409,18 +418,19 @@ The fixture evaluates recovery eligibility; it does not model a separate emergen
 
 The [Northstar release-control fixture](northstar-release-control/README.md) includes:
 
-- deterministic artifact construction from real source bytes;
-- artifact digest recomputation at release time;
+- deterministic executable artifact construction from a clean, real Git commit;
+- functional, AI, and security evaluation of the exact packaged artifact;
+- artifact and signed-evidence revalidation inside deployment authorization;
 - authenticated teaching provenance and protected builder policy;
 - a parsed SBOM;
 - executable classifier, ambiguity, and prompt-injection checks;
 - revision-bound evidence dependencies;
-- risk-derived gate selection;
-- manifest-bound dual approval and atomic consumption;
+- risk-, environment-, and capability-derived approval selection;
+- manifest-bound approval, current-authority recheck, and atomic consumption;
 - durable deployment operations and environment state;
-- runtime activation or containment;
+- authenticated runtime-observation registration, coverage, activation, or containment;
 - unknown-outcome reconciliation; and
-- complete-manifest recovery decisions.
+- authorized recovery effects and independently observed recovery decisions.
 
 ## 27. Release state machine
 
@@ -444,7 +454,7 @@ The local deployment effect and database transition share one SQLite transaction
 The lab executes twelve cases:
 
 1. exact verified artifact reaches `ACTIVE`;
-2. artifact bytes modified after testing are blocked;
+2. registry artifact bytes modified after testing are blocked at deployment;
 3. untrusted builder provenance is rejected;
 4. required SBOM absence blocks release;
 5. failed dependency evidence blocks release;
@@ -452,11 +462,11 @@ The lab executes twelve cases:
 7. prompt drift invalidates AI evaluation;
 8. an unapproved tool policy is rejected;
 9. approval for a different manifest is rejected;
-10. canary review bypass halts and contains rollout;
+10. trusted canary evidence detects review bypass and contains rollout;
 11. image-only rollback is incomplete; and
 12. open state reconciliation prevents recovery completion.
 
-The adversarial suite adds unknown identities, unapproved branches, self-reported evidence, stale retrieval/dataset evidence, expired and missing approvals, replay, missing runtime observations, unknown outcome, and cross-tenant behavior.
+The adversarial suite adds unknown identities, unapproved branches, self-reported evidence, stale retrieval evidence, post-gate evidence revocation, current-authority revocation, missing approval roles, missing runtime coverage, forged runtime observations, unknown outcome, and unauthorized recovery.
 
 ---
 

@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import json
+import shutil
+import subprocess
 import sys
 import tempfile
 import threading
@@ -15,12 +17,13 @@ LESSON = ROOT / "curriculum/intermediate/14-ci-cd-quality-gates-evidence-based-r
 SCENARIO = LESSON / "northstar-release-control"
 sys.path.insert(0, str(SCENARIO))
 
-from release_app.builder import deterministic_build, file_digest  # noqa: E402
+from release_app.builder import deterministic_build, file_digest, load_classifier_from_artifact  # noqa: E402
 from release_app.control_plane import RELEASE_STATES, ReleaseControlPlane  # noqa: E402
-from release_app.models import Evidence, ReleaseError  # noqa: E402
+from release_app.models import Evidence, ReleaseError, RuntimeObservation  # noqa: E402
 from release_app.simulation import (  # noqa: E402
-    FUTURE, LATER, NOW, _approve, _dependencies, _safe_observations, prepare_candidate,
-    run_adversarial_evaluations, run_golden_scenarios, run_reference, valid_release,
+    FUTURE, LATER, NOW, _approve, _dependencies, _evidence, _recovery, _register_runtime,
+    _safe_observations, harness_keys, prepare_candidate, run_adversarial_evaluations,
+    run_golden_scenarios, run_reference, valid_release,
 )
 
 
@@ -59,6 +62,52 @@ class Course24Tests(unittest.TestCase):
         artifact.write_bytes(artifact.read_bytes() + b"changed")
         self.assertNotEqual(before, file_digest(artifact))
 
+    def test_packaged_artifact_is_the_executed_classifier(self):
+        _, manifest, artifact = self.candidate()
+        classify = load_classifier_from_artifact(artifact, manifest.artifact_digest)
+        self.assertEqual(classify("Broker loss notice")["category"], "LOSS_NOTICE")
+
+    def test_artifact_mutation_blocks_evaluation_even_when_source_is_unchanged(self):
+        _, manifest, artifact = self.candidate()
+        artifact.write_bytes(artifact.read_bytes() + b"tampered")
+        with self.assertRaisesRegex(ValueError, "artifact digest"):
+            load_classifier_from_artifact(artifact, manifest.artifact_digest)
+
+    def test_source_commit_is_derived_from_real_trusted_checkout(self):
+        _, manifest, artifact = self.candidate()
+        checkout = Path(self.directory.name) / "trusted-source-checkout"
+        actual = subprocess.run(
+            ("git", "-C", str(checkout), "rev-parse", "HEAD"),
+            check=True, capture_output=True, text=True,
+        ).stdout.strip()
+        self.assertEqual(manifest.source_commit, actual)
+        self.assertEqual(json.loads(artifact.read_text())["source_commit"], actual)
+
+    def test_evaluations_record_the_exact_executed_artifact(self):
+        _, manifest, artifact = self.candidate()
+        records = _evidence(
+            SCENARIO, manifest, artifact, Path(self.directory.name) / "artifacts/sbom.json"
+        )
+        for record in records:
+            if record.kind in {"functional", "ai_evaluation", "security"}:
+                self.assertEqual(record.details["executed_artifact_digest"], manifest.artifact_digest)
+
+    def test_evaluation_threshold_comes_from_approved_contract(self):
+        cloned = Path(self.directory.name) / "course-copy"
+        shutil.copytree(SCENARIO, cloned, ignore=shutil.ignore_patterns("__pycache__"))
+        contract_path = cloned / "specifications/AI-2500/evaluation-contract.json"
+        contract = json.loads(contract_path.read_text())
+        contract["metrics"]["classification_accuracy_minimum"] = 1.1
+        contract_path.write_text(json.dumps(contract, indent=2) + "\n")
+        workspace = Path(self.directory.name) / "strict-workspace"
+        plane, manifest, artifact = prepare_candidate(cloned, str(workspace))
+        self.assertIn("EVIDENCE_FAILED:ai_evaluation", plane.evaluate(manifest, artifact, LATER).reason_codes)
+
+    def test_candidate_cannot_read_keys_from_trust_policy(self):
+        trust = json.loads((SCENARIO / "policies/trust-policy.json").read_text())
+        self.assertNotIn("verification_key", json.dumps(trust))
+        self.assertIn("builder-verification-v1", harness_keys(SCENARIO))
+
     def test_untrusted_builder_is_rejected(self):
         self.assertReleaseError("PROVENANCE_IDENTITY_UNTRUSTED", lambda: self.candidate(builder_id="coding-agent"))
 
@@ -75,6 +124,26 @@ class Course24Tests(unittest.TestCase):
         plane, manifest, artifact = self.candidate()
         artifact.write_bytes(artifact.read_bytes() + b"tampered")
         self.assertIn("ARTIFACT_MISMATCH", plane.evaluate(manifest, artifact, LATER).reason_codes)
+
+    def test_registry_artifact_is_reverified_at_deployment(self):
+        plane, manifest, artifact = self.candidate()
+        plane.evaluate(manifest, artifact, LATER)
+        receipts = _approve(plane, manifest)
+        plane.registered_artifact_path(manifest.release_id).write_bytes(b"tampered")
+        self.assertReleaseError(
+            "POINT_OF_USE_REVALIDATION_FAILED",
+            lambda: plane.deploy(manifest, receipts, "OP-TAMPERED-REGISTRY", LATER),
+        )
+
+    def test_revoked_evidence_is_reverified_at_deployment(self):
+        plane, manifest, artifact = self.candidate()
+        plane.evaluate(manifest, artifact, LATER)
+        receipts = _approve(plane, manifest)
+        plane.revoke_evidence(f"EVD-{manifest.release_id}-SECURITY")
+        self.assertReleaseError(
+            "POINT_OF_USE_REVALIDATION_FAILED",
+            lambda: plane.deploy(manifest, receipts, "OP-REVOKED-EVIDENCE", LATER),
+        )
 
     def test_missing_sbom_is_blocking(self):
         plane, manifest, artifact = self.candidate(missing=frozenset({"sbom"}))
@@ -148,6 +217,31 @@ class Course24Tests(unittest.TestCase):
         governance = plane.approve(manifest.release_id, manifest.digest, "production", "SESSION-AI-GOV", "ai_governance_owner", "2026-10-31T15:00:00Z", NOW)
         self.assertReleaseError("APPROVAL_EXPIRED_OR_REVOKED", lambda: plane.deploy(manifest, (release, governance), "OP-EXPIRED", LATER))
 
+    def test_current_authority_is_rechecked_at_deployment(self):
+        plane, manifest, artifact = self.candidate()
+        plane.evaluate(manifest, artifact, LATER)
+        receipts = _approve(plane, manifest)
+        plane.trust["authority"]["release-manager-1"]["status"] = "REVOKED"
+        self.assertReleaseError(
+            "APPROVAL_AUTHORITY_REVOKED",
+            lambda: plane.deploy(manifest, receipts, "OP-REVOKED-AUTHORITY", LATER),
+        )
+
+    def test_low_risk_staging_uses_risk_adaptive_single_approval(self):
+        plane, manifest, artifact = self.candidate(
+            manifest_changes={"risk_tier": "LOW", "environment": "staging"}
+        )
+        plane.evaluate(manifest, artifact, LATER)
+        receipts = _approve(plane, manifest)
+        self.assertEqual(len(receipts), 1)
+        self.assertEqual(plane.deploy(manifest, receipts, "OP-STAGING-LOW", LATER).state, "VERIFYING")
+
+    def test_unknown_environment_policy_combination_blocks(self):
+        self.assertReleaseError(
+            "APPROVAL_POLICY_UNRESOLVED",
+            lambda: self.candidate(manifest_changes={"environment": "sandbox"}),
+        )
+
     def test_valid_deployment_records_state_machine(self):
         plane, manifest, artifact = self.candidate()
         plane.evaluate(manifest, artifact, LATER)
@@ -190,20 +284,29 @@ class Course24Tests(unittest.TestCase):
         plane, manifest, artifact = self.candidate()
         plane.evaluate(manifest, artifact, LATER)
         plane.deploy(manifest, _approve(plane, manifest), "OP-ACTIVE", LATER)
-        self.assertEqual(plane.verify_runtime("OP-ACTIVE", _safe_observations(), LATER).state, "ACTIVE")
+        _register_runtime(plane, manifest, "OP-ACTIVE", _safe_observations())
+        self.assertEqual(plane.verify_runtime("OP-ACTIVE", LATER).state, "ACTIVE")
 
     def test_ambiguous_review_bypass_halts_release(self):
         plane, manifest, artifact = self.candidate()
         plane.evaluate(manifest, artifact, LATER)
         plane.deploy(manifest, _approve(plane, manifest), "OP-HALT", LATER)
-        result = plane.verify_runtime("OP-HALT", [{"tenant_authorized": True, "ambiguous": True, "human_review_required": False, "protected_mutation": False}], LATER)
+        _register_runtime(plane, manifest, "OP-HALT", [
+            {"tenant_authorized": True, "ambiguous": True, "human_review_required": False, "protected_mutation": False},
+            _safe_observations()[0],
+        ])
+        result = plane.verify_runtime("OP-HALT", LATER)
         self.assertEqual((result.state, result.reason_codes), ("HALTED", ("HUMAN_REVIEW_BYPASS",)))
 
     def test_containment_disables_feature_and_preserves_manual_review(self):
         plane, manifest, artifact = self.candidate()
         plane.evaluate(manifest, artifact, LATER)
         plane.deploy(manifest, _approve(plane, manifest), "OP-HALT", LATER)
-        plane.verify_runtime("OP-HALT", [{"tenant_authorized": True, "ambiguous": True, "human_review_required": False, "protected_mutation": False}], LATER)
+        _register_runtime(plane, manifest, "OP-HALT", [
+            {"tenant_authorized": True, "ambiguous": True, "human_review_required": False, "protected_mutation": False},
+            _safe_observations()[0],
+        ])
+        plane.verify_runtime("OP-HALT", LATER)
         state = plane.environment_state()
         self.assertFalse(state["feature_enabled"])
         self.assertTrue(state["manual_review_required"])
@@ -212,15 +315,44 @@ class Course24Tests(unittest.TestCase):
         plane, manifest, artifact = self.candidate()
         plane.evaluate(manifest, artifact, LATER)
         plane.deploy(manifest, _approve(plane, manifest), "OP-EMPTY", LATER)
-        result = plane.verify_runtime("OP-EMPTY", [], LATER)
-        self.assertEqual((result.state, result.reason_codes), ("HALTED", ("RUNTIME_EVIDENCE_MISSING",)))
+        result = plane.verify_runtime("OP-EMPTY", LATER)
+        self.assertEqual((result.state, result.reason_codes), ("HALTED", ("RUNTIME_EVIDENCE_COVERAGE_INSUFFICIENT",)))
 
     def test_cross_tenant_observation_halts_release(self):
         plane, manifest, artifact = self.candidate()
         plane.evaluate(manifest, artifact, LATER)
         plane.deploy(manifest, _approve(plane, manifest), "OP-TENANT", LATER)
-        result = plane.verify_runtime("OP-TENANT", [{"tenant_authorized": False, "ambiguous": False, "human_review_required": False, "protected_mutation": False}], LATER)
+        _register_runtime(plane, manifest, "OP-TENANT", [
+            {"tenant_authorized": False, "ambiguous": False, "human_review_required": False, "protected_mutation": False},
+            _safe_observations()[0],
+        ])
+        result = plane.verify_runtime("OP-TENANT", LATER)
         self.assertIn("TENANT_ISOLATION_VIOLATION", result.reason_codes)
+
+    def test_fabricated_runtime_observation_cannot_enter_registry(self):
+        plane, manifest, artifact = self.candidate()
+        plane.evaluate(manifest, artifact, LATER)
+        plane.deploy(manifest, _approve(plane, manifest), "OP-FORGED", LATER)
+        observation = RuntimeObservation(
+            "OBS-FORGED", "OP-FORGED", manifest.release_id, manifest.digest, "production",
+            "northstar-runtime-monitor", NOW, LATER, True, False, False, False,
+        )
+        self.assertReleaseError(
+            "RUNTIME_OBSERVATION_AUTHENTICITY_UNVERIFIED",
+            lambda: plane.register_runtime_observation(observation, "hmac-sha256:fake", LATER),
+        )
+
+    def test_fabricated_passing_input_cannot_override_trusted_violation(self):
+        plane, manifest, artifact = self.candidate()
+        plane.evaluate(manifest, artifact, LATER)
+        plane.deploy(manifest, _approve(plane, manifest), "OP-TRUSTED-VIOLATION", LATER)
+        _register_runtime(plane, manifest, "OP-TRUSTED-VIOLATION", [
+            {"tenant_authorized": True, "ambiguous": True, "human_review_required": False, "protected_mutation": False},
+            _safe_observations()[0],
+        ])
+        fabricated_local_value = _safe_observations()
+        self.assertTrue(all(item["tenant_authorized"] for item in fabricated_local_value))
+        self.assertEqual(plane.verify_runtime("OP-TRUSTED-VIOLATION", LATER).state, "HALTED")
 
     def test_timeout_after_effect_is_unknown_not_failed(self):
         plane, manifest, artifact = self.candidate()
@@ -240,28 +372,26 @@ class Course24Tests(unittest.TestCase):
     def test_image_only_rollback_is_incomplete(self):
         plane, manifest, artifact = self.candidate(release_id="AI-2500-R16")
         plane.evaluate(manifest, artifact, LATER)
-        restored = dict(manifest.dependencies)
-        restored["prompt_digest"] = "sha256:prompt-v8"
-        result = plane.recover("INC-1", "FAILED", manifest, restored, (), (), LATER)
+        result = _recovery(
+            plane, manifest, "INC-1", component_overrides={"prompt_digest": "sha256:prompt-v8"}
+        )
         self.assertEqual(result.state, "RECOVERY_INCOMPLETE")
         self.assertIn("COMPONENT_NOT_RESTORED:prompt_digest", result.reason_codes)
 
     def test_open_business_reconciliation_prevents_recovered(self):
         plane, manifest, artifact = self.candidate(release_id="AI-2500-R16")
         plane.evaluate(manifest, artifact, LATER)
-        result = plane.recover(
-            "INC-2", "FAILED", manifest, manifest.dependencies,
-            ("manual_review_restored", "unauthorized_mutations_disabled", "production_health_checks"),
-            ("historical_submission_audit",), LATER,
-        )
+        statuses = {name: "PASS" for name in plane.policy["required_reconciliation"]}
+        statuses["production_health_checks"] = "PENDING"
+        result = _recovery(plane, manifest, "INC-2", check_statuses=statuses)
         self.assertEqual(result.state, "RECOVERY_IN_PROGRESS")
 
     def test_complete_identity_and_reconciliation_can_recover(self):
         plane, manifest, artifact = self.candidate(release_id="AI-2500-R16")
         plane.evaluate(manifest, artifact, LATER)
-        result = plane.recover(
-            "INC-3", "FAILED", manifest, manifest.dependencies,
-            ("manual_review_restored", "unauthorized_mutations_disabled", "production_health_checks"), (), LATER,
+        result = _recovery(
+            plane, manifest, "INC-3",
+            check_statuses={name: "PASS" for name in plane.policy["required_reconciliation"]},
         )
         self.assertEqual(result.state, "RECOVERED")
         self.assertEqual(plane.environment_state()["release_id"], manifest.release_id)
@@ -270,7 +400,29 @@ class Course24Tests(unittest.TestCase):
         plane, manifest, _ = self.candidate(release_id="AI-2500-R16")
         self.assertReleaseError(
             "RECOVERY_TARGET_UNTRUSTED",
-            lambda: plane.recover("INC-UNTRUSTED", "AI-2500-R17", manifest, manifest.dependencies, (), (), LATER),
+            lambda: plane.approve_recovery(
+                "INC-UNTRUSTED", "AI-2500-R17", manifest, "SESSION-INCIDENT", NOW, FUTURE
+            ),
+        )
+
+    def test_recovery_requires_exact_authorization(self):
+        plane, manifest, artifact = self.candidate(release_id="AI-2500-R16")
+        plane.evaluate(manifest, artifact, LATER)
+        self.assertReleaseError(
+            "RECOVERY_AUTHORIZATION_MISSING",
+            lambda: plane.recover("INC-NO-AUTH", manifest, "missing", LATER),
+        )
+
+    def test_recovery_authority_is_rechecked_before_restore(self):
+        plane, manifest, artifact = self.candidate(release_id="AI-2500-R16")
+        plane.evaluate(manifest, artifact, LATER)
+        receipt = plane.approve_recovery(
+            "INC-REVOKED", "AI-2500-R17", manifest, "SESSION-INCIDENT", NOW, FUTURE
+        )
+        plane.trust["authority"]["incident-commander-1"]["status"] = "REVOKED"
+        self.assertReleaseError(
+            "RECOVERY_AUTHORITY_REVOKED",
+            lambda: plane.execute_recovery_restore(receipt, manifest, LATER),
         )
 
     def test_release_states_include_uncertainty_and_recovery(self):
