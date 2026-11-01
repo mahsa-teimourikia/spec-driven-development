@@ -4,7 +4,7 @@
 
 ## Start here
 
-Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through Course 22, then complete [Course 23: Human Approval Gates and Delegated Authority](curriculum/intermediate/13-human-approval-gates-delegated-authority/README.md) with its guided [notebook](curriculum/intermediate/13-human-approval-gates-delegated-authority/northstar-approval-control/human_approval_gates.ipynb), deterministic [approval-control lab](curriculum/intermediate/13-human-approval-gates-delegated-authority/northstar-approval-control/lab.py), [AI-2600 workshop](curriculum/intermediate/13-human-approval-gates-delegated-authority/northstar-approval-control/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
+Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through Course 23, then complete [Course 24: CI/CD Quality Gates and Evidence-Based Release Governance](curriculum/intermediate/14-ci-cd-quality-gates-evidence-based-release-governance/README.md) with its guided [notebook](curriculum/intermediate/14-ci-cd-quality-gates-evidence-based-release-governance/northstar-release-control/release_governance.ipynb), executable [release-control lab](curriculum/intermediate/14-ci-cd-quality-gates-evidence-based-release-governance/northstar-release-control/lab.py), [AI-2500 workshop](curriculum/intermediate/14-ci-cd-quality-gates-evidence-based-release-governance/northstar-release-control/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
 
 This is not simply a tutorial for one specification framework. The central skill is turning organizational intent, architecture rules, product requirements, and engineering constraints into a hierarchy of durable specifications that agents can execute—and humans can govern.
 
@@ -15,8 +15,8 @@ This is not simply a tutorial for one specification framework. The central skill
 | I · SDD foundations | 01–04 | Why the PDLC changes and how specifications form a hierarchy |
 | II · Executable specifications | 05–10 | Requirements, scenarios, invariants, NFRs, specification review, and traceability |
 | III · Agentic execution & SDD frameworks | 11–16 | Multi-agent coordination, framework selection, Spec Kit, OpenSpec, enterprise delivery integration, agent instructions, and adapters |
-| IV · Agentic PDLC | 17–23 | Delivery flows, brownfield work, parallel agents, reviews, and approvals |
-| V · Enterprise controls | 24–31 | Security, AI governance, architecture, quality, compliance, and CI/CD |
+| IV · Agentic PDLC | 17–24 | Delivery flows, brownfield work, parallel agents, reviews, approvals, and release governance |
+| V · Enterprise controls | 25–31 | AI governance, architecture, quality, observability, compliance, and supply-chain controls |
 | VI · Advanced agentic SDD | 32–38 | Context engineering, orchestration, drift, continuous specs, and evaluation |
 
 The program ends with an **Enterprise Agent capstone**: design a real Agentic PDLC with authority boundaries, policy enforcement, evidence, exception handling, and measurable outcomes. See the [complete course plan](COURSE_PLAN.md).
@@ -343,9 +343,22 @@ Course 23 turns human approval into an enforceable authorization boundary. You w
 - constrain emergency access to active incidents and reversible containment actions; and
 - reconstruct decisions through hash-linked audit evidence without claiming production authority.
 
+## Course 24 outcome
+
+Course 24 turns green CI into a revision-bound delivery trust chain. You will:
+
+- build and verify real immutable artifact bytes instead of trusting candidate status flags;
+- authenticate teaching provenance and distinguish producer authenticity from policy acceptance;
+- bind SBOM, functional, security, and AI evaluation evidence to the effective release manifest;
+- invalidate evidence selectively when the model, prompt, retrieval, tool policy, dataset, or contract changes;
+- require exact-manifest dual approval before transactional deployment;
+- activate a release only after behavioral runtime acceptance and contain protected-invariant failures;
+- reconcile unknown deployment outcomes before retry; and
+- distinguish complete rollback, governed forward repair, containment, and open business-state reconciliation.
+
 ## Run locally
 
-Everything in Courses 01–23 is credential-free and uses the Python standard library. Courses 20–22 also invoke the installed Git executable to create isolated local repositories.
+Everything in Courses 01–24 is credential-free and uses the Python standard library. Courses 20–22 also invoke the installed Git executable to create isolated local repositories.
 
 ```bash
 python3 curriculum/beginner/01-why-agentic-coding-changes-pdlc/lab.py
@@ -372,6 +385,7 @@ python3 curriculum/intermediate/10-multi-repository-spec-driven-development-with
 python3 curriculum/intermediate/11-multi-repository-parallel-agent-delivery/northstar-parallel-agents/lab.py
 python3 curriculum/intermediate/12-pull-request-review-strategies-agentic-sdd/northstar-pr-review/lab.py
 python3 curriculum/intermediate/13-human-approval-gates-delegated-authority/northstar-approval-control/lab.py
+python3 curriculum/intermediate/14-ci-cd-quality-gates-evidence-based-release-governance/northstar-release-control/lab.py
 python3 -m unittest discover -s tests -v
 python3 scripts/validate_course.py
 ```

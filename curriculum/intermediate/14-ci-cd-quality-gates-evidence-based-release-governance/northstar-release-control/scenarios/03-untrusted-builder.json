@@ -1,0 +1,1 @@
+{"id":"REL-GOLDEN-003","scenario":"untrusted_build_provenance","expected":"PROVENANCE_IDENTITY_UNTRUSTED","proof":"builder identity is absent from protected trust policy"}

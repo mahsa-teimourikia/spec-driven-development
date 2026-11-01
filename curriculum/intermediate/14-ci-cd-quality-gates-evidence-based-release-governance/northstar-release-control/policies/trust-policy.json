@@ -1,0 +1,20 @@
+{
+  "revision": "RELEASE-TRUST@3",
+  "builders": {
+    "northstar-release-builder": {
+      "verification_key": "course24-local-builder-key",
+      "workflow_revision": "release-build.yml@7",
+      "source_branches": ["refs/heads/main"]
+    }
+  },
+  "evidence_producers": {
+    "sbom": {"northstar-sbom-generator": "course24-sbom-producer-key"},
+    "functional": {"northstar-trusted-test-runner": "course24-functional-producer-key"},
+    "ai_evaluation": {"northstar-ai-evaluation-service": "course24-evaluation-producer-key"},
+    "security": {"northstar-security-runner": "course24-security-producer-key"}
+  },
+  "authority": {
+    "release-manager-1": "release_authority",
+    "ai-governance-owner-1": "ai_governance_owner"
+  }
+}

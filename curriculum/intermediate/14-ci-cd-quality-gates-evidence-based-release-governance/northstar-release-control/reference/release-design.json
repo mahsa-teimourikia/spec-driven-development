@@ -1,0 +1,30 @@
+{
+  "change_id": "AI-2500",
+  "decision": "ELIGIBLE_FOR_ACCOUNTABLE_REVIEW",
+  "workflow_trust_zones": {
+    "untrusted_pr": ["compile", "unit_test", "safe_static_check"],
+    "trusted_release": ["build", "provenance", "publish", "evidence_verify", "approve", "deploy"]
+  },
+  "effective_release_identity": [
+    "source_commit",
+    "artifact_digest",
+    "model_revision",
+    "prompt_digest",
+    "retrieval_revision",
+    "tool_policy_revision",
+    "schema_revision",
+    "evaluation_contract_revision",
+    "dataset_digest",
+    "environment"
+  ],
+  "evidence_dependencies": {
+    "functional": ["source_commit", "artifact_digest"],
+    "ai_evaluation": ["artifact_digest", "model_revision", "prompt_digest", "retrieval_revision", "tool_policy_revision", "evaluation_contract_revision", "dataset_digest"],
+    "security": ["artifact_digest", "tool_policy_revision"]
+  },
+  "approval_subject": ["release_id", "manifest_digest", "environment", "principal", "role", "issued_at", "expires_at", "state"],
+  "unknown_outcome_reconciliation": "observe the target by stable operation identity before retry",
+  "rollout_invariants": ["tenant_authorized", "ambiguous_requires_review", "no_protected_mutation"],
+  "recovery_completion": ["complete_manifest_restored", "manual_review_restored", "unauthorized_mutations_disabled", "production_health_checks", "no_open_consequential_reconciliation"],
+  "non_authority": "Reference design only; not production approval or certification."
+}

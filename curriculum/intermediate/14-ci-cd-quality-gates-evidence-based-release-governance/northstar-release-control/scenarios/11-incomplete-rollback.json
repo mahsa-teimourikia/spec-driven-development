@@ -1,0 +1,1 @@
+{"id":"REL-GOLDEN-011","scenario":"rollback_restores_image_not_prompt","expected":"RECOVERY_INCOMPLETE","proof":"restored effective identity still differs from target prompt digest"}

@@ -1,0 +1,1 @@
+{"id":"REL-GOLDEN-002","scenario":"artifact_modified_after_testing","expected":"ARTIFACT_MISMATCH","proof":"artifact bytes are mutated before the trusted gate recomputes the digest"}

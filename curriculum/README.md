@@ -7,8 +7,8 @@ This curriculum develops one idea across 38 courses: an enterprise should conver
 | Level | Global courses | Program parts | Status |
 | --- | ---: | --- | --- |
 | [Beginner](beginner/README.md) | 01–10 | SDD foundations; executable specifications | Courses 01–10 available |
-| [Intermediate](intermediate/README.md) | 11–23 | Agentic execution; frameworks; Agentic PDLC | Courses 11–23 available |
-| [Advanced](advanced/README.md) | 24–38 | Enterprise controls; advanced agentic SDD | Planned |
+| [Intermediate](intermediate/README.md) | 11–24 | Agentic execution; frameworks; Agentic PDLC | Courses 11–24 available |
+| [Advanced](advanced/README.md) | 25–38 | Enterprise controls; advanced agentic SDD | Planned |
 | [Enterprise Agent](enterprise-agent/README.md) | Capstone | Design a real enterprise Agentic PDLC | Planned |
 
 ## Available now
@@ -36,6 +36,7 @@ This curriculum develops one idea across 38 courses: an enterprise should conver
 21. [Multi-Repository Parallel-Agent Delivery](intermediate/11-multi-repository-parallel-agent-delivery/README.md) — [notebook](intermediate/11-multi-repository-parallel-agent-delivery/northstar-parallel-agents/parallel_agent_delivery.ipynb) · [parallel-delivery lab](intermediate/11-multi-repository-parallel-agent-delivery/northstar-parallel-agents/lab.py) · [AI-2500 parallel workshop](intermediate/11-multi-repository-parallel-agent-delivery/northstar-parallel-agents/README.md)
 22. [Pull Request and Review Strategies for Agentic SDD](intermediate/12-pull-request-review-strategies-agentic-sdd/README.md) — [notebook](intermediate/12-pull-request-review-strategies-agentic-sdd/northstar-pr-review/pr_review_strategies.ipynb) · [PR review lab](intermediate/12-pull-request-review-strategies-agentic-sdd/northstar-pr-review/lab.py) · [AI-2500 review workshop](intermediate/12-pull-request-review-strategies-agentic-sdd/northstar-pr-review/README.md)
 23. [Human Approval Gates and Delegated Authority in Agentic SDD](intermediate/13-human-approval-gates-delegated-authority/README.md) — [notebook](intermediate/13-human-approval-gates-delegated-authority/northstar-approval-control/human_approval_gates.ipynb) · [approval-control lab](intermediate/13-human-approval-gates-delegated-authority/northstar-approval-control/lab.py) · [AI-2600 approval workshop](intermediate/13-human-approval-gates-delegated-authority/northstar-approval-control/README.md)
+24. [CI/CD Quality Gates and Evidence-Based Release Governance](intermediate/14-ci-cd-quality-gates-evidence-based-release-governance/README.md) — [notebook](intermediate/14-ci-cd-quality-gates-evidence-based-release-governance/northstar-release-control/release_governance.ipynb) · [release-control lab](intermediate/14-ci-cd-quality-gates-evidence-based-release-governance/northstar-release-control/lab.py) · [AI-2500 release workshop](intermediate/14-ci-cd-quality-gates-evidence-based-release-governance/northstar-release-control/README.md)
 
 Each completed course is a vertical slice: chapter, guided notebook, reusable lab, checkpoint, references, and automated validation. Planned cards remain visible in the [deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/) without presenting unfinished content as complete.
 

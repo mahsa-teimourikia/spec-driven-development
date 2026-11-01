@@ -1,0 +1,1 @@
+{"id":"REL-GOLDEN-005","scenario":"critical_dependency_policy_violation","expected":"EVIDENCE_FAILED:sbom","proof":"trusted dependency evidence records FAIL"}

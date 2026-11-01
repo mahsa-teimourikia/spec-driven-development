@@ -1176,6 +1176,57 @@ const course23 = {
   }
 };
 
+const course24 = {
+  id: 'c24', course: 24, level: 'intermediate', part: 'IV · Agentic PDLC', status: 'available',
+  title: 'CI/CD Quality Gates and Evidence-Based Release Governance',
+  summary: 'Prove that an exact reviewed source revision became an exact artifact and effective AI configuration, authorize its deployment, verify runtime behavior, and reconcile recovery without treating green CI as release authority.',
+  outcomes: [
+    'Separate source, provenance, artifact, test, approval, deployment, and runtime evidence.',
+    'Build once and promote an immutable artifact while governing environment-specific AI configuration.',
+    'Bind SBOM, functional, security, and AI evaluation evidence to the full release manifest.',
+    'Invalidate evidence when model, prompt, retrieval, tool, dataset, or contract dependencies change.',
+    'Consume exact-manifest dual approval transactionally before deployment.',
+    'Reconcile unknown outcomes and require complete-manifest recovery plus business-state closure.'
+  ],
+  readme: `${REPO}/blob/main/curriculum/intermediate/14-ci-cd-quality-gates-evidence-based-release-governance/README.md`,
+  notebook: `${REPO}/blob/main/curriculum/intermediate/14-ci-cd-quality-gates-evidence-based-release-governance/northstar-release-control/release_governance.ipynb`,
+  lab: `${REPO}/blob/main/curriculum/intermediate/14-ci-cd-quality-gates-evidence-based-release-governance/northstar-release-control/lab.py`,
+  repoFixture: `${REPO}/tree/main/curriculum/intermediate/14-ci-cd-quality-gates-evidence-based-release-governance/northstar-release-control`,
+  run: 'python3 curriculum/intermediate/14-ci-cd-quality-gates-evidence-based-release-governance/northstar-release-control/lab.py',
+  labs: [
+    {
+      title: 'Lab A — Execute the trusted release-control chain',
+      description: 'Run 12 golden scenarios and 12 adversarial evaluations over real artifact bytes, trusted evidence, approvals, rollout, unknown outcomes, and recovery.',
+      command: 'python3 curriculum/intermediate/14-ci-cd-quality-gates-evidence-based-release-governance/northstar-release-control/lab.py',
+      links: [['View the release lab', `${REPO}/blob/main/curriculum/intermediate/14-ci-cd-quality-gates-evidence-based-release-governance/northstar-release-control/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/intermediate/14-ci-cd-quality-gates-evidence-based-release-governance/northstar-release-control/release_governance.ipynb`]]
+    },
+    {
+      title: 'Lab B — Design the AI-2500 release boundary',
+      description: 'Resolve seven decisions covering workflow trust, release identity, evidence invalidation, approval, rollout, unknown outcomes, and complete recovery.',
+      command: 'Complete the seven starter decisions, run Lab A, then inspect the reference design.',
+      links: [['Open the AI-2500 workshop', `${REPO}/tree/main/curriculum/intermediate/14-ci-cd-quality-gates-evidence-based-release-governance/northstar-release-control`], ['Complete the starter design', `${REPO}/blob/main/curriculum/intermediate/14-ci-cd-quality-gates-evidence-based-release-governance/northstar-release-control/workshop/starter/release-design.json`], ['Inspect the reference design', `${REPO}/blob/main/curriculum/intermediate/14-ci-cd-quality-gates-evidence-based-release-governance/northstar-release-control/reference/release-design.json`]]
+    }
+  ],
+  references: [
+    ['SLSA specification v1.2', 'https://slsa.dev/spec/v1.2/'],
+    ['in-toto Attestation Framework', 'https://github.com/in-toto/attestation/blob/main/spec/v1/README.md'],
+    ['Sigstore Cosign verification', 'https://docs.sigstore.dev/cosign/verifying/verify/'],
+    ['GitHub Actions security', 'https://docs.github.com/en/actions/how-tos/secure-your-work'],
+    ['Open Policy Agent policy language', 'https://www.openpolicyagent.org/docs/policy-language'],
+    ['OpenTelemetry signals', 'https://opentelemetry.io/docs/concepts/signals/']
+  ],
+  checkpoint: {
+    question: 'The image digest is unchanged, but production now resolves model v13 while AI evaluation covered v12. What should the release gate do?',
+    options: [
+      'Block or use the approved v12 manifest until model-dependent evaluation for v13 is accepted.',
+      'Proceed because only container bytes matter.',
+      'Let the coding agent declare the evidence reusable.'
+    ],
+    answer: 0,
+    explanation: 'The model revision is part of effective AI release identity, so model-dependent evidence for v12 cannot authorize v13.'
+  }
+};
+
 function planned(course, level, part, title, summary) {
   return {
     id: `c${String(course).padStart(2, '0')}`, course, level, part,
@@ -1210,7 +1261,7 @@ const LESSONS = [
   course21,
   course22,
   course23,
-  planned(24, 'advanced', 'V · Enterprise controls', 'Security and privacy', 'Translate threat, data, identity, and privacy obligations into preventive and detective controls.'),
+  course24,
   planned(25, 'advanced', 'V · Enterprise controls', 'AI governance', 'Govern model use, data exposure, accountability, evaluation, and exceptions.'),
   planned(26, 'advanced', 'V · Enterprise controls', 'Architecture governance', 'Encode principles and fitness functions while preserving documented exceptions.'),
   planned(27, 'advanced', 'V · Enterprise controls', 'Testing and quality', 'Build layered evidence for generated changes and the specifications that direct them.'),

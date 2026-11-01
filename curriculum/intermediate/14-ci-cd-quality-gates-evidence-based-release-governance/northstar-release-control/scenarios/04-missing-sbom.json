@@ -1,0 +1,1 @@
+{"id":"REL-GOLDEN-004","scenario":"missing_sbom","expected":"MISSING_EVIDENCE:sbom","proof":"risk policy requires a stored subject-bound SBOM record"}

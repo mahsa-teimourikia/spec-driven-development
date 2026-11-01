@@ -1,0 +1,1 @@
+{"id":"REL-GOLDEN-010","scenario":"canary_review_bypass","expected":"HALTED","proof":"observed ambiguous request bypasses required human review and containment disables feature"}

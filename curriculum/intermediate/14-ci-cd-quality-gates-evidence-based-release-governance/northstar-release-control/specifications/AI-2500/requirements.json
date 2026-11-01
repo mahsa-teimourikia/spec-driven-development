@@ -1,0 +1,11 @@
+{
+  "change_id": "AI-2500",
+  "revision": 4,
+  "requirements": [
+    {"id": "REL-001", "text": "The system SHALL promote the exact verified artifact digest."},
+    {"id": "REL-002", "text": "The system SHALL bind AI evaluation to the effective release identity."},
+    {"id": "REL-003", "text": "The system SHALL halt rollout when a protected invariant fails."},
+    {"id": "REL-004", "text": "The system SHALL reconcile unknown deployment outcomes before retry."},
+    {"id": "REL-005", "text": "The system SHALL keep manual review available during containment and recovery."}
+  ]
+}

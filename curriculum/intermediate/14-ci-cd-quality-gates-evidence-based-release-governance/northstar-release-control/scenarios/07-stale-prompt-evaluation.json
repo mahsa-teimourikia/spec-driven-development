@@ -1,0 +1,1 @@
+{"id":"REL-GOLDEN-007","scenario":"prompt_changed_after_evaluation","expected":"STALE_EVIDENCE:ai_evaluation","proof":"evidence prompt dependency differs from effective manifest"}

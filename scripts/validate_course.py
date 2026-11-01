@@ -3213,7 +3213,7 @@ def check_course_20_multirepository() -> list[str]:
     if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) < 268:
         errors.append("Course 20 cumulative quiz must retain at least 268 questions")
     quiz_index = (ROOT / "quiz/index.html").read_text(encoding="utf-8")
-    if not any(label in quiz_index for label in ("Courses 01–20", "Courses 01–21", "Courses 01–22", "Courses 01–23")):
+    if not any(label in quiz_index for label in ("Courses 01–20", "Courses 01–21", "Courses 01–22", "Courses 01–23", "Courses 01–24")):
         errors.append("Course 20 cumulative quiz must identify coverage through Course 20")
     hub = (ROOT / "hub/lessons.js").read_text(encoding="utf-8")
     hub_fragments = [
@@ -3371,7 +3371,7 @@ def check_course_21_parallel_delivery() -> list[str]:
     if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) < 282:
         errors.append("Course 21 cumulative quiz must retain at least 282 questions")
     quiz_index = (ROOT / "quiz/index.html").read_text(encoding="utf-8")
-    if not any(label in quiz_index for label in ("Courses 01–21", "Courses 01–22", "Courses 01–23")):
+    if not any(label in quiz_index for label in ("Courses 01–21", "Courses 01–22", "Courses 01–23", "Courses 01–24")):
         errors.append("Course 21 cumulative quiz must identify Courses 01–21")
     hub = (ROOT / "hub/lessons.js").read_text(encoding="utf-8")
     hub_fragments = [
@@ -3536,7 +3536,7 @@ def check_course_22_pr_review_strategy() -> list[str]:
     quiz_source = (ROOT / "quiz/questions.js").read_text(encoding="utf-8")
     if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) < 297:
         errors.append("Course 22 cumulative quiz must retain at least 297 questions")
-    if not any(label in (ROOT / "quiz/index.html").read_text(encoding="utf-8") for label in ("Courses 01–22", "Courses 01–23")):
+    if not any(label in (ROOT / "quiz/index.html").read_text(encoding="utf-8") for label in ("Courses 01–22", "Courses 01–23", "Courses 01–24")):
         errors.append("Course 22 cumulative quiz must identify Courses 01–22")
     hub = (ROOT / "hub/lessons.js").read_text(encoding="utf-8")
     hub_fragments = [
@@ -3683,9 +3683,9 @@ def check_course_23_approval_control() -> list[str]:
         errors.append("Course 23 stored evidence summary is stale")
 
     quiz_source = (ROOT / "quiz/questions.js").read_text(encoding="utf-8")
-    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 312:
-        errors.append("Course 23 cumulative quiz must contain 312 questions")
-    if "Courses 01–23" not in (ROOT / "quiz/index.html").read_text(encoding="utf-8"):
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) < 312:
+        errors.append("Course 23 cumulative quiz must retain at least 312 questions")
+    if not any(label in (ROOT / "quiz/index.html").read_text(encoding="utf-8") for label in ("Courses 01–23", "Courses 01–24")):
         errors.append("Course 23 cumulative quiz must identify Courses 01–23")
     hub = (ROOT / "hub/lessons.js").read_text(encoding="utf-8")
     hub_fragments = [
@@ -3696,6 +3696,146 @@ def check_course_23_approval_control() -> list[str]:
     ]
     if any(fragment not in hub for fragment in hub_fragments):
         errors.append("Course 23 Learning Hub entry is incomplete or points outside the workshop package")
+    return errors
+
+
+def check_course_24_release_governance() -> list[str]:
+    errors: list[str] = []
+    lesson = ROOT / "curriculum/intermediate/14-ci-cd-quality-gates-evidence-based-release-governance"
+    scenario = lesson / "northstar-release-control"
+    required = [
+        lesson / "README.md",
+        scenario / "README.md",
+        scenario / "lab.py",
+        scenario / "release_governance.ipynb",
+        scenario / "release_app/__init__.py",
+        scenario / "release_app/models.py",
+        scenario / "release_app/builder.py",
+        scenario / "release_app/control_plane.py",
+        scenario / "release_app/simulation.py",
+        scenario / "source/classifier.py",
+        scenario / "requirements.lock",
+        scenario / "policies/release-policy.json",
+        scenario / "policies/trust-policy.json",
+        scenario / "policies/release-policy.rego",
+        scenario / "registry/principals.json",
+        scenario / "specifications/AI-2500/requirements.json",
+        scenario / "specifications/AI-2500/evaluation-contract.json",
+        scenario / "specifications/AI-2500/evaluation-dataset.json",
+        scenario / "conformance-suite.json",
+        scenario / "evaluation-cases.json",
+        scenario / "evidence/manifest.json",
+        scenario / "reference/release-design.json",
+        scenario / "workshop/starter/release-design.json",
+        scenario / "openspec/changes/AI-2500-release-governance/proposal.md",
+        scenario / "openspec/changes/AI-2500-release-governance/specs/release-control/spec.md",
+        scenario / "openspec/changes/AI-2500-release-governance/tasks.md",
+        ROOT / "tests/test_course_24.py",
+    ]
+    for path in required:
+        if not path.exists():
+            errors.append(f"Course 24 missing required artifact: {path.relative_to(ROOT)}")
+    scenario_files = sorted((scenario / "scenarios").glob("*.json"))
+    if len(scenario_files) != 12:
+        errors.append("Course 24 must retain twelve documented golden scenarios")
+    if errors:
+        return errors
+
+    for path in scenario.rglob("*.json"):
+        try:
+            json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError) as exc:
+            errors.append(f"invalid Course 24 JSON {path.relative_to(ROOT)}: {exc}")
+    if errors:
+        return errors
+
+    result = subprocess.run(
+        [sys.executable, str(scenario / "lab.py")],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    try:
+        report = json.loads(result.stdout) if result.returncode == 0 else {}
+    except json.JSONDecodeError:
+        report = {}
+    if not report:
+        errors.append("Course 24 lab did not produce its JSON report")
+        return errors
+    if report.get("decision") != "ELIGIBLE_FOR_ACCOUNTABLE_REVIEW":
+        errors.append("Course 24 reference must stop at accountable review eligibility")
+    golden = report.get("golden_scenarios", {})
+    if (golden.get("passed"), golden.get("total")) != (12, 12):
+        errors.append("Course 24 must retain twelve passing golden scenarios")
+    adversarial = report.get("adversarial_evaluations", {})
+    if (adversarial.get("passed"), adversarial.get("total")) != (12, 12):
+        errors.append("Course 24 must retain twelve passing adversarial evaluations")
+    reference = report.get("reference_release", {})
+    if (
+        reference.get("state") != "ACTIVE"
+        or reference.get("gate") != "ELIGIBLE_FOR_RELEASE_REVIEW"
+        or reference.get("operation_states") != ["AUTHORIZED", "DISPATCHED", "VERIFYING", "ACTIVE"]
+        or reference.get("artifact_digest") != reference.get("deployed_digest")
+        or reference.get("manual_review_required") is not True
+    ):
+        errors.append("Course 24 reference must prove exact-artifact activation after runtime acceptance")
+    if len(report.get("non_authorities", [])) < 3:
+        errors.append("Course 24 report must preserve explicit non-authorities")
+
+    control = (scenario / "release_app/control_plane.py").read_text(encoding="utf-8")
+    required_controls = [
+        "PROVENANCE_IDENTITY_UNTRUSTED",
+        "PROVENANCE_SOURCE_UNAPPROVED",
+        "EVIDENCE_PRODUCER_UNTRUSTED",
+        "EVIDENCE_AUTHENTICITY_UNVERIFIED",
+        "STALE_EVIDENCE",
+        "ARTIFACT_MISMATCH",
+        "APPROVAL_SUBJECT_MISMATCH",
+        "APPROVAL_ALREADY_CONSUMED",
+        "UNKNOWN_OUTCOME",
+        "HUMAN_REVIEW_BYPASS",
+        "TENANT_ISOLATION_VIOLATION",
+        "RECOVERY_INCOMPLETE",
+        "RECOVERY_IN_PROGRESS",
+        "RECOVERY_TARGET_UNTRUSTED",
+        "BEGIN IMMEDIATE",
+        "file_digest(artifact_path)",
+    ]
+    if any(fragment not in control for fragment in required_controls):
+        errors.append("Course 24 trusted release boundary is missing required controls")
+    simulation = (scenario / "release_app/simulation.py").read_text(encoding="utf-8")
+    if "scenarios/" in simulation or "evaluation-cases.json" in simulation:
+        errors.append("Course 24 evaluator must execute controls rather than trust documented labels")
+
+    starter = json.loads((scenario / "workshop/starter/release-design.json").read_text(encoding="utf-8"))
+    reference_design = (scenario / "reference/release-design.json").read_text(encoding="utf-8")
+    if len(starter.get("learner_decisions", {})) != 7 or "TODO" in reference_design:
+        errors.append("Course 24 workshop must retain seven learner decisions and a complete reference")
+    stored = json.loads((scenario / "evidence/manifest.json").read_text(encoding="utf-8"))
+    if (
+        stored.get("golden_scenarios") != 12
+        or stored.get("adversarial_evaluations") != 12
+        or "UNKNOWN_OUTCOME" not in stored.get("operation_states", [])
+        or "unknown_outcome_reconciled" not in stored.get("verified_effects", [])
+        or stored.get("recovery_states") != ["RECOVERY_INCOMPLETE", "RECOVERY_IN_PROGRESS", "RECOVERED"]
+    ):
+        errors.append("Course 24 stored evidence summary is stale")
+
+    quiz_source = (ROOT / "quiz/questions.js").read_text(encoding="utf-8")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 327:
+        errors.append("Course 24 cumulative quiz must contain 327 questions")
+    if "Courses 01–24" not in (ROOT / "quiz/index.html").read_text(encoding="utf-8"):
+        errors.append("Course 24 cumulative quiz must identify Courses 01–24")
+    hub = (ROOT / "hub/lessons.js").read_text(encoding="utf-8")
+    hub_fragments = [
+        "const course24 = {",
+        "14-ci-cd-quality-gates-evidence-based-release-governance/northstar-release-control/release_governance.ipynb",
+        "14-ci-cd-quality-gates-evidence-based-release-governance/northstar-release-control/workshop/starter/release-design.json",
+        "12 golden scenarios and 12 adversarial evaluations",
+    ]
+    if any(fragment not in hub for fragment in hub_fragments):
+        errors.append("Course 24 Learning Hub entry is incomplete or points outside the workshop package")
     return errors
 
 
@@ -3728,6 +3868,7 @@ def main() -> None:
         "Course 21 parallel-agent delivery": check_course_21_parallel_delivery,
         "Course 22 PR review strategy": check_course_22_pr_review_strategy,
         "Course 23 approval control": check_course_23_approval_control,
+        "Course 24 release governance": check_course_24_release_governance,
         "diagrams": render_and_validate_diagrams,
         "labs": run_labs,
         "repository labs": run_repository_labs,
