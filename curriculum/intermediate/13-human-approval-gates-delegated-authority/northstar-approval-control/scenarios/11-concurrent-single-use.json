@@ -1,0 +1,1 @@
+{"scenario":"concurrent_single_use","mutation":"two workers execute one receipt","expected":{"SUCCEEDED":1,"APPROVAL_ALREADY_CONSUMED":1},"invariant":"one verified operation is registered"}

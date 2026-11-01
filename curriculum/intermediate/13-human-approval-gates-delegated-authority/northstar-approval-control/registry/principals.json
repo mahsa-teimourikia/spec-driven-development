@@ -1,0 +1,13 @@
+{
+  "sessions": {
+    "SESSION-AGENT": "agent-ai-a",
+    "SESSION-REQUESTER": "product-owner-8",
+    "SESSION-RELEASE": "release-manager-17",
+    "SESSION-GOVERNANCE": "ai-governance-3",
+    "SESSION-ENGINEER": "engineer-reviewer-4",
+    "SESSION-SECURITY-DIRECTOR": "security-director-2",
+    "SESSION-SECURITY-LEAD": "security-lead-9",
+    "SESSION-EMERGENCY": "oncall-security-lead",
+    "SESSION-OUTSIDER": "contractor-44"
+  }
+}

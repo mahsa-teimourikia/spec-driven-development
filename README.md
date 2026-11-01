@@ -4,7 +4,7 @@
 
 ## Start here
 
-Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through Course 21, then complete [Course 22: Pull Request and Review Strategies for Agentic SDD](curriculum/intermediate/12-pull-request-review-strategies-agentic-sdd/README.md) with its guided [notebook](curriculum/intermediate/12-pull-request-review-strategies-agentic-sdd/northstar-pr-review/pr_review_strategies.ipynb), deterministic [PR review lab](curriculum/intermediate/12-pull-request-review-strategies-agentic-sdd/northstar-pr-review/lab.py), [AI-2500 workshop](curriculum/intermediate/12-pull-request-review-strategies-agentic-sdd/northstar-pr-review/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
+Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through Course 22, then complete [Course 23: Human Approval Gates and Delegated Authority](curriculum/intermediate/13-human-approval-gates-delegated-authority/README.md) with its guided [notebook](curriculum/intermediate/13-human-approval-gates-delegated-authority/northstar-approval-control/human_approval_gates.ipynb), deterministic [approval-control lab](curriculum/intermediate/13-human-approval-gates-delegated-authority/northstar-approval-control/lab.py), [AI-2600 workshop](curriculum/intermediate/13-human-approval-gates-delegated-authority/northstar-approval-control/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
 
 This is not simply a tutorial for one specification framework. The central skill is turning organizational intent, architecture rules, product requirements, and engineering constraints into a hierarchy of durable specifications that agents can execute—and humans can govern.
 
@@ -331,9 +331,21 @@ Course 22 turns pull-request review into an exact-revision assurance system. You
 - test a real combined-branch merge conflict and preserve cross-repository integration as a separate barrier; and
 - compare three supplied synthetic strategies across 12 conformance cases, 28 labelled evaluation decisions, and 10 Git-backed experiments.
 
+## Course 23 outcome
+
+Course 23 turns human approval into an enforceable authorization boundary. You will:
+
+- bind authenticated, resource-scoped authority to an exact action subject and policy revision;
+- require requester and implementation-author separation plus distinct-principal dual control;
+- attenuate delegated authority and revalidate the parent grant at execution;
+- reject changed, expired, revoked, forged, and replayed receipts with stable reason codes;
+- prove exactly one operation under two concurrent attempts to consume one receipt;
+- constrain emergency access to active incidents and reversible containment actions; and
+- reconstruct decisions through hash-linked audit evidence without claiming production authority.
+
 ## Run locally
 
-Everything in Courses 01–22 is credential-free and uses the Python standard library. Courses 20–22 also invoke the installed Git executable to create isolated local repositories.
+Everything in Courses 01–23 is credential-free and uses the Python standard library. Courses 20–22 also invoke the installed Git executable to create isolated local repositories.
 
 ```bash
 python3 curriculum/beginner/01-why-agentic-coding-changes-pdlc/lab.py
@@ -359,6 +371,7 @@ python3 curriculum/intermediate/09-bug-fixes-and-small-changes-with-agentic-codi
 python3 curriculum/intermediate/10-multi-repository-spec-driven-development-with-ai-coding-agents/northstar-multirepo/lab.py
 python3 curriculum/intermediate/11-multi-repository-parallel-agent-delivery/northstar-parallel-agents/lab.py
 python3 curriculum/intermediate/12-pull-request-review-strategies-agentic-sdd/northstar-pr-review/lab.py
+python3 curriculum/intermediate/13-human-approval-gates-delegated-authority/northstar-approval-control/lab.py
 python3 -m unittest discover -s tests -v
 python3 scripts/validate_course.py
 ```

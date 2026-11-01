@@ -1,0 +1,1 @@
+{"scenario":"forged_approval","mutation":"caller invents receipt ID","expected":"UNTRUSTED_RECEIPT","invariant":"receipt existence comes from trusted storage"}

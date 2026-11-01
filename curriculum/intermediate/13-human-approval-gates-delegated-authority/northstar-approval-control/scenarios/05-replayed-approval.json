@@ -1,0 +1,1 @@
+{"scenario":"replayed_approval","mutation":"reuse consumed receipt","expected":"APPROVAL_ALREADY_CONSUMED","invariant":"authorization is single-use"}

@@ -1,0 +1,13 @@
+{
+  "change": "AI-2600",
+  "status": "reference-not-authorization",
+  "decisions": {
+    "protected_subject": "Digest action, resource, environment, artifact, specification, policy revision, risk, and incident; any material change requires a new decision.",
+    "trusted_identity_and_authority_sources": "Authenticate workforce sessions and resolve current grants, protected resources, policy, and incidents from independently administered stores.",
+    "separation_of_duties": "Requester and implementation author cannot approve; consequential production requires distinct release and AI-governance principals.",
+    "delegation_attenuation": "Child role equals parent role; action, resource, environment, risk, time, and redelegation rights are subsets of a current delegable parent; every use rechecks current containment, and durable parent narrowing or revocation invalidates the child after restart.",
+    "concurrent_single_use_enforcement": "Validate and conditionally consume every receipt, transition the operation, mutate and verify the local protected resource, and register one success in a serializing transaction; use remote idempotency and UNKNOWN_OUTCOME reconciliation outside the local boundary.",
+    "emergency_containment_and_recovery": "Require an active affected incident and scoped responder for short-lived reversible containment; authorize recovery separately and require retrospective review."
+  },
+  "non_authority": "This reference is a teaching comparison, not an enterprise approval."
+}

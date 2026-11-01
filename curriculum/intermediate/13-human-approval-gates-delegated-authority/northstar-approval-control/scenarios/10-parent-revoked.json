@@ -1,0 +1,1 @@
+{"scenario":"parent_revoked_after_delegation","mutation":"parent revoked after receipt issuance","expected":"DELEGATED_AUTHORITY_REVOKED","invariant":"delegated authority remains dependent on its parent"}

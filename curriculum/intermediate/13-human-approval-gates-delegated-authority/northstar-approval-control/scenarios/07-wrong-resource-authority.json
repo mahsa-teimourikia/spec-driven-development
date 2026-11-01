@@ -1,0 +1,1 @@
+{"scenario":"wrong_resource_authority","mutation":"resource outside approver grant","expected":"AUTHORITY_SCOPE_DENIED","invariant":"role names do not confer global authority"}

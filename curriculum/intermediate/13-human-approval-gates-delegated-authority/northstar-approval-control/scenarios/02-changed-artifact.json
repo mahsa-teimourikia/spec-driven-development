@@ -1,0 +1,1 @@
+{"scenario":"changed_artifact","mutation":"artifact_digest","expected":"APPROVAL_SUBJECT_MISMATCH","invariant":"approval for artifact A cannot authorize artifact B"}

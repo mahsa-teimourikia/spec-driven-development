@@ -1,0 +1,20 @@
+{
+  "suite": "course-23-approval-control",
+  "count": 12,
+  "scenarios": [
+    "valid_exact_artifact",
+    "changed_artifact",
+    "expired_approval",
+    "revoked_approval",
+    "replayed_approval",
+    "forged_approval",
+    "wrong_resource_authority",
+    "self_approval",
+    "delegation_scope_expansion",
+    "parent_revoked_after_delegation",
+    "concurrent_single_use",
+    "emergency_containment"
+  ],
+  "command": "python3 lab.py",
+  "decision_boundary": "ELIGIBLE_FOR_ACCOUNTABLE_REVIEW is not deployment or release authorization"
+}

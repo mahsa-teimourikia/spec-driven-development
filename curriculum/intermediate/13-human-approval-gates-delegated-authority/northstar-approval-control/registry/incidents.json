@@ -1,0 +1,18 @@
+{
+  "incidents": [
+    {
+      "incident_id": "INC-2500-42",
+      "state": "ACTIVE",
+      "severity": "SEV1",
+      "resources": ["underwriting-assistant-production"],
+      "commander": "incident-commander-6"
+    },
+    {
+      "incident_id": "INC-2499-08",
+      "state": "CLOSED",
+      "severity": "SEV2",
+      "resources": ["underwriting-assistant-production"],
+      "commander": "incident-commander-6"
+    }
+  ]
+}

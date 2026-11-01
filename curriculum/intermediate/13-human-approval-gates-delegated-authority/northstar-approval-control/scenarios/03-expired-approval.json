@@ -1,0 +1,1 @@
+{"scenario":"expired_approval","mutation":"expires_at <= execution_time","expected":"APPROVAL_EXPIRED","invariant":"time-bounded authority fails closed"}

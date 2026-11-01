@@ -1,0 +1,12 @@
+{
+  "change": "AI-2600",
+  "instructions": "Complete every decision with a defensible design and reason code. Do not grant implicit deployment authority.",
+  "decisions": {
+    "protected_subject": "TODO",
+    "trusted_identity_and_authority_sources": "TODO",
+    "separation_of_duties": "TODO",
+    "delegation_attenuation": "TODO",
+    "concurrent_single_use_enforcement": "TODO",
+    "emergency_containment_and_recovery": "TODO"
+  }
+}

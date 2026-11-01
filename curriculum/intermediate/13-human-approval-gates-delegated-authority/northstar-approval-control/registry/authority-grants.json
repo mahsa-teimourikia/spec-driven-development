@@ -1,0 +1,57 @@
+{
+  "revision": "AUTHORITY-REGISTRY@7",
+  "grants": [
+    {
+      "grant_id": "GRANT-RELEASE-PROD",
+      "principal": "release-manager-17",
+      "role": "release_authority",
+      "actions": ["deploy"],
+      "resources": ["underwriting-assistant-production"],
+      "environments": ["production", "staging"],
+      "max_risk": "CONSEQUENTIAL",
+      "starts_at": "2026-01-01T00:00:00Z",
+      "expires_at": "2027-01-01T00:00:00Z",
+      "delegable": false,
+      "state": "ACTIVE"
+    },
+    {
+      "grant_id": "GRANT-GOV-PROD",
+      "principal": "ai-governance-3",
+      "role": "ai_governance_owner",
+      "actions": ["deploy"],
+      "resources": ["underwriting-assistant-production"],
+      "environments": ["production"],
+      "max_risk": "CONSEQUENTIAL",
+      "starts_at": "2026-01-01T00:00:00Z",
+      "expires_at": "2027-01-01T00:00:00Z",
+      "delegable": false,
+      "state": "ACTIVE"
+    },
+    {
+      "grant_id": "GRANT-SECURITY-EXCEPTION",
+      "principal": "security-director-2",
+      "role": "security_exception_approver",
+      "actions": ["approve_low_risk_exception"],
+      "resources": ["underwriting-platform"],
+      "environments": ["n/a"],
+      "max_risk": "LOW",
+      "starts_at": "2026-01-01T00:00:00Z",
+      "expires_at": "2027-01-01T00:00:00Z",
+      "delegable": true,
+      "state": "ACTIVE"
+    },
+    {
+      "grant_id": "GRANT-EMERGENCY",
+      "principal": "oncall-security-lead",
+      "role": "emergency_responder",
+      "actions": ["disable_ai_classification", "restore_manual_review"],
+      "resources": ["underwriting-assistant-production"],
+      "environments": ["production"],
+      "max_risk": "CRITICAL",
+      "starts_at": "2026-01-01T00:00:00Z",
+      "expires_at": "2027-01-01T00:00:00Z",
+      "delegable": false,
+      "state": "ACTIVE"
+    }
+  ]
+}

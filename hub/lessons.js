@@ -1127,6 +1127,55 @@ const course22 = {
   }
 };
 
+const course23 = {
+  id: 'c23', course: 23, level: 'intermediate', part: 'IV · Agentic PDLC', status: 'available',
+  title: 'Human Approval Gates and Delegated Authority in Agentic SDD',
+  summary: 'Turn human review into exact-subject, current-authority, single-use authorization with separation of duties, attenuated delegation, bounded emergency access, and reconstructable evidence.',
+  outcomes: [
+    'Distinguish review, approval, authorization, accountability, and protected execution.',
+    'Bind receipts to artifact, specification, policy, resource, environment, risk, and incident.',
+    'Resolve authenticated identity and current resource-scoped grants from trusted state.',
+    'Enforce requester and author separation plus distinct-principal dual control.',
+    'Attenuate delegated authority and invalidate it when the parent is revoked.',
+    'Prove single-use concurrency and constrain emergency mode to reversible containment.'
+  ],
+  readme: `${REPO}/blob/main/curriculum/intermediate/13-human-approval-gates-delegated-authority/README.md`,
+  notebook: `${REPO}/blob/main/curriculum/intermediate/13-human-approval-gates-delegated-authority/northstar-approval-control/human_approval_gates.ipynb`,
+  lab: `${REPO}/blob/main/curriculum/intermediate/13-human-approval-gates-delegated-authority/northstar-approval-control/lab.py`,
+  repoFixture: `${REPO}/tree/main/curriculum/intermediate/13-human-approval-gates-delegated-authority/northstar-approval-control`,
+  run: 'python3 curriculum/intermediate/13-human-approval-gates-delegated-authority/northstar-approval-control/lab.py',
+  labs: [
+    {
+      title: 'Lab A — Execute the trusted approval control plane',
+      description: 'Run 12 golden scenarios, 12 adversarial evaluations, a two-worker single-use race, and an audit-chain mutation.',
+      command: 'python3 curriculum/intermediate/13-human-approval-gates-delegated-authority/northstar-approval-control/lab.py',
+      links: [['View the approval lab', `${REPO}/blob/main/curriculum/intermediate/13-human-approval-gates-delegated-authority/northstar-approval-control/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/intermediate/13-human-approval-gates-delegated-authority/northstar-approval-control/human_approval_gates.ipynb`]]
+    },
+    {
+      title: 'Lab B — Design the AI-2600 approval boundary',
+      description: 'Resolve six learner decisions covering subject binding, trusted authority, separation, delegation, concurrency, and emergency recovery.',
+      command: 'Complete the six starter decisions, run Lab A, then inspect the reference design.',
+      links: [['Open the AI-2600 workshop', `${REPO}/tree/main/curriculum/intermediate/13-human-approval-gates-delegated-authority/northstar-approval-control`], ['Complete the starter design', `${REPO}/blob/main/curriculum/intermediate/13-human-approval-gates-delegated-authority/northstar-approval-control/workshop/starter/approval-design.json`], ['Inspect the reference design', `${REPO}/blob/main/curriculum/intermediate/13-human-approval-gates-delegated-authority/northstar-approval-control/reference/approval-design.json`]]
+    }
+  ],
+  references: [
+    ['NIST SP 800-53 Rev. 5', 'https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final'],
+    ['Open Policy Agent policy language', 'https://www.openpolicyagent.org/docs/policy-language'],
+    ['SQLite transactions', 'https://www.sqlite.org/lang_transaction.html'],
+    ['GitHub deployments and environments', 'https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments']
+  ],
+  checkpoint: {
+    question: 'Two workers concurrently present the same valid single-use receipt. What must the protected executor guarantee?',
+    options: [
+      'Exactly one operation is registered; the other attempt is denied as already consumed.',
+      'Both proceed because both began with a valid receipt.',
+      'The coding agent chooses which execution to retain.'
+    ],
+    answer: 0,
+    explanation: 'Receipt validation, conditional consumption, and operation registration must occur in a serializing transaction.'
+  }
+};
+
 function planned(course, level, part, title, summary) {
   return {
     id: `c${String(course).padStart(2, '0')}`, course, level, part,
@@ -1160,7 +1209,7 @@ const LESSONS = [
   course20,
   course21,
   course22,
-  planned(23, 'intermediate', 'IV · Agentic PDLC', 'Human approval gates', 'Place accountable decisions at risk-bearing transitions without becoming a bottleneck.'),
+  course23,
   planned(24, 'advanced', 'V · Enterprise controls', 'Security and privacy', 'Translate threat, data, identity, and privacy obligations into preventive and detective controls.'),
   planned(25, 'advanced', 'V · Enterprise controls', 'AI governance', 'Govern model use, data exposure, accountability, evaluation, and exceptions.'),
   planned(26, 'advanced', 'V · Enterprise controls', 'Architecture governance', 'Encode principles and fitness functions while preserving documented exceptions.'),

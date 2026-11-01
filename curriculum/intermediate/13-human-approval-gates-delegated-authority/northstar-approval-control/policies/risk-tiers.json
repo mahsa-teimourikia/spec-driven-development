@@ -1,0 +1,8 @@
+{
+  "tiers": {
+    "LOW": "Reversible local change with no protected data or production effect.",
+    "MODERATE": "Shared or pre-production effect requiring one scoped authority.",
+    "CONSEQUENTIAL": "Production, customer, regulated, or material model-behavior effect.",
+    "CRITICAL": "Potentially irreversible, cross-domain, or safety-critical effect."
+  }
+}

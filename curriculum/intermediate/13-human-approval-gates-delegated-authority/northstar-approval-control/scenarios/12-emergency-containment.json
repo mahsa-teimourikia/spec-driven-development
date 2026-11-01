@@ -1,0 +1,1 @@
+{"scenario":"emergency_containment","mutation":"active SEV1 with permitted reversible action","expected":"SUCCEEDED","invariant":"AI classification is disabled, manual review is required, and incident authority does not imply general release authority"}
