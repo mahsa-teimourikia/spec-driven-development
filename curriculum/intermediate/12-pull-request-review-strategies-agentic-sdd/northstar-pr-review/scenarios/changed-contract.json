@@ -1,0 +1,1 @@
+{"id":"PR-EXP-002","stimulus":"Shared contract changes without owner approval","expected_finding":"CONTRACT_APPROVAL_MISSING","derived_from":"trusted Git diff and approval registry"}

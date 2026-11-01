@@ -1077,6 +1077,56 @@ const course21 = {
   }
 };
 
+const course22 = {
+  id: 'c22', course: 22, level: 'intermediate', part: 'IV · Agentic PDLC', status: 'available',
+  title: 'Pull Request and Review Strategies for Agentic SDD',
+  summary: 'Design coherent review boundaries and verify agent-generated changes with trusted Git subjects, protected oracles, current approvals, merge groups, and exact-revision evidence.',
+  outcomes: [
+    'Choose among single, staged, stacked, and parallel-repository PR strategies.',
+    'Separate intent, implementation, conformance, integration, and release decisions.',
+    'Derive review obligations from trusted Git diffs and protected ownership policy.',
+    'Prevent specification, code, and test-oracle changes from manufacturing correctness.',
+    'Bind approvals and CI evidence to the exact head, specification, and contract.',
+    'Detect stale approval, self-approval, scope violations, evidence mismatch, and merge-group conflict.'
+  ],
+  readme: `${REPO}/blob/main/curriculum/intermediate/12-pull-request-review-strategies-agentic-sdd/README.md`,
+  notebook: `${REPO}/blob/main/curriculum/intermediate/12-pull-request-review-strategies-agentic-sdd/northstar-pr-review/pr_review_strategies.ipynb`,
+  lab: `${REPO}/blob/main/curriculum/intermediate/12-pull-request-review-strategies-agentic-sdd/northstar-pr-review/lab.py`,
+  repoFixture: `${REPO}/tree/main/curriculum/intermediate/12-pull-request-review-strategies-agentic-sdd/northstar-pr-review`,
+  run: 'python3 curriculum/intermediate/12-pull-request-review-strategies-agentic-sdd/northstar-pr-review/lab.py',
+  labs: [
+    {
+      title: 'Lab A — Execute the trusted PR review gate',
+      description: 'Create real Git subjects, run 12 conformance cases, 28 labelled evaluation decisions, and 10 Git-backed review experiments.',
+      command: 'python3 curriculum/intermediate/12-pull-request-review-strategies-agentic-sdd/northstar-pr-review/lab.py',
+      links: [['View the PR review lab', `${REPO}/blob/main/curriculum/intermediate/12-pull-request-review-strategies-agentic-sdd/northstar-pr-review/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/intermediate/12-pull-request-review-strategies-agentic-sdd/northstar-pr-review/pr_review_strategies.ipynb`]]
+    },
+    {
+      title: 'Lab B — Design the AI-2500 review package',
+      description: 'Resolve six learner decisions covering strategy, decision boundaries, ownership, freshness, integration evidence, and separate authority.',
+      command: 'Complete the six starter decisions, run Lab A, then inspect the reference review handoff.',
+      links: [['Open the AI-2500 PR review workshop', `${REPO}/tree/main/curriculum/intermediate/12-pull-request-review-strategies-agentic-sdd/northstar-pr-review`], ['Complete the starter package', `${REPO}/blob/main/curriculum/intermediate/12-pull-request-review-strategies-agentic-sdd/northstar-pr-review/workshop/starter/review-package.json`], ['Inspect the reference handoff', `${REPO}/blob/main/curriculum/intermediate/12-pull-request-review-strategies-agentic-sdd/northstar-pr-review/reference/review-package.json`]]
+    }
+  ],
+  references: [
+    ['GitHub CODEOWNERS', 'https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners'],
+    ['GitHub protected branches', 'https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches'],
+    ['GitHub merge queues', 'https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-a-merge-queue'],
+    ['GitHub pull_request_target security', 'https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target'],
+    ['SLSA provenance', 'https://slsa.dev/spec/v1.0/provenance']
+  ],
+  checkpoint: {
+    question: 'An agent changes an approved requirement, the implementation, and its tests so all three agree. Every contributor check passes. What is the primary review finding?',
+    options: [
+      'The PR may be self-confirming but unauthorized; resolve intent and protected oracle authority independently.',
+      'The PR is correct because its artifacts are consistent.',
+      'Only the line count determines whether more review is needed.'
+    ],
+    answer: 0,
+    explanation: 'Internal consistency cannot replace authorized intent or an independent acceptance oracle. The implementation author cannot approve the normative change.'
+  }
+};
+
 function planned(course, level, part, title, summary) {
   return {
     id: `c${String(course).padStart(2, '0')}`, course, level, part,
@@ -1109,7 +1159,7 @@ const LESSONS = [
   course19,
   course20,
   course21,
-  planned(22, 'intermediate', 'IV · Agentic PDLC', 'PR and review strategy', 'Design changes and evidence so humans can review agent output efficiently.'),
+  course22,
   planned(23, 'intermediate', 'IV · Agentic PDLC', 'Human approval gates', 'Place accountable decisions at risk-bearing transitions without becoming a bottleneck.'),
   planned(24, 'advanced', 'V · Enterprise controls', 'Security and privacy', 'Translate threat, data, identity, and privacy obligations into preventive and detective controls.'),
   planned(25, 'advanced', 'V · Enterprise controls', 'AI governance', 'Govern model use, data exposure, accountability, evaluation, and exceptions.'),

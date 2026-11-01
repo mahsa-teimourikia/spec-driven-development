@@ -1,0 +1,1 @@
+{"id":"PR-EXP-006","stimulus":"PR writes production infrastructure outside its work-unit scope","expected_finding":"AWU_SCOPE_VIOLATION","derived_from":"trusted Git diff and work-unit policy"}

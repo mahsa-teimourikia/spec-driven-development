@@ -1,0 +1,1 @@
+{"id":"PR-EXP-001","stimulus":"Agent changes an approved requirement","expected_finding":"UNAUTHORIZED_SPEC_CHANGE","derived_from":"trusted Git diff and approval registry"}

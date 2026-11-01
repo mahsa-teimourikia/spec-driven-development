@@ -1,0 +1,12 @@
+{
+  "id": "staged_prs",
+  "review_lanes": 1,
+  "nodes": [
+    {"id": "contract", "build_hours": 4, "review_hours": 2, "rework_hours": 0, "dependencies": []},
+    {"id": "implementation", "build_hours": 10, "review_hours": 5, "rework_hours": 0, "dependencies": ["contract"]},
+    {"id": "integration", "build_hours": 1, "review_hours": 1, "rework_hours": 3, "dependencies": ["implementation"]}
+  ],
+  "late_contract_conflicts": 0,
+  "expected_simulation": {"lead_time_hours": 26, "review_effort_hours": 8, "rework_hours": 3},
+  "warning": "Synthetic event-model assumptions, not measured organizational performance."
+}

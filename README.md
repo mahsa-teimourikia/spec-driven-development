@@ -4,7 +4,7 @@
 
 ## Start here
 
-Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through Course 20, then complete [Course 21: Multi-Repository Parallel-Agent Delivery](curriculum/intermediate/11-multi-repository-parallel-agent-delivery/README.md) with its guided [notebook](curriculum/intermediate/11-multi-repository-parallel-agent-delivery/northstar-parallel-agents/parallel_agent_delivery.ipynb), deterministic [parallel-delivery lab](curriculum/intermediate/11-multi-repository-parallel-agent-delivery/northstar-parallel-agents/lab.py), [AI-2500 workshop](curriculum/intermediate/11-multi-repository-parallel-agent-delivery/northstar-parallel-agents/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
+Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through Course 21, then complete [Course 22: Pull Request and Review Strategies for Agentic SDD](curriculum/intermediate/12-pull-request-review-strategies-agentic-sdd/README.md) with its guided [notebook](curriculum/intermediate/12-pull-request-review-strategies-agentic-sdd/northstar-pr-review/pr_review_strategies.ipynb), deterministic [PR review lab](curriculum/intermediate/12-pull-request-review-strategies-agentic-sdd/northstar-pr-review/lab.py), [AI-2500 workshop](curriculum/intermediate/12-pull-request-review-strategies-agentic-sdd/northstar-pr-review/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
 
 This is not simply a tutorial for one specification framework. The central skill is turning organizational intent, architecture rules, product requirements, and engineering constraints into a hierarchy of durable specifications that agents can execute—and humans can govern.
 
@@ -318,9 +318,22 @@ Course 21 adds safe concurrent execution across the five Course 20 repositories.
 - bind trusted evidence to an exact five-commit system revision set; and
 - compare sequential, naive-parallel, and governed-parallel delivery across 12 conformance cases, 30 evaluation decisions, and six system checks.
 
+## Course 22 outcome
+
+Course 22 turns pull-request review into an exact-revision assurance system. You will:
+
+- choose among single, staged, stacked, and parallel-repository PR strategies;
+- separate intent, implementation, conformance, integration, merge, deployment, and release decisions;
+- create real temporary Git repositories and derive base/head ancestry and changed paths independently of contributor metadata;
+- route protected requirements, contracts, test oracles, security code, and implementation to accountable review scopes;
+- bind approvals and trusted CI evidence to the exact head, specification digest, and contract digest;
+- block stale review, self-approval, out-of-scope paths, oracle weakening, and evidence subject mismatch;
+- test a real combined-branch merge conflict and preserve cross-repository integration as a separate barrier; and
+- compare three supplied synthetic strategies across 12 conformance cases, 28 labelled evaluation decisions, and 10 Git-backed experiments.
+
 ## Run locally
 
-Everything in Courses 01–21 is credential-free and uses the Python standard library. Courses 20–21 also invoke the installed Git executable to create isolated local repositories.
+Everything in Courses 01–22 is credential-free and uses the Python standard library. Courses 20–22 also invoke the installed Git executable to create isolated local repositories.
 
 ```bash
 python3 curriculum/beginner/01-why-agentic-coding-changes-pdlc/lab.py
@@ -345,6 +358,7 @@ python3 curriculum/intermediate/08-brownfield-development-with-agentic-coding-ag
 python3 curriculum/intermediate/09-bug-fixes-and-small-changes-with-agentic-coding-agents/northstar-bugfix/lab.py
 python3 curriculum/intermediate/10-multi-repository-spec-driven-development-with-ai-coding-agents/northstar-multirepo/lab.py
 python3 curriculum/intermediate/11-multi-repository-parallel-agent-delivery/northstar-parallel-agents/lab.py
+python3 curriculum/intermediate/12-pull-request-review-strategies-agentic-sdd/northstar-pr-review/lab.py
 python3 -m unittest discover -s tests -v
 python3 scripts/validate_course.py
 ```

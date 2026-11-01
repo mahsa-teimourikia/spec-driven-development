@@ -3213,7 +3213,7 @@ def check_course_20_multirepository() -> list[str]:
     if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) < 268:
         errors.append("Course 20 cumulative quiz must retain at least 268 questions")
     quiz_index = (ROOT / "quiz/index.html").read_text(encoding="utf-8")
-    if "Courses 01–20" not in quiz_index and "Courses 01–21" not in quiz_index:
+    if not any(label in quiz_index for label in ("Courses 01–20", "Courses 01–21", "Courses 01–22")):
         errors.append("Course 20 cumulative quiz must identify coverage through Course 20")
     hub = (ROOT / "hub/lessons.js").read_text(encoding="utf-8")
     hub_fragments = [
@@ -3368,9 +3368,10 @@ def check_course_21_parallel_delivery() -> list[str]:
         errors.append("Course 21 reference package must retain explicit non-authorities")
 
     quiz_source = (ROOT / "quiz/questions.js").read_text(encoding="utf-8")
-    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 282:
-        errors.append("Course 21 cumulative quiz must contain 282 questions")
-    if "Courses 01–21" not in (ROOT / "quiz/index.html").read_text(encoding="utf-8"):
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) < 282:
+        errors.append("Course 21 cumulative quiz must retain at least 282 questions")
+    quiz_index = (ROOT / "quiz/index.html").read_text(encoding="utf-8")
+    if "Courses 01–21" not in quiz_index and "Courses 01–22" not in quiz_index:
         errors.append("Course 21 cumulative quiz must identify Courses 01–21")
     hub = (ROOT / "hub/lessons.js").read_text(encoding="utf-8")
     hub_fragments = [
@@ -3381,6 +3382,171 @@ def check_course_21_parallel_delivery() -> list[str]:
     ]
     if any(fragment not in hub for fragment in hub_fragments):
         errors.append("Course 21 Learning Hub entry is incomplete or points outside the workshop package")
+    return errors
+
+
+def check_course_22_pr_review_strategy() -> list[str]:
+    errors: list[str] = []
+    lesson = ROOT / "curriculum/intermediate/12-pull-request-review-strategies-agentic-sdd"
+    scenario = lesson / "northstar-pr-review"
+    required = [
+        lesson / "README.md",
+        scenario / "README.md",
+        scenario / "lab.py",
+        scenario / "pr_review_strategies.ipynb",
+        scenario / "review_app/__init__.py",
+        scenario / "review_app/git_harness.py",
+        scenario / "review_app/ci_harness.py",
+        scenario / "review_app/control_plane.py",
+        scenario / "review_app/review_engine.py",
+        scenario / "review_app/simulation.py",
+        scenario / "parent-change/AI-2500.json",
+        scenario / "specifications/approved-requirements.json",
+        scenario / "specifications/acceptance-contract.json",
+        scenario / "contracts/classification-v2.schema.json",
+        scenario / "review-policy/ownership.json",
+        scenario / "review-policy/risk-tiers.json",
+        scenario / "review-policy/protected-decisions.json",
+        scenario / "strategies/mega-pr.json",
+        scenario / "strategies/staged-prs.json",
+        scenario / "strategies/parallel-prs.json",
+        scenario / "conformance-suite.json",
+        scenario / "evaluation-cases.json",
+        scenario / "evidence/manifest.json",
+        scenario / "reference/review-package.json",
+        scenario / "workshop/starter/review-package.json",
+        scenario / "openspec/changes/AI-2500-pr-review/proposal.md",
+        scenario / "openspec/changes/AI-2500-pr-review/specs/pr-review-control-plane/spec.md",
+        scenario / "openspec/changes/AI-2500-pr-review/tasks.md",
+        scenario / ".github/workflows/validation.yml",
+        scenario / ".github/CODEOWNERS",
+        ROOT / "tests/test_course_22.py",
+    ]
+    required.extend((scenario / "scenarios").glob("*.json"))
+    for path in required:
+        if not path.exists():
+            errors.append(f"Course 22 missing required artifact: {path.relative_to(ROOT)}")
+    if len(list((scenario / "scenarios").glob("*.json"))) != 10:
+        errors.append("Course 22 must retain ten documented Git-backed review experiments")
+    if errors:
+        return errors
+
+    result = subprocess.run(
+        [sys.executable, str(scenario / "lab.py")],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    try:
+        report = json.loads(result.stdout) if result.returncode == 0 else {}
+    except json.JSONDecodeError:
+        report = {}
+    if not report:
+        errors.append("Course 22 lab did not produce its JSON report")
+        return errors
+    if report.get("course_validation", {}).get("status") != "PASS":
+        errors.append("Course 22 teaching-suite validation must pass")
+    assessment = report.get("candidate_assessment", {})
+    if assessment.get("state") != "ELIGIBLE_FOR_MERGE_REVIEW":
+        errors.append("Course 22 reference must stop at merge-review eligibility")
+    if any(
+        assessment.get(field) is not False
+        for field in ("merge_authorized", "deployment_authorized", "release_authorized")
+    ):
+        errors.append("Course 22 package must not authorize merge, deployment, or release")
+    if len(assessment.get("base_commit", "")) != 40 or len(assessment.get("head_commit", "")) != 40:
+        errors.append("Course 22 review subject must bind full Git commits")
+    if not all(len(assessment.get(field, "")) == 71 for field in ("specification_digest", "contract_digest")):
+        errors.append("Course 22 review subject must bind full SHA-256 digests")
+    if (report.get("conformance", {}).get("passed"), report.get("conformance", {}).get("total")) != (12, 12):
+        errors.append("Course 22 must retain twelve passing conformance cases")
+    if (report.get("evaluation", {}).get("passed"), report.get("evaluation", {}).get("total")) != (28, 28):
+        errors.append("Course 22 must retain twenty-eight passing evaluation decisions")
+    if report.get("evaluation", {}).get("population") != {
+        "positive": 8,
+        "negative": 12,
+        "boundary": 4,
+        "failure_recovery": 4,
+    }:
+        errors.append("Course 22 evaluation population is missing or mislabeled")
+    if (report.get("git_experiments", {}).get("passed"), report.get("git_experiments", {}).get("total")) != (10, 10):
+        errors.append("Course 22 must retain ten passing Git-backed experiments")
+    comparison = report.get("strategy_comparison", {})
+    if (
+        comparison.get("mega_pr", {}).get("lead_time_hours") != 30
+        or comparison.get("staged_prs", {}).get("lead_time_hours") != 26
+        or comparison.get("parallel_repositories", {}).get("lead_time_hours") != 21
+        or any(item.get("source") != "synthetic teaching workload" for item in comparison.values())
+        or any(item.get("model") != "deterministic event simulation" for item in comparison.values())
+        or any(not item.get("events") for item in comparison.values())
+    ):
+        errors.append("Course 22 strategy comparison is stale or missing its synthetic label")
+
+    stored = json.loads((scenario / "evidence/manifest.json").read_text(encoding="utf-8"))
+    stored_assessment = stored.get("candidate_assessment", {})
+    if (
+        stored.get("course_validation") != "PASS"
+        or stored_assessment.get("state") != assessment.get("state")
+        or stored_assessment.get("head_commit") != assessment.get("head_commit")
+        or stored_assessment.get("specification_digest") != assessment.get("specification_digest")
+        or stored_assessment.get("contract_digest") != assessment.get("contract_digest")
+        or stored.get("conformance") != "12/12"
+        or stored.get("evaluation") != "28/28"
+        or stored.get("git_experiments") != "10/10"
+    ):
+        errors.append("Course 22 stored evidence summary is stale")
+
+    engine = (scenario / "review_app/review_engine.py").read_text(encoding="utf-8")
+    required_controls = [
+        "PR_SUBJECT_MISMATCH",
+        "UNAUTHENTICATED_PR_AUTHOR",
+        "APPROVAL_RECORD_UNVERIFIED",
+        "EVIDENCE_RECORD_UNVERIFIED",
+        "AWU_SCOPE_VIOLATION",
+        "UNAUTHORIZED_SPEC_CHANGE",
+        "CONTRACT_APPROVAL_MISSING",
+        "TEST_ORACLE_CHANGED",
+        "STALE_REVIEW_APPROVAL",
+        "SELF_APPROVAL_DENIED",
+        "EVIDENCE_SUBJECT_MISMATCH",
+        "UNTRUSTED_EVIDENCE_PRODUCER",
+        "ELIGIBLE_FOR_MERGE_REVIEW",
+    ]
+    if any(fragment not in engine for fragment in required_controls):
+        errors.append("Course 22 trusted review engine is missing required controls")
+    simulation = (scenario / "review_app/simulation.py").read_text(encoding="utf-8")
+    if "scenarios/" in simulation or "expected_finding" in simulation:
+        errors.append("Course 22 evaluator must execute controls rather than trust scenario labels")
+    starter = (scenario / "workshop/starter/review-package.json").read_text(encoding="utf-8")
+    if starter.count("TODO:") != 6:
+        errors.append("Course 22 starter must retain exactly six learner decisions")
+    reference = json.loads((scenario / "reference/review-package.json").read_text(encoding="utf-8"))
+    if (
+        reference.get("state") != "ELIGIBLE_FOR_MERGE_REVIEW"
+        or any(reference.get("non_authorities", {}).values())
+        or reference.get("subject", {}).get("head_commit") != assessment.get("head_commit")
+        or not reference.get("evidence_ids")
+    ):
+        errors.append("Course 22 reference package must retain exact subject and explicit non-authorities")
+
+    workflow = (scenario / ".github/workflows/validation.yml").read_text(encoding="utf-8")
+    if "merge_group:" not in workflow or "contents: read" not in workflow or "pull_request_target" in workflow:
+        errors.append("Course 22 workflow must cover merge groups with least privilege and no privileged PR-head execution")
+    quiz_source = (ROOT / "quiz/questions.js").read_text(encoding="utf-8")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 297:
+        errors.append("Course 22 cumulative quiz must contain 297 questions")
+    if "Courses 01–22" not in (ROOT / "quiz/index.html").read_text(encoding="utf-8"):
+        errors.append("Course 22 cumulative quiz must identify Courses 01–22")
+    hub = (ROOT / "hub/lessons.js").read_text(encoding="utf-8")
+    hub_fragments = [
+        "const course22 = {",
+        "12-pull-request-review-strategies-agentic-sdd/northstar-pr-review/pr_review_strategies.ipynb",
+        "12-pull-request-review-strategies-agentic-sdd/northstar-pr-review/workshop/starter/review-package.json",
+        "12 conformance cases, 28 labelled evaluation decisions, and 10 Git-backed review experiments",
+    ]
+    if any(fragment not in hub for fragment in hub_fragments):
+        errors.append("Course 22 Learning Hub entry is incomplete or points outside the workshop package")
     return errors
 
 
@@ -3411,6 +3577,7 @@ def main() -> None:
         "Course 19 bug fixes and small changes": check_course_19_bug_fixes,
         "Course 20 multi-repository development": check_course_20_multirepository,
         "Course 21 parallel-agent delivery": check_course_21_parallel_delivery,
+        "Course 22 PR review strategy": check_course_22_pr_review_strategy,
         "diagrams": render_and_validate_diagrams,
         "labs": run_labs,
         "repository labs": run_repository_labs,

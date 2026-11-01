@@ -1,0 +1,14 @@
+{
+  "change_id": "AI-2500",
+  "strategy_adr": "TODO: choose and justify single, staged, stacked, or parallel-repository review",
+  "decision_boundaries": "TODO: separate intent, implementation, conformance, integration, and release decisions",
+  "ownership": "TODO: map actual changed paths to accountable review scopes",
+  "freshness": "TODO: bind approvals and evidence to the exact head, specification, and contract",
+  "integration": "TODO: define repository merge-group and cross-repository revision-set evidence",
+  "authority_boundary": "TODO: state who may merge, deploy, release, reject, and escalate",
+  "non_authorities": {
+    "merge": false,
+    "deployment": false,
+    "release": false
+  }
+}

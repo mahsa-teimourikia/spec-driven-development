@@ -1,0 +1,5 @@
+{
+  "suite": "course-22-conformance",
+  "population": {"positive": 3, "negative": 6, "boundary": 2, "failure_recovery": 1},
+  "cases": ["CONF-001","CONF-002","CONF-003","CONF-004","CONF-005","CONF-006","CONF-007","CONF-008","CONF-009","CONF-010","CONF-011","CONF-012"]
+}

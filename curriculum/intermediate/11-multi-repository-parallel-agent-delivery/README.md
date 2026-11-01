@@ -581,4 +581,4 @@ The key distinction is **parallel coding activity versus governed parallel deliv
 - OpenSpec, [official documentation](https://github.com/Fission-AI/OpenSpec/blob/main/docs/README.md).
 - OpenTelemetry, [Trace specification](https://opentelemetry.io/docs/specs/otel/trace/).
 
-Next: **Course 22 — Pull Request and Review Strategy**, which compares spec-first PR sequences, implementation PRs, integration PRs, and mega-PRs through review quality, lead time, rework, conflicts, and evidence.
+Next: [**Course 22 — Pull Request and Review Strategies for Agentic SDD**](../12-pull-request-review-strategies-agentic-sdd/README.md), which turns single, staged, stacked, and parallel-repository review into exact-revision Git, approval, evidence, and merge-group controls.

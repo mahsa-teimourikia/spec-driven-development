@@ -7,7 +7,7 @@ This curriculum develops one idea across 38 courses: an enterprise should conver
 | Level | Global courses | Program parts | Status |
 | --- | ---: | --- | --- |
 | [Beginner](beginner/README.md) | 01–10 | SDD foundations; executable specifications | Courses 01–10 available |
-| [Intermediate](intermediate/README.md) | 11–23 | Agentic execution; frameworks; Agentic PDLC | Courses 11–21 available |
+| [Intermediate](intermediate/README.md) | 11–23 | Agentic execution; frameworks; Agentic PDLC | Courses 11–22 available |
 | [Advanced](advanced/README.md) | 24–38 | Enterprise controls; advanced agentic SDD | Planned |
 | [Enterprise Agent](enterprise-agent/README.md) | Capstone | Design a real enterprise Agentic PDLC | Planned |
 
@@ -34,6 +34,7 @@ This curriculum develops one idea across 38 courses: an enterprise should conver
 19. [Bug Fixes and Small Changes with Agentic Coding Agents](intermediate/09-bug-fixes-and-small-changes-with-agentic-coding-agents/README.md) — [notebook](intermediate/09-bug-fixes-and-small-changes-with-agentic-coding-agents/northstar-bugfix/bugfix_small_changes.ipynb) · [bug-fix lab](intermediate/09-bug-fixes-and-small-changes-with-agentic-coding-agents/northstar-bugfix/lab.py) · [BUG-2415 workshop](intermediate/09-bug-fixes-and-small-changes-with-agentic-coding-agents/northstar-bugfix/README.md)
 20. [Multi-Repository Spec-Driven Development with AI Coding Agents](intermediate/10-multi-repository-spec-driven-development-with-ai-coding-agents/README.md) — [notebook](intermediate/10-multi-repository-spec-driven-development-with-ai-coding-agents/northstar-multirepo/multirepo_sdd.ipynb) · [multi-repository lab](intermediate/10-multi-repository-spec-driven-development-with-ai-coding-agents/northstar-multirepo/lab.py) · [AI-2500 workshop](intermediate/10-multi-repository-spec-driven-development-with-ai-coding-agents/northstar-multirepo/README.md)
 21. [Multi-Repository Parallel-Agent Delivery](intermediate/11-multi-repository-parallel-agent-delivery/README.md) — [notebook](intermediate/11-multi-repository-parallel-agent-delivery/northstar-parallel-agents/parallel_agent_delivery.ipynb) · [parallel-delivery lab](intermediate/11-multi-repository-parallel-agent-delivery/northstar-parallel-agents/lab.py) · [AI-2500 parallel workshop](intermediate/11-multi-repository-parallel-agent-delivery/northstar-parallel-agents/README.md)
+22. [Pull Request and Review Strategies for Agentic SDD](intermediate/12-pull-request-review-strategies-agentic-sdd/README.md) — [notebook](intermediate/12-pull-request-review-strategies-agentic-sdd/northstar-pr-review/pr_review_strategies.ipynb) · [PR review lab](intermediate/12-pull-request-review-strategies-agentic-sdd/northstar-pr-review/lab.py) · [AI-2500 review workshop](intermediate/12-pull-request-review-strategies-agentic-sdd/northstar-pr-review/README.md)
 
 Each completed course is a vertical slice: chapter, guided notebook, reusable lab, checkpoint, references, and automated validation. Planned cards remain visible in the [deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/) without presenting unfinished content as complete.
 

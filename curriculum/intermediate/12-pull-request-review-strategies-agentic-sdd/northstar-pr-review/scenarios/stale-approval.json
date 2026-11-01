@@ -1,0 +1,1 @@
+{"id":"PR-EXP-003","stimulus":"Approval binds the base rather than current head","expected_finding":"STALE_REVIEW_APPROVAL","derived_from":"exact revision comparison"}

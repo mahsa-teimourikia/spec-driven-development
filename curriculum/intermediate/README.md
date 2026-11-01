@@ -13,7 +13,7 @@ This path turns specification skills into repeatable delivery flows.
 19. [Bug Fixes and Small Changes with Agentic Coding Agents](09-bug-fixes-and-small-changes-with-agentic-coding-agents/README.md) — available
 20. [Multi-Repository Spec-Driven Development with AI Coding Agents](10-multi-repository-spec-driven-development-with-ai-coding-agents/README.md) — available
 21. [Multi-Repository Parallel-Agent Delivery](11-multi-repository-parallel-agent-delivery/README.md) — available
-22. PR and review strategy
+22. [Pull Request and Review Strategies for Agentic SDD](12-pull-request-review-strategies-agentic-sdd/README.md) — available
 23. Human approval gates
 
-Courses 11–21 are available. The remaining courses will be published as complete vertical slices; see the [course plan](../../COURSE_PLAN.md).
+Courses 11–22 are available. The remaining courses will be published as complete vertical slices; see the [course plan](../../COURSE_PLAN.md).

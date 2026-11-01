@@ -1,0 +1,1 @@
+{"id":"PR-EXP-005","stimulus":"Two independently committed branches edit the same parser contract","expected_finding":"MERGE_GROUP_CONFLICT","derived_from":"real Git merge attempt"}
