@@ -1,0 +1,1 @@
+{"scenario":"delegation_scope_expansion","mutation":"child adds resource and raises risk","expected":"DELEGATION_SCOPE_EXPANSION","invariant":"delegation attenuates parent authority"}

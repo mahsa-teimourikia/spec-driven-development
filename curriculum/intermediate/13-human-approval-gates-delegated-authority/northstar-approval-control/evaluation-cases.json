@@ -1,0 +1,19 @@
+{
+  "population": "adversarial-approval-evaluations",
+  "count": 12,
+  "cases": [
+    {"id": "unknown_session", "expected": "UNAUTHENTICATED_PRINCIPAL"},
+    {"id": "old_policy_revision", "expected": "POLICY_REVISION_MISMATCH"},
+    {"id": "unresolved_risk", "expected": "APPROVAL_POLICY_UNRESOLVED"},
+    {"id": "closed_incident", "expected": "EMERGENCY_AUTHORIZATION_DENIED"},
+    {"id": "missing_incident", "expected": "EMERGENCY_AUTHORIZATION_DENIED"},
+    {"id": "emergency_wrong_resource", "expected": "EMERGENCY_SCOPE_VIOLATION"},
+    {"id": "emergency_old_policy", "expected": "POLICY_REVISION_MISMATCH"},
+    {"id": "unknown_approver_role", "expected": "APPROVER_NOT_AUTHORIZED"},
+    {"id": "outsider_without_grant", "expected": "AUTHORITY_SCOPE_DENIED"},
+    {"id": "missing_dual_control", "expected": "REQUIRED_APPROVAL_MISSING"},
+    {"id": "implementation_author_approval", "expected": "SEPARATION_OF_DUTIES_VIOLATION"},
+    {"id": "untrusted_receipt", "expected": "UNTRUSTED_RECEIPT"}
+  ],
+  "note": "Expected labels document the evaluation set; the executable evaluator does not read this file."
+}

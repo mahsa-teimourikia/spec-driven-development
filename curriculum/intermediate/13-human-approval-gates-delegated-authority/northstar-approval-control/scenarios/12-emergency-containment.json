@@ -1,0 +1,1 @@
+{"scenario":"emergency_containment","mutation":"active SEV1 with permitted reversible action","expected":"EXECUTED","invariant":"incident authority is scoped and does not imply general release authority"}

@@ -1,0 +1,11 @@
+{
+  "course": 23,
+  "fixture": "northstar-approval-control",
+  "policy_revisions": ["APPROVAL-POLICY@4", "EMERGENCY-POLICY@3", "SOD@2"],
+  "golden_scenarios": {"passed": 12, "total": 12},
+  "adversarial_evaluations": {"passed": 12, "total": 12},
+  "concurrency_invariant": {"attempts": 2, "executions": 1, "operations": 1},
+  "audit_mutation": {"valid_before": true, "valid_after": false},
+  "generated_by": "python3 lab.py",
+  "non_authority": "Stored teaching evidence does not authorize an external action."
+}

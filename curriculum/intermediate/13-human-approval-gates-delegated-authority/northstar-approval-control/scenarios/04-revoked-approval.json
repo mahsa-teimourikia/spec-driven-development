@@ -1,0 +1,1 @@
+{"scenario":"revoked_approval","mutation":"receipt state becomes REVOKED","expected":"APPROVAL_REVOKED","invariant":"revocation is checked at execution"}

@@ -2077,5 +2077,110 @@ const QUESTIONS = [
     options: ['The exact teaching subject may proceed to accountable merge review; merge, deployment, and release remain separate', 'The change is automatically deployed', 'The agent now owns release approval', 'All future revisions inherit the result'],
     answer: 0,
     explanation: 'A bounded review decision neither transfers authority nor applies automatically to a changed subject.'
+  },
+  {
+    category: 'Course 23 approval semantics',
+    question: 'Why is an `approved: true` field insufficient for a consequential action?',
+    options: ['It does not bind authenticated authority to an exact subject, policy, time window, and usage', 'Booleans cannot be stored in JSON', 'Only agents may create Boolean fields', 'It always expires after one minute'],
+    answer: 0,
+    explanation: 'Approval is a typed authorization fact, not an unscoped status flag.'
+  },
+  {
+    category: 'Course 23 trust',
+    question: 'A caller submits `role: release_authority`. What should establish whether that role is valid for the action?',
+    options: ['Authenticated identity and a current resource-scoped grant from trusted state', 'The caller-supplied role string', 'The pull request title', 'The agent confidence score'],
+    answer: 0,
+    explanation: 'Callers provide references and proposals; the trusted application resolves authority independently.'
+  },
+  {
+    category: 'Course 23 subject binding',
+    question: 'Artifact B replaces approved artifact A before deployment. What happens to the earlier receipt?',
+    options: ['It cannot authorize B because the exact subject digest changed', 'It remains valid for the entire branch', 'It becomes a generic release approval', 'The agent may edit its artifact field'],
+    answer: 0,
+    explanation: 'A material subject change requires another authorization decision.'
+  },
+  {
+    category: 'Course 23 separation',
+    question: 'A consequential production policy requires release and AI-governance roles. What does distinct-principal dual control require?',
+    options: ['Two authenticated principals exercising the two current scoped roles', 'One person selecting two role labels', 'Two comments from the implementation agent', 'One reviewer plus a passing unit test'],
+    answer: 0,
+    explanation: 'Two role obligations must not collapse into one actor when policy requires independent judgment.'
+  },
+  {
+    category: 'Course 23 delegation',
+    question: 'Which delegated grant is valid?',
+    options: ['A shorter-lived subset of the parent actions, resources, environments, and risk', 'A child with a higher risk ceiling', 'A child that adds every enterprise resource', 'A child that survives parent revocation'],
+    answer: 0,
+    explanation: 'Delegation attenuates parent authority and remains dependent on the current parent grant.'
+  },
+  {
+    category: 'Course 23 lifecycle',
+    question: 'Why should current authority be checked again at execution?',
+    options: ['The direct grant or delegation parent may have expired or been revoked after receipt issuance', 'The artifact digest may be too short', 'JSON loses role names over time', 'The executor creates the approver identity'],
+    answer: 0,
+    explanation: 'Issuance records a past decision; execution still depends on current authorization when policy requires it.'
+  },
+  {
+    category: 'Course 23 concurrency',
+    question: 'Two workers race to use the same single-use approval. What is the required result?',
+    options: ['Exactly one operation succeeds and the other sees the receipt as consumed', 'Both succeed because both observed approval', 'Both fail to avoid ambiguity', 'The faster worker creates a second receipt'],
+    answer: 0,
+    explanation: 'Validation, conditional consumption, and operation registration must share a serializing transaction.'
+  },
+  {
+    category: 'Course 23 remote effects',
+    question: 'Can a local database transaction atomically commit an external deployment API call?',
+    options: ['No; use idempotency, durable workflow state, and reconciliation for uncertain outcomes', 'Yes, if SQLite uses WAL', 'Yes, if the receipt has two approvers', 'No, so approvals should be reusable'],
+    answer: 0,
+    explanation: 'The local transaction protects local state, not an independent remote system.'
+  },
+  {
+    category: 'Course 23 emergency',
+    question: 'What should break-glass authority normally permit?',
+    options: ['Short-lived incident-scoped reversible containment actions', 'Any production change an on-call engineer chooses', 'Permanent policy replacement', 'Unlogged model deployment'],
+    answer: 0,
+    explanation: 'Emergency mode narrows and accelerates governed containment; it is not a general bypass.'
+  },
+  {
+    category: 'Course 23 emergency scope',
+    question: 'A SEV1 affects the underwriting assistant. May its emergency receipt modify the payments service?',
+    options: ['No; incident and responder authority must cover the exact affected resource', 'Yes; SEV1 means enterprise-wide authority', 'Yes, if the agent recommends it', 'Only when the receipt is older than one hour'],
+    answer: 0,
+    explanation: 'Severity does not remove resource scope.'
+  },
+  {
+    category: 'Course 23 audit',
+    question: 'What does a hash-linked audit chain demonstrate in the teaching lab?',
+    options: ['Simple earlier-event mutation is detectable', 'Database administrators can never alter evidence', 'Every approver understood the change', 'The external deployment succeeded'],
+    answer: 0,
+    explanation: 'Tamper-evident is not tamper-proof; production needs stronger storage and administrative separation.'
+  },
+  {
+    category: 'Course 23 policy',
+    question: 'What is the relationship between policy evaluation and enforcement?',
+    options: ['Policy computes a decision; the protected boundary must enforce state, freshness, consumption, and side effects', 'A policy result executes the deployment automatically', 'Enforcement replaces policy versioning', 'They are always the same process'],
+    answer: 0,
+    explanation: 'Declarative decisions do not by themselves provide transactional state or protected execution.'
+  },
+  {
+    category: 'Course 23 risk',
+    question: 'Why not require manual approval for every agent action?',
+    options: ['It creates fatigue and queues that obscure consequential decisions; gates should be risk-adaptive', 'Humans may never review agent work', 'Automated checks are always sufficient', 'Approval receipts work only in production'],
+    answer: 0,
+    explanation: 'Use the smallest control that faithfully addresses the residual risk and decision authority.'
+  },
+  {
+    category: 'Course 23 platform controls',
+    question: 'When might a repository-native required-reviewer gate be insufficient?',
+    options: ['When policy requires two distinct enterprise roles, exact external resources, delegation lineage, or single-use receipts', 'Whenever the repository is public', 'Whenever tests pass', 'Only when there is no README'],
+    answer: 0,
+    explanation: 'Platform controls are useful when their semantics match; richer decisions need an enforcing control plane.'
+  },
+  {
+    category: 'Course 23 authority boundary',
+    question: 'The lab reports ELIGIBLE_FOR_ACCOUNTABLE_REVIEW. What does that authorize?',
+    options: ['Nothing external; it is bounded teaching evidence for accountable review', 'Immediate production deployment', 'A permanent policy exception', 'Automatic release of future artifacts'],
+    answer: 0,
+    explanation: 'The report deliberately stops before merge, deployment, release, or enterprise policy authority.'
   }
 ];

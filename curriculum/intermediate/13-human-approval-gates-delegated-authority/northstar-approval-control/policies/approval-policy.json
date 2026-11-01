@@ -1,0 +1,16 @@
+{
+  "revision": "APPROVAL-POLICY@4",
+  "distinct_principals": true,
+  "required_roles": {
+    "deploy|production|CONSEQUENTIAL": [
+      "release_authority",
+      "ai_governance_owner"
+    ],
+    "deploy|staging|MODERATE": [
+      "release_authority"
+    ],
+    "approve_low_risk_exception|n/a|LOW": [
+      "security_exception_approver"
+    ]
+  }
+}

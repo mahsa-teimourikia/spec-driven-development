@@ -1,0 +1,15 @@
+{
+  "revision": "EMERGENCY-POLICY@3",
+  "permitted_actions": [
+    "disable_ai_classification",
+    "restore_manual_review"
+  ],
+  "required_role": "emergency_responder",
+  "severities": [
+    "SEV1",
+    "SEV2"
+  ],
+  "max_duration_minutes": 60,
+  "containment_only": true,
+  "retrospective_review_required": true
+}

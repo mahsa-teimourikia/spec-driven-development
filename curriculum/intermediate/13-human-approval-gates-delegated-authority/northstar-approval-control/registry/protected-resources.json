@@ -1,0 +1,17 @@
+{
+  "revision": "RESOURCE-REGISTRY@5",
+  "resources": [
+    {
+      "resource": "underwriting-assistant-production",
+      "owner": "lending-platform",
+      "classification": "regulated-production",
+      "allowed_actions": ["deploy", "disable_ai_classification", "restore_manual_review"]
+    },
+    {
+      "resource": "underwriting-platform",
+      "owner": "lending-security",
+      "classification": "shared-service",
+      "allowed_actions": ["approve_low_risk_exception"]
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+{"scenario":"self_approval","mutation":"requester attempts approval","expected":"SEPARATION_OF_DUTIES_VIOLATION","invariant":"request and approval are independent for protected actions"}

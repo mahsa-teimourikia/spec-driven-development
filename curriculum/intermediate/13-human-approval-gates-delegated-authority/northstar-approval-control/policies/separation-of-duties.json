@@ -1,0 +1,9 @@
+{
+  "revision": "SOD@2",
+  "rules": [
+    "requester_must_not_approve",
+    "implementation_author_must_not_approve",
+    "required_roles_use_distinct_principals"
+  ],
+  "enforcement_point": "trusted approval service and protected executor"
+}

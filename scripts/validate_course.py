@@ -3213,7 +3213,7 @@ def check_course_20_multirepository() -> list[str]:
     if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) < 268:
         errors.append("Course 20 cumulative quiz must retain at least 268 questions")
     quiz_index = (ROOT / "quiz/index.html").read_text(encoding="utf-8")
-    if not any(label in quiz_index for label in ("Courses 01–20", "Courses 01–21", "Courses 01–22")):
+    if not any(label in quiz_index for label in ("Courses 01–20", "Courses 01–21", "Courses 01–22", "Courses 01–23")):
         errors.append("Course 20 cumulative quiz must identify coverage through Course 20")
     hub = (ROOT / "hub/lessons.js").read_text(encoding="utf-8")
     hub_fragments = [
@@ -3371,7 +3371,7 @@ def check_course_21_parallel_delivery() -> list[str]:
     if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) < 282:
         errors.append("Course 21 cumulative quiz must retain at least 282 questions")
     quiz_index = (ROOT / "quiz/index.html").read_text(encoding="utf-8")
-    if "Courses 01–21" not in quiz_index and "Courses 01–22" not in quiz_index:
+    if not any(label in quiz_index for label in ("Courses 01–21", "Courses 01–22", "Courses 01–23")):
         errors.append("Course 21 cumulative quiz must identify Courses 01–21")
     hub = (ROOT / "hub/lessons.js").read_text(encoding="utf-8")
     hub_fragments = [
@@ -3534,9 +3534,9 @@ def check_course_22_pr_review_strategy() -> list[str]:
     if "merge_group:" not in workflow or "contents: read" not in workflow or "pull_request_target" in workflow:
         errors.append("Course 22 workflow must cover merge groups with least privilege and no privileged PR-head execution")
     quiz_source = (ROOT / "quiz/questions.js").read_text(encoding="utf-8")
-    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 297:
-        errors.append("Course 22 cumulative quiz must contain 297 questions")
-    if "Courses 01–22" not in (ROOT / "quiz/index.html").read_text(encoding="utf-8"):
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) < 297:
+        errors.append("Course 22 cumulative quiz must retain at least 297 questions")
+    if not any(label in (ROOT / "quiz/index.html").read_text(encoding="utf-8") for label in ("Courses 01–22", "Courses 01–23")):
         errors.append("Course 22 cumulative quiz must identify Courses 01–22")
     hub = (ROOT / "hub/lessons.js").read_text(encoding="utf-8")
     hub_fragments = [
@@ -3547,6 +3547,136 @@ def check_course_22_pr_review_strategy() -> list[str]:
     ]
     if any(fragment not in hub for fragment in hub_fragments):
         errors.append("Course 22 Learning Hub entry is incomplete or points outside the workshop package")
+    return errors
+
+
+def check_course_23_approval_control() -> list[str]:
+    errors: list[str] = []
+    lesson = ROOT / "curriculum/intermediate/13-human-approval-gates-delegated-authority"
+    scenario = lesson / "northstar-approval-control"
+    required = [
+        lesson / "README.md",
+        scenario / "README.md",
+        scenario / "lab.py",
+        scenario / "human_approval_gates.ipynb",
+        scenario / "approval_app/__init__.py",
+        scenario / "approval_app/models.py",
+        scenario / "approval_app/control_plane.py",
+        scenario / "approval_app/simulation.py",
+        scenario / "policies/approval-policy.json",
+        scenario / "policies/emergency-policy.json",
+        scenario / "policies/risk-tiers.json",
+        scenario / "policies/separation-of-duties.json",
+        scenario / "policies/approval.rego",
+        scenario / "registry/principals.json",
+        scenario / "registry/authority-grants.json",
+        scenario / "registry/incidents.json",
+        scenario / "registry/protected-resources.json",
+        scenario / "conformance-suite.json",
+        scenario / "evaluation-cases.json",
+        scenario / "evidence/manifest.json",
+        scenario / "reference/approval-design.json",
+        scenario / "workshop/starter/approval-design.json",
+        scenario / "openspec/changes/AI-2600-approval-control/proposal.md",
+        scenario / "openspec/changes/AI-2600-approval-control/specs/approval-control-plane/spec.md",
+        scenario / "openspec/changes/AI-2600-approval-control/tasks.md",
+        ROOT / "tests/test_course_23.py",
+    ]
+    for path in required:
+        if not path.exists():
+            errors.append(f"Course 23 missing required artifact: {path.relative_to(ROOT)}")
+    scenario_files = sorted((scenario / "scenarios").glob("*.json"))
+    if len(scenario_files) != 12:
+        errors.append("Course 23 must retain twelve documented golden scenarios")
+    if errors:
+        return errors
+
+    for path in scenario.rglob("*.json"):
+        try:
+            json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError) as exc:
+            errors.append(f"invalid Course 23 JSON {path.relative_to(ROOT)}: {exc}")
+    if errors:
+        return errors
+
+    result = subprocess.run(
+        [sys.executable, str(scenario / "lab.py")],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    try:
+        report = json.loads(result.stdout) if result.returncode == 0 else {}
+    except json.JSONDecodeError:
+        report = {}
+    if not report:
+        errors.append("Course 23 lab did not produce its JSON report")
+        return errors
+    if report.get("decision") != "ELIGIBLE_FOR_ACCOUNTABLE_REVIEW":
+        errors.append("Course 23 reference must stop at accountable review eligibility")
+    golden = report.get("golden_scenarios", {})
+    if (golden.get("passed"), golden.get("total")) != (12, 12):
+        errors.append("Course 23 must retain twelve passing golden scenarios")
+    evaluation = report.get("evaluation_population", {})
+    if (evaluation.get("passed"), evaluation.get("total")) != (12, 12):
+        errors.append("Course 23 must retain twelve passing adversarial evaluations")
+    concurrency = next(
+        (item.get("evidence", {}) for item in golden.get("results", []) if item.get("scenario") == "concurrent_single_use"),
+        {},
+    )
+    if concurrency.get("executed") != 1 or concurrency.get("operation_count") != 1 or "APPROVAL_ALREADY_CONSUMED" not in concurrency.get("outcomes", []):
+        errors.append("Course 23 concurrency scenario must prove exactly one operation")
+    audit = report.get("audit_integrity", {})
+    if audit != {"tamper_detected": True, "valid_after_tamper": False, "valid_before_tamper": True}:
+        errors.append("Course 23 audit mutation must be valid before and invalid after tampering")
+    if len(report.get("non_authorities", [])) < 3:
+        errors.append("Course 23 report must preserve explicit non-authorities")
+
+    control = (scenario / "approval_app/control_plane.py").read_text(encoding="utf-8")
+    required_controls = [
+        "POLICY_REVISION_MISMATCH",
+        "SEPARATION_OF_DUTIES_VIOLATION",
+        "DELEGATION_SCOPE_EXPANSION",
+        "APPROVAL_SUBJECT_MISMATCH",
+        "APPROVAL_ALREADY_CONSUMED",
+        "EMERGENCY_SCOPE_VIOLATION",
+        "BEGIN IMMEDIATE",
+        "verify_audit_chain",
+    ]
+    if any(fragment not in control for fragment in required_controls):
+        errors.append("Course 23 trusted approval boundary is missing required controls")
+    simulation = (scenario / "approval_app/simulation.py").read_text(encoding="utf-8")
+    if "scenarios/" in simulation or "evaluation-cases.json" in simulation:
+        errors.append("Course 23 evaluator must execute controls rather than trust scenario labels")
+
+    starter = (scenario / "workshop/starter/approval-design.json").read_text(encoding="utf-8")
+    reference = (scenario / "reference/approval-design.json").read_text(encoding="utf-8")
+    if starter.count("TODO") != 6 or "TODO" in reference:
+        errors.append("Course 23 workshop must retain six learner decisions and a complete reference")
+    stored = json.loads((scenario / "evidence/manifest.json").read_text(encoding="utf-8"))
+    if (
+        stored.get("golden_scenarios") != {"passed": 12, "total": 12}
+        or stored.get("adversarial_evaluations") != {"passed": 12, "total": 12}
+        or stored.get("concurrency_invariant", {}).get("operations") != 1
+        or stored.get("audit_mutation", {}).get("valid_after") is not False
+    ):
+        errors.append("Course 23 stored evidence summary is stale")
+
+    quiz_source = (ROOT / "quiz/questions.js").read_text(encoding="utf-8")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 312:
+        errors.append("Course 23 cumulative quiz must contain 312 questions")
+    if "Courses 01–23" not in (ROOT / "quiz/index.html").read_text(encoding="utf-8"):
+        errors.append("Course 23 cumulative quiz must identify Courses 01–23")
+    hub = (ROOT / "hub/lessons.js").read_text(encoding="utf-8")
+    hub_fragments = [
+        "const course23 = {",
+        "13-human-approval-gates-delegated-authority/northstar-approval-control/human_approval_gates.ipynb",
+        "13-human-approval-gates-delegated-authority/northstar-approval-control/workshop/starter/approval-design.json",
+        "12 golden scenarios, 12 adversarial evaluations, a two-worker single-use race",
+    ]
+    if any(fragment not in hub for fragment in hub_fragments):
+        errors.append("Course 23 Learning Hub entry is incomplete or points outside the workshop package")
     return errors
 
 
@@ -3578,6 +3708,7 @@ def main() -> None:
         "Course 20 multi-repository development": check_course_20_multirepository,
         "Course 21 parallel-agent delivery": check_course_21_parallel_delivery,
         "Course 22 PR review strategy": check_course_22_pr_review_strategy,
+        "Course 23 approval control": check_course_23_approval_control,
         "diagrams": render_and_validate_diagrams,
         "labs": run_labs,
         "repository labs": run_repository_labs,
