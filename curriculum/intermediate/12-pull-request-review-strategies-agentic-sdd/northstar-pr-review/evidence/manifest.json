@@ -2,8 +2,8 @@
   "course_validation": "PASS",
   "candidate_assessment": {
     "state": "ELIGIBLE_FOR_MERGE_REVIEW",
-    "base_commit": "cbc80e28474a551988bcc5d2c54e6dffea89662b",
-    "head_commit": "b9f9562f3ba137512c827bf2a90a71de1affad9f",
+    "base_commit": "02cc9268a0942aab2026882ddca55653971ae040",
+    "head_commit": "91393a3f95f0d87c0d7e5a7dc44ea1d1c7827132",
     "specification_digest": "sha256:c436f9eecf1b00e7624f375bcacff31809953776511ff72d60c49d4fa572d1b6",
     "contract_digest": "sha256:594973dc0bcdaf1fa101169fcebeffe9a8c895947e444fd2292dba3c6eaf1033",
     "evidence_ids": ["EVID-PR-001"]
@@ -11,7 +11,7 @@
   "conformance": "12/12",
   "evaluation": "28/28",
   "git_experiments": "10/10",
-  "strategy_metrics": "synthetic teaching workload",
+  "strategy_metrics": "deterministic event simulation over a synthetic teaching workload",
   "non_authorities": {
     "merge": false,
     "deployment": false,

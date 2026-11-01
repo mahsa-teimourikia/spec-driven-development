@@ -3396,6 +3396,8 @@ def check_course_22_pr_review_strategy() -> list[str]:
         scenario / "pr_review_strategies.ipynb",
         scenario / "review_app/__init__.py",
         scenario / "review_app/git_harness.py",
+        scenario / "review_app/ci_harness.py",
+        scenario / "review_app/control_plane.py",
         scenario / "review_app/review_engine.py",
         scenario / "review_app/simulation.py",
         scenario / "parent-change/AI-2500.json",
@@ -3476,6 +3478,8 @@ def check_course_22_pr_review_strategy() -> list[str]:
         or comparison.get("staged_prs", {}).get("lead_time_hours") != 26
         or comparison.get("parallel_repositories", {}).get("lead_time_hours") != 21
         or any(item.get("source") != "synthetic teaching workload" for item in comparison.values())
+        or any(item.get("model") != "deterministic event simulation" for item in comparison.values())
+        or any(not item.get("events") for item in comparison.values())
     ):
         errors.append("Course 22 strategy comparison is stale or missing its synthetic label")
 

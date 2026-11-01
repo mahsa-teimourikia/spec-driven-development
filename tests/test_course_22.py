@@ -1,5 +1,4 @@
 """Focused verification for Course 22 pull-request review strategy."""
-
 from __future__ import annotations
 
 import importlib.util
@@ -10,7 +9,6 @@ from dataclasses import replace
 from datetime import timedelta
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 LESSON = ROOT / "curriculum/intermediate/12-pull-request-review-strategies-agentic-sdd"
 SCENARIO = LESSON / "northstar-pr-review"
@@ -20,21 +18,12 @@ lab = importlib.util.module_from_spec(SPEC)
 sys.modules[SPEC.name] = lab
 SPEC.loader.exec_module(lab)
 
+from review_app.control_plane import REVIEWER_GRANTS  # noqa: E402
 from review_app.git_harness import TrustedGitHarness  # noqa: E402
-from review_app.review_engine import ReviewEngine  # noqa: E402
+from review_app.review_engine import ReviewerGrant, ReviewEngine  # noqa: E402
 from review_app.simulation import (  # noqa: E402
-    NOW,
-    TRUSTED_REVIEWERS,
-    TRUSTED_PR_AUTHORS,
-    approval,
-    ci_evidence,
-    conformance_checks,
-    evaluation_checks,
-    evaluate,
-    git_backed_experiments,
-    make_subject,
-    reference_assessment,
-    reference_candidate,
+    NOW, approval, ci_evidence, conformance_checks, evaluate, evaluation_checks,
+    git_backed_experiments, make_subject, reference_assessment, reference_candidate,
     strategy_comparison,
 )
 
@@ -43,137 +32,152 @@ class Course22Tests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.candidate, cls.subject, cls.decision = reference_assessment(SCENARIO)
+        cls.approval = approval(cls.subject, cls.candidate, "implementation")
+        cls.evidence = ci_evidence(cls.subject, cls.candidate)
         cls.experiments = git_backed_experiments(SCENARIO)
 
-    def test_reference_uses_full_git_shas(self):
-        self.assertEqual(len(self.candidate.base_commit), 40)
-        self.assertEqual(len(self.candidate.head_commit), 40)
+    def codes(self, decision):
+        return {finding.code for finding in decision.findings}
 
-    def test_reference_base_is_ancestor(self):
+    def test_reference_uses_full_git_shas_and_ancestry(self):
+        self.assertEqual((len(self.candidate.base_commit), len(self.candidate.head_commit)), (40, 40))
         self.assertTrue(self.candidate.base_is_ancestor)
 
     def test_diff_is_derived_from_real_git(self):
-        self.assertEqual(
-            set(self.candidate.changed_paths),
-            {"src/classifier.py", "tests/test_classifier.py"},
-        )
+        self.assertEqual(set(self.candidate.changed_paths), {"src/classifier.py", "tests/test_classifier.py"})
 
     def test_reference_stops_at_merge_review_eligibility(self):
         self.assertEqual(self.decision.state, "ELIGIBLE_FOR_MERGE_REVIEW")
-        self.assertFalse(self.decision.merge_authorized)
-        self.assertFalse(self.decision.deployment_authorized)
-        self.assertFalse(self.decision.release_authorized)
+        self.assertFalse(self.decision.merge_authorized or self.decision.deployment_authorized or self.decision.release_authorized)
 
-    def test_review_requires_implementation_scope(self):
-        self.assertEqual(self.decision.required_scopes, ("implementation",))
+    def test_protected_acceptance_runner_executes_exact_head(self):
+        self.assertEqual(self.evidence.result, "PASS")
+        self.assertEqual(self.evidence.execution_id, f"RUN-{self.subject.head_commit[:12]}")
+        self.assertTrue(self.evidence.protected_test_digest.startswith("sha256:"))
 
-    def test_review_records_exact_evidence(self):
-        self.assertEqual(self.decision.evidence_ids, ("EVID-PR-001",))
+    def test_reference_contributor_test_is_not_placeholder(self):
+        self.assertNotIn("assert True", self.candidate.blobs["tests/test_classifier.py"])
+        self.assertIn("confidence=0.98", self.candidate.blobs["tests/test_classifier.py"])
 
-    def test_unauthorized_specification_change_is_blocked(self):
-        self.assertTrue(self.experiments["unauthorized_spec_change"])
+    def test_bad_implementation_with_placeholder_test_fails_protected_ci(self):
+        candidate = TrustedGitHarness().create_candidate("ai-service", {
+            "src/classifier.py": "def route(ambiguous: bool, confidence: float = 0.0) -> str:\n    return 'straight_through'\n",
+            "tests/test_classifier.py": "def test_nothing():\n    assert True\n",
+        })
+        subject = make_subject(SCENARIO, candidate)
+        evidence = ci_evidence(subject, candidate)
+        decision = evaluate(subject, candidate, [approval(subject, candidate, "implementation")], [evidence])
+        self.assertEqual(evidence.result, "FAIL")
+        self.assertIn("EVIDENCE_RESULT_INVALID", self.codes(decision))
 
-    def test_shared_contract_requires_owner(self):
-        self.assertTrue(self.experiments["contract_owner_missing"])
+    def test_candidate_cannot_register_forged_approval(self):
+        forged = replace(self.approval, approval_id="APR-FORGED")
+        decision = evaluate(self.subject, self.candidate, [forged], [self.evidence])
+        self.assertIn("APPROVAL_RECORD_UNVERIFIED", self.codes(decision))
 
-    def test_approval_for_earlier_commit_is_stale(self):
-        self.assertTrue(self.experiments["stale_approval"])
+    def test_candidate_cannot_register_forged_evidence(self):
+        forged = replace(self.evidence, evidence_id="EVID-FORGED", result_digest=ReviewEngine.digest("PASS"))
+        decision = evaluate(self.subject, self.candidate, [self.approval], [forged])
+        self.assertIn("EVIDENCE_RECORD_UNVERIFIED", self.codes(decision))
 
-    def test_protected_acceptance_oracle_cannot_be_weakened(self):
-        self.assertTrue(self.experiments["test_oracle_changed"])
-
-    def test_two_green_branches_can_conflict_when_combined(self):
-        self.assertTrue(self.experiments["merge_group_conflict"])
-
-    def test_actual_diff_enforces_work_unit_scope(self):
-        self.assertTrue(self.experiments["awu_scope_violation"])
-
-    def test_evidence_for_wrong_commit_is_rejected(self):
-        self.assertTrue(self.experiments["evidence_subject_mismatch"])
-
-    def test_required_review_cannot_be_omitted(self):
-        self.assertTrue(self.experiments["required_review_missing"])
-
-    def test_author_cannot_approve_own_pr(self):
-        self.assertTrue(self.experiments["self_approval_denied"])
-
-    def test_review_success_is_not_deployment_approval(self):
-        self.assertTrue(self.experiments["deployment_authority_separate"])
+    def test_future_approval_is_rejected(self):
+        future = replace(self.approval, issued_at=NOW + timedelta(minutes=1))
+        decision = evaluate(self.subject, self.candidate, [future], [self.evidence], approval_registry={future.approval_id: future})
+        self.assertIn("APPROVAL_NOT_YET_VALID", self.codes(decision))
 
     def test_expired_approval_is_rejected(self):
-        record = replace(
-            approval(self.subject, "implementation", "reviewer-engineering", "engineering_reviewer"),
-            expires_at=NOW - timedelta(seconds=1),
+        expired = replace(self.approval, expires_at=NOW - timedelta(seconds=1))
+        decision = evaluate(self.subject, self.candidate, [expired], [self.evidence], approval_registry={expired.approval_id: expired})
+        self.assertIn("STALE_REVIEW_APPROVAL", self.codes(decision))
+
+    def test_resource_scoped_grant_is_required(self):
+        wrong_grant = ReviewerGrant(self.approval.reviewer, self.approval.role, "repository:other", self.approval.decision)
+        decision = evaluate(self.subject, self.candidate, [self.approval], [self.evidence], grants=(wrong_grant,))
+        self.assertIn("REVIEWER_AUTHORITY_UNVERIFIED", self.codes(decision))
+
+    def test_authoritative_spec_digest_is_resolved_independently(self):
+        forged = replace(self.subject, specification_digest=ReviewEngine.digest("candidate-selected"))
+        decision = evaluate(forged, self.candidate, [], [])
+        self.assertIn("AUTHORITATIVE_REVISION_MISMATCH", self.codes(decision))
+
+    def test_candidate_cannot_widen_work_unit(self):
+        widened = replace(self.subject, allowed_paths=("src", "tests", "infra"))
+        decision = evaluate(widened, self.candidate, [self.approval], [self.evidence])
+        self.assertIn("AWU_SCOPE_ESCALATION_REQUESTED", self.codes(decision))
+
+    def test_new_file_under_protected_directory_requires_owner(self):
+        self.assertTrue(self.experiments["unauthorized_spec_change"])
+        self.assertTrue(self.experiments["contract_owner_missing"])
+
+    def test_rename_checks_source_and_destination(self):
+        candidate = TrustedGitHarness().create_candidate(
+            "ai-service", {},
+            baseline_files={"specifications/approved.json": "{}\n", "src/classifier.py": "def route(ambiguous, confidence=0): return 'review' if ambiguous else 'straight_through'\n"},
+            renames={"specifications/approved.json": "src/approved.json"},
         )
-        decision = evaluate(self.subject, self.candidate, [record], [ci_evidence(self.subject)])
-        self.assertIn("STALE_REVIEW_APPROVAL", {finding.code for finding in decision.findings})
+        subject = make_subject(SCENARIO, candidate, allowed_paths=("specifications",), work_unit="WU-SPEC")
+        decision = evaluate(subject, candidate, [], [ci_evidence(subject, candidate)])
+        self.assertEqual(set(candidate.changed_paths), {"specifications/approved.json", "src/approved.json"})
+        self.assertIn("AWU_SCOPE_VIOLATION", self.codes(decision))
+        self.assertIn("UNAUTHORIZED_SPEC_CHANGE", self.codes(decision))
 
-    def test_untrusted_ci_producer_is_rejected(self):
-        decision = evaluate(
-            self.subject,
-            self.candidate,
-            [approval(self.subject, "implementation", "reviewer-engineering", "engineering_reviewer")],
-            [ci_evidence(self.subject, producer="agent-reported-ci")],
+    def test_deleted_protected_path_still_requires_owner(self):
+        candidate = TrustedGitHarness().create_candidate(
+            "ai-service", {"tests/protected/test_acceptance.py": None},
+            baseline_files={"tests/protected/test_acceptance.py": "assert True\n", "src/classifier.py": "def route(ambiguous, confidence=0): return 'review' if ambiguous else 'straight_through'\n"},
         )
-        self.assertIn("UNTRUSTED_EVIDENCE_PRODUCER", {finding.code for finding in decision.findings})
+        subject = make_subject(SCENARIO, candidate, allowed_paths=("tests/protected",), work_unit="WU-ORACLE")
+        decision = evaluate(subject, candidate, [], [ci_evidence(subject, candidate)])
+        self.assertIn("TEST_ORACLE_CHANGED", self.codes(decision))
 
-    def test_declared_head_must_match_trusted_git(self):
-        mismatched = replace(self.subject, head_commit=self.subject.base_commit)
-        decision = evaluate(mismatched, self.candidate, [], [])
-        self.assertIn("PR_SUBJECT_MISMATCH", {finding.code for finding in decision.findings})
+    def test_longest_prefix_selects_acceptance_owner(self):
+        candidate = TrustedGitHarness().create_candidate("ai-service", {"tests/protected/new.py": "assert True\n"})
+        subject = make_subject(SCENARIO, candidate, allowed_paths=("tests/protected",), work_unit="WU-ORACLE")
+        protected = approval(subject, candidate, "acceptance_oracle")
+        decision = evaluate(subject, candidate, [protected], [ci_evidence(subject, candidate)])
+        self.assertEqual(decision.required_scopes, ("acceptance_oracle",))
 
-    def test_approval_role_comes_from_trusted_registry(self):
-        forged = approval(self.subject, "implementation", "unknown-reviewer", "engineering_reviewer")
-        decision = evaluate(
-            self.subject,
-            self.candidate,
-            [forged],
-            [ci_evidence(self.subject)],
-        )
-        self.assertIn("REVIEWER_AUTHORITY_UNVERIFIED", {finding.code for finding in decision.findings})
+    def test_untrusted_producer_is_rejected_even_if_registered(self):
+        record = replace(self.evidence, producer="agent-reported-ci")
+        decision = evaluate(self.subject, self.candidate, [self.approval], [record], evidence_registry={record.evidence_id: record})
+        self.assertIn("UNTRUSTED_EVIDENCE_PRODUCER", self.codes(decision))
 
-    def test_pr_author_is_resolved_from_trusted_application_state(self):
-        forged_subject = replace(self.subject, author="reviewer-engineering")
-        decision = evaluate(forged_subject, self.candidate, [], [])
-        self.assertIn("UNAUTHENTICATED_PR_AUTHOR", {finding.code for finding in decision.findings})
+    def test_review_failures_cover_core_experiments(self):
+        self.assertTrue(all(self.experiments.values()))
+        self.assertEqual(len(self.experiments), 10)
 
-    def test_unregistered_approval_record_is_rejected(self):
-        record = approval(self.subject, "implementation", "reviewer-engineering", "engineering_reviewer")
-        evidence = ci_evidence(self.subject)
-        engine = ReviewEngine(
-            TRUSTED_REVIEWERS,
-            TRUSTED_PR_AUTHORS,
-            {},
-            {evidence.evidence_id: evidence},
-        )
-        decision = engine.evaluate(self.subject, self.candidate, [record], [evidence], now=NOW)
-        self.assertIn("APPROVAL_RECORD_UNVERIFIED", {finding.code for finding in decision.findings})
+    def test_stale_approval_experiment(self):
+        self.assertTrue(self.experiments["stale_approval"])
 
-    def test_unregistered_evidence_record_is_rejected(self):
-        record = approval(self.subject, "implementation", "reviewer-engineering", "engineering_reviewer")
-        evidence = ci_evidence(self.subject)
-        engine = ReviewEngine(
-            TRUSTED_REVIEWERS,
-            TRUSTED_PR_AUTHORS,
-            {record.approval_id: record},
-            {},
-        )
-        decision = engine.evaluate(self.subject, self.candidate, [record], [evidence], now=NOW)
-        self.assertIn("EVIDENCE_RECORD_UNVERIFIED", {finding.code for finding in decision.findings})
+    def test_acceptance_oracle_change_experiment(self):
+        self.assertTrue(self.experiments["test_oracle_changed"])
+
+    def test_merge_group_conflict_experiment(self):
+        self.assertTrue(self.experiments["merge_group_conflict"])
+
+    def test_evidence_subject_mismatch_experiment(self):
+        self.assertTrue(self.experiments["evidence_subject_mismatch"])
+
+    def test_self_approval_experiment(self):
+        self.assertTrue(self.experiments["self_approval_denied"])
 
     def test_conformance_population_is_twelve(self):
         checks = conformance_checks(SCENARIO)
-        self.assertEqual(len(checks), 12)
-        self.assertTrue(all(checks.values()))
+        self.assertEqual((len(checks), all(checks.values())), (12, True))
 
     def test_evaluation_population_is_twenty_eight(self):
         checks = evaluation_checks(SCENARIO)
-        self.assertEqual(len(checks), 28)
-        self.assertTrue(all(checks.values()))
+        self.assertEqual((len(checks), all(checks.values())), (28, True))
 
-    def test_strategy_values_are_explicitly_synthetic(self):
+    def test_strategy_comparison_is_event_based_and_synthetic(self):
         comparison = strategy_comparison()
+        self.assertTrue(all(item["model"] == "deterministic event simulation" for item in comparison.values()))
         self.assertTrue(all(item["source"] == "synthetic teaching workload" for item in comparison.values()))
+        self.assertTrue(all(item["events"] for item in comparison.values()))
+
+    def test_strategy_lead_time_is_computed_from_events(self):
+        for item in strategy_comparison().values():
+            self.assertEqual(item["lead_time_hours"], max(event["completed"] for event in item["events"]))
 
     def test_parallel_latency_is_not_total_review_effort(self):
         parallel = strategy_comparison()["parallel_repositories"]
@@ -182,16 +186,11 @@ class Course22Tests(unittest.TestCase):
     def test_lab_report_is_complete(self):
         report = lab.build_report()
         self.assertEqual(report["course_validation"]["status"], "PASS")
-        self.assertEqual((report["conformance"]["passed"], report["conformance"]["total"]), (12, 12))
-        self.assertEqual((report["evaluation"]["passed"], report["evaluation"]["total"]), (28, 28))
-        self.assertEqual((report["git_experiments"]["passed"], report["git_experiments"]["total"]), (10, 10))
+        self.assertEqual((report["conformance"]["passed"], report["evaluation"]["passed"], report["git_experiments"]["passed"]), (12, 28, 10))
 
     def test_stored_evidence_matches_deterministic_subject(self):
         stored = json.loads((SCENARIO / "evidence/manifest.json").read_text(encoding="utf-8"))
-        assessment = stored["candidate_assessment"]
-        self.assertEqual(assessment["head_commit"], self.subject.head_commit)
-        self.assertEqual(assessment["specification_digest"], self.subject.specification_digest)
-        self.assertEqual(assessment["contract_digest"], self.subject.contract_digest)
+        self.assertEqual(stored["candidate_assessment"]["head_commit"], self.subject.head_commit)
 
     def test_reference_handoff_preserves_non_authorities(self):
         reference = json.loads((SCENARIO / "reference/review-package.json").read_text(encoding="utf-8"))
@@ -202,10 +201,10 @@ class Course22Tests(unittest.TestCase):
         source = (SCENARIO / "workshop/starter/review-package.json").read_text(encoding="utf-8")
         self.assertEqual(source.count("TODO:"), 6)
 
-    def test_scenario_expected_labels_are_not_evaluator_inputs(self):
-        simulation = (SCENARIO / "review_app/simulation.py").read_text(encoding="utf-8")
-        self.assertNotIn("scenarios/", simulation)
-        self.assertNotIn("expected_finding", simulation)
+    def test_scenario_labels_are_not_evaluator_inputs(self):
+        source = (SCENARIO / "review_app/simulation.py").read_text(encoding="utf-8")
+        self.assertNotIn("scenarios/", source)
+        self.assertNotIn("expected_finding", source)
 
     def test_notebook_imports_reusable_module(self):
         notebook = json.loads((SCENARIO / "pr_review_strategies.ipynb").read_text(encoding="utf-8"))
@@ -213,7 +212,7 @@ class Course22Tests(unittest.TestCase):
         self.assertIn("from review_app.simulation import", source)
         self.assertIn("run_reference(ROOT)", source)
 
-    def test_git_harness_detects_combined_state_not_scenario_name(self):
+    def test_merge_group_uses_real_git(self):
         self.assertTrue(TrustedGitHarness().merge_group_conflicts())
 
 

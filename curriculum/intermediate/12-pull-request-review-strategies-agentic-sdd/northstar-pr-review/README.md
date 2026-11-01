@@ -1,6 +1,6 @@
 # Northstar AI-2500 PR review control-plane lab
 
-This credential-free fixture turns Course 22 into an executable review system. It creates real temporary Git repositories, derives exact commits and changed paths, resolves protected review obligations, validates revision-bound approvals and evidence, tests a real combined-branch conflict, and stops at merge-review eligibility.
+This credential-free fixture turns Course 22 into an executable review system. It creates real temporary Git repositories, preserves both sides of renames and deletions, resolves authoritative artifacts and work-unit scope from protected registries, executes an independent acceptance oracle at the exact commit, simulates review delivery events, tests a real combined-branch conflict, and stops at merge-review eligibility.
 
 ## Run
 
@@ -31,8 +31,9 @@ agent / contributor
                   │
                   ▼
 trusted application
-  resolves Git state, ownership, identity, approvals,
-  evidence subjects, merge groups, and terminal decision
+  resolves Git state, versioned ownership, exact-resource authority,
+  approved artifacts, work-unit scope, protected CI, merge groups,
+  and the terminal decision
 ```
 
 Contributor metadata remains untrusted. The engine ignores scenario `expected_finding` labels during execution.
@@ -42,8 +43,10 @@ Contributor metadata remains untrusted. The engine ignores scenario `expected_fi
 | Path | Purpose |
 | --- | --- |
 | `review_app/git_harness.py` | Creates real Git subjects and executes a combined-branch merge |
+| `review_app/ci_harness.py` | Clones the exact commit and executes a protected acceptance oracle |
+| `review_app/control_plane.py` | Maintains authority, artifact, work-unit, approval, and evidence registries independently of candidate records |
 | `review_app/review_engine.py` | Enforces scope, ownership, freshness, evidence, and separation of duties |
-| `review_app/simulation.py` | Builds scenarios and labelled evaluation populations |
+| `review_app/simulation.py` | Builds scenarios, labelled evaluation populations, and event-based strategy comparisons |
 | `specifications/` | Approved intent and protected acceptance oracle |
 | `review-policy/` | Ownership, risk tiers, and protected decisions |
 | `scenarios/` | Human-readable experiment intent; not evaluator truth |
@@ -63,7 +66,7 @@ The Git merge experiment is reported separately as `merge_group_conflict` becaus
 - The fixture has no network calls, secrets, tokens, or production repositories.
 - Exact 40-character Git commits are derived by the trusted harness.
 - The author cannot satisfy its own approval obligation.
-- Evidence must come from an allowlisted producer and bind the exact subject.
+- A producer label or predictable digest is not authentication; evidence must exist in the independently maintained protected registry and bind the exact subject.
 - `ELIGIBLE_FOR_MERGE_REVIEW` grants no merge, deployment, or release authority.
 - Production CI must isolate untrusted code and use least-privilege tokens and ephemeral runners.
 

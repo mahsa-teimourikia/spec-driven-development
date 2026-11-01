@@ -1,197 +1,114 @@
-"""Executable Course 22 scenarios and review-strategy comparison."""
-
+"""Executable Course 22 scenarios and event-based strategy comparison."""
 from __future__ import annotations
 
-import json
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from datetime import datetime, timedelta, timezone
+import json
 from pathlib import Path
-from typing import Any
+from typing import Iterable
 
+from .control_plane import ProtectedControlPlane, REVIEWER_GRANTS, SCOPE_APPROVERS, TRUSTED_PR_AUTHORS
 from .git_harness import GitCandidate, TrustedGitHarness
-from .review_engine import ApprovalRecord, EvidenceRecord, PullRequestSubject, ReviewEngine
-
+from .review_engine import ApprovalRecord, EvidenceRecord, PullRequestSubject, ReviewerGrant, ReviewEngine
 
 NOW = datetime(2026, 2, 2, 15, 0, tzinfo=timezone.utc)
-TRUSTED_REVIEWERS = {
-    "reviewer-engineering": frozenset({"engineering_reviewer"}),
-    "reviewer-domain": frozenset({"domain_owner"}),
-    "reviewer-contract": frozenset({"contract_owner"}),
-    "reviewer-quality": frozenset({"quality_owner"}),
-    "reviewer-security": frozenset({"security_owner"}),
-}
-TRUSTED_PR_AUTHORS = {"PR-AI-2500-03": "agent-ai-a"}
-
-
-def load_json(path: Path) -> Any:
-    return json.loads(path.read_text(encoding="utf-8"))
+TRUSTED_REVIEWERS = {principal: frozenset({role}) for principal, role, _, _ in SCOPE_APPROVERS.values()}
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def approved_digests(root: Path) -> tuple[str, str]:
-    engine = ReviewEngine(TRUSTED_REVIEWERS, TRUSTED_PR_AUTHORS)
-    spec = (root / "specifications/approved-requirements.json").read_bytes()
-    contract = (root / "contracts/classification-v2.schema.json").read_bytes()
-    return engine.digest(spec), engine.digest(contract)
+    return (
+        ReviewEngine.digest((root / "specifications/approved-requirements.json").read_bytes()),
+        ReviewEngine.digest((root / "contracts/classification-v2.schema.json").read_bytes()),
+    )
 
 
 def reference_candidate(root: Path) -> GitCandidate:
-    return TrustedGitHarness().create_candidate(
-        "ai-service",
-        {
-            "src/classifier.py": "def route(ambiguous: bool) -> str:\n    return 'review' if ambiguous else 'straight_through'\n\ndef provenance(document_id: str) -> dict[str, str]:\n    return {'document_id': document_id}\n",
-            "tests/test_classifier.py": "def test_ambiguous_routes_to_review():\n    assert True\n",
-        },
-    )
+    del root
+    return TrustedGitHarness().create_candidate("ai-service", {
+        "src/classifier.py": "def route(ambiguous: bool, confidence: float = 0.0) -> str:\n    return 'review' if ambiguous else 'straight_through'\n\ndef provenance(document_id: str) -> dict[str, str]:\n    return {'document_id': document_id}\n",
+        "tests/test_classifier.py": "from src.classifier import route\n\ndef test_ambiguous_routes_to_review():\n    assert route(ambiguous=True, confidence=0.98) == 'review'\n",
+    })
 
 
-def make_subject(root: Path, candidate: GitCandidate, *, allowed_paths: tuple[str, ...] = ("src", "tests")) -> PullRequestSubject:
-    spec_digest, contract_digest = approved_digests(root)
-    return PullRequestSubject(
-        pull_request="PR-AI-2500-03",
-        change_id="AI-2500",
-        work_unit="WU-AI",
-        author="agent-ai-a",
-        repository=candidate.repository,
-        base_commit=candidate.base_commit,
-        head_commit=candidate.head_commit,
-        specification_digest=spec_digest,
-        contract_digest=contract_digest,
-        allowed_paths=allowed_paths,
-    )
+def make_subject(root: Path, candidate: GitCandidate, *, allowed_paths: tuple[str, ...] = ("src", "tests"), work_unit: str = "WU-AI") -> PullRequestSubject:
+    spec, contract = approved_digests(root)
+    return PullRequestSubject("PR-AI-2500-03", "AI-2500", work_unit, "agent-ai-a", candidate.repository, candidate.base_commit, candidate.head_commit, "REQ-DOC-2500", spec, "CONTRACT-CLASSIFICATION-001", contract, allowed_paths)
 
 
-def approval(subject: PullRequestSubject, scope: str, reviewer: str, role: str, *, head_commit: str | None = None) -> ApprovalRecord:
-    return ApprovalRecord(
-        approval_id=f"APR-{scope.upper()}-001",
-        reviewer=reviewer,
-        role=role,
-        scope=scope,
-        repository=subject.repository,
-        head_commit=head_commit or subject.head_commit,
-        specification_digest=subject.specification_digest,
-        contract_digest=subject.contract_digest,
-        issued_at=NOW - timedelta(minutes=10),
-        expires_at=NOW + timedelta(hours=2),
-    )
+def protected_context(subject: PullRequestSubject, candidate: GitCandidate, root: Path = ROOT) -> ProtectedControlPlane:
+    return ProtectedControlPlane(root, subject, candidate, now=NOW)
 
 
-def ci_evidence(subject: PullRequestSubject, *, head_commit: str | None = None, producer: str = "trusted-ci") -> EvidenceRecord:
-    commit = head_commit or subject.head_commit
-    check_name = "protected-acceptance-and-unit-suite"
-    result = "PASS"
-    return EvidenceRecord(
-        evidence_id="EVID-PR-001",
-        producer=producer,
-        repository=subject.repository,
-        head_commit=commit,
-        specification_digest=subject.specification_digest,
-        contract_digest=subject.contract_digest,
-        check_name=check_name,
-        result=result,
-        result_digest=ReviewEngine.digest(f"{subject.repository}|{commit}|{check_name}|{result}"),
-    )
+def approval(subject: PullRequestSubject, candidate: GitCandidate, scope: str) -> ApprovalRecord:
+    return protected_context(subject, candidate).approval(scope)
 
 
-def evaluate(
-    subject: PullRequestSubject,
-    candidate: GitCandidate,
-    approvals: list[ApprovalRecord],
-    evidence: list[EvidenceRecord],
-    *,
-    reviewers: dict[str, frozenset[str]] | None = None,
-):
-    engine = ReviewEngine(
-        reviewers or TRUSTED_REVIEWERS,
-        TRUSTED_PR_AUTHORS,
-        {record.approval_id: record for record in approvals},
-        {record.evidence_id: record for record in evidence},
-    )
-    return engine.evaluate(subject, candidate, approvals, evidence, now=NOW)
+def ci_evidence(subject: PullRequestSubject, candidate: GitCandidate) -> EvidenceRecord:
+    return protected_context(subject, candidate).acceptance_evidence()
+
+
+def evaluate(subject: PullRequestSubject, candidate: GitCandidate, approvals: Iterable[ApprovalRecord], evidence: Iterable[EvidenceRecord], *, grants: tuple[ReviewerGrant, ...] = REVIEWER_GRANTS, approval_registry: dict[str, ApprovalRecord] | None = None, evidence_registry: dict[str, EvidenceRecord] | None = None):
+    control = protected_context(subject, candidate)
+    if approval_registry is not None:
+        control.approvals = dict(approval_registry)
+    if evidence_registry is not None:
+        control.evidence = dict(evidence_registry)
+    return control.engine(grants=grants).evaluate(subject, candidate, approvals, evidence, now=NOW)
 
 
 def reference_assessment(root: Path):
     candidate = reference_candidate(root)
     subject = make_subject(root, candidate)
-    decision = evaluate(
-        subject,
-        candidate,
-        [approval(subject, "implementation", "reviewer-engineering", "engineering_reviewer")],
-        [ci_evidence(subject)],
-    )
-    return candidate, subject, decision
+    approved = approval(subject, candidate, "implementation")
+    evidence = ci_evidence(subject, candidate)
+    return candidate, subject, evaluate(subject, candidate, [approved], [evidence])
 
 
 def git_backed_experiments(root: Path) -> dict[str, bool]:
     harness = TrustedGitHarness()
     results: dict[str, bool] = {}
 
-    protected_spec = harness.create_candidate(
-        "ai-service",
-        {"specifications/approved-requirements.json": '{"ambiguity":"confidence_may_bypass_review"}\n'},
-    )
-    subject = make_subject(root, protected_spec, allowed_paths=("specifications",))
-    decision = evaluate(subject, protected_spec, [], [ci_evidence(subject)])
+    protected_spec = harness.create_candidate("ai-service", {"specifications/new-policy.json": "{}\n"})
+    subject = make_subject(root, protected_spec, allowed_paths=("specifications",), work_unit="WU-SPEC")
+    decision = evaluate(subject, protected_spec, [], [ci_evidence(subject, protected_spec)])
     results["unauthorized_spec_change"] = "UNAUTHORIZED_SPEC_CHANGE" in {f.code for f in decision.findings}
 
-    contract = harness.create_candidate(
-        "ai-service",
-        {"contracts/classification-v2.schema.json": '{"required":["confidence"]}\n'},
-    )
-    subject = make_subject(root, contract, allowed_paths=("contracts",))
-    decision = evaluate(
-        subject,
-        contract,
-        [approval(subject, "implementation", "reviewer-engineering", "engineering_reviewer")],
-        [ci_evidence(subject)],
-    )
+    contract = harness.create_candidate("ai-service", {"contracts/classification-v3.schema.json": "{}\n"})
+    subject = make_subject(root, contract, allowed_paths=("contracts",), work_unit="WU-CONTRACT")
+    decision = evaluate(subject, contract, [], [ci_evidence(subject, contract)])
     results["contract_owner_missing"] = "CONTRACT_APPROVAL_MISSING" in {f.code for f in decision.findings}
 
     candidate = reference_candidate(root)
     subject = make_subject(root, candidate)
-    stale = approval(subject, "implementation", "reviewer-engineering", "engineering_reviewer", head_commit=subject.base_commit)
-    decision = evaluate(subject, candidate, [stale], [ci_evidence(subject)])
+    stale = replace(approval(subject, candidate, "implementation"), head_commit=subject.base_commit)
+    decision = evaluate(subject, candidate, [stale], [ci_evidence(subject, candidate)], approval_registry={stale.approval_id: stale})
     results["stale_approval"] = "STALE_REVIEW_APPROVAL" in {f.code for f in decision.findings}
 
-    oracle = harness.create_candidate(
-        "ai-service",
-        {"tests/protected/test_acceptance.py": "def test_high_confidence_bypasses_review():\n    assert True\n"},
-    )
-    subject = make_subject(root, oracle, allowed_paths=("tests/protected",))
-    decision = evaluate(subject, oracle, [], [ci_evidence(subject)])
+    oracle = harness.create_candidate("ai-service", {"tests/protected/new_oracle.py": "assert True\n"})
+    subject = make_subject(root, oracle, allowed_paths=("tests/protected",), work_unit="WU-ORACLE")
+    decision = evaluate(subject, oracle, [], [ci_evidence(subject, oracle)])
     results["test_oracle_changed"] = "TEST_ORACLE_CHANGED" in {f.code for f in decision.findings}
-
     results["merge_group_conflict"] = harness.merge_group_conflicts()
 
     out_of_scope = harness.create_candidate("ai-service", {"infra/production-admin.tf": "allow = true\n"})
-    subject = make_subject(root, out_of_scope, allowed_paths=("src", "tests"))
-    decision = evaluate(subject, out_of_scope, [], [ci_evidence(subject)])
+    subject = make_subject(root, out_of_scope)
+    decision = evaluate(subject, out_of_scope, [], [ci_evidence(subject, out_of_scope)])
     results["awu_scope_violation"] = "AWU_SCOPE_VIOLATION" in {f.code for f in decision.findings}
 
     candidate = reference_candidate(root)
     subject = make_subject(root, candidate)
-    wrong_evidence = ci_evidence(subject, head_commit=subject.base_commit)
-    decision = evaluate(
-        subject,
-        candidate,
-        [approval(subject, "implementation", "reviewer-engineering", "engineering_reviewer")],
-        [wrong_evidence],
-    )
+    wrong = replace(ci_evidence(subject, candidate), head_commit=subject.base_commit)
+    decision = evaluate(subject, candidate, [approval(subject, candidate, "implementation")], [wrong], evidence_registry={wrong.evidence_id: wrong})
     results["evidence_subject_mismatch"] = "EVIDENCE_SUBJECT_MISMATCH" in {f.code for f in decision.findings}
-
-    decision = evaluate(subject, candidate, [], [ci_evidence(subject)])
+    decision = evaluate(subject, candidate, [], [ci_evidence(subject, candidate)])
     results["required_review_missing"] = "REQUIRED_REVIEW_MISSING" in {f.code for f in decision.findings}
 
-    self_approval = approval(subject, "implementation", subject.author, "engineering_reviewer")
-    trusted = {**TRUSTED_REVIEWERS, subject.author: frozenset({"engineering_reviewer"})}
-    decision = evaluate(subject, candidate, [self_approval], [ci_evidence(subject)], reviewers=trusted)
+    self_record = replace(approval(subject, candidate, "implementation"), reviewer=subject.author)
+    self_grant = ReviewerGrant(subject.author, self_record.role, self_record.resource, self_record.decision)
+    decision = evaluate(subject, candidate, [self_record], [ci_evidence(subject, candidate)], grants=REVIEWER_GRANTS + (self_grant,), approval_registry={self_record.approval_id: self_record})
     results["self_approval_denied"] = "SELF_APPROVAL_DENIED" in {f.code for f in decision.findings}
-
-    decision = evaluate(
-        subject,
-        candidate,
-        [approval(subject, "implementation", "reviewer-engineering", "engineering_reviewer")],
-        [ci_evidence(subject)],
-    )
+    decision = evaluate(subject, candidate, [approval(subject, candidate, "implementation")], [ci_evidence(subject, candidate)])
     results["deployment_authority_separate"] = decision.state == "ELIGIBLE_FOR_MERGE_REVIEW" and not decision.deployment_authorized
     return results
 
@@ -218,23 +135,19 @@ def conformance_checks(root: Path) -> dict[str, bool]:
 def evaluation_checks(root: Path) -> dict[str, bool]:
     candidate, subject, decision = reference_assessment(root)
     experiments = git_backed_experiments(root)
-    expired = replace(
-        approval(subject, "implementation", "reviewer-engineering", "engineering_reviewer"),
-        expires_at=NOW - timedelta(seconds=1),
-    )
-    expired_decision = evaluate(subject, candidate, [expired], [ci_evidence(subject)])
-    untrusted_decision = evaluate(
-        subject,
-        candidate,
-        [approval(subject, "implementation", "reviewer-engineering", "engineering_reviewer")],
-        [ci_evidence(subject, producer="agent-reported-ci")],
-    )
+    good_approval = approval(subject, candidate, "implementation")
+    good_evidence = ci_evidence(subject, candidate)
+    expired = replace(good_approval, expires_at=NOW - timedelta(seconds=1))
+    expired_decision = evaluate(subject, candidate, [expired], [good_evidence], approval_registry={expired.approval_id: expired})
+    forged_approval = replace(good_approval, approval_id="APR-FORGED-999")
+    forged_evidence = replace(good_evidence, evidence_id="EVID-FORGED-999", result_digest=ReviewEngine.digest("claimed pass"))
+    bad_records = evaluate(subject, candidate, [forged_approval], [forged_evidence])
     checks = {
         "EVAL-001-reference-eligible": decision.state == "ELIGIBLE_FOR_MERGE_REVIEW",
         "EVAL-002-base-ancestry": candidate.base_is_ancestor,
         "EVAL-003-two-changed-paths": len(candidate.changed_paths) == 2,
         "EVAL-004-implementation-scope": decision.required_scopes == ("implementation",),
-        "EVAL-005-trusted-evidence-recorded": decision.evidence_ids == ("EVID-PR-001",),
+        "EVAL-005-protected-evidence-recorded": decision.evidence_ids == ("EVID-PR-001",),
         "EVAL-006-merge-not-authorized": not decision.merge_authorized,
         "EVAL-007-deploy-not-authorized": not decision.deployment_authorized,
         "EVAL-008-release-not-authorized": not decision.release_authorized,
@@ -249,62 +162,81 @@ def evaluation_checks(root: Path) -> dict[str, bool]:
         "EVAL-017-self-approval": experiments["self_approval_denied"],
         "EVAL-018-deploy-separate": experiments["deployment_authority_separate"],
         "EVAL-019-expired-approval": "STALE_REVIEW_APPROVAL" in {f.code for f in expired_decision.findings},
-        "EVAL-020-untrusted-evidence": "UNTRUSTED_EVIDENCE_PRODUCER" in {f.code for f in untrusted_decision.findings},
-        "EVAL-021-spec-digest-full": len(subject.specification_digest) == 71,
-        "EVAL-022-contract-digest-full": len(subject.contract_digest) == 71,
-        "EVAL-023-author-not-reviewer": subject.author != "reviewer-engineering",
+        "EVAL-020-forged-approval": "APPROVAL_RECORD_UNVERIFIED" in {f.code for f in bad_records.findings},
+        "EVAL-021-forged-evidence": "EVIDENCE_RECORD_UNVERIFIED" in {f.code for f in bad_records.findings},
+        "EVAL-022-protected-test-executed": good_evidence.execution_id == f"RUN-{subject.head_commit[:12]}",
+        "EVAL-023-author-not-reviewer": subject.author != good_approval.reviewer,
         "EVAL-024-git-observed-not-declared": tuple(sorted(candidate.changed_paths)) == decision.actual_changed_paths,
         "EVAL-025-no-production-credential": all("token" not in value.lower() for value in candidate.blobs.values()),
         "EVAL-026-review-state-typed": decision.state in {"ELIGIBLE_FOR_MERGE_REVIEW", "BLOCKED"},
         "EVAL-027-findings-structured": all(f.code and f.severity and f.detail for f in expired_decision.findings),
-        "EVAL-028-review-expires": expired.expires_at < NOW,
+        "EVAL-028-independent-artifact-digests": len(subject.specification_digest) == len(subject.contract_digest) == 71,
     }
     return checks
 
 
-def strategy_comparison() -> dict[str, dict[str, int | str]]:
+@dataclass(frozen=True)
+class ChangeNode:
+    name: str
+    build: int
+    review: int
+    rework: int
+    dependencies: tuple[str, ...] = ()
+    review_lane: int = 0
+
+
+def _simulate(nodes: tuple[ChangeNode, ...], late_conflicts: int) -> dict[str, object]:
+    completed: dict[str, int] = {}
+    lane_available: dict[int, int] = {}
+    events: list[dict[str, int | str]] = []
+    for node in nodes:
+        build_start = max((completed[item] for item in node.dependencies), default=0)
+        build_end = build_start + node.build
+        review_start = max(build_end, lane_available.get(node.review_lane, 0))
+        done = review_start + node.review + node.rework
+        lane_available[node.review_lane] = review_start + node.review
+        completed[node.name] = done
+        events.append({"change": node.name, "build_start": build_start, "review_start": review_start, "completed": done})
     return {
-        "mega_pr": {"lead_time_hours": 30, "review_effort_hours": 11, "rework_hours": 9, "late_contract_conflicts": 3, "source": "synthetic teaching workload"},
-        "staged_prs": {"lead_time_hours": 26, "review_effort_hours": 8, "rework_hours": 3, "late_contract_conflicts": 0, "source": "synthetic teaching workload"},
-        "parallel_repositories": {"lead_time_hours": 21, "review_effort_hours": 9, "rework_hours": 4, "late_contract_conflicts": 1, "source": "synthetic teaching workload"},
+        "lead_time_hours": max(completed.values()),
+        "review_effort_hours": sum(node.review for node in nodes),
+        "rework_hours": sum(node.rework for node in nodes),
+        "late_contract_conflicts": late_conflicts,
+        "review_cycles": len(nodes) + sum(1 for node in nodes if node.rework),
+        "events": events,
+        "model": "deterministic event simulation",
+        "source": "synthetic teaching workload",
     }
+
+
+def strategy_comparison(root: Path = ROOT) -> dict[str, dict[str, object]]:
+    results = {}
+    for path in sorted((root / "strategies").glob("*.json")):
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        nodes = tuple(ChangeNode(
+            item["id"], item["build_hours"], item["review_hours"], item["rework_hours"],
+            tuple(item.get("dependencies", ())), item.get("review_lane", 0),
+        ) for item in payload["nodes"])
+        results[payload["id"]] = _simulate(nodes, payload["late_contract_conflicts"])
+    return results
 
 
 def run_reference(root: Path) -> dict[str, object]:
     candidate, subject, decision = reference_assessment(root)
-    conformance = conformance_checks(root)
-    evaluation = evaluation_checks(root)
-    experiments = git_backed_experiments(root)
+    conformance, evaluation, experiments = conformance_checks(root), evaluation_checks(root), git_backed_experiments(root)
     passed = all(conformance.values()) and all(evaluation.values()) and all(experiments.values())
     return {
-        "course_validation": {"status": "PASS" if passed else "FAIL", "fixture_boundary": "credential-free deterministic teaching system"},
+        "course_validation": {"status": "PASS" if passed else "FAIL", "fixture_boundary": "credential-free protected-control-plane teaching system"},
         "candidate_assessment": {
-            "state": decision.state,
-            "pull_request": subject.pull_request,
-            "repository": subject.repository,
-            "base_commit": subject.base_commit,
-            "head_commit": subject.head_commit,
-            "specification_digest": subject.specification_digest,
-            "contract_digest": subject.contract_digest,
-            "actual_changed_paths": list(decision.actual_changed_paths),
-            "required_scopes": list(decision.required_scopes),
-            "evidence_ids": list(decision.evidence_ids),
-            "merge_authorized": decision.merge_authorized,
-            "deployment_authorized": decision.deployment_authorized,
-            "release_authorized": decision.release_authorized,
+            "state": decision.state, "pull_request": subject.pull_request, "repository": subject.repository,
+            "base_commit": subject.base_commit, "head_commit": subject.head_commit,
+            "specification_digest": subject.specification_digest, "contract_digest": subject.contract_digest,
+            "actual_changed_paths": list(decision.actual_changed_paths), "required_scopes": list(decision.required_scopes),
+            "evidence_ids": list(decision.evidence_ids), "merge_authorized": False, "deployment_authorized": False, "release_authorized": False,
         },
         "git_experiments": {"passed": sum(experiments.values()), "total": len(experiments), "results": experiments},
         "conformance": {"passed": sum(conformance.values()), "total": len(conformance), "results": conformance},
-        "evaluation": {
-            "passed": sum(evaluation.values()),
-            "total": len(evaluation),
-            "population": {"positive": 8, "negative": 12, "boundary": 4, "failure_recovery": 4},
-            "results": evaluation,
-        },
-        "strategy_comparison": strategy_comparison(),
+        "evaluation": {"passed": sum(evaluation.values()), "total": len(evaluation), "population": {"positive": 8, "negative": 12, "boundary": 4, "failure_recovery": 4}, "results": evaluation},
+        "strategy_comparison": strategy_comparison(root),
         "non_authorities": {"merge": False, "deployment": False, "release": False},
-        "observability": {
-            "recorded_fields": ["change_id", "pull_request", "repository", "base_commit", "head_commit", "specification_digest", "contract_digest", "actual_changed_paths", "required_scopes", "approval_id", "reviewer_identity", "evidence_id", "decision", "finding_code"],
-            "private_reasoning_recorded": False,
-        },
     }

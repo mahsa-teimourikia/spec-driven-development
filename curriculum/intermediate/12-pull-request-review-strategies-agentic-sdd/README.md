@@ -268,7 +268,7 @@ evidence:
   - EVID-PR-001
 ```
 
-The envelope is an index, not proof. The trusted service resolves the commits, checks ancestry, derives the diff, resolves ownership, verifies approval records, and validates evidence records.
+The envelope is an index, not proof. `allowed_paths` is a requested scope, not authority. The trusted service resolves the commits, checks ancestry, derives both sides of renames and deletions, loads the approved work unit, resolves versioned ownership by longest normalized prefix, verifies approval records, and validates evidence records.
 
 ### 18. Approval record
 
@@ -277,6 +277,8 @@ approval_id: APR-IMPLEMENTATION-001
 reviewer: <authenticated-principal>
 role: engineering_reviewer
 scope: implementation
+resource: repository:ai-service
+decision: approve_implementation
 repository: ai-service
 head_commit: <full-sha>
 specification_digest: sha256:<digest>
@@ -286,23 +288,25 @@ expires_at: <timestamp>
 state: ACTIVE
 ```
 
-Role text supplied by an agent is not authority. The service derives reviewer roles from authenticated organizational state.
+Role text supplied by an agent is not authority. The protected registry binds the principal to an exact role, resource, and permitted decision. It also rejects approvals issued in the future, expired approvals, and approvals for another revision.
 
 ### 19. Evidence record
 
 ```yaml
 evidence_id: EVID-PR-001
-producer: trusted-ci
+producer: protected-acceptance-runner
 repository: ai-service
 head_commit: <full-sha>
 specification_digest: sha256:<digest>
 contract_digest: sha256:<digest>
-check_name: protected-acceptance-and-unit-suite
+check_name: protected-acceptance
 result: PASS
 result_digest: sha256:<digest>
+execution_id: RUN-<head-prefix>
+protected_test_digest: sha256:<digest>
 ```
 
-The result digest prevents accidental subject/result substitution in this teaching model. Production systems additionally need durable storage, authenticated producers, tamper resistance, retention, and revocation semantics.
+The digest is an integrity field, not authentication. The protected runner clones the exact commit from a trusted Git bundle, executes an independently controlled acceptance oracle, and writes the observed result into a registry that candidate records cannot populate. Production systems additionally need isolated execution, durable storage, attestable producer identity, tamper resistance, retention, and revocation semantics.
 
 ---
 
@@ -455,9 +459,9 @@ These are teaching values, not recommendations. Calibrate limits using arrival r
 
 Comment count, approval count, and time spent are weak review-depth proxies. Controlled seeded-defect evaluations provide stronger evidence.
 
-### 30. Synthetic strategy comparison
+### 30. Event-based synthetic strategy comparison
 
-The lab reports the supplied illustrative workload:
+The lab executes the same dependency graph and review-capacity assumptions for each strategy. Each result includes build start, review start, completion, review cycles, rework, and conflicts:
 
 | Metric | Mega-PR | Staged | Parallel |
 | --- | ---: | ---: | ---: |
@@ -466,7 +470,7 @@ The lab reports the supplied illustrative workload:
 | Rework (hours) | 9 | 3 | 4 |
 | Late contract conflicts | 3 | 0 | 1 |
 
-These values are not benchmark claims. They demonstrate why lead time alone cannot select a strategy.
+These values are computed by a deterministic event simulation, not supplied benchmark claims. They demonstrate why lead time alone cannot select a strategy, and conclusions remain bounded to the fixture's durations, dependencies, reviewer lanes, and rework assumptions.
 
 ---
 
@@ -488,7 +492,7 @@ real temporary Git repositories
              │
       ┌──────┴───────┐
       ▼              ▼
-approval registry  evidence registry
+approval registry  protected CI registry
       └──────┬───────┘
              ▼
  ELIGIBLE_FOR_MERGE_REVIEW | BLOCKED
@@ -525,7 +529,7 @@ The lab executes:
 - 12 conformance cases;
 - 28 labelled evaluation decisions: 8 positive, 12 negative, 4 boundary, and 4 failure/recovery;
 - 10 Git-backed review experiments; and
-- one synthetic three-strategy comparison.
+- one deterministic event simulation comparing three strategies over the same synthetic workload.
 
 Populations, numerators, denominators, units, and synthetic inputs are explicit in the JSON report.
 
@@ -535,7 +539,7 @@ Populations, numerators, denominators, units, and synthetic inputs are explicit 
 
 ### 35. What the teaching system proves
 
-It proves that, for the generated fixture subjects, the application can derive Git revisions and paths, resolve required scopes, reject stale/self approvals, validate trusted evidence, detect a combined merge conflict, and stop at merge-review eligibility.
+It proves that, for the generated fixture subjects, the application can derive Git revisions and both rename paths, resolve required scopes from a versioned ownership policy, reject stale/self/forged approvals, resolve authoritative spec and contract digests, execute an independent protected oracle at the exact commit, detect a combined merge conflict, and stop at merge-review eligibility.
 
 ### 36. What it does not prove
 
@@ -545,6 +549,7 @@ It proves that, for the generated fixture subjects, the application can derive G
 - Temporary local Git storage provides production-grade durability.
 - A PASS authorizes merge, deployment, release, or a policy exception.
 - The examples cover every supply-chain threat or untrusted-code execution risk.
+- The fixture's path parser covers adds, modifications, deletions, copies, and renames; production review must additionally govern symlinks, submodules, case-folding, Unicode normalization, and platform-specific filename rules.
 
 ### 37. Production upgrades
 

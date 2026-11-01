@@ -1,6 +1,10 @@
 {
   "id": "mega_pr",
-  "decision_boundaries": ["intent", "contract", "implementation", "integration"],
-  "synthetic_metrics": {"lead_time_hours": 30, "review_effort_hours": 11, "rework_hours": 9, "late_contract_conflicts": 3},
-  "warning": "Values are illustrative simulation inputs, not measured organizational performance."
+  "review_lanes": 1,
+  "nodes": [
+    {"id": "all-in-one", "build_hours": 10, "review_hours": 11, "rework_hours": 9, "dependencies": []}
+  ],
+  "late_contract_conflicts": 3,
+  "expected_simulation": {"lead_time_hours": 30, "review_effort_hours": 11, "rework_hours": 9},
+  "warning": "Synthetic event-model assumptions, not measured organizational performance."
 }

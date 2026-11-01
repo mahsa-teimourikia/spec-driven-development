@@ -4,7 +4,7 @@
 
 ### Requirement: exact review subject
 
-The control plane SHALL derive the base commit, head commit, ancestry, and changed paths from trusted Git state.
+The control plane SHALL derive the base commit, head commit, ancestry, and both source and destination paths for renames, copies, and deletions from trusted Git state.
 
 #### Scenario: contributor declares a smaller diff
 
@@ -13,7 +13,7 @@ The control plane SHALL derive the base commit, head commit, ancestry, and chang
 
 ### Requirement: revision-bound approvals and evidence
 
-The control plane SHALL reject approvals and evidence that do not bind the exact head, specification digest, and contract digest.
+The control plane SHALL reject approvals and evidence that do not exist in independently maintained registries or do not bind the exact head, authoritative specification digest, and authoritative contract digest.
 
 #### Scenario: commit follows approval
 
@@ -22,4 +22,8 @@ The control plane SHALL reject approvals and evidence that do not bind the exact
 
 ### Requirement: independent authority
 
-An implementation author SHALL NOT approve its own protected change, and merge-review eligibility SHALL NOT imply deployment or release authority.
+The control plane SHALL resolve work-unit paths, ownership rules, approved artifacts, and reviewer authority from protected stores. Reviewer grants SHALL bind principal, role, resource, and permitted decision. An implementation author SHALL NOT approve its own protected change, and merge-review eligibility SHALL NOT imply deployment or release authority.
+
+### Requirement: independent conformance execution
+
+The protected runner SHALL check out the exact candidate commit, execute an oracle outside the contributor test suite, register the observed result, and block a candidate whose own tests pass while the protected oracle fails.
