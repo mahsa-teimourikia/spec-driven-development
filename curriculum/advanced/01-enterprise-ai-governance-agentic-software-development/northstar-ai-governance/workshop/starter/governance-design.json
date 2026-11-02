@@ -1,0 +1,17 @@
+{
+  "case": "AI-UC-2500 autonomous underwriting-status update above 98 percent confidence",
+  "learner_decisions": {
+    "change_classification": "TODO",
+    "registry_updates": "TODO",
+    "risk_and_policy_floors": "TODO",
+    "human_authority": "TODO",
+    "evidence_obligations": "TODO",
+    "reassessment_and_activation": "TODO",
+    "runtime_containment": "TODO"
+  },
+  "constraints": [
+    "The current approval is proposal-only.",
+    "Confidence is not authorization.",
+    "The coding agent cannot approve its own authority expansion."
+  ]
+}

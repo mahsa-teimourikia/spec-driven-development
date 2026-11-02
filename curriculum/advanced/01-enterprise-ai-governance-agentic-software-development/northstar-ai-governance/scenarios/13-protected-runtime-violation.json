@@ -1,0 +1,1 @@
+{"id":"GOV-13","mutation":"authenticated monitor observes human-review bypass","expected":"SUSPENDED","proof":"Protected-invariant violation changes the authoritative use-case lifecycle and invalidates the prior subject."}

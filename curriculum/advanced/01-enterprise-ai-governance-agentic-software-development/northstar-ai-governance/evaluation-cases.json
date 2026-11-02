@@ -1,0 +1,15 @@
+[
+  {"id": "ADV-01", "scenario": "exact bounded use", "expected": "ALLOWED"},
+  {"id": "ADV-02", "scenario": "missing privacy evidence", "expected": "INSUFFICIENT_EVIDENCE"},
+  {"id": "ADV-03", "scenario": "revoked model", "expected": "MODEL_NOT_APPROVED"},
+  {"id": "ADV-04", "scenario": "self-downgraded risk", "expected": "RISK_TIER_MISMATCH"},
+  {"id": "ADV-05", "scenario": "missing human oversight", "expected": "HUMAN_OVERSIGHT_UNVERIFIED"},
+  {"id": "ADV-06", "scenario": "unauthorized autonomy", "expected": "UNAUTHORIZED_AUTONOMY"},
+  {"id": "ADV-07", "scenario": "unknown residency", "expected": "DATA_RESIDENCY_UNKNOWN"},
+  {"id": "ADV-08", "scenario": "wrong approval subject", "expected": "APPROVAL_SUBJECT_MISMATCH"},
+  {"id": "ADV-09", "scenario": "agent self approval", "expected": "APPROVER_NOT_AUTHORIZED"},
+  {"id": "ADV-10", "scenario": "policy change invalidates approval", "expected": "APPROVAL_POLICY_STALE"},
+  {"id": "ADV-11", "scenario": "model change reassessment", "expected": "REASSESSMENT_REQUIRED"},
+  {"id": "ADV-12", "scenario": "tool change reassessment", "expected": "REASSESSMENT_REQUIRED"},
+  {"id": "ADV-13", "scenario": "protected runtime violation", "expected": "SUSPENDED"}
+]

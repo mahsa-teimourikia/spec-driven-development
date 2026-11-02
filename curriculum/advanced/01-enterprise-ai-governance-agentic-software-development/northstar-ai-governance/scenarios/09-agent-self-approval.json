@@ -1,0 +1,1 @@
+{"id":"GOV-09","mutation":"use implementation-agent session to approve","expected":"APPROVER_NOT_AUTHORIZED","proof":"Authenticated role is resolved outside the request."}

@@ -1,0 +1,17 @@
+[
+  {
+    "id": "TOOL-DOCUMENT-READ",
+    "effect": "READ_ONLY",
+    "scope": "authorized broker documents"
+  },
+  {
+    "id": "TOOL-REVIEW-PROPOSE",
+    "effect": "PROPOSAL_ONLY",
+    "scope": "human review queue"
+  },
+  {
+    "id": "TOOL-UNDERWRITING-MUTATE",
+    "effect": "AUTHORITATIVE_MUTATION",
+    "scope": "underwriting requirement status"
+  }
+]

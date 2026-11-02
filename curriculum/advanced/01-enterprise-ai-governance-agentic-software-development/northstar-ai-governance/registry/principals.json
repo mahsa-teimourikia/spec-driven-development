@@ -1,0 +1,17 @@
+[
+  {
+    "id": "ai-governance-owner-1",
+    "status": "ACTIVE",
+    "roles": ["ai_governance_authority"]
+  },
+  {
+    "id": "governance-executor-1",
+    "status": "ACTIVE",
+    "roles": ["protected_executor"]
+  },
+  {
+    "id": "coding-agent-2500",
+    "status": "ACTIVE",
+    "roles": ["implementation_agent"]
+  }
+]

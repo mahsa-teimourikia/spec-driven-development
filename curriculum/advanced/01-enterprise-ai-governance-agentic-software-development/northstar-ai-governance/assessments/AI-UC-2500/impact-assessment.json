@@ -1,0 +1,16 @@
+{
+  "id": "RISK-AI2500-01",
+  "use_case_id": "AI-UC-2500",
+  "methodology": "NORTHSTAR-AI-RISK@3",
+  "dimensions": {
+    "decision_consequence": 3,
+    "autonomy": 2,
+    "data_sensitivity": 3,
+    "external_exposure": 2,
+    "model_uncertainty": 2,
+    "reversibility": 3
+  },
+  "approved_tier": "CONSEQUENTIAL",
+  "owner": "Underwriting Governance",
+  "limitations": "Illustrative enterprise assessment; not a legal classification."
+}

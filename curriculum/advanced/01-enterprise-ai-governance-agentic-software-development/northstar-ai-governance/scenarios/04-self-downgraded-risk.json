@@ -1,0 +1,1 @@
+{"id":"GOV-04","mutation":"change use-case risk tier to LOW","expected":"RISK_TIER_MISMATCH","proof":"Control plane derives the tier from assessment and floors."}

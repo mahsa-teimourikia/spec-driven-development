@@ -1,0 +1,13 @@
+{
+  "version": "course25-conformance@1",
+  "required_scenarios": 13,
+  "protected_invariants": [
+    "agent_cannot_approve_own_use_case",
+    "risk_floor_cannot_be_averaged_away",
+    "evidence_is_authenticated_and_subject_bound",
+    "approval_is_exact_current_and_single_use",
+    "policy_or_component_change_requires_reassessment",
+    "protected_executor_rechecks_current_governance_state",
+    "authenticated_protected_invariant_violation_suspends_capability"
+  ]
+}

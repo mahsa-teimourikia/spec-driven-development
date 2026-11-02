@@ -1227,6 +1227,58 @@ const course24 = {
   }
 };
 
+const course25 = {
+  id: 'c25', course: 25, level: 'advanced', part: 'V · Enterprise controls', status: 'available',
+  title: 'Enterprise AI Governance for Agentic Software Development',
+  summary: 'Translate governance intent into authoritative registries, contextual risk and policy floors, independently verified evidence, accountable approval, protected execution, and lifecycle reassessment.',
+  outcomes: [
+    'Distinguish organizational, model, application, and agent governance.',
+    'Resolve canonical use-case, model, agent, tool, assessment, and principal relationships.',
+    'Combine contextual risk scoring with mandatory policy floors that agents cannot lower.',
+    'Authenticate evidence and bind it to the exact model, agent, policy, and use-case subject.',
+    'Separate known prohibitions from missing, stale, expired, or unresolved evidence.',
+    'Recheck current state and atomically consume exact-subject accountable approval.',
+    'Select targeted reassessment after model, prompt, retrieval, tool, or policy changes.'
+  ],
+  readme: `${REPO}/blob/main/curriculum/advanced/01-enterprise-ai-governance-agentic-software-development/README.md`,
+  notebook: `${REPO}/blob/main/curriculum/advanced/01-enterprise-ai-governance-agentic-software-development/northstar-ai-governance/ai_governance.ipynb`,
+  lab: `${REPO}/blob/main/curriculum/advanced/01-enterprise-ai-governance-agentic-software-development/northstar-ai-governance/lab.py`,
+  repoFixture: `${REPO}/tree/main/curriculum/advanced/01-enterprise-ai-governance-agentic-software-development/northstar-ai-governance`,
+  run: 'python3 curriculum/advanced/01-enterprise-ai-governance-agentic-software-development/northstar-ai-governance/lab.py',
+  labs: [
+    {
+      title: 'Lab A — Execute the AI-governance control plane',
+      description: 'Run 13 golden scenarios and 13 adversarial decisions across registry resolution, policy floors, evidence, approval, replay, change impact, and runtime suspension.',
+      command: 'python3 curriculum/advanced/01-enterprise-ai-governance-agentic-software-development/northstar-ai-governance/lab.py',
+      links: [['View the governance lab', `${REPO}/blob/main/curriculum/advanced/01-enterprise-ai-governance-agentic-software-development/northstar-ai-governance/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/advanced/01-enterprise-ai-governance-agentic-software-development/northstar-ai-governance/ai_governance.ipynb`]]
+    },
+    {
+      title: 'Lab B — Govern the AI-UC-2500 authority expansion',
+      description: 'Resolve seven staff-level decisions for a proposed move from classification proposals to autonomous underwriting-state mutation.',
+      command: 'Complete the seven starter decisions, run Lab A, then inspect the reference design.',
+      links: [['Open the AI-UC-2500 workshop', `${REPO}/tree/main/curriculum/advanced/01-enterprise-ai-governance-agentic-software-development/northstar-ai-governance`], ['Complete the starter design', `${REPO}/blob/main/curriculum/advanced/01-enterprise-ai-governance-agentic-software-development/northstar-ai-governance/workshop/starter/governance-design.json`], ['Inspect the reference design', `${REPO}/blob/main/curriculum/advanced/01-enterprise-ai-governance-agentic-software-development/northstar-ai-governance/reference/governance-design.json`]]
+    }
+  ],
+  references: [
+    ['NIST AI Risk Management Framework', 'https://www.nist.gov/itl/ai-risk-management-framework'],
+    ['NIST AI RMF Core', 'https://airc.nist.gov/airmf-resources/airmf/5-sec-core/'],
+    ['ISO/IEC 42001:2023', 'https://www.iso.org/standard/42001'],
+    ['European Commission AI regulatory framework', 'https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai'],
+    ['OWASP Top 10 for Agentic Applications 2026', 'https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/'],
+    ['Open Policy Agent', 'https://www.openpolicyagent.org/docs/policy-language']
+  ],
+  checkpoint: {
+    question: 'The model is approved, its evaluation passes, and an authoritative tool call is schema-valid. May the agent update underwriting state?',
+    options: [
+      'Only if current policy, authenticated identity, delegated scope, exact-subject approval, protected execution, and all other applicable controls independently allow it.',
+      'Yes; model approval and schema validity grant business authority.',
+      'Yes whenever model confidence exceeds 98%.'
+    ],
+    answer: 0,
+    explanation: 'Model approval, evaluation, and schema validity do not grant business authority or replace the protected action boundary.'
+  }
+};
+
 function planned(course, level, part, title, summary) {
   return {
     id: `c${String(course).padStart(2, '0')}`, course, level, part,
@@ -1262,7 +1314,7 @@ const LESSONS = [
   course22,
   course23,
   course24,
-  planned(25, 'advanced', 'V · Enterprise controls', 'AI governance', 'Govern model use, data exposure, accountability, evaluation, and exceptions.'),
+  course25,
   planned(26, 'advanced', 'V · Enterprise controls', 'Architecture governance', 'Encode principles and fitness functions while preserving documented exceptions.'),
   planned(27, 'advanced', 'V · Enterprise controls', 'Testing and quality', 'Build layered evidence for generated changes and the specifications that direct them.'),
   planned(28, 'advanced', 'V · Enterprise controls', 'Observability', 'Specify telemetry and feedback needed to verify behavior after deployment.'),

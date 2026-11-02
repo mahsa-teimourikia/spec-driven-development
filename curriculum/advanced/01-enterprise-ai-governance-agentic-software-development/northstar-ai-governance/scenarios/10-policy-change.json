@@ -1,0 +1,1 @@
+{"id":"GOV-10","mutation":"change policy after approval","expected":"APPROVAL_POLICY_STALE","proof":"Executor rechecks current policy before consumption."}

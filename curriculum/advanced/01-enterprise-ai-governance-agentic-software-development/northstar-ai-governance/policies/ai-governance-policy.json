@@ -1,0 +1,19 @@
+{
+  "version": "ENTERPRISE-AI-POLICY@4",
+  "risk_thresholds": {
+    "low_max": 6,
+    "consequential_min": 15
+  },
+  "required_evidence": {
+    "LOW": ["security"],
+    "MODERATE": ["model_evaluation", "security", "privacy"],
+    "CONSEQUENTIAL": ["model_evaluation", "security", "privacy", "human_oversight"]
+  },
+  "reassessment_triggers": {
+    "model_revision": ["classification_accuracy", "ambiguity_handling", "evidence_grounding", "prompt_injection_resistance"],
+    "agent_tools": ["autonomy", "authorization", "human_oversight", "security"],
+    "prompt_revision": ["behavioral_evaluation", "injection_resistance"],
+    "retrieval_sources": ["data_authority", "freshness", "privacy", "grounding"],
+    "policy_version": ["applicability", "control_selection", "approval"]
+  }
+}

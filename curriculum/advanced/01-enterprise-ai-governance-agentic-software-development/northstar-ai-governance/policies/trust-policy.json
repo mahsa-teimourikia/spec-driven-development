@@ -1,0 +1,25 @@
+{
+  "version": "GOVERNANCE-TRUST@2",
+  "evidence_producers": {
+    "northstar-evaluation-service": {
+      "key_id": "evaluation-verification-v1",
+      "kinds": ["model_evaluation"]
+    },
+    "northstar-security-service": {
+      "key_id": "security-verification-v1",
+      "kinds": ["security"]
+    },
+    "northstar-privacy-service": {
+      "key_id": "privacy-verification-v1",
+      "kinds": ["privacy"]
+    },
+    "northstar-review-service": {
+      "key_id": "oversight-verification-v1",
+      "kinds": ["human_oversight"]
+    },
+    "northstar-runtime-monitor": {
+      "key_id": "runtime-verification-v1",
+      "kinds": ["runtime_violation"]
+    }
+  }
+}

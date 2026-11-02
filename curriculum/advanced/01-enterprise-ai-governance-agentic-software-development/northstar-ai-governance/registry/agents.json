@@ -1,0 +1,9 @@
+[
+  {
+    "id": "AGENT-2500",
+    "revision": "agent-v7",
+    "status": "APPROVED",
+    "autonomy_level": "A1",
+    "tool_ids": ["TOOL-DOCUMENT-READ", "TOOL-REVIEW-PROPOSE"]
+  }
+]
