@@ -33,8 +33,15 @@ def evidence_for(plane: GovernanceControlPlane, kind: str, *, expires_at: str = 
         "privacy": "northstar-privacy-service",
         "human_oversight": "northstar-review-service",
     }
+    claims = {
+        "model_evaluation": "MODEL-QUALITY-CLASSIFICATION",
+        "security": "SECURITY-AGENT-BOUNDARY",
+        "privacy": "PRIVACY-DATA-HANDLING",
+        "human_oversight": "OVERSIGHT-HUMAN-REVIEW",
+    }
     record = Evidence(
-        f"EVD-2500-{kind.upper()}", kind, plane.subject_digest("AI-UC-2500"),
+        f"EVD-2500-{kind.upper()}", claims[kind], kind,
+        plane.subject_digest("AI-UC-2500"),
         producers[kind], "PASS", NOW, expires_at,
         {
             "model_revision": subject["model"]["revision"],
@@ -50,7 +57,7 @@ def evidence_for(plane: GovernanceControlPlane, kind: str, *, expires_at: str = 
 def runtime_violation_for(plane: GovernanceControlPlane) -> tuple[Evidence, str]:
     subject = plane.subject("AI-UC-2500")
     record = Evidence(
-        "OBS-2500-REVIEW-BYPASS", "runtime_violation",
+        "OBS-2500-REVIEW-BYPASS", "RUNTIME-HUMAN-REVIEW-BYPASS", "runtime_violation",
         plane.subject_digest("AI-UC-2500"), "northstar-runtime-monitor", "FAIL",
         NOW, FUTURE,
         {
@@ -58,14 +65,48 @@ def runtime_violation_for(plane: GovernanceControlPlane) -> tuple[Evidence, str]
             "agent_revision": subject["agent"]["revision"],
             "policy_version": plane.policy["version"],
         },
-        {"protected_invariant": "HUMAN_REVIEW_BYPASS", "population": 12, "violations": 1},
+        {
+            "protected_invariant": "HUMAN_REVIEW_BYPASS",
+            "deployment_id": "DEPLOY-AI-2500-PROD-1",
+            "environment": "production",
+            "observation_window": {
+                "start": "2026-11-01T15:00:00Z",
+                "end": "2026-11-01T15:59:00Z"
+            },
+            "population": 12,
+            "violations": 1,
+            "event_ids": ["EVENT-REVIEW-BYPASS-001"]
+        },
+    )
+    key_id = plane.trust["evidence_producers"][record.producer]["key_id"]
+    return record, sign_evidence(record, plane.keys[key_id])
+
+
+def reinstatement_for(plane: GovernanceControlPlane) -> tuple[Evidence, str]:
+    subject = plane.subject("AI-UC-2500")
+    record = Evidence(
+        "EVD-2500-REINSTATEMENT-001", "REINSTATEMENT-HUMAN-REVIEW", "reinstatement",
+        plane.subject_digest("AI-UC-2500"), "northstar-review-service", "PASS",
+        LATER, FUTURE,
+        {
+            "model_revision": subject["model"]["revision"],
+            "agent_revision": subject["agent"]["revision"],
+            "policy_version": plane.policy["version"],
+        },
+        {
+            "protected_invariant": "HUMAN_REVIEW_BYPASS",
+            "deployment_id": "DEPLOY-AI-2500-PROD-1",
+            "remediation_id": "REM-2500-001",
+            "verification_summary": "Human-review routing restored and independently verified."
+        },
     )
     key_id = plane.trust["evidence_producers"][record.producer]["key_id"]
     return record, sign_evidence(record, plane.keys[key_id])
 
 
 def register_required(plane: GovernanceControlPlane, *, omit: set[str] | None = None) -> None:
-    for kind in plane.policy["required_evidence"]["CONSEQUENTIAL"]:
+    for claim_id in plane.policy["required_claims"]["CONSEQUENTIAL"]:
+        kind = plane.policy["claim_catalog"][claim_id]["kind"]
         if kind in (omit or set()):
             continue
         record, signature = evidence_for(plane, kind)
@@ -98,12 +139,14 @@ def reference_operation(root: Path, database: Path) -> dict:
 
 
 def _scenario(root: Path, mutate: Callable[[GovernanceControlPlane], None] | None = None,
-              omit: set[str] | None = None) -> tuple[GovernanceControlPlane, tempfile.TemporaryDirectory]:
+              omit: set[str] | None = None, *, register: bool = True
+              ) -> tuple[GovernanceControlPlane, tempfile.TemporaryDirectory]:
     temporary = tempfile.TemporaryDirectory(prefix="course25-")
     plane = make_plane(root, Path(temporary.name) / "governance.db")
     if mutate:
         mutate(plane)
-    register_required(plane, omit=omit)
+    if register:
+        register_required(plane, omit=omit)
     return plane, temporary
 
 
@@ -172,7 +215,7 @@ def run_golden_scenarios(root: Path) -> dict:
     plane, temp = _scenario(root)
     decision = plane.evaluate("AI-UC-2500", LATER)
     receipt = plane.approve("AI-UC-2500", decision.subject_digest, "SESSION-AI-GOV", "operate_bounded_use_case", LATER, FUTURE)
-    plane.policy["version"] = "ENTERPRISE-AI-POLICY@5"
+    plane.policy["version"] = "ENTERPRISE-AI-POLICY@6"
     try:
         plane.authorize_operation(receipt.receipt_id, "OP-STALE", "SESSION-EXECUTOR", LATER)
         code = "NOT_REJECTED"
@@ -201,13 +244,80 @@ def run_golden_scenarios(root: Path) -> dict:
 
 
 def run_adversarial_evaluations(root: Path) -> dict:
+    """Execute every labelled mutation independently and compare actual outcomes."""
     cases = load_json(root / "evaluation-cases.json")
-    golden = run_golden_scenarios(root)["results"]
-    observed = {item["name"]: item["passed"] for item in golden}
-    results = [
-        {"id": case["id"], "passed": observed.get(case["scenario"], False), "expected": case["expected"]}
-        for case in cases
-    ]
+    results: list[dict] = []
+    for case in cases:
+        plane, temporary = _scenario(root, register=False)
+        scenario = case["scenario"]
+        try:
+            # Mutate before evidence production so the evaluator tests the intended
+            # control rather than accidentally passing because evidence is stale.
+            if scenario == "revoked model":
+                plane.models["MODEL-012"]["status"] = "REVOKED"
+            elif scenario == "self-downgraded risk":
+                plane.use_cases["AI-UC-2500"]["risk_tier"] = "LOW"
+            elif scenario == "missing human oversight":
+                plane.use_cases["AI-UC-2500"]["human_oversight"] = "UNVERIFIED"
+            elif scenario == "unauthorized autonomy":
+                plane.agents["AGENT-2500"]["tool_ids"].append("TOOL-UNDERWRITING-MUTATE")
+            elif scenario == "unknown residency":
+                plane.use_cases["AI-UC-2500"]["data_residency"] = "UNKNOWN"
+            elif scenario == "combined lifecycle and residency mutation":
+                plane.agents["AGENT-2500"]["status"] = "REVOKED"
+                plane.tools["TOOL-DOCUMENT-READ"]["status"] = "DISABLED"
+                plane.use_cases["AI-UC-2500"]["data_residency"] = "UNKNOWN"
+
+            if scenario == "model change reassessment":
+                impact = plane.change_impact("AI-UC-2500", {"model_revision": "model-v13"})
+                actual_decision = impact["state"]
+                actual_findings = sorted(impact["required_reassessment"])
+            elif scenario == "tool change reassessment":
+                impact = plane.change_impact("AI-UC-2500", {"agent_tools": "expanded"})
+                actual_decision = impact["state"]
+                actual_findings = sorted(impact["required_reassessment"])
+            elif scenario == "protected runtime violation":
+                observation, signature = runtime_violation_for(plane)
+                decision = plane.suspend_on_violation("AI-UC-2500", observation, signature, LATER)
+                actual_decision, actual_findings = decision.decision, sorted(decision.findings)
+            else:
+                omit = {"privacy"} if scenario == "missing privacy evidence" else set()
+                register_required(plane, omit=omit)
+                decision = plane.evaluate("AI-UC-2500", LATER)
+                if scenario in {"exact bounded use", "wrong approval subject", "agent self approval",
+                                "policy change invalidates approval"}:
+                    if scenario == "wrong approval subject":
+                        plane.approve("AI-UC-2500", "sha256:wrong", "SESSION-AI-GOV",
+                                      "operate_bounded_use_case", LATER, FUTURE)
+                    elif scenario == "agent self approval":
+                        plane.approve("AI-UC-2500", decision.subject_digest, "SESSION-AGENT",
+                                      "operate_bounded_use_case", LATER, FUTURE)
+                    else:
+                        receipt = plane.approve(
+                            "AI-UC-2500", decision.subject_digest, "SESSION-AI-GOV",
+                            "operate_bounded_use_case", LATER, FUTURE,
+                        )
+                        if scenario == "policy change invalidates approval":
+                            plane.policy["version"] = "ENTERPRISE-AI-POLICY@6"
+                        decision = plane.authorize_operation(
+                            receipt.receipt_id, f"OP-{case['id']}", "SESSION-EXECUTOR", LATER
+                        )
+                        actual_decision, actual_findings = decision.decision, sorted(decision.findings)
+                else:
+                    actual_decision, actual_findings = decision.decision, sorted(decision.findings)
+        except GovernanceError as exc:
+            actual_decision, actual_findings = "ERROR", [exc.code]
+        finally:
+            plane.close()
+            temporary.cleanup()
+        expected_findings = sorted(case["expected_findings"])
+        results.append({
+            "id": case["id"],
+            "passed": (actual_decision == case["expected_decision"]
+                       and actual_findings == expected_findings),
+            "expected": {"decision": case["expected_decision"], "findings": expected_findings},
+            "observed": {"decision": actual_decision, "findings": actual_findings},
+        })
     return {"passed": sum(item["passed"] for item in results), "total": len(results), "results": results}
 
 

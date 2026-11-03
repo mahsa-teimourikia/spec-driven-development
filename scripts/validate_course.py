@@ -3869,6 +3869,8 @@ def check_course_25_ai_governance() -> list[str]:
         scenario / "registry/models.json",
         scenario / "registry/agents.json",
         scenario / "registry/tools.json",
+        scenario / "registry/deployments.json",
+        scenario / "registry/assessment-approvals.json",
         scenario / "registry/principals.json",
         scenario / "policies/ai-governance-policy.json",
         scenario / "policies/trust-policy.json",
@@ -3917,8 +3919,8 @@ def check_course_25_ai_governance() -> list[str]:
     if (golden.get("passed"), golden.get("total")) != (13, 13):
         errors.append("Course 25 must retain thirteen passing golden scenarios")
     adversarial = report.get("adversarial_evaluations", {})
-    if (adversarial.get("passed"), adversarial.get("total")) != (13, 13):
-        errors.append("Course 25 must retain thirteen passing adversarial decisions")
+    if (adversarial.get("passed"), adversarial.get("total")) != (15, 15):
+        errors.append("Course 25 must retain fifteen independently executed adversarial decisions")
     reference = report.get("reference", {})
     if (
         reference.get("eligibility", {}).get("decision") != "ELIGIBLE_FOR_ACCOUNTABLE_APPROVAL"
@@ -3934,6 +3936,9 @@ def check_course_25_ai_governance() -> list[str]:
     required_controls = [
         "RISK_TIER_MISMATCH",
         "MODEL_NOT_APPROVED",
+        "AGENT_NOT_APPROVED",
+        "TOOL_NOT_APPROVED",
+        "TOOL_NOT_PERMITTED",
         "UNAUTHORIZED_AUTONOMY",
         "HUMAN_OVERSIGHT_UNVERIFIED",
         "EVIDENCE_AUTHENTICITY_UNVERIFIED",
@@ -3946,6 +3951,15 @@ def check_course_25_ai_governance() -> list[str]:
         "POINT_OF_USE_REVALIDATION_FAILED",
         "RUNTIME_VIOLATION_AUTHENTICITY_UNVERIFIED",
         "RUNTIME_VIOLATION_SUBJECT_MISMATCH",
+        "RUNTIME_INVARIANT_UNKNOWN",
+        "RUNTIME_DEPLOYMENT_MISMATCH",
+        "RUNTIME_OBSERVATION_INVALID",
+        "APPROVAL_EVIDENCE_SET_STALE",
+        "ASSESSMENT_AUTHORITY_UNVERIFIED",
+        "REASSESSMENT_REQUIRED",
+        "evidence_records",
+        "evidence_revocations",
+        "governance_state",
         "BEGIN IMMEDIATE",
     ]
     if any(fragment not in control for fragment in required_controls):
@@ -3964,9 +3978,11 @@ def check_course_25_ai_governance() -> list[str]:
     stored = json.loads((scenario / "evidence/manifest.json").read_text(encoding="utf-8"))
     if (
         stored.get("golden_scenarios") != 13
-        or stored.get("adversarial_evaluations") != 13
-        or stored.get("focused_tests") != 42
+        or stored.get("adversarial_evaluations") != 15
+        or stored.get("focused_tests") != 56
         or "atomic_single_use_approval" not in stored.get("verified_invariants", [])
+        or "durable_lifecycle_across_restart" not in stored.get("verified_invariants", [])
+        or "approval_bound_evidence_set" not in stored.get("verified_invariants", [])
     ):
         errors.append("Course 25 stored evidence summary is stale")
 
@@ -3980,7 +3996,7 @@ def check_course_25_ai_governance() -> list[str]:
         "const course25 = {",
         "01-enterprise-ai-governance-agentic-software-development/northstar-ai-governance/ai_governance.ipynb",
         "01-enterprise-ai-governance-agentic-software-development/northstar-ai-governance/workshop/starter/governance-design.json",
-        "13 golden scenarios and 13 adversarial decisions",
+        "13 golden scenarios and 15 adversarial decisions",
     ]
     if any(fragment not in hub for fragment in hub_fragments):
         errors.append("Course 25 Learning Hub entry is incomplete or points outside the workshop package")

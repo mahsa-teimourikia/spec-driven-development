@@ -3,6 +3,7 @@
     "id": "AGENT-2500",
     "revision": "agent-v7",
     "status": "APPROVED",
+    "permitted_use_case_ids": ["AI-UC-2500"],
     "autonomy_level": "A1",
     "tool_ids": ["TOOL-DOCUMENT-READ", "TOOL-REVIEW-PROPOSE"]
   }

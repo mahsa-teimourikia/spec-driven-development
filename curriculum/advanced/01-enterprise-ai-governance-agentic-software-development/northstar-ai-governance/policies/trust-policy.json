@@ -1,25 +1,36 @@
 {
-  "version": "GOVERNANCE-TRUST@2",
+  "version": "GOVERNANCE-TRUST@3",
   "evidence_producers": {
     "northstar-evaluation-service": {
       "key_id": "evaluation-verification-v1",
-      "kinds": ["model_evaluation"]
+      "kinds": ["model_evaluation"],
+      "claims": ["MODEL-QUALITY-CLASSIFICATION"]
     },
     "northstar-security-service": {
       "key_id": "security-verification-v1",
-      "kinds": ["security"]
+      "kinds": ["security"],
+      "claims": ["SECURITY-AGENT-BOUNDARY"]
     },
     "northstar-privacy-service": {
       "key_id": "privacy-verification-v1",
-      "kinds": ["privacy"]
+      "kinds": ["privacy"],
+      "claims": ["PRIVACY-DATA-HANDLING"]
     },
     "northstar-review-service": {
       "key_id": "oversight-verification-v1",
-      "kinds": ["human_oversight"]
+      "kinds": ["human_oversight", "reinstatement"],
+      "claims": ["OVERSIGHT-HUMAN-REVIEW", "REINSTATEMENT-HUMAN-REVIEW"]
     },
     "northstar-runtime-monitor": {
       "key_id": "runtime-verification-v1",
-      "kinds": ["runtime_violation"]
+      "kinds": ["runtime_violation"],
+      "claims": ["RUNTIME-HUMAN-REVIEW-BYPASS"]
+    }
+  },
+  "risk_assessment_authorities": {
+    "risk-owner-1": {
+      "key_id": "risk-verification-v1",
+      "methodologies": ["NORTHSTAR-AI-RISK@3"]
     }
   }
 }

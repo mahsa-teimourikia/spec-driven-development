@@ -294,8 +294,10 @@ The included [Rego excerpt](northstar-ai-governance/policies/governance.rego) il
 
 - resolves canonical registry relationships;
 - derives the risk tier and mandatory floors;
+- verifies the assessment owner, methodology, revision, signature, and validity window;
+- enforces policy-defined lifecycle status and permitted-use rules for agents and tools;
 - authenticates evidence producers;
-- binds evidence to model, agent, policy, and full subject digest;
+- stores append-only claim-specific evidence and binds the selected evidence-set digest to approval;
 - distinguishes `BLOCKED` from `INSUFFICIENT_EVIDENCE`;
 - authenticates human and executor principals;
 - rechecks current state; and
@@ -331,6 +333,8 @@ Record population, labels, provenance, metric numerator/denominator, slices, thr
 
 The lab's labelled cases prove only its deterministic fixture. They are not a benchmark of real model quality.
 
+Evidence is indexed by stable evidence ID and policy claim, not merely by a broad kind such as `security`. The durable store retains superseded and revoked records. Evaluation selects one current supporting record for every required claim, records that evidence-set digest in the approval, and re-resolves the set at point of use. A restart cannot erase evidence history, and revoking one selected record invalidates an unconsumed approval.
+
 ## 19. Human oversight must be operational
 
 “Human in the loop” is not satisfied by showing a confirmation dialog. Ask whether the reviewer has authenticated authority, enough information and time, independent evidence, a real ability to reject, and a protected boundary that prevents bypass.
@@ -359,6 +363,8 @@ Production controls should detect purpose or scope drift, unauthorized tool call
 
 Reassessment may continue, restrict, suspend, remediate, or retire the system. The coding agent can propose the response; accountable authority owns the decision.
 
+An actionable runtime observation names a registered protected invariant, the exact active deployment, model and agent revisions, environment, observation window, population, violation count, and supporting event IDs. A valid violation durably changes the authoritative lifecycle to `SUSPENDED`. Restarting the process does not restore access. Reinstatement requires authenticated human review and signed remediation evidence, transitions only to `REASSESSMENT_REQUIRED`, and never recreates approval automatically.
+
 ---
 
 # Part IX — Practical lab
@@ -374,16 +380,16 @@ contextual risk + mandatory policy floors
       ↓
 required-control and evidence selection
       ↓
-authenticated revision-bound evidence
+authenticated, claim-specific, durable evidence history
       ↓
-accountable exact-subject approval
+accountable exact-subject + evidence-set approval
       ↓
 protected point-of-use revalidation + atomic consumption
       ↓
 bounded ALLOWED operation or typed denial
 ```
 
-The standard-library lab executes 13 golden scenarios and 13 labelled adversarial decisions. It rejects self-downgraded risk, revoked models, unknown residency, missing oversight, unauthorized autonomy, forged/wrong-subject evidence, agent self-approval, stale approval, and replay; authenticated protected-invariant failure suspends the capability.
+The standard-library lab executes 13 golden scenarios and 15 independently executed adversarial decisions, including a clean control and a combined mutation. It rejects self-downgraded risk, revoked models and agents, disabled or unpermitted tools, unknown residency, unverified assessment authority, missing oversight, forged/wrong-subject evidence, agent self-approval, stale approval, and replay; a fully validated protected-invariant observation durably suspends the capability.
 
 ## 23. Failure-injection matrix
 
@@ -391,6 +397,8 @@ The standard-library lab executes 13 golden scenarios and 13 labelled adversaria
 |---|---|
 | Agent changes its risk tier | `RISK_TIER_MISMATCH` |
 | Approved model becomes revoked | `MODEL_NOT_APPROVED` |
+| Approved agent becomes revoked | `AGENT_NOT_APPROVED` |
+| Tool is disabled or not permitted for this use case | `TOOL_NOT_APPROVED` or `TOOL_NOT_PERMITTED` |
 | Privacy evidence is absent | `INSUFFICIENT_EVIDENCE` |
 | Evidence is forged | Reject before registration |
 | Authoritative mutation tool is added | Consequential floor plus `UNAUTHORIZED_AUTONOMY` |
@@ -398,11 +406,13 @@ The standard-library lab executes 13 golden scenarios and 13 labelled adversaria
 | Approval names a different digest | `APPROVAL_SUBJECT_MISMATCH` |
 | Agent requests self-approval | `APPROVER_NOT_AUTHORIZED` |
 | Policy changes before execution | Stale approval denial |
+| Selected evidence is revoked before execution | Evidence-set stale denial |
+| Runtime observation has an unknown invariant, wrong deployment, or impossible counts | Reject without lifecycle mutation |
 | Two executions race on one receipt | Exactly one `ALLOWED` |
 
 ## 24. Production upgrades
 
-Replace teaching HMAC fixtures with approved workload identity, managed keys, rotation/revocation, durable registry services, database migrations and availability design, independent evaluators, policy-bundle signing, jurisdictional applicability, privacy impact assessment, real model gateway enforcement, runtime telemetry, incident integration, retention/deletion controls, and qualified legal/compliance review.
+Replace teaching HMAC fixtures with approved workload identity, managed keys, rotation/revocation, durable registry services, database migrations and availability design, independent evaluators, policy-bundle signing, jurisdictional applicability, privacy impact assessment, real model gateway enforcement, runtime telemetry, incident integration, retention/deletion controls, and qualified legal/compliance review. Production time checks must use an authoritative trusted clock; callers must not choose the evaluation time.
 
 The local `ALLOWED` result authorizes no real production action.
 

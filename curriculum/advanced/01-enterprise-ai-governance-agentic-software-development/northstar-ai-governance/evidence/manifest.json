@@ -1,8 +1,8 @@
 {
   "course": 25,
   "golden_scenarios": 13,
-  "adversarial_evaluations": 13,
-  "focused_tests": 42,
+  "adversarial_evaluations": 15,
+  "focused_tests": 56,
   "reference_decisions": [
     "ELIGIBLE_FOR_ACCOUNTABLE_APPROVAL",
     "ALLOWED",
@@ -18,6 +18,13 @@
     "atomic_single_use_approval",
     "targeted_change_impact",
     "authenticated_runtime_suspension"
+    ,"durable_lifecycle_across_restart"
+    ,"append_only_claim_specific_evidence"
+    ,"approval_bound_evidence_set"
+    ,"verified_assessment_authority"
+    ,"agent_and_tool_lifecycle_enforcement"
+    ,"deployment_bound_runtime_observation"
+    ,"accountable_reinstatement_to_reassessment"
   ],
   "limitations": [
     "No live model is evaluated.",

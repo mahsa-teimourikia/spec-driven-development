@@ -1,5 +1,5 @@
 {
-  "version": "course25-conformance@1",
+  "version": "course25-conformance@2",
   "required_scenarios": 13,
   "protected_invariants": [
     "agent_cannot_approve_own_use_case",
@@ -8,6 +8,12 @@
     "approval_is_exact_current_and_single_use",
     "policy_or_component_change_requires_reassessment",
     "protected_executor_rechecks_current_governance_state",
-    "authenticated_protected_invariant_violation_suspends_capability"
+    "authenticated_protected_invariant_violation_suspends_capability",
+    "suspension_and_evidence_survive_restart",
+    "assessment_authority_is_independently_verified",
+    "agent_and_tool_lifecycle_are_enforced",
+    "approval_is_bound_to_selected_evidence_set",
+    "runtime_observation_matches_invariant_deployment_window_and_counts",
+    "reinstatement_requires_human_review_and_new_approval"
   ]
 }

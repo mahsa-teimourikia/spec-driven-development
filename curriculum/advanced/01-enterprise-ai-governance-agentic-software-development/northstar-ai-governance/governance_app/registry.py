@@ -29,10 +29,18 @@ def parse_time(value: str) -> datetime:
 
 
 def sign_evidence(evidence: Evidence, key: str) -> str:
-    return "hmac-sha256:" + hmac.new(
-        key.encode("utf-8"), canonical_bytes(evidence.payload()), hashlib.sha256
-    ).hexdigest()
+    return sign_payload(evidence.payload(), key)
 
 
 def verify_evidence(evidence: Evidence, signature: str, key: str) -> bool:
     return hmac.compare_digest(sign_evidence(evidence, key), signature)
+
+
+def sign_payload(payload: Any, key: str) -> str:
+    return "hmac-sha256:" + hmac.new(
+        key.encode("utf-8"), canonical_bytes(payload), hashlib.sha256
+    ).hexdigest()
+
+
+def verify_payload(payload: Any, signature: str, key: str) -> bool:
+    return hmac.compare_digest(sign_payload(payload, key), signature)

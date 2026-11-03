@@ -1,0 +1,18 @@
+[
+  {
+    "id": "RISK-APPROVAL-AI2500-01",
+    "use_case_id": "AI-UC-2500",
+    "payload": {
+      "assessment_id": "RISK-AI2500-01",
+      "assessment_digest": "sha256:ef48d11ecfc23dade9bf89e196e257e673602d707351f7daebf97ad1df6d2379",
+      "use_case_id": "AI-UC-2500",
+      "use_case_revision": "4",
+      "methodology": "NORTHSTAR-AI-RISK@3",
+      "approved_tier": "CONSEQUENTIAL",
+      "principal_id": "risk-owner-1",
+      "issued_at": "2026-10-20T16:00:00Z",
+      "expires_at": "2027-10-20T16:00:00Z"
+    },
+    "signature": "hmac-sha256:d06e900a2fa5761d194a5112c304ad9b0eb7a909fde210029f580188eb731608"
+  }
+]

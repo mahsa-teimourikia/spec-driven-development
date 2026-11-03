@@ -3,5 +3,6 @@
   "security-verification-v1": "course25-security-fixture-key",
   "privacy-verification-v1": "course25-privacy-fixture-key",
   "oversight-verification-v1": "course25-oversight-fixture-key",
-  "runtime-verification-v1": "course25-runtime-fixture-key"
+  "runtime-verification-v1": "course25-runtime-fixture-key",
+  "risk-verification-v1": "course25-risk-fixture-key"
 }

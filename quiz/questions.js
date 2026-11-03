@@ -2319,9 +2319,9 @@ const QUESTIONS = [
   {
     category: 'Course 25 evidence',
     question: 'A schema-valid evaluation result says PASS. Why may the control plane still reject it?',
-    options: ['Its producer, signature, subject, dependencies, freshness, or status may not satisfy policy', 'JSON cannot represent evaluation results', 'Only prompts can contain evidence', 'PASS always grants authority'],
+    options: ['Its claim, producer, signature, subject, dependencies, validity window, or revocation state may not satisfy policy', 'JSON cannot represent evaluation results', 'Only prompts can contain evidence', 'PASS always grants authority'],
     answer: 0,
-    explanation: 'Typed data is not automatically authentic, current, correctly scoped, or authoritative.'
+    explanation: 'Typed data is not automatically claim-relevant, authentic, current, unrevoked, correctly scoped, or authoritative.'
   },
   {
     category: 'Course 25 uncertainty',
@@ -2346,8 +2346,8 @@ const QUESTIONS = [
   },
   {
     category: 'Course 25 approval',
-    question: 'What happens when the policy revision changes after governance approval but before execution?',
-    options: ['Revalidate and reject the stale approval until the current subject is approved', 'Execute because approval is permanent', 'Let the agent update the receipt', 'Ignore the policy revision'],
+    question: 'What happens when the policy revision or selected evidence set changes after governance approval but before execution?',
+    options: ['Revalidate and reject the stale approval until the current subject and evidence set are approved', 'Execute because approval is permanent', 'Let the agent update the receipt', 'Ignore the changed inputs'],
     answer: 0,
     explanation: 'Consequential approval is bound to the exact subject and policy revision.'
   },

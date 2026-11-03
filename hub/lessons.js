@@ -1230,12 +1230,14 @@ const course24 = {
 const course25 = {
   id: 'c25', course: 25, level: 'advanced', part: 'V · Enterprise controls', status: 'available',
   title: 'Enterprise AI Governance for Agentic Software Development',
-  summary: 'Translate governance intent into authoritative registries, contextual risk and policy floors, independently verified evidence, accountable approval, protected execution, and lifecycle reassessment.',
+  summary: 'Translate governance intent into durable lifecycle state, authoritative registries, independently verified claim evidence, accountable approval, protected execution, and reassessment.',
   outcomes: [
     'Distinguish organizational, model, application, and agent governance.',
     'Resolve canonical use-case, model, agent, tool, assessment, and principal relationships.',
     'Combine contextual risk scoring with mandatory policy floors that agents cannot lower.',
     'Authenticate evidence and bind it to the exact model, agent, policy, and use-case subject.',
+    'Persist claim-specific evidence history and bind approval to the selected evidence-set digest.',
+    'Validate runtime invariant observations against the active deployment before durable suspension.',
     'Separate known prohibitions from missing, stale, expired, or unresolved evidence.',
     'Recheck current state and atomically consume exact-subject accountable approval.',
     'Select targeted reassessment after model, prompt, retrieval, tool, or policy changes.'
@@ -1248,7 +1250,7 @@ const course25 = {
   labs: [
     {
       title: 'Lab A — Execute the AI-governance control plane',
-      description: 'Run 13 golden scenarios and 13 adversarial decisions across registry resolution, policy floors, evidence, approval, replay, change impact, and runtime suspension.',
+      description: 'Run 13 golden scenarios and 15 adversarial decisions across registry resolution, policy floors, durable evidence, approval, replay, change impact, and runtime suspension.',
       command: 'python3 curriculum/advanced/01-enterprise-ai-governance-agentic-software-development/northstar-ai-governance/lab.py',
       links: [['View the governance lab', `${REPO}/blob/main/curriculum/advanced/01-enterprise-ai-governance-agentic-software-development/northstar-ai-governance/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/advanced/01-enterprise-ai-governance-agentic-software-development/northstar-ai-governance/ai_governance.ipynb`]]
     },

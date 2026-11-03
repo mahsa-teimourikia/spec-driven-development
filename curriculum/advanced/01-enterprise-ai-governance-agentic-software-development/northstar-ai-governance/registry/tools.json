@@ -1,16 +1,22 @@
 [
   {
     "id": "TOOL-DOCUMENT-READ",
+    "status": "APPROVED",
+    "permitted_use_case_ids": ["AI-UC-2500"],
     "effect": "READ_ONLY",
     "scope": "authorized broker documents"
   },
   {
     "id": "TOOL-REVIEW-PROPOSE",
+    "status": "APPROVED",
+    "permitted_use_case_ids": ["AI-UC-2500"],
     "effect": "PROPOSAL_ONLY",
     "scope": "human review queue"
   },
   {
     "id": "TOOL-UNDERWRITING-MUTATE",
+    "status": "APPROVED",
+    "permitted_use_case_ids": [],
     "effect": "AUTHORITATIVE_MUTATION",
     "scope": "underwriting requirement status"
   }

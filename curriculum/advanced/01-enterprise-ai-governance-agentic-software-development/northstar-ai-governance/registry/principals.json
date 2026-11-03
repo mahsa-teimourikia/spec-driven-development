@@ -1,5 +1,10 @@
 [
   {
+    "id": "risk-owner-1",
+    "status": "ACTIVE",
+    "roles": ["risk_owner"]
+  },
+  {
     "id": "ai-governance-owner-1",
     "status": "ACTIVE",
     "roles": ["ai_governance_authority"]

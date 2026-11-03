@@ -17,7 +17,8 @@ sys.path.insert(0, str(SCENARIO))
 from governance_app.models import Evidence, GovernanceError  # noqa: E402
 from governance_app.registry import sign_evidence  # noqa: E402
 from governance_app.simulation import (  # noqa: E402
-    FUTURE, LATER, NOW, evidence_for, make_plane, register_required, runtime_violation_for,
+    FUTURE, LATER, NOW, evidence_for, make_plane, register_required, reinstatement_for,
+    runtime_violation_for,
     run_adversarial_evaluations, run_golden_scenarios, run_reference,
 )
 
@@ -85,7 +86,9 @@ class Course25Tests(unittest.TestCase):
         self.assertIn("UNAUTHORIZED_AUTONOMY", decision.findings)
 
     def test_registration_is_not_approval(self):
-        self.plane.use_cases["AI-UC-2500"]["lifecycle"] = "REGISTERED"
+        self.plane.db.execute(
+            "UPDATE governance_state SET lifecycle = 'REGISTERED' WHERE use_case_id = 'AI-UC-2500'"
+        )
         self.assertIn("USE_CASE_NOT_APPROVED", self.plane.evaluate("AI-UC-2500", LATER).findings)
 
     def test_revoked_model_is_blocked(self):
@@ -95,6 +98,24 @@ class Course25Tests(unittest.TestCase):
     def test_model_task_mismatch_is_blocked(self):
         self.plane.models["MODEL-012"]["permitted_tasks"] = ["ADVISORY_SUMMARY"]
         self.assertIn("MODEL_TASK_NOT_PERMITTED", self.plane.evaluate("AI-UC-2500", LATER).findings)
+
+    def test_revoked_agent_is_blocked(self):
+        self.plane.agents["AGENT-2500"]["status"] = "REVOKED"
+        self.assertIn("AGENT_NOT_APPROVED", self.plane.evaluate("AI-UC-2500", LATER).findings)
+
+    def test_disabled_tool_is_blocked(self):
+        self.plane.tools["TOOL-DOCUMENT-READ"]["status"] = "DISABLED"
+        self.assertIn("TOOL_NOT_APPROVED", self.plane.evaluate("AI-UC-2500", LATER).findings)
+
+    def test_registered_tool_without_use_case_permission_is_blocked(self):
+        self.plane.agents["AGENT-2500"]["tool_ids"].append("TOOL-UNDERWRITING-MUTATE")
+        self.assertIn("TOOL_NOT_PERMITTED", self.plane.evaluate("AI-UC-2500", LATER).findings)
+
+    def test_unverified_risk_assessment_authority_is_insufficient(self):
+        self.plane.assessments["AI-UC-2500"]["approved_tier"] = "LOW"
+        decision = self.plane.evaluate("AI-UC-2500", LATER)
+        self.assertEqual(decision.decision, "INSUFFICIENT_EVIDENCE")
+        self.assertIn("ASSESSMENT_AUTHORITY_UNVERIFIED", decision.findings)
 
     def test_unknown_data_residency_is_insufficient_evidence(self):
         self.plane.use_cases["AI-UC-2500"]["data_residency"] = "UNKNOWN"
@@ -110,7 +131,7 @@ class Course25Tests(unittest.TestCase):
         register_required(self.plane, omit={"privacy"})
         decision = self.plane.evaluate("AI-UC-2500", LATER)
         self.assertEqual(decision.decision, "INSUFFICIENT_EVIDENCE")
-        self.assertIn("EVIDENCE_MISSING:privacy", decision.findings)
+        self.assertIn("EVIDENCE_MISSING:PRIVACY-DATA-HANDLING", decision.findings)
 
     def test_forged_evidence_is_rejected(self):
         record, _ = evidence_for(self.plane, "security")
@@ -128,6 +149,21 @@ class Course25Tests(unittest.TestCase):
             "EVIDENCE_FROM_FUTURE",
             lambda: self.plane.register_evidence("AI-UC-2500", future, signature, NOW),
         )
+
+    def test_malformed_evidence_interval_is_rejected(self):
+        record, _ = evidence_for(self.plane, "security", expires_at=NOW)
+        key = self.plane.keys["security-verification-v1"]
+        signature = sign_evidence(record, key)
+        self.assertGovernanceError(
+            "EVIDENCE_INTERVAL_INVALID",
+            lambda: self.plane.register_evidence("AI-UC-2500", record, signature, NOW),
+        )
+
+    def test_evidence_is_not_valid_before_issued_at(self):
+        register_required(self.plane)
+        decision = self.plane.evaluate("AI-UC-2500", "2026-10-31T16:00:00Z")
+        self.assertEqual(decision.decision, "INSUFFICIENT_EVIDENCE")
+        self.assertTrue(any("NOT_YET_VALID" in item for item in decision.findings))
 
     def test_untrusted_evidence_producer_is_rejected(self):
         record, _ = evidence_for(self.plane, "security")
@@ -148,13 +184,14 @@ class Course25Tests(unittest.TestCase):
         )
 
     def test_expired_evidence_is_insufficient(self):
-        for kind in self.plane.policy["required_evidence"]["CONSEQUENTIAL"]:
-            record, _ = evidence_for(self.plane, kind, expires_at=NOW)
+        for claim_id in self.plane.policy["required_claims"]["CONSEQUENTIAL"]:
+            kind = self.plane.policy["claim_catalog"][claim_id]["kind"]
+            record, _ = evidence_for(self.plane, kind, expires_at=LATER)
             key_id = self.plane.trust["evidence_producers"][record.producer]["key_id"]
             self.plane.register_evidence(
                 "AI-UC-2500", record, sign_evidence(record, self.plane.keys[key_id]), NOW
             )
-        decision = self.plane.evaluate("AI-UC-2500", LATER)
+        decision = self.plane.evaluate("AI-UC-2500", FUTURE)
         self.assertEqual(decision.decision, "INSUFFICIENT_EVIDENCE")
         self.assertTrue(any(item.startswith("EVIDENCE_EXPIRED") for item in decision.findings))
 
@@ -164,6 +201,41 @@ class Course25Tests(unittest.TestCase):
         decision = self.plane.evaluate("AI-UC-2500", LATER)
         self.assertEqual(decision.decision, "INSUFFICIENT_EVIDENCE")
         self.assertTrue(any("STALE_SUBJECT" in item for item in decision.findings))
+
+    def test_evidence_history_is_durable_and_versioned(self):
+        first, signature = evidence_for(self.plane, "security")
+        self.plane.register_evidence("AI-UC-2500", first, signature, NOW)
+        second = Evidence(**{**first.payload(), "evidence_id": "EVD-2500-SECURITY-V2"})
+        second_signature = sign_evidence(second, self.plane.keys["security-verification-v1"])
+        self.plane.register_evidence("AI-UC-2500", second, second_signature, NOW)
+        database = Path(self.directory.name) / "governance.db"
+        self.plane.close()
+        self.plane = make_plane(SCENARIO, database)
+        self.assertEqual(len(self.plane.evidence_history("AI-UC-2500")), 2)
+
+    def test_revoked_evidence_is_not_eligible_after_restart(self):
+        register_required(self.plane)
+        self.plane.revoke_evidence("EVD-2500-PRIVACY", "SESSION-AI-GOV", LATER)
+        database = Path(self.directory.name) / "governance.db"
+        self.plane.close()
+        self.plane = make_plane(SCENARIO, database)
+        decision = self.plane.evaluate("AI-UC-2500", LATER)
+        self.assertIn("EVIDENCE_MISSING:PRIVACY-DATA-HANDLING", decision.findings)
+        privacy = next(
+            item for item in self.plane.evidence_history("AI-UC-2500")
+            if item["evidence"]["claim_id"] == "PRIVACY-DATA-HANDLING"
+        )
+        self.assertEqual(privacy["revoked_by"], "ai-governance-owner-1")
+
+    def test_approval_is_bound_to_evidence_set(self):
+        receipt = self.receipt()
+        self.plane.revoke_evidence("EVD-2500-PRIVACY", "SESSION-AI-GOV", LATER)
+        self.assertGovernanceError(
+            "APPROVAL_EVIDENCE_SET_STALE",
+            lambda: self.plane.authorize_operation(
+                receipt.receipt_id, "OP-EVIDENCE-REVOKED", "SESSION-EXECUTOR", LATER
+            ),
+        )
 
     def test_complete_current_evidence_is_eligible_not_automatically_allowed(self):
         decision = self.eligible()
@@ -254,7 +326,7 @@ class Course25Tests(unittest.TestCase):
 
     def test_policy_change_invalidates_approval(self):
         receipt = self.receipt()
-        self.plane.policy["version"] = "ENTERPRISE-AI-POLICY@5"
+        self.plane.policy["version"] = "ENTERPRISE-AI-POLICY@6"
         self.assertGovernanceError(
             "APPROVAL_POLICY_STALE",
             lambda: self.plane.authorize_operation(receipt.receipt_id, "OP-1", "SESSION-EXECUTOR", LATER),
@@ -290,8 +362,65 @@ class Course25Tests(unittest.TestCase):
         observation, signature = runtime_violation_for(self.plane)
         decision = self.plane.suspend_on_violation("AI-UC-2500", observation, signature, LATER)
         self.assertEqual(decision.decision, "SUSPENDED")
-        self.assertEqual(self.plane.use_cases["AI-UC-2500"]["lifecycle"], "SUSPENDED")
+        self.assertEqual(self.plane.lifecycle("AI-UC-2500")["lifecycle"], "SUSPENDED")
         self.assertIn("HUMAN_REVIEW_BYPASS", decision.findings[0])
+
+    def test_suspension_survives_process_restart(self):
+        observation, signature = runtime_violation_for(self.plane)
+        self.plane.suspend_on_violation("AI-UC-2500", observation, signature, LATER)
+        database = Path(self.directory.name) / "governance.db"
+        self.plane.close()
+        self.plane = make_plane(SCENARIO, database)
+        self.assertEqual(self.plane.lifecycle("AI-UC-2500")["lifecycle"], "SUSPENDED")
+        self.assertIn("USE_CASE_NOT_APPROVED", self.plane.evaluate("AI-UC-2500", LATER).findings)
+
+    def test_reinstatement_requires_accountable_review_and_new_approval(self):
+        observation, signature = runtime_violation_for(self.plane)
+        self.plane.suspend_on_violation("AI-UC-2500", observation, signature, LATER)
+        evidence, review_signature = reinstatement_for(self.plane)
+        decision = self.plane.reinstate_after_review(
+            "AI-UC-2500", evidence, review_signature, "SESSION-AI-GOV", LATER
+        )
+        self.assertEqual(decision.decision, "REASSESSMENT_REQUIRED")
+        self.assertEqual(
+            self.plane.lifecycle("AI-UC-2500")["lifecycle"], "REASSESSMENT_REQUIRED"
+        )
+
+    def test_unknown_runtime_invariant_cannot_suspend(self):
+        observation, _ = runtime_violation_for(self.plane)
+        forged = Evidence(**{
+            **observation.payload(),
+            "details": {**observation.details, "protected_invariant": "UNREGISTERED_INVARIANT"},
+        })
+        signature = sign_evidence(forged, self.plane.keys["runtime-verification-v1"])
+        self.assertGovernanceError(
+            "RUNTIME_INVARIANT_UNKNOWN",
+            lambda: self.plane.suspend_on_violation("AI-UC-2500", forged, signature, LATER),
+        )
+
+    def test_runtime_observation_must_have_valid_counts_and_window(self):
+        observation, _ = runtime_violation_for(self.plane)
+        invalid = Evidence(**{
+            **observation.payload(),
+            "details": {**observation.details, "violations": 13},
+        })
+        signature = sign_evidence(invalid, self.plane.keys["runtime-verification-v1"])
+        self.assertGovernanceError(
+            "RUNTIME_OBSERVATION_INVALID",
+            lambda: self.plane.suspend_on_violation("AI-UC-2500", invalid, signature, LATER),
+        )
+
+    def test_runtime_observation_must_match_active_deployment(self):
+        observation, _ = runtime_violation_for(self.plane)
+        invalid = Evidence(**{
+            **observation.payload(),
+            "details": {**observation.details, "deployment_id": "DEPLOY-OTHER"},
+        })
+        signature = sign_evidence(invalid, self.plane.keys["runtime-verification-v1"])
+        self.assertGovernanceError(
+            "RUNTIME_DEPLOYMENT_MISMATCH",
+            lambda: self.plane.suspend_on_violation("AI-UC-2500", invalid, signature, LATER),
+        )
 
     def test_forged_runtime_violation_cannot_suspend_capability(self):
         observation, _ = runtime_violation_for(self.plane)
@@ -302,7 +431,7 @@ class Course25Tests(unittest.TestCase):
             ),
         )
         self.assertEqual(
-            self.plane.use_cases["AI-UC-2500"]["lifecycle"],
+            self.plane.lifecycle("AI-UC-2500")["lifecycle"],
             "APPROVED_FOR_BOUNDED_USE",
         )
 
@@ -316,7 +445,7 @@ class Course25Tests(unittest.TestCase):
 
     def test_adversarial_evaluations_retain_labelled_population(self):
         report = run_adversarial_evaluations(SCENARIO)
-        self.assertEqual((report["passed"], report["total"]), (13, 13))
+        self.assertEqual((report["passed"], report["total"]), (15, 15))
 
     def test_reference_stops_at_accountable_review(self):
         report = run_reference(SCENARIO)

@@ -17,6 +17,7 @@ class GovernanceError(RuntimeError):
 @dataclass(frozen=True)
 class Evidence:
     evidence_id: str
+    claim_id: str
     kind: str
     subject_digest: str
     producer: str
@@ -35,6 +36,7 @@ class ApprovalReceipt:
     receipt_id: str
     use_case_id: str
     subject_digest: str
+    evidence_set_digest: str
     policy_version: str
     action: str
     principal_id: str
@@ -51,6 +53,7 @@ class GovernanceDecision:
     risk_tier: str
     findings: tuple[str, ...]
     required_evidence: tuple[str, ...]
+    evidence_set_digest: str = ""
 
     def payload(self) -> dict[str, Any]:
         return {
@@ -61,4 +64,5 @@ class GovernanceDecision:
             "risk_tier": self.risk_tier,
             "findings": list(self.findings),
             "required_evidence": list(self.required_evidence),
+            "evidence_set_digest": self.evidence_set_digest,
         }
