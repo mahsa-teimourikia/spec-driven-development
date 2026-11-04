@@ -1,0 +1,9 @@
+{
+  "active_policy_version": "EA-POLICY@7",
+  "observation_producer": "trusted-architecture-scanner-v3",
+  "observation_key_id": "architecture-scanner-v1",
+  "runtime_evidence_producer": "network-policy-controller-v2",
+  "runtime_evidence_key_id": "network-policy-controller-v1",
+  "exception_authority_key_ids": ["architecture-board-v1"],
+  "warning": "This registry names trust anchors but contains no signing key material."
+}

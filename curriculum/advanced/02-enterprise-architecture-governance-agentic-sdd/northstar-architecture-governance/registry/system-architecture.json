@@ -1,0 +1,19 @@
+{
+  "version": "SYSTEM-ARCH-GRAPH@6",
+  "changes": [
+    {
+      "change_id": "ADR-028-RETRIEVAL-PLATFORM",
+      "repositories": ["ai-service", "document-service", "retrieval-control-plane"],
+      "contracts": ["retrieval-query-v3", "document-index-event-v2"],
+      "evaluations": ["retrieval-quality-suite", "residency-boundary-suite"],
+      "controls": ["EA-003", "DATA-RESIDENCY-004", "SUPPLY-CHAIN-007"]
+    },
+    {
+      "change_id": "ADR-025-AI-GATEWAY",
+      "repositories": ["ai-service", "enterprise-ai-gateway"],
+      "contracts": ["model-inference-v2"],
+      "evaluations": ["gateway-routing-suite"],
+      "controls": ["EA-001"]
+    }
+  ]
+}

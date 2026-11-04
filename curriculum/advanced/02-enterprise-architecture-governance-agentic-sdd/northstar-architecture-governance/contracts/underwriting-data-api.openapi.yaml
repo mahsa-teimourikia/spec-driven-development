@@ -1,0 +1,22 @@
+openapi: 3.1.0
+info:
+  title: Northstar Underwriting Data API boundary
+  version: 2.0.0-training
+paths:
+  /underwriting-submissions/{submissionId}/evidence:
+    get:
+      operationId: readUnderwritingEvidence
+      summary: Read policy-filtered evidence through the capability-owned API
+      parameters:
+        - name: submissionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Authorized evidence projection
+        "403":
+          description: Purpose or identity not permitted
+        "404":
+          description: Submission not found or intentionally undisclosed

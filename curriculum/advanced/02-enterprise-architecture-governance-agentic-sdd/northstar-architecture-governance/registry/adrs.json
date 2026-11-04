@@ -1,0 +1,34 @@
+{
+  "version": "ADR-REGISTRY@11",
+  "records": [
+    {
+      "id": "ADR-025",
+      "title": "Route model access through the enterprise AI gateway",
+      "status": "ACCEPTED",
+      "scope": "enterprise",
+      "revision": "3"
+    },
+    {
+      "id": "ADR-026",
+      "title": "Access underwriting data through its governed API",
+      "status": "ACCEPTED",
+      "scope": "enterprise",
+      "revision": "2"
+    },
+    {
+      "id": "ADR-027",
+      "title": "Use embedded retrieval stores in each service",
+      "status": "SUPERSEDED",
+      "scope": "solution",
+      "revision": "1",
+      "superseded_by": "ADR-028"
+    },
+    {
+      "id": "ADR-028",
+      "title": "Use the managed retrieval platform",
+      "status": "ACCEPTED",
+      "scope": "enterprise",
+      "revision": "1"
+    }
+  ]
+}

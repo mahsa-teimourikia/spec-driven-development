@@ -1,0 +1,1 @@
+{"id":"policy-shadow","mutation":"policy_shadow","expected_decision":"BLOCKED","expected_finding":"POLICY_SHADOWING_ATTEMPT"}

@@ -1,0 +1,27 @@
+{
+  "version": "TECH-STANDARD@12",
+  "approved_technologies": [
+    "northstar-ai-gateway",
+    "opensearch-py",
+    "psycopg"
+  ],
+  "architecture_review_technologies": [
+    "pinecone-client",
+    "weaviate-client",
+    "qdrant-client"
+  ],
+  "exception_eligible_rules": [
+    "EA-001",
+    "EA-004",
+    "EA-005",
+    "ARCH-LAYER-001"
+  ],
+  "approved_runtime_destinations": [
+    "enterprise-ai-gateway.internal"
+  ],
+  "prohibited_direct_dependencies": [
+    "openai",
+    "anthropic",
+    "provider-sdk"
+  ]
+}

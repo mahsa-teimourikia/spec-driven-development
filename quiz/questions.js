@@ -2392,5 +2392,110 @@ const QUESTIONS = [
     options: ['None; it is bounded local teaching evidence', 'Permission to deploy any AI system', 'A permanent risk exception', 'Legal approval for underwriting automation'],
     answer: 0,
     explanation: 'The fixture proves local invariants and explicitly stops before organizational, production, legal, or certification authority.'
+  },
+  {
+    category: 'Course 26 decision rights',
+    question: 'Which choice most clearly belongs at the enterprise architecture level?',
+    options: ['All AI inference must cross the governed enterprise gateway', 'The name of a private helper function', 'The order of two internal refactorings', 'The local variable used for a response'],
+    answer: 0,
+    explanation: 'A shared control boundary for model access protects organization-wide policy, audit, and interoperability concerns.'
+  },
+  {
+    category: 'Course 26 hierarchy',
+    question: 'What is the relationship between a principle and an executable architecture constraint?',
+    options: ['The constraint operationalizes a bounded implication of the principle', 'They are interchangeable files', 'A principle is always executable', 'A constraint replaces all rationale'],
+    answer: 0,
+    explanation: 'Principles provide durable direction; standards and fitness functions translate applicable consequences into testable boundaries.'
+  },
+  {
+    category: 'Course 26 ADR lifecycle',
+    question: 'An accepted architecture decision changes. What best preserves traceability?',
+    options: ['Create a new ADR that supersedes the accepted ADR and preserve both', 'Rewrite the old ADR without history', 'Delete the old ADR', 'Ask the agent to remember the change'],
+    answer: 0,
+    explanation: 'Supersession preserves the rationale that governed earlier implementations and identifies the current decision.'
+  },
+  {
+    category: 'Course 26 authority',
+    question: 'A repository-local ADR conflicts with an active enterprise standard. What should happen?',
+    options: ['Route the conflict to accountable review while the enterprise standard remains active', 'Let the local ADR silently override it', 'Treat the newest file as authoritative', 'Let the coding agent select the authority'],
+    answer: 0,
+    explanation: 'A scoped ADR can refine higher authority, but cannot repeal it without the governed enterprise decision process.'
+  },
+  {
+    category: 'Course 26 evidence',
+    question: 'Why must the control plane derive changed files and dependencies instead of accepting compliant=true?',
+    options: ['Candidate self-claims are not independent evidence of their own conformance', 'JSON booleans are invalid', 'Git cannot identify changes', 'Architecture checks need no evidence'],
+    answer: 0,
+    explanation: 'The evaluator resolves facts from the exact candidate revision and trusted registries rather than trusting the subject under evaluation.'
+  },
+  {
+    category: 'Course 26 uncertainty',
+    question: 'Static analysis finds generic HTTP usage but cannot establish its runtime destination and no trusted egress evidence exists. Which state is most precise?',
+    options: ['INSUFFICIENT_EVIDENCE', 'CONFORMANT', 'DEPLOYED', 'PERMANENTLY_EXEMPT'],
+    answer: 0,
+    explanation: 'The action remains unproven without falsely claiming a known violation that available evidence cannot establish.'
+  },
+  {
+    category: 'Course 26 fitness functions',
+    question: 'Which check is an evolutionary architecture fitness function?',
+    options: ['A changed ADR triggers reassessment only for registered dependents', 'A linter checks whitespace', 'A prompt asks for clean code', 'A reviewer counts files'],
+    answer: 0,
+    explanation: 'Evolutionary fitness functions keep governing decisions connected to affected architecture evidence as the system changes.'
+  },
+  {
+    category: 'Course 26 layers',
+    question: 'Why block a domain module that imports an infrastructure database adapter?',
+    options: ['It reverses the governed dependency direction and couples domain policy to infrastructure', 'All imports are prohibited', 'Domain code cannot contain functions', 'Database adapters must be prompts'],
+    answer: 0,
+    explanation: 'The rule protects the domain boundary while leaving implementation freedom inside permitted layers.'
+  },
+  {
+    category: 'Course 26 graphs',
+    question: 'Why can repository-local checks miss an architecture violation?',
+    options: ['A new edge may form a cross-repository service cycle visible only in the system graph', 'Repositories have no dependencies', 'Cycles occur only in source files', 'Unit tests automatically model every service'],
+    answer: 0,
+    explanation: 'Distributed architecture properties require a registered graph across repository boundaries.'
+  },
+  {
+    category: 'Course 26 exceptions',
+    question: 'Which exception design is safest?',
+    options: ['Exact rule, resource digest, environment, policy revision, expiry, authority, and compensating evidence', 'A permanent team-wide bypass', 'A comment saying approved', 'An exception signed by the coding agent'],
+    answer: 0,
+    explanation: 'A narrow, revision-bound exception limits authority and fails closed when any material subject fact changes.'
+  },
+  {
+    category: 'Course 26 exceptions',
+    question: 'A development exception is presented for an identical production file. What should the control plane do?',
+    options: ['Reject it because the environment is part of the approved subject', 'Accept it because the bytes match', 'Let the model choose', 'Convert it into a standard'],
+    answer: 0,
+    explanation: 'Environment affects consequence and is an exact exception scope dimension.'
+  },
+  {
+    category: 'Course 26 revision binding',
+    question: 'Git HEAD advances after an architecture report is generated. What happens to that report?',
+    options: ['It is stale for the new HEAD and must not authorize a current decision', 'It remains current forever', 'The agent may edit its commit field', 'Only the filename matters'],
+    answer: 0,
+    explanation: 'Conformance evidence is bound to the exact evaluated revision.'
+  },
+  {
+    category: 'Course 26 change impact',
+    question: 'A retrieval-platform ADR changes. What is the preferred reassessment strategy?',
+    options: ['Invalidate registered dependent repositories, contracts, evaluations, and controls', 'Invalidate every enterprise artifact', 'Reuse all evidence automatically', 'Only update the ADR title'],
+    answer: 0,
+    explanation: 'Dependency-aware targeted invalidation is both safer than stale reuse and more efficient than indiscriminate reruns.'
+  },
+  {
+    category: 'Course 26 metrics',
+    question: 'The deterministic training suite reports 100% known-violation recall. What does that establish?',
+    options: ['Only that the implementation detects the labelled fixture population', 'Perfect production architecture detection', 'Legal compliance', 'A certified enterprise architecture'],
+    answer: 0,
+    explanation: 'Training-fixture metrics need explicit populations, numerators, denominators, and limitations.'
+  },
+  {
+    category: 'Course 26 authority boundary',
+    question: 'A revision-bound architecture report is CONFORMANT. What external authority does it grant?',
+    options: ['None by itself; it is evidence for protected governance and release decisions', 'Automatic production deployment', 'Permanent security approval', 'Permission to ignore AI governance'],
+    answer: 0,
+    explanation: 'Architecture conformance is one evidence domain and does not replace release, security, privacy, or AI-governance authority.'
   }
 ];

@@ -1281,6 +1281,58 @@ const course25 = {
   }
 };
 
+const course26 = {
+  id: 'c26', course: 26, level: 'advanced', part: 'V · Enterprise controls', status: 'available',
+  title: 'Enterprise Architecture Governance for Agentic SDD',
+  summary: 'Turn principles, standards, reference architectures, ADRs, constraints, and exceptions into independently derived, revision-bound conformance evidence while preserving local implementation freedom.',
+  outcomes: [
+    'Separate enterprise, solution, and implementation architecture decision rights.',
+    'Translate architecture intent into executable static, dynamic, structural, and evolutionary fitness functions.',
+    'Derive Git revisions, changed files, imports, endpoints, technologies, and dependency edges from candidate repositories.',
+    'Distinguish blocked conditions, architecture review, insufficient evidence, and reassessment.',
+    'Preserve ADR history and detect conflicts with enterprise standards or superseded decisions.',
+    'Bind exceptions to an exact rule, resource digest, environment, policy revision, time window, and compensating evidence.',
+    'Reject candidate policy shadowing, forged observations, stale reports, and self-issued exceptions.',
+    'Propagate architecture changes to registered repositories, contracts, evaluations, and controls.'
+  ],
+  readme: `${REPO}/blob/main/curriculum/advanced/02-enterprise-architecture-governance-agentic-sdd/README.md`,
+  notebook: `${REPO}/blob/main/curriculum/advanced/02-enterprise-architecture-governance-agentic-sdd/northstar-architecture-governance/architecture_governance.ipynb`,
+  lab: `${REPO}/blob/main/curriculum/advanced/02-enterprise-architecture-governance-agentic-sdd/northstar-architecture-governance/lab.py`,
+  repoFixture: `${REPO}/tree/main/curriculum/advanced/02-enterprise-architecture-governance-agentic-sdd/northstar-architecture-governance`,
+  run: 'python3 curriculum/advanced/02-enterprise-architecture-governance-agentic-sdd/northstar-architecture-governance/lab.py',
+  labs: [
+    {
+      title: 'Lab A — Execute the architecture-governance control plane',
+      description: 'Run 13 golden scenarios and 16 adversarial evaluations over real Git commits, AST-derived dependencies, ADR lifecycle, exact exceptions, stale evidence, and targeted change impact.',
+      command: 'python3 curriculum/advanced/02-enterprise-architecture-governance-agentic-sdd/northstar-architecture-governance/lab.py',
+      links: [['View the architecture lab', `${REPO}/blob/main/curriculum/advanced/02-enterprise-architecture-governance-agentic-sdd/northstar-architecture-governance/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/advanced/02-enterprise-architecture-governance-agentic-sdd/northstar-architecture-governance/architecture_governance.ipynb`]]
+    },
+    {
+      title: 'Lab B — Design the Claims Assistant architecture boundary',
+      description: 'Define enterprise and local decision rights, trusted evidence, fitness functions, exceptions, failure experiments, and targeted invalidation for a consequential multi-repository change.',
+      command: 'Complete the starter review, run Lab A, then inspect the reference design.',
+      links: [['Open the workshop', `${REPO}/tree/main/curriculum/advanced/02-enterprise-architecture-governance-agentic-sdd/northstar-architecture-governance`], ['Complete the starter review', `${REPO}/blob/main/curriculum/advanced/02-enterprise-architecture-governance-agentic-sdd/northstar-architecture-governance/workshop/starter/architecture-review.json`], ['Inspect the reference review', `${REPO}/blob/main/curriculum/advanced/02-enterprise-architecture-governance-agentic-sdd/northstar-architecture-governance/workshop/reference/architecture-review.json`]]
+    }
+  ],
+  references: [
+    ['AWS architectural decision records', 'https://docs.aws.amazon.com/prescriptive-guidance/latest/architectural-decision-records/'],
+    ['Azure architecture decision records', 'https://learn.microsoft.com/en-us/azure/well-architected/architect-role/architecture-decision-record'],
+    ['Open Policy Agent', 'https://www.openpolicyagent.org/docs'],
+    ['ArchUnit User Guide', 'https://www.archunit.org/userguide/html/000_Index.html'],
+    ['dependency-cruiser rules reference', 'https://github.com/sverweij/dependency-cruiser/blob/main/doc/rules-reference.md']
+  ],
+  checkpoint: {
+    question: 'A candidate adds architecture_compliant=true, a local ADR permitting direct provider access, and passing unit tests. Is the change conformant?',
+    options: [
+      'Only if trusted evaluators derive the facts, resolve current enterprise authority, and produce a current decision for the exact revision.',
+      'Yes; the repository ADR overrides the enterprise standard.',
+      'Yes; passing unit tests prove architecture conformance.'
+    ],
+    answer: 0,
+    explanation: 'Candidate artifacts can propose intent, but they cannot establish authority or independently attest their own conformance.'
+  }
+};
+
 function planned(course, level, part, title, summary) {
   return {
     id: `c${String(course).padStart(2, '0')}`, course, level, part,
@@ -1317,7 +1369,7 @@ const LESSONS = [
   course23,
   course24,
   course25,
-  planned(26, 'advanced', 'V · Enterprise controls', 'Architecture governance', 'Encode principles and fitness functions while preserving documented exceptions.'),
+  course26,
   planned(27, 'advanced', 'V · Enterprise controls', 'Testing and quality', 'Build layered evidence for generated changes and the specifications that direct them.'),
   planned(28, 'advanced', 'V · Enterprise controls', 'Observability', 'Specify telemetry and feedback needed to verify behavior after deployment.'),
   planned(29, 'advanced', 'V · Enterprise controls', 'Compliance', 'Map obligations to controls, evidence, retention, approvals, and audit narratives.'),

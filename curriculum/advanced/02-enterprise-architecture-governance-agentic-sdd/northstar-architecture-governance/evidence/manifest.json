@@ -1,0 +1,21 @@
+{
+  "manifest_id": "COURSE26-EVIDENCE-MANIFEST",
+  "producer": "trusted-architecture-scanner-v3",
+  "derived_facts": [
+    "git_base_and_head",
+    "changed_files",
+    "python_imports_and_urls",
+    "technology_dependencies",
+    "service_dependency_edges",
+    "externally_authenticated_runtime_egress",
+    "adr_references",
+    "candidate_policy_shadowing"
+  ],
+  "not_trusted_from_candidate": [
+    "compliant_boolean",
+    "risk_label",
+    "self-issued_exception",
+    "self-selected_policy_revision",
+    "deployment_authorization"
+  ]
+}

@@ -1,0 +1,1 @@
+{"id":"private-database","mutation":"private_database","expected_decision":"BLOCKED","expected_finding":"PRIVATE_DATASTORE_ACCESS"}

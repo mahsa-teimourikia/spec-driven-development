@@ -1,0 +1,1 @@
+{"id":"conflicting-adr","mutation":"conflicting_adr","expected_decision":"REVIEW_REQUIRED","expected_finding":"ADR_CONFLICTS_WITH_ENTERPRISE_STANDARD"}
