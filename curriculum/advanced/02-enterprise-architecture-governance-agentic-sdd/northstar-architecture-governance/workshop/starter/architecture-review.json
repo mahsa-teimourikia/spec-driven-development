@@ -1,0 +1,10 @@
+{
+  "system": "claims-assistant",
+  "business_capability": "TODO",
+  "governed_boundaries": [],
+  "architecture_rules": [],
+  "evidence_producers": [],
+  "exception_authority": "TODO",
+  "failure_experiments": [],
+  "known_limitations": []
+}

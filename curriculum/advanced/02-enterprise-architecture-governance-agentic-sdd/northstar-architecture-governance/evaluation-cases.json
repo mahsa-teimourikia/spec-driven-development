@@ -1,0 +1,11 @@
+{
+  "suite_id": "COURSE26-ADVERSARIAL-EVALUATION",
+  "case_count": 16,
+  "measures": [
+    "exact_decision_accuracy",
+    "known_violation_recall",
+    "clean_control_false_positive_rate",
+    "exception_validation_accuracy"
+  ],
+  "warning": "Results characterize the deterministic course fixture, not production detection quality."
+}

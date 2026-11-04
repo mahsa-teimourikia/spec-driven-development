@@ -1,0 +1,14 @@
+{
+  "suite_id": "COURSE26-ARCHITECTURE-CONFORMANCE",
+  "policy_version": "EA-POLICY@7",
+  "decision_vocabulary": [
+    "CONFORMANT",
+    "CONFORMANT_WITH_EXCEPTION",
+    "BLOCKED",
+    "REVIEW_REQUIRED",
+    "INSUFFICIENT_EVIDENCE",
+    "REASSESSMENT_REQUIRED"
+  ],
+  "required_scenarios": 13,
+  "rules": ["EA-001", "EA-003", "EA-004", "EA-005", "EA-006", "ARCH-LAYER-001", "ADR-GOV-001", "ADR-GOV-003"]
+}

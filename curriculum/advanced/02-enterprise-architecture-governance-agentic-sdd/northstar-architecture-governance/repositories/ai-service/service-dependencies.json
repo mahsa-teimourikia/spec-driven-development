@@ -1,0 +1,7 @@
+{
+  "edges": [
+    {"source": "ai-service", "target": "document-service", "mode": "async"},
+    {"source": "ai-service", "target": "underwriting-data-api", "mode": "sync"},
+    {"source": "ai-service", "target": "enterprise-ai-gateway", "mode": "sync"}
+  ]
+}

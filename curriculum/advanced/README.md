@@ -3,7 +3,7 @@
 This path makes the operating model governable at enterprise scale.
 
 25. [Enterprise AI Governance for Agentic Software Development](01-enterprise-ai-governance-agentic-software-development/README.md) — available with a guided [notebook](01-enterprise-ai-governance-agentic-software-development/northstar-ai-governance/ai_governance.ipynb), executable [control plane](01-enterprise-ai-governance-agentic-software-development/northstar-ai-governance/lab.py), and [AI-UC-2500 workshop](01-enterprise-ai-governance-agentic-software-development/northstar-ai-governance/README.md)
-26. Architecture governance
+26. [Enterprise Architecture Governance for Agentic SDD](02-enterprise-architecture-governance-agentic-sdd/README.md) — available with a guided [notebook](02-enterprise-architecture-governance-agentic-sdd/northstar-architecture-governance/architecture_governance.ipynb), executable [control plane](02-enterprise-architecture-governance-agentic-sdd/northstar-architecture-governance/lab.py), and [staff architecture workshop](02-enterprise-architecture-governance-agentic-sdd/northstar-architecture-governance/README.md)
 27. Testing and quality
 28. Observability
 29. Compliance
@@ -17,4 +17,4 @@ This path makes the operating model governable at enterprise scale.
 37. Continuous specification
 38. Specification-driven evaluation
 
-Course 25 begins the advanced path by making AI-governance decisions executable without granting agents governance authority. Courses 26–38 remain planned and will be published here as complete vertical slices. See the [course plan](../../COURSE_PLAN.md).
+Courses 25 and 26 begin the advanced path by making AI-governance and architecture-governance decisions executable without granting agents organizational authority. Courses 27–38 remain planned and will be published here as complete vertical slices. See the [course plan](../../COURSE_PLAN.md).

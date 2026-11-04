@@ -1,0 +1,1 @@
+{"id":"clean-gateway","mutation":"clean","expected_decision":"CONFORMANT","why":"Approved gateway and dependency graph."}

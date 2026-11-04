@@ -120,7 +120,7 @@ Each future course follows this learning arc, adapted where the subject demands 
 | Course | Level folder | Topic | Status | Prerequisite | Learner evidence |
 | --- | --- | --- | --- | --- | --- |
 | 25 | advanced/01 | Enterprise AI governance for agentic software development | **Available** | C15–C17, C23–C24 | AI-UC-2500 relational registry, contextual risk and policy floors, authenticated evidence, exact-subject governance approval, point-of-use enforcement, runtime suspension, 13 golden scenarios, and 13 adversarial decisions |
-| 26 | advanced/02 | Architecture governance | Planned | C09, C16–C23 | Automated standards plus exception and ADR workflow |
+| 26 | advanced/02 | Enterprise Architecture Governance for Agentic SDD | Available | C09, C16–C17, C20–C25 | Real-Git architecture facts, ADR lifecycle, fitness functions, exact exceptions, drift, and targeted impact |
 | 27 | advanced/03 | Testing and quality | Planned | C07–C08, C17 | Evidence portfolio, mutation/failure injection, release criteria |
 | 28 | advanced/04 | Observability | Planned | C10, C27 | Delivery/runtime traces, redaction, correlation, SLOs |
 | 29 | advanced/05 | Compliance | Planned | C23–C28 | Control-to-evidence mapping and reproducible audit bundle |

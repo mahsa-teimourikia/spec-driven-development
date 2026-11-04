@@ -1,0 +1,10 @@
+{
+  "system": "claims-assistant",
+  "business_capability": "explain claim evidence without adjudicating the claim",
+  "governed_boundaries": ["model access", "claims data", "external egress"],
+  "architecture_rules": ["AI through gateway", "claims data through owned API", "domain independent of infrastructure"],
+  "evidence_producers": ["trusted source scanner", "dependency graph builder", "network policy controller"],
+  "exception_authority": "enterprise architecture board",
+  "failure_experiments": ["direct provider import", "private database client", "expired exception", "dependency cycle"],
+  "known_limitations": ["dynamic runtime reflection requires runtime telemetry", "report does not authorize release"]
+}

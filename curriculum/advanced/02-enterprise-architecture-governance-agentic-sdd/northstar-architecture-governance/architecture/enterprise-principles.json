@@ -1,0 +1,20 @@
+{
+  "version": "EA-PRINCIPLES@4",
+  "principles": [
+    {
+      "id": "P-01",
+      "statement": "Business capabilities own their data and expose governed contracts.",
+      "rationale": "Avoid hidden coupling to private storage and preserve accountable ownership."
+    },
+    {
+      "id": "P-02",
+      "statement": "Consequential AI access crosses an enterprise control boundary.",
+      "rationale": "Central policy, audit, residency, and model controls must remain independently enforceable."
+    },
+    {
+      "id": "P-03",
+      "statement": "Architecture evidence is revision-bound and independently derived.",
+      "rationale": "Candidate-authored declarations cannot prove their own conformance."
+    }
+  ]
+}

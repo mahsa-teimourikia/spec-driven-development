@@ -1,0 +1,14 @@
+{
+  "version": "DEPENDENCY-RULES@5",
+  "layer_rule": {
+    "id": "ARCH-LAYER-001",
+    "source": "src/domain",
+    "forbidden_target": "src.infrastructure"
+  },
+  "allowed_service_edges": [
+    {"source": "ai-service", "target": "document-service", "mode": "async"},
+    {"source": "ai-service", "target": "underwriting-data-api", "mode": "sync"},
+    {"source": "ai-service", "target": "enterprise-ai-gateway", "mode": "sync"},
+    {"source": "document-service", "target": "audit-service", "mode": "async"}
+  ]
+}
