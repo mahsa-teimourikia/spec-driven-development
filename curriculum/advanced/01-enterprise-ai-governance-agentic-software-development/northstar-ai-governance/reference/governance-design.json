@@ -1,0 +1,14 @@
+{
+  "case": "AI-UC-2500 autonomous underwriting-status update above 98 percent confidence",
+  "learner_decisions": {
+    "change_classification": "Treat as a consequential system-authority expansion, not a model-threshold tuning change.",
+    "registry_updates": "Create a new agent revision and authoritative tool relation; update intended use, autonomy, affected stakeholders, and lifecycle to REASSESSMENT_REQUIRED.",
+    "risk_and_policy_floors": "Apply the authoritative-mutation policy floor and preserve the consequential path regardless of aggregate score.",
+    "human_authority": "Require governance, underwriting, security, and privacy decisions within their scopes; the implementation agent has no approval role.",
+    "evidence_obligations": "Evaluate calibration and errors on representative slices, authorization, replay, ambiguous inputs, review bypass, privacy, injection, idempotency, rollback, and actual forbidden outcomes.",
+    "reassessment_and_activation": "Invalidate proposal-only approval and dependent evidence; prefer shadow/proposal comparison before any separately approved bounded activation.",
+    "runtime_containment": "Monitor authoritative mutations, review bypass, population coverage, tenant isolation, and model/tool identity; disable the mutation capability on protected-invariant failure."
+  },
+  "recommended_decision": "Do not activate the authority expansion on confidence alone; retain proposal-only operation until the new exact subject clears accountable reassessment and authorization.",
+  "simpler_alternative": "Keep AI proposals and accelerate the authorized human review workflow."
+}

@@ -4,7 +4,7 @@
 
 ## Start here
 
-Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through Course 23, then complete [Course 24: CI/CD Quality Gates and Evidence-Based Release Governance](curriculum/intermediate/14-ci-cd-quality-gates-evidence-based-release-governance/README.md) with its guided [notebook](curriculum/intermediate/14-ci-cd-quality-gates-evidence-based-release-governance/northstar-release-control/release_governance.ipynb), executable [release-control lab](curriculum/intermediate/14-ci-cd-quality-gates-evidence-based-release-governance/northstar-release-control/lab.py), [AI-2500 workshop](curriculum/intermediate/14-ci-cd-quality-gates-evidence-based-release-governance/northstar-release-control/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
+Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through Course 24, then complete [Course 25: Enterprise AI Governance for Agentic Software Development](curriculum/advanced/01-enterprise-ai-governance-agentic-software-development/README.md) with its guided [notebook](curriculum/advanced/01-enterprise-ai-governance-agentic-software-development/northstar-ai-governance/ai_governance.ipynb), executable [governance-control lab](curriculum/advanced/01-enterprise-ai-governance-agentic-software-development/northstar-ai-governance/lab.py), [AI-UC-2500 workshop](curriculum/advanced/01-enterprise-ai-governance-agentic-software-development/northstar-ai-governance/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
 
 This is not simply a tutorial for one specification framework. The central skill is turning organizational intent, architecture rules, product requirements, and engineering constraints into a hierarchy of durable specifications that agents can execute—and humans can govern.
 
@@ -356,9 +356,24 @@ Course 24 turns green CI into a revision-bound delivery trust chain. You will:
 - reconcile unknown deployment outcomes before retry; and
 - distinguish complete rollback, governed forward repair, containment, and open business-state reconciliation.
 
+## Course 25 outcome
+
+Course 25 turns responsible-AI intent into an executable enterprise governance boundary. You will:
+
+- distinguish organizational, model, application, and agent governance;
+- resolve relational use-case, model, agent, tool, principal, and assessment records;
+- combine contextual risk scoring with mandatory policy floors;
+- prevent agents from lowering their own risk or approving authority expansion;
+- authenticate evidence and bind it to the exact current model, agent, policy, and use-case subject;
+- separate known prohibition from missing, stale, expired, or unresolved evidence;
+- issue and atomically consume exact-subject governance approval at a protected executor;
+- invalidate approval and evidence when current registry or policy state changes; and
+- select targeted reassessment after model, prompt, retrieval, tool, or policy changes; and
+- suspend the capability when an authenticated monitor reports a protected-invariant violation.
+
 ## Run locally
 
-Everything in Courses 01–24 is credential-free and uses the Python standard library. Courses 20–22 also invoke the installed Git executable to create isolated local repositories.
+Everything in Courses 01–25 is credential-free and uses the Python standard library. Courses 20–22 also invoke the installed Git executable to create isolated local repositories.
 
 ```bash
 python3 curriculum/beginner/01-why-agentic-coding-changes-pdlc/lab.py
@@ -386,6 +401,7 @@ python3 curriculum/intermediate/11-multi-repository-parallel-agent-delivery/nort
 python3 curriculum/intermediate/12-pull-request-review-strategies-agentic-sdd/northstar-pr-review/lab.py
 python3 curriculum/intermediate/13-human-approval-gates-delegated-authority/northstar-approval-control/lab.py
 python3 curriculum/intermediate/14-ci-cd-quality-gates-evidence-based-release-governance/northstar-release-control/lab.py
+python3 curriculum/advanced/01-enterprise-ai-governance-agentic-software-development/northstar-ai-governance/lab.py
 python3 -m unittest discover -s tests -v
 python3 scripts/validate_course.py
 ```

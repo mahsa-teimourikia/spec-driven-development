@@ -2287,5 +2287,110 @@ const QUESTIONS = [
     options: ['Nothing external; it is bounded local evidence for accountable review', 'Immediate production deployment', 'SLSA certification', 'Permanent model approval'],
     answer: 0,
     explanation: 'The lab stops before organizational policy approval, builder certification, and real deployment authority.'
+  },
+  {
+    category: 'Course 25 governance layers',
+    question: 'An enterprise model is approved for document classification. What else is required before one application may use it?',
+    options: ['Application- and agent-specific purpose, data, risk, evaluation, authority, and lifecycle controls', 'Nothing; model approval covers every use', 'Only a valid JSON schema', 'A coding-agent declaration'],
+    answer: 0,
+    explanation: 'Model approval is one relation in system governance; it does not approve every purpose, dataset, workflow, or action.'
+  },
+  {
+    category: 'Course 25 registration',
+    question: 'What does REGISTERED mean in the governance lifecycle?',
+    options: ['The use case is inventoried but not necessarily approved to operate', 'The use case is approved for production', 'Every model dependency passed evaluation', 'The agent may select its own risk tier'],
+    answer: 0,
+    explanation: 'Inventory and approval are separate authoritative transitions.'
+  },
+  {
+    category: 'Course 25 risk',
+    question: 'Why combine a scored risk tier with mandatory policy floors?',
+    options: ['To prevent a critical hazard such as authoritative mutation from being averaged away', 'To guarantee a lower tier', 'To let agents change the methodology', 'To replace accountable judgment with arithmetic'],
+    answer: 0,
+    explanation: 'Aggregate scores help structure assessment, while policy floors preserve non-negotiable consequences and capabilities.'
+  },
+  {
+    category: 'Course 25 authority expansion',
+    question: 'Adding an underwriting-state mutation tool above a 98% confidence threshold is primarily what kind of change?',
+    options: ['A system-authority expansion requiring reassessment', 'A harmless formatting change', 'Only a model version change', 'An automatic approval condition'],
+    answer: 0,
+    explanation: 'Confidence does not authorize a consequential side effect; the new capability changes system risk and decision rights.'
+  },
+  {
+    category: 'Course 25 evidence',
+    question: 'A schema-valid evaluation result says PASS. Why may the control plane still reject it?',
+    options: ['Its claim, producer, signature, subject, dependencies, validity window, or revocation state may not satisfy policy', 'JSON cannot represent evaluation results', 'Only prompts can contain evidence', 'PASS always grants authority'],
+    answer: 0,
+    explanation: 'Typed data is not automatically claim-relevant, authentic, current, unrevoked, correctly scoped, or authoritative.'
+  },
+  {
+    category: 'Course 25 uncertainty',
+    question: 'Required data residency is unknown and no prohibition has yet been established. Which state is most precise?',
+    options: ['INSUFFICIENT_EVIDENCE', 'ALLOWED', 'ACTIVE', 'RETIRED'],
+    answer: 0,
+    explanation: 'The protected action remains denied, while the state accurately distinguishes unresolved evidence from a known prohibition.'
+  },
+  {
+    category: 'Course 25 policy as code',
+    question: 'Why is a Rego allow result not sufficient by itself?',
+    options: ['Inputs require trusted resolution and a protected executor must enforce state, authority, and side effects', 'Rego cannot process structured facts', 'Policies never affect AI systems', 'Only a model can enforce policy'],
+    answer: 0,
+    explanation: 'Declarative policy does not authenticate inputs, consume approval, or execute and verify the protected action.'
+  },
+  {
+    category: 'Course 25 human oversight',
+    question: 'Which design best represents meaningful human oversight?',
+    options: ['An authorized reviewer with sufficient evidence, real rejection power, and a boundary that prevents bypass', 'A confirmation dialog clicked by any user', 'A prompt telling the model to ask for help', 'A reviewer added after the action'],
+    answer: 0,
+    explanation: 'Oversight must be an operational decision boundary, not a user-interface label.'
+  },
+  {
+    category: 'Course 25 approval',
+    question: 'What happens when the policy revision or selected evidence set changes after governance approval but before execution?',
+    options: ['Revalidate and reject the stale approval until the current subject and evidence set are approved', 'Execute because approval is permanent', 'Let the agent update the receipt', 'Ignore the changed inputs'],
+    answer: 0,
+    explanation: 'Consequential approval is bound to the exact subject and policy revision.'
+  },
+  {
+    category: 'Course 25 concurrency',
+    question: 'Two executors concurrently present the same valid single-use receipt. What must occur?',
+    options: ['Exactly one operation consumes it atomically; the other is denied', 'Both proceed because validation started concurrently', 'The model selects the winning result', 'Both receipts are refreshed automatically'],
+    answer: 0,
+    explanation: 'Validation, conditional consumption, and operation registration must share a serializing transaction.'
+  },
+  {
+    category: 'Course 25 reassessment',
+    question: 'Model revision 13 replaces revision 12 while application code is unchanged. What should governance do?',
+    options: ['Select and require model-dependent reassessment obligations', 'Reuse all evidence forever', 'Only rerun a source-code linter', 'Automatically retire every use case'],
+    answer: 0,
+    explanation: 'Behavior can change without an application-code change, so approved dependency mappings determine affected evidence.'
+  },
+  {
+    category: 'Course 25 agent governance',
+    question: 'Which fact should establish an agent tool scope?',
+    options: ['Authenticated workload identity and a current attenuated capability grant', 'The agent name in its prompt', 'A tool argument saying admin=true', 'The model confidence score'],
+    answer: 0,
+    explanation: 'Identity and authority must be derived from trusted application state rather than model-controlled text.'
+  },
+  {
+    category: 'Course 25 evaluation',
+    question: 'Which comparison prevents a governance architecture from becoming complexity theater?',
+    options: ['Compare it with a simpler proposal-only baseline and measure value, blocked valid work, risk reduction, and control cost', 'Count policy files', 'Maximize the number of approval steps', 'Assume more agents are safer'],
+    answer: 0,
+    explanation: 'A safe complex design is not automatically the best product or operating model.'
+  },
+  {
+    category: 'Course 25 legal boundary',
+    question: 'What does mapping the lab to NIST, ISO, EU, and OWASP sources establish?',
+    options: ['An engineering adaptation that still requires current applicability and qualified organizational review', 'Automatic legal compliance', 'ISO certification', 'A universal regulatory risk class'],
+    answer: 0,
+    explanation: 'Framework mapping supports design and traceability but does not itself establish certification or legal compliance.'
+  },
+  {
+    category: 'Course 25 authority boundary',
+    question: 'The lab reports ELIGIBLE_FOR_ACCOUNTABLE_REVIEW. What external authority does that grant?',
+    options: ['None; it is bounded local teaching evidence', 'Permission to deploy any AI system', 'A permanent risk exception', 'Legal approval for underwriting automation'],
+    answer: 0,
+    explanation: 'The fixture proves local invariants and explicitly stops before organizational, production, legal, or certification authority.'
   }
 ];

@@ -1,0 +1,1 @@
+{"id":"GOV-07","mutation":"set data residency to UNKNOWN","expected":"INSUFFICIENT_EVIDENCE","proof":"Unknown required fact does not silently become approval."}

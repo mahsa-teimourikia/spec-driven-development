@@ -1,0 +1,10 @@
+[
+  {
+    "id": "DEPLOY-AI-2500-PROD-1",
+    "use_case_id": "AI-UC-2500",
+    "environment": "production",
+    "model_revision": "model-v12",
+    "agent_revision": "agent-v7",
+    "status": "ACTIVE"
+  }
+]

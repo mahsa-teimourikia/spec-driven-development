@@ -1,0 +1,1 @@
+{"id":"GOV-03","mutation":"set MODEL-012 status to REVOKED","expected":"MODEL_NOT_APPROVED","proof":"Current model registry is resolved at decision time."}

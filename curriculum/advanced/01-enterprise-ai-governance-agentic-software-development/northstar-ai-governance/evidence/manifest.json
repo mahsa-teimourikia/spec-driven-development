@@ -1,0 +1,35 @@
+{
+  "course": 25,
+  "golden_scenarios": 13,
+  "adversarial_evaluations": 15,
+  "focused_tests": 56,
+  "reference_decisions": [
+    "ELIGIBLE_FOR_ACCOUNTABLE_APPROVAL",
+    "ALLOWED",
+    "REASSESSMENT_REQUIRED",
+    "ELIGIBLE_FOR_ACCOUNTABLE_REVIEW"
+  ],
+  "verified_invariants": [
+    "trusted_registry_resolution",
+    "risk_floor_enforcement",
+    "authenticated_subject_bound_evidence",
+    "agent_self_approval_denied",
+    "point_of_use_revalidation",
+    "atomic_single_use_approval",
+    "targeted_change_impact",
+    "authenticated_runtime_suspension"
+    ,"durable_lifecycle_across_restart"
+    ,"append_only_claim_specific_evidence"
+    ,"approval_bound_evidence_set"
+    ,"verified_assessment_authority"
+    ,"agent_and_tool_lifecycle_enforcement"
+    ,"deployment_bound_runtime_observation"
+    ,"accountable_reinstatement_to_reassessment"
+  ],
+  "limitations": [
+    "No live model is evaluated.",
+    "No legal or regulatory classification is asserted.",
+    "Repository-visible HMAC keys are teaching fixtures.",
+    "No external action is authorized."
+  ]
+}

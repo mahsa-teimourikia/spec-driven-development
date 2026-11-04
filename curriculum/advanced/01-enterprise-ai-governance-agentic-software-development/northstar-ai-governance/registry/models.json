@@ -1,0 +1,10 @@
+[
+  {
+    "id": "MODEL-012",
+    "provider": "Northstar Approved Gateway",
+    "revision": "model-v12",
+    "status": "APPROVED",
+    "permitted_tasks": ["DOCUMENT_CLASSIFICATION", "ADVISORY_SUMMARY"],
+    "limitations": ["Ambiguous documents require human review", "No authoritative underwriting decisions"]
+  }
+]

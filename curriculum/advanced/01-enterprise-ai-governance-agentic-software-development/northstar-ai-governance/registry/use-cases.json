@@ -1,0 +1,22 @@
+[
+  {
+    "id": "AI-UC-2500",
+    "version": "4",
+    "name": "Broker Document Review",
+    "business_owner": "Underwriting Operations",
+    "purpose": "Assist underwriters with document classification and requirement mapping.",
+    "lifecycle": "APPROVED_FOR_BOUNDED_USE",
+    "lifecycle_updated_at": "2026-10-15T16:00:00Z",
+    "intended_task": "DOCUMENT_CLASSIFICATION",
+    "model_id": "MODEL-012",
+    "agent_id": "AGENT-2500",
+    "risk_tier": "CONSEQUENTIAL",
+    "data_classification": ["CONFIDENTIAL", "PERSONAL_INFORMATION"],
+    "data_residency": "CANADA",
+    "human_oversight": "VERIFIED",
+    "authority": {
+      "may_propose": true,
+      "may_update_underwriting_state": false
+    }
+  }
+]

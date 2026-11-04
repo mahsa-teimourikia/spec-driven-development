@@ -1,0 +1,40 @@
+{
+  "version": "ENTERPRISE-AI-POLICY@5",
+  "risk_thresholds": {
+    "low_max": 6,
+    "consequential_min": 15
+  },
+  "approved_lifecycle_statuses": {
+    "use_case": ["APPROVED_FOR_BOUNDED_USE", "ACTIVE"],
+    "model": ["APPROVED"],
+    "agent": ["APPROVED"],
+    "tool": ["APPROVED"]
+  },
+  "claim_catalog": {
+    "MODEL-QUALITY-CLASSIFICATION": {"kind": "model_evaluation"},
+    "SECURITY-AGENT-BOUNDARY": {"kind": "security"},
+    "PRIVACY-DATA-HANDLING": {"kind": "privacy"},
+    "OVERSIGHT-HUMAN-REVIEW": {"kind": "human_oversight"},
+    "RUNTIME-HUMAN-REVIEW-BYPASS": {"kind": "runtime_violation"},
+    "REINSTATEMENT-HUMAN-REVIEW": {"kind": "reinstatement"}
+  },
+  "required_claims": {
+    "LOW": ["SECURITY-AGENT-BOUNDARY"],
+    "MODERATE": ["MODEL-QUALITY-CLASSIFICATION", "SECURITY-AGENT-BOUNDARY", "PRIVACY-DATA-HANDLING"],
+    "CONSEQUENTIAL": ["MODEL-QUALITY-CLASSIFICATION", "SECURITY-AGENT-BOUNDARY", "PRIVACY-DATA-HANDLING", "OVERSIGHT-HUMAN-REVIEW"]
+  },
+  "protected_invariants": {
+    "HUMAN_REVIEW_BYPASS": {
+      "use_case_ids": ["AI-UC-2500"],
+      "action": "SUSPEND",
+      "minimum_population": 1
+    }
+  },
+  "reassessment_triggers": {
+    "model_revision": ["classification_accuracy", "ambiguity_handling", "evidence_grounding", "prompt_injection_resistance"],
+    "agent_tools": ["autonomy", "authorization", "human_oversight", "security"],
+    "prompt_revision": ["behavioral_evaluation", "injection_resistance"],
+    "retrieval_sources": ["data_authority", "freshness", "privacy", "grounding"],
+    "policy_version": ["applicability", "control_selection", "approval"]
+  }
+}
