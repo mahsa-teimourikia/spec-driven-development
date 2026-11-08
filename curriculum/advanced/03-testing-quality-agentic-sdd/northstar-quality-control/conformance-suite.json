@@ -1,0 +1,55 @@
+{
+  "suite_id": "COURSE27-GOLDEN",
+  "claim": "deterministic scenario coverage, not production quality certification",
+  "scenarios": [
+    {
+      "id": "passing",
+      "expected_decision": "QUALITY_EVIDENCE_ACCEPTED"
+    },
+    {
+      "id": "candidate-only",
+      "expected_decision": "INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "id": "forged",
+      "expected_decision": "INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "id": "wrong-subject",
+      "expected_decision": "INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "id": "stale-suite",
+      "expected_decision": "INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "id": "failed-test",
+      "expected_decision": "BLOCKED"
+    },
+    {
+      "id": "missing-negative",
+      "expected_decision": "INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "id": "surviving-mutant",
+      "expected_decision": "BLOCKED"
+    },
+    {
+      "id": "flaky",
+      "expected_decision": "REVIEW_REQUIRED"
+    },
+    {
+      "id": "unsafe-failure",
+      "expected_decision": "BLOCKED"
+    },
+    {
+      "id": "missing-failure",
+      "expected_decision": "INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "id": "unknown-requirement",
+      "expected_decision": "BLOCKED"
+    }
+  ]
+}
+

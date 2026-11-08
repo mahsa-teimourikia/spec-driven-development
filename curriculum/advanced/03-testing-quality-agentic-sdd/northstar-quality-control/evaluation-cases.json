@@ -1,0 +1,127 @@
+{
+  "evaluation_id": "COURSE27-EVALUATION",
+  "population": "24 deterministic labelled quality-control cases",
+  "cases": [
+    {
+      "case_id": "EVAL-001",
+      "scenario": "passing",
+      "expected": "QUALITY_EVIDENCE_ACCEPTED"
+    },
+    {
+      "case_id": "EVAL-002",
+      "scenario": "candidate-only",
+      "expected": "INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "case_id": "EVAL-003",
+      "scenario": "forged",
+      "expected": "INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "case_id": "EVAL-004",
+      "scenario": "wrong-subject",
+      "expected": "INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "case_id": "EVAL-005",
+      "scenario": "stale-suite",
+      "expected": "INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "case_id": "EVAL-006",
+      "scenario": "failed-test",
+      "expected": "BLOCKED"
+    },
+    {
+      "case_id": "EVAL-007",
+      "scenario": "missing-negative",
+      "expected": "INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "case_id": "EVAL-008",
+      "scenario": "surviving-mutant",
+      "expected": "BLOCKED"
+    },
+    {
+      "case_id": "EVAL-009",
+      "scenario": "flaky",
+      "expected": "REVIEW_REQUIRED"
+    },
+    {
+      "case_id": "EVAL-010",
+      "scenario": "unsafe-failure",
+      "expected": "BLOCKED"
+    },
+    {
+      "case_id": "EVAL-011",
+      "scenario": "missing-failure",
+      "expected": "INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "case_id": "EVAL-012",
+      "scenario": "unknown-requirement",
+      "expected": "BLOCKED"
+    },
+    {
+      "case_id": "EVAL-013",
+      "scenario": "passing",
+      "expected": "QUALITY_EVIDENCE_ACCEPTED"
+    },
+    {
+      "case_id": "EVAL-014",
+      "scenario": "candidate-only",
+      "expected": "INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "case_id": "EVAL-015",
+      "scenario": "forged",
+      "expected": "INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "case_id": "EVAL-016",
+      "scenario": "wrong-subject",
+      "expected": "INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "case_id": "EVAL-017",
+      "scenario": "stale-suite",
+      "expected": "INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "case_id": "EVAL-018",
+      "scenario": "failed-test",
+      "expected": "BLOCKED"
+    },
+    {
+      "case_id": "EVAL-019",
+      "scenario": "missing-negative",
+      "expected": "INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "case_id": "EVAL-020",
+      "scenario": "surviving-mutant",
+      "expected": "BLOCKED"
+    },
+    {
+      "case_id": "EVAL-021",
+      "scenario": "flaky",
+      "expected": "REVIEW_REQUIRED"
+    },
+    {
+      "case_id": "EVAL-022",
+      "scenario": "unsafe-failure",
+      "expected": "BLOCKED"
+    },
+    {
+      "case_id": "EVAL-023",
+      "scenario": "missing-failure",
+      "expected": "INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "case_id": "EVAL-024",
+      "scenario": "unknown-requirement",
+      "expected": "BLOCKED"
+    }
+  ]
+}
+

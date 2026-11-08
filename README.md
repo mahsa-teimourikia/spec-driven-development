@@ -4,7 +4,7 @@
 
 ## Start here
 
-Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through [Course 25: Enterprise AI Governance](curriculum/advanced/01-enterprise-ai-governance-agentic-software-development/README.md), then complete [Course 26: Enterprise Architecture Governance for Agentic SDD](curriculum/advanced/02-enterprise-architecture-governance-agentic-sdd/README.md) with its guided [notebook](curriculum/advanced/02-enterprise-architecture-governance-agentic-sdd/northstar-architecture-governance/architecture_governance.ipynb), executable [architecture-control lab](curriculum/advanced/02-enterprise-architecture-governance-agentic-sdd/northstar-architecture-governance/lab.py), [staff architecture workshop](curriculum/advanced/02-enterprise-architecture-governance-agentic-sdd/northstar-architecture-governance/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
+Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through [Course 26: Enterprise Architecture Governance](curriculum/advanced/02-enterprise-architecture-governance-agentic-sdd/README.md), then complete [Course 27: Testing and Quality for Agentic SDD](curriculum/advanced/03-testing-quality-agentic-sdd/README.md) with its guided [notebook](curriculum/advanced/03-testing-quality-agentic-sdd/northstar-quality-control/testing_quality.ipynb), executable [quality-control lab](curriculum/advanced/03-testing-quality-agentic-sdd/northstar-quality-control/lab.py), [staff quality workshop](curriculum/advanced/03-testing-quality-agentic-sdd/northstar-quality-control/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
 
 This is not simply a tutorial for one specification framework. The central skill is turning organizational intent, architecture rules, product requirements, and engineering constraints into a hierarchy of durable specifications that agents can execute—and humans can govern.
 
@@ -385,9 +385,23 @@ Course 26 turns enterprise architecture intent into an independently evaluated c
 - reject stale conformance evidence after repository or policy change; and
 - propagate architecture changes to registered repositories, contracts, evaluations, and controls.
 
+## Course 27 outcome
+
+Course 27 turns testing activity into independently verifiable, specification-traceable quality evidence. You will:
+
+- separate candidate tests, independent verification, evaluation, and release authorization;
+- map requirement risk to unit, property, contract, integration, negative, failure, and recovery evidence;
+- govern expected results through specifications, independent references, and versioned contracts;
+- bind evidence to the exact implementation, specification, suite, policy, producer, and validity window;
+- require policy-selected critical mutations and reject denominator gaming;
+- inject timeout, duplicate-delivery, and stale-approval failures and verify safe state;
+- treat flaky, forged, stale, wrong-subject, and candidate-only results as non-passing evidence;
+- report metric populations, numerators, denominators, exclusions, and claim limits; and
+- produce a quality decision that remains separate from release authority.
+
 ## Run locally
 
-Everything in Courses 01–26 is credential-free and uses the Python standard library. Courses 20–22 and 26 also invoke the installed Git executable to create isolated local repositories.
+Everything in Courses 01–27 is credential-free and uses the Python standard library. Courses 20–22 and 26 also invoke the installed Git executable to create isolated local repositories.
 
 ```bash
 python3 curriculum/beginner/01-why-agentic-coding-changes-pdlc/lab.py
@@ -417,6 +431,7 @@ python3 curriculum/intermediate/13-human-approval-gates-delegated-authority/nort
 python3 curriculum/intermediate/14-ci-cd-quality-gates-evidence-based-release-governance/northstar-release-control/lab.py
 python3 curriculum/advanced/01-enterprise-ai-governance-agentic-software-development/northstar-ai-governance/lab.py
 python3 curriculum/advanced/02-enterprise-architecture-governance-agentic-sdd/northstar-architecture-governance/lab.py
+python3 curriculum/advanced/03-testing-quality-agentic-sdd/northstar-quality-control/lab.py
 python3 -m unittest discover -s tests -v
 python3 scripts/validate_course.py
 ```

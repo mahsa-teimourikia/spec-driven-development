@@ -1,0 +1,8 @@
+{
+  "training_keys": {
+    "change-observer-v1": "course27-change-observer-training-key",
+    "quality-harness-v1": "course27-quality-harness-training-key"
+  },
+  "production_note": "Use protected workload identity and managed verification material in production; these deterministic HMAC keys are teaching fixtures."
+}
+

@@ -1,0 +1,15 @@
+{
+  "change_id": "AI-2700",
+  "scenario": "An agent-generated classification change adds automatic persistence after a high-confidence proposal.",
+  "decisions": {
+    "requirement_risk_map": "Map authorization and authoritative persistence to critical negative, contract, and integration evidence; map uncertainty behavior to unit, property, and negative evidence.",
+    "independent_oracles": "Use the approved specification, an independent reference classifier for algebraic properties, and the versioned authorization contract. Candidate snapshots are diagnostics only.",
+    "negative_and_boundary_tests": "Exercise unsupported type, ambiguity, unauthorized principal, stale approval, duplicate delivery, threshold boundaries, and exact-spec revision changes.",
+    "mutation_set": "Require removal of authorization, acceptance of unsupported input, loss of idempotency, and timeout-as-success mutations. The governed denominator is the policy-selected set.",
+    "failure_experiments": "Inject dependency timeout, duplicate delivery, and stale approval; assert safe state, bounded retry, and no unauthorized persistence.",
+    "flake_policy": "Mixed outcomes cannot satisfy a release obligation. Quarantine routes to owner review while preserving the missing-evidence finding.",
+    "evidence_binding": "Bind signed harness evidence to implementation digest, specification revision, suite revision, policy revision, producer, time window, and exact case/mutation/fault populations.",
+    "release_boundary": "QUALITY_EVIDENCE_ACCEPTED is evidence for Course 24 release governance; it never sets release_authorized to true."
+  }
+}
+

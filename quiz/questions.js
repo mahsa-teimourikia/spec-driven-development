@@ -2497,5 +2497,103 @@ const QUESTIONS = [
     options: ['None by itself; it is evidence for protected governance and release decisions', 'Automatic production deployment', 'Permanent security approval', 'Permission to ignore AI governance'],
     answer: 0,
     explanation: 'Architecture conformance is one evidence domain and does not replace release, security, privacy, or AI-governance authority.'
+  },
+  {
+    category: 'Course 27 trust boundary',
+    question: 'Why can agent-generated tests be valuable without being sufficient release-quality evidence?',
+    options: ['They accelerate feedback but may share the implementation misunderstanding and are not independent attestation', 'Agents cannot write executable tests', 'Candidate tests always fail', 'Only manual tests count'],
+    answer: 0,
+    explanation: 'Candidate tests improve the inner loop, while consequential claims need independent oracles and execution.'
+  },
+  {
+    category: 'Course 27 oracles',
+    question: 'Which oracle is strongest for an authorization invariant?',
+    options: ['A versioned authorization contract and approved specification', 'The current implementation output', 'The agent confidence score', 'A snapshot written after the change'],
+    answer: 0,
+    explanation: 'The oracle must come from authority independent of the candidate behavior.'
+  },
+  {
+    category: 'Course 27 traceability',
+    question: 'A passing integration test cites REQ-UNKNOWN. What should the control plane do?',
+    options: ['Block because evidence is not traceable to the governed specification', 'Accept because the test passed', 'Create the requirement automatically', 'Ignore all requirement IDs'],
+    answer: 0,
+    explanation: 'Unknown links can launder ungoverned behavior into the evidence portfolio.'
+  },
+  {
+    category: 'Course 27 mutation testing',
+    question: 'The REMOVE_AUTHORIZATION mutant survives. What does that show?',
+    options: ['The suite does not detect removal of a critical protection', 'The implementation is authorized', 'Coverage is complete', 'The mutant should be silently excluded'],
+    answer: 0,
+    explanation: 'A surviving critical mutant directly exposes a test-portfolio blind spot.'
+  },
+  {
+    category: 'Course 27 metrics',
+    question: 'Why must the quality policy own the critical mutation set?',
+    options: ['To prevent easy mutants or exclusions from gaming the denominator', 'To maximize the number of files', 'To let the candidate choose only killed mutants', 'To eliminate all equivalent mutants automatically'],
+    answer: 0,
+    explanation: 'A governed population makes the score interpretable and reproducible.'
+  },
+  {
+    category: 'Course 27 failure injection',
+    question: 'A deployment call times out with unknown outcome. Which test behavior is safest?',
+    options: ['Reconcile the external state before a bounded idempotent retry', 'Retry immediately with a new operation ID', 'Assume failure', 'Assume success'],
+    answer: 0,
+    explanation: 'Unknown outcomes require reconciliation to avoid duplicated or contradictory effects.'
+  },
+  {
+    category: 'Course 27 flaky tests',
+    question: 'A required test passes and fails against the same subject. Can retry-until-green satisfy the obligation?',
+    options: ['No; mixed outcomes require review and do not count as positive evidence', 'Yes, after one pass', 'Yes, if coverage is high', 'Yes, if the coding agent approves'],
+    answer: 0,
+    explanation: 'Retries can diagnose flakiness but cannot manufacture deterministic evidence.'
+  },
+  {
+    category: 'Course 27 exact subject',
+    question: 'The implementation digest is unchanged but the governing specification revision changes. Is old evidence current?',
+    options: ['No; the expected behavior and evidence obligations may have changed', 'Yes; only code bytes matter', 'Yes; specifications never affect tests', 'Only if the agent says so'],
+    answer: 0,
+    explanation: 'Quality evidence binds both implementation and authoritative expected behavior.'
+  },
+  {
+    category: 'Course 27 negative evidence',
+    question: 'An authorized underwriter can persist classification. What additional critical test is needed?',
+    options: ['An unauthorized agent or principal is rejected without state change', 'A second happy-path test', 'A larger snapshot', 'A code formatting check'],
+    answer: 0,
+    explanation: 'Positive success does not establish the prohibited authority path.'
+  },
+  {
+    category: 'Course 27 property testing',
+    question: 'What makes a property-based test useful?',
+    options: ['A justified invariant exercised across generated inputs with reproducible counterexamples', 'Random inputs with no oracle', 'More assertions than unit tests', 'A model-generated pass label'],
+    answer: 0,
+    explanation: 'Generation expands the state space, but the property remains the essential oracle.'
+  },
+  {
+    category: 'Course 27 AI evaluation',
+    question: 'A model evaluation averages 94% accuracy. What is still needed for a consequential workflow?',
+    options: ['Approved population, slice results, safety violations, configuration revisions, and workflow evidence', 'Only a rounded average', 'Automatic release', 'No negative tests'],
+    answer: 0,
+    explanation: 'An aggregate component metric cannot establish every slice, authority boundary, or end-to-end outcome.'
+  },
+  {
+    category: 'Course 27 coverage',
+    question: 'What does 100% line coverage prove?',
+    options: ['The measured lines executed, not that assertions or requirements are sufficient', 'The software is defect-free', 'Authorization is correct', 'All failure modes were exercised'],
+    answer: 0,
+    explanation: 'Coverage is an execution measure and must be combined with oracle and risk evidence.'
+  },
+  {
+    category: 'Course 27 decisions',
+    question: 'When should missing independent evidence become INSUFFICIENT_EVIDENCE instead of CONFORMANT?',
+    options: ['Whenever a required claim cannot be established by current trusted evidence', 'Only after production failure', 'Never', 'When the agent requests it'],
+    answer: 0,
+    explanation: 'Unknown is not pass; the decision vocabulary preserves uncertainty.'
+  },
+  {
+    category: 'Course 27 authority boundary',
+    question: 'What does QUALITY_EVIDENCE_ACCEPTED authorize?',
+    options: ['Nothing by itself; it is input to a separate protected release decision', 'Immediate production deployment', 'Permanent exception approval', 'Modification of the quality policy'],
+    answer: 0,
+    explanation: 'Quality verification and release authorization remain separate control domains.'
   }
 ];
