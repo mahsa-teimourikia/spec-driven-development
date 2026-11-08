@@ -3213,7 +3213,7 @@ def check_course_20_multirepository() -> list[str]:
     if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) < 268:
         errors.append("Course 20 cumulative quiz must retain at least 268 questions")
     quiz_index = (ROOT / "quiz/index.html").read_text(encoding="utf-8")
-    if not any(label in quiz_index for label in ("Courses 01–20", "Courses 01–21", "Courses 01–22", "Courses 01–23", "Courses 01–24", "Courses 01–25")):
+    if not any(label in quiz_index for label in ("Courses 01–20", "Courses 01–21", "Courses 01–22", "Courses 01–23", "Courses 01–24", "Courses 01–25", "Courses 01–26")):
         errors.append("Course 20 cumulative quiz must identify coverage through Course 20")
     hub = (ROOT / "hub/lessons.js").read_text(encoding="utf-8")
     hub_fragments = [
@@ -3371,7 +3371,7 @@ def check_course_21_parallel_delivery() -> list[str]:
     if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) < 282:
         errors.append("Course 21 cumulative quiz must retain at least 282 questions")
     quiz_index = (ROOT / "quiz/index.html").read_text(encoding="utf-8")
-    if not any(label in quiz_index for label in ("Courses 01–21", "Courses 01–22", "Courses 01–23", "Courses 01–24", "Courses 01–25")):
+    if not any(label in quiz_index for label in ("Courses 01–21", "Courses 01–22", "Courses 01–23", "Courses 01–24", "Courses 01–25", "Courses 01–26")):
         errors.append("Course 21 cumulative quiz must identify Courses 01–21")
     hub = (ROOT / "hub/lessons.js").read_text(encoding="utf-8")
     hub_fragments = [
@@ -3536,7 +3536,7 @@ def check_course_22_pr_review_strategy() -> list[str]:
     quiz_source = (ROOT / "quiz/questions.js").read_text(encoding="utf-8")
     if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) < 297:
         errors.append("Course 22 cumulative quiz must retain at least 297 questions")
-    if not any(label in (ROOT / "quiz/index.html").read_text(encoding="utf-8") for label in ("Courses 01–22", "Courses 01–23", "Courses 01–24", "Courses 01–25")):
+    if not any(label in (ROOT / "quiz/index.html").read_text(encoding="utf-8") for label in ("Courses 01–22", "Courses 01–23", "Courses 01–24", "Courses 01–25", "Courses 01–26")):
         errors.append("Course 22 cumulative quiz must identify Courses 01–22")
     hub = (ROOT / "hub/lessons.js").read_text(encoding="utf-8")
     hub_fragments = [
@@ -3685,7 +3685,7 @@ def check_course_23_approval_control() -> list[str]:
     quiz_source = (ROOT / "quiz/questions.js").read_text(encoding="utf-8")
     if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) < 312:
         errors.append("Course 23 cumulative quiz must retain at least 312 questions")
-    if not any(label in (ROOT / "quiz/index.html").read_text(encoding="utf-8") for label in ("Courses 01–23", "Courses 01–24", "Courses 01–25")):
+    if not any(label in (ROOT / "quiz/index.html").read_text(encoding="utf-8") for label in ("Courses 01–23", "Courses 01–24", "Courses 01–25", "Courses 01–26")):
         errors.append("Course 23 cumulative quiz must identify Courses 01–23")
     hub = (ROOT / "hub/lessons.js").read_text(encoding="utf-8")
     hub_fragments = [
@@ -3838,7 +3838,7 @@ def check_course_24_release_governance() -> list[str]:
     quiz_source = (ROOT / "quiz/questions.js").read_text(encoding="utf-8")
     if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) < 327:
         errors.append("Course 24 cumulative quiz must retain at least 327 questions")
-    if not any(label in (ROOT / "quiz/index.html").read_text(encoding="utf-8") for label in ("Courses 01–24", "Courses 01–25")):
+    if not any(label in (ROOT / "quiz/index.html").read_text(encoding="utf-8") for label in ("Courses 01–24", "Courses 01–25", "Courses 01–26")):
         errors.append("Course 24 cumulative quiz must identify Courses 01–24")
     hub = (ROOT / "hub/lessons.js").read_text(encoding="utf-8")
     hub_fragments = [
@@ -3987,10 +3987,10 @@ def check_course_25_ai_governance() -> list[str]:
         errors.append("Course 25 stored evidence summary is stale")
 
     quiz_source = (ROOT / "quiz/questions.js").read_text(encoding="utf-8")
-    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 342:
-        errors.append("Course 25 cumulative quiz must contain 342 questions")
-    if "Courses 01–25" not in (ROOT / "quiz/index.html").read_text(encoding="utf-8"):
-        errors.append("Course 25 cumulative quiz must identify Courses 01–25")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) < 342:
+        errors.append("Course 25 cumulative quiz must retain at least 342 questions")
+    if not any(label in (ROOT / "quiz/index.html").read_text(encoding="utf-8") for label in ("Courses 01–25", "Courses 01–26")):
+        errors.append("Course 25 cumulative quiz must identify Course 25 or a later published course")
     hub = (ROOT / "hub/lessons.js").read_text(encoding="utf-8")
     hub_fragments = [
         "const course25 = {",
@@ -4000,6 +4000,151 @@ def check_course_25_ai_governance() -> list[str]:
     ]
     if any(fragment not in hub for fragment in hub_fragments):
         errors.append("Course 25 Learning Hub entry is incomplete or points outside the workshop package")
+    return errors
+
+
+def check_course_26_architecture_governance() -> list[str]:
+    errors: list[str] = []
+    lesson = ROOT / "curriculum/advanced/02-enterprise-architecture-governance-agentic-sdd"
+    scenario = lesson / "northstar-architecture-governance"
+    required = [
+        lesson / "README.md",
+        scenario / "README.md",
+        scenario / "lab.py",
+        scenario / "architecture_governance.ipynb",
+        scenario / "governance_app/control_plane.py",
+        scenario / "governance_app/dependency_extractor.py",
+        scenario / "governance_app/fitness_functions.py",
+        scenario / "governance_app/architecture_graph.py",
+        scenario / "governance_app/adr_validator.py",
+        scenario / "governance_app/exceptions.py",
+        scenario / "governance_app/impact_analysis.py",
+        scenario / "architecture/enterprise-principles.json",
+        scenario / "architecture/technology-standards.json",
+        scenario / "architecture/reference-architecture.json",
+        scenario / "architecture/dependency-rules.json",
+        scenario / "registry/authority.json",
+        scenario / "registry/adrs.json",
+        scenario / "registry/system-architecture.json",
+        scenario / "policies/architecture.rego",
+        scenario / "exceptions/approved-exceptions.json",
+        scenario / "openspec/changes/architecture-governance/proposal.md",
+        scenario / "openspec/changes/architecture-governance/design.md",
+        scenario / "openspec/changes/architecture-governance/specs/architecture-conformance/spec.md",
+        scenario / "openspec/changes/architecture-governance/tasks.md",
+        scenario / "contracts/conformance-report.schema.json",
+        scenario / "contracts/underwriting-data-api.openapi.yaml",
+        scenario / "traceability.json",
+        scenario / "conformance-suite.json",
+        scenario / "evaluation-cases.json",
+        scenario / "evidence/manifest.json",
+        scenario / "workshop/starter/architecture-review.json",
+        scenario / "workshop/reference/architecture-review.json",
+        ROOT / "tests/test_course_26.py",
+    ]
+    for path in required:
+        if not path.exists():
+            errors.append(f"Course 26 missing required artifact: {path.relative_to(ROOT)}")
+    if errors:
+        return errors
+
+    scenario_paths = sorted((scenario / "scenarios").glob("*.json"))
+    if len(scenario_paths) != 13:
+        errors.append("Course 26 must retain thirteen documented architecture scenarios")
+    json_paths = list((scenario / "architecture").glob("*.json"))
+    json_paths += list((scenario / "registry").glob("*.json"))
+    json_paths += list((scenario / "exceptions").glob("*.json"))
+    json_paths += scenario_paths
+    for path in json_paths:
+        try:
+            json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+            errors.append(f"invalid Course 26 JSON {path.relative_to(ROOT)}: {exc}")
+
+    result = subprocess.run(
+        [sys.executable, str(scenario / "lab.py")],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode:
+        errors.append(f"Course 26 lab failed:\n{result.stderr or result.stdout}")
+        return errors
+    try:
+        report = json.loads(result.stdout)
+    except json.JSONDecodeError:
+        errors.append("Course 26 lab did not produce its JSON report")
+        return errors
+    golden = report.get("golden_scenarios", [])
+    if len(golden) != 13 or not report.get("golden_passed") or not all(item.get("passed") for item in golden):
+        errors.append("Course 26 must retain thirteen passing real-Git golden scenarios")
+    evaluation = report.get("adversarial_evaluation", {})
+    metrics = evaluation.get("metrics", {})
+    if len(evaluation.get("cases", [])) != 16 or metrics.get("exact_decision_accuracy") != 1.0:
+        errors.append("Course 26 must retain sixteen independently executed exact-decision evaluations")
+    if metrics.get("exception_validation_accuracy") != 1.0 or not metrics.get("limitations"):
+        errors.append("Course 26 must report exception accuracy and explicit metric limitations")
+    if report.get("stale_report_result") != "REPORT_STALE_FOR_HEAD":
+        errors.append("Course 26 must reject a conformance report after repository HEAD advances")
+    impact = report.get("retrieval_change_impact", {})
+    if impact.get("decision") != "TARGETED_REASSESSMENT_REQUIRED" or len(impact.get("repositories", [])) < 3:
+        errors.append("Course 26 must produce targeted cross-repository change impact")
+
+    source = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in (scenario / "governance_app").glob("*.py")
+    )
+    required_controls = [
+        "HEAD_BINDING_MISMATCH",
+        "OBSERVATION_AUTHENTICITY_UNVERIFIED",
+        "DIRECT_MODEL_PROVIDER_DEPENDENCY",
+        "DIRECT_MODEL_PROVIDER_ENDPOINT",
+        "RUNTIME_EGRESS_EVIDENCE_MISSING",
+        "PRIVATE_DATASTORE_ACCESS",
+        "LAYER_DEPENDENCY_VIOLATION",
+        "SERVICE_DEPENDENCY_CYCLE",
+        "POLICY_SHADOWING_ATTEMPT",
+        "ADR_CONFLICTS_WITH_ENTERPRISE_STANDARD",
+        "ADR_SUPERSEDED",
+        "EXCEPTION_ENVIRONMENT_MISMATCH",
+        "EXCEPTION_SUBJECT_MISMATCH",
+        "COMPENSATING_CONTROL_EVIDENCE_MISSING",
+        "COMPENSATING_CONTROL_EVIDENCE_UNVERIFIED",
+        "RUNTIME_EGRESS_ENFORCEMENT_UNPROVEN",
+        "SOURCE_SYMLINK_UNSUPPORTED",
+        "DYNAMIC_IMPORT",
+        "IMPACT_UNDETERMINED",
+        "REPORT_STALE_FOR_HEAD",
+    ]
+    if any(fragment not in source for fragment in required_controls):
+        errors.append("Course 26 architecture control plane is missing required trust and conformance controls")
+    simulation = (scenario / "governance_app/simulation.py").read_text(encoding="utf-8")
+    if "scenarios/" in simulation or "expected_decision" in simulation:
+        errors.append("Course 26 evaluator must execute repository mutations rather than trust scenario labels")
+
+    authority = (scenario / "registry/authority.json").read_text(encoding="utf-8")
+    if "course26-" in authority or "active_policy_version" not in authority:
+        errors.append("Course 26 authority registry must name trust anchors without fixture signing material")
+    starter = json.loads((scenario / "workshop/starter/architecture-review.json").read_text(encoding="utf-8"))
+    reference = (scenario / "workshop/reference/architecture-review.json").read_text(encoding="utf-8")
+    if not starter.get("failure_experiments") == [] or "TODO" in reference:
+        errors.append("Course 26 workshop must retain a learner starter and complete reference review")
+
+    quiz_source = (ROOT / "quiz/questions.js").read_text(encoding="utf-8")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 357:
+        errors.append("Course 26 cumulative quiz must contain 357 questions")
+    if "Courses 01–26" not in (ROOT / "quiz/index.html").read_text(encoding="utf-8"):
+        errors.append("Course 26 cumulative quiz must identify Courses 01–26")
+    hub = (ROOT / "hub/lessons.js").read_text(encoding="utf-8")
+    hub_fragments = [
+        "const course26 = {",
+        "02-enterprise-architecture-governance-agentic-sdd/northstar-architecture-governance/architecture_governance.ipynb",
+        "02-enterprise-architecture-governance-agentic-sdd/northstar-architecture-governance/workshop/starter/architecture-review.json",
+        "13 golden scenarios and 16 adversarial evaluations",
+    ]
+    if any(fragment not in hub for fragment in hub_fragments):
+        errors.append("Course 26 Learning Hub entry is incomplete or points outside the workshop package")
     return errors
 
 
@@ -4034,6 +4179,7 @@ def main() -> None:
         "Course 23 approval control": check_course_23_approval_control,
         "Course 24 release governance": check_course_24_release_governance,
         "Course 25 AI governance": check_course_25_ai_governance,
+        "Course 26 architecture governance": check_course_26_architecture_governance,
         "diagrams": render_and_validate_diagrams,
         "labs": run_labs,
         "repository labs": run_repository_labs,

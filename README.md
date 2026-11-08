@@ -4,7 +4,7 @@
 
 ## Start here
 
-Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through Course 24, then complete [Course 25: Enterprise AI Governance for Agentic Software Development](curriculum/advanced/01-enterprise-ai-governance-agentic-software-development/README.md) with its guided [notebook](curriculum/advanced/01-enterprise-ai-governance-agentic-software-development/northstar-ai-governance/ai_governance.ipynb), executable [governance-control lab](curriculum/advanced/01-enterprise-ai-governance-agentic-software-development/northstar-ai-governance/lab.py), [AI-UC-2500 workshop](curriculum/advanced/01-enterprise-ai-governance-agentic-software-development/northstar-ai-governance/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
+Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through [Course 25: Enterprise AI Governance](curriculum/advanced/01-enterprise-ai-governance-agentic-software-development/README.md), then complete [Course 26: Enterprise Architecture Governance for Agentic SDD](curriculum/advanced/02-enterprise-architecture-governance-agentic-sdd/README.md) with its guided [notebook](curriculum/advanced/02-enterprise-architecture-governance-agentic-sdd/northstar-architecture-governance/architecture_governance.ipynb), executable [architecture-control lab](curriculum/advanced/02-enterprise-architecture-governance-agentic-sdd/northstar-architecture-governance/lab.py), [staff architecture workshop](curriculum/advanced/02-enterprise-architecture-governance-agentic-sdd/northstar-architecture-governance/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
 
 This is not simply a tutorial for one specification framework. The central skill is turning organizational intent, architecture rules, product requirements, and engineering constraints into a hierarchy of durable specifications that agents can execute—and humans can govern.
 
@@ -371,9 +371,23 @@ Course 25 turns responsible-AI intent into an executable enterprise governance b
 - select targeted reassessment after model, prompt, retrieval, tool, or policy changes; and
 - suspend the capability when an authenticated monitor reports a protected-invariant violation.
 
+## Course 26 outcome
+
+Course 26 turns enterprise architecture intent into an independently evaluated control plane. You will:
+
+- separate enterprise, solution, and implementation decision rights;
+- connect principles, standards, reference architectures, patterns, ADRs, constraints, and exceptions;
+- derive imports, endpoints, technologies, dependency edges, changed files, and commit identity from real repositories;
+- distinguish known violations, review decisions, insufficient evidence, and reassessment;
+- enforce layer direction, approved model and data boundaries, technology review, and service-graph rules;
+- preserve ADR history and reject local attempts to override enterprise authority;
+- bind exceptions to an exact rule, resource digest, environment, policy revision, validity window, and compensating evidence;
+- reject stale conformance evidence after repository or policy change; and
+- propagate architecture changes to registered repositories, contracts, evaluations, and controls.
+
 ## Run locally
 
-Everything in Courses 01–25 is credential-free and uses the Python standard library. Courses 20–22 also invoke the installed Git executable to create isolated local repositories.
+Everything in Courses 01–26 is credential-free and uses the Python standard library. Courses 20–22 and 26 also invoke the installed Git executable to create isolated local repositories.
 
 ```bash
 python3 curriculum/beginner/01-why-agentic-coding-changes-pdlc/lab.py
@@ -402,6 +416,7 @@ python3 curriculum/intermediate/12-pull-request-review-strategies-agentic-sdd/no
 python3 curriculum/intermediate/13-human-approval-gates-delegated-authority/northstar-approval-control/lab.py
 python3 curriculum/intermediate/14-ci-cd-quality-gates-evidence-based-release-governance/northstar-release-control/lab.py
 python3 curriculum/advanced/01-enterprise-ai-governance-agentic-software-development/northstar-ai-governance/lab.py
+python3 curriculum/advanced/02-enterprise-architecture-governance-agentic-sdd/northstar-architecture-governance/lab.py
 python3 -m unittest discover -s tests -v
 python3 scripts/validate_course.py
 ```

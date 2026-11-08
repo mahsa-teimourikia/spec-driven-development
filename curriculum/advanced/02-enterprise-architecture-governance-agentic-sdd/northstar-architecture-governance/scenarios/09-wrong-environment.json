@@ -1,0 +1,1 @@
+{"id":"wrong-environment","mutation":"direct_provider","exception":"production-for-development","expected_decision":"BLOCKED","expected_finding":"EXCEPTION_ENVIRONMENT_MISMATCH"}

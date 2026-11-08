@@ -1,0 +1,23 @@
+{
+  "version": "NORTHSTAR-REF-ARCH@8",
+  "components": [
+    "underwriting-ui",
+    "ai-service",
+    "enterprise-ai-gateway",
+    "document-service",
+    "underwriting-data-api",
+    "audit-service"
+  ],
+  "required_boundaries": [
+    {
+      "source": "ai-service",
+      "capability": "model-inference",
+      "through": "enterprise-ai-gateway"
+    },
+    {
+      "source": "ai-service",
+      "capability": "underwriting-data",
+      "through": "underwriting-data-api"
+    }
+  ]
+}

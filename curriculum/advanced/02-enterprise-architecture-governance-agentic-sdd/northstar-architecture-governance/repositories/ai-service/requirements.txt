@@ -1,0 +1,3 @@
+northstar-ai-gateway==2.4.0
+opensearch-py==2.7.1
+psycopg==3.2.3
