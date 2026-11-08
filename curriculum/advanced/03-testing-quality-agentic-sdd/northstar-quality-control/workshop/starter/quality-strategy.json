@@ -1,0 +1,15 @@
+{
+  "change_id": "AI-2700",
+  "scenario": "An agent-generated classification change adds automatic persistence after a high-confidence proposal.",
+  "decisions": {
+    "requirement_risk_map": "TODO",
+    "independent_oracles": "TODO",
+    "negative_and_boundary_tests": "TODO",
+    "mutation_set": "TODO",
+    "failure_experiments": "TODO",
+    "flake_policy": "TODO",
+    "evidence_binding": "TODO",
+    "release_boundary": "TODO"
+  }
+}
+

@@ -1,0 +1,15 @@
+{
+  "specification": "openspec/changes/testing-quality/specs/quality-evidence/spec.md",
+  "requirements": {
+    "QL-REQ-001": ["quality_app/models.py", "quality_app/control_plane.py", "test_evidence_binds_exact_subject"],
+    "QL-REQ-002": ["quality_app/control_plane.py", "test_candidate_tests_are_diagnostic_only", "test_forged_independent_evidence_is_rejected"],
+    "QL-REQ-003": ["quality-policy.json", "test_requirement_coverage_is_complete", "test_unknown_requirement_reference_blocks"],
+    "QL-REQ-004": ["quality_app/control_plane.py", "test_unknown_oracle_is_insufficient"],
+    "QL-REQ-005": ["quality_app/control_plane.py", "test_surviving_critical_mutant_blocks", "test_missing_mutation_is_insufficient"],
+    "QL-REQ-006": ["quality_app/simulation.py", "test_unsafe_fault_experiment_blocks", "test_missing_fault_experiment_is_insufficient"],
+    "QL-REQ-007": ["quality_app/control_plane.py", "test_flaky_test_cannot_satisfy_obligation"],
+    "QL-REQ-008": ["quality_app/models.py", "test_mutation_metric_has_explicit_denominator", "test_fault_metric_has_explicit_population"],
+    "QL-REQ-009": ["quality_app/models.py", "test_quality_acceptance_does_not_authorize_release"]
+  }
+}
+

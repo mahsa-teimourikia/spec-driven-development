@@ -1,0 +1,41 @@
+{
+  "policy_version": "QUALITY-POLICY@1",
+  "observation_producer": "trusted-change-observer-v1",
+  "observation_key_id": "change-observer-v1",
+  "evidence_producer": "independent-quality-harness-v1",
+  "evidence_key_id": "quality-harness-v1",
+  "suite_revision": "NORTHSTAR-QUALITY-SUITE@1",
+  "required_mutations": [
+    "REMOVE_AUTHORIZATION",
+    "ACCEPT_UNSUPPORTED",
+    "DROP_IDEMPOTENCY_KEY",
+    "TREAT_TIMEOUT_AS_SUCCESS"
+  ],
+  "required_fault_experiments": [
+    "DEPENDENCY_TIMEOUT",
+    "DUPLICATE_DELIVERY",
+    "STALE_APPROVAL"
+  ],
+  "requirements": [
+    {
+      "id": "REQ-QUALITY-001",
+      "criticality": "high",
+      "required_kinds": ["unit", "property", "negative"],
+      "statement": "Classification proposals preserve unsupported and ambiguous outcomes without inventing authority."
+    },
+    {
+      "id": "REQ-QUALITY-002",
+      "criticality": "critical",
+      "required_kinds": ["contract", "integration", "negative"],
+      "statement": "Only an authorized underwriter can persist the authoritative classification."
+    },
+    {
+      "id": "REQ-QUALITY-003",
+      "criticality": "high",
+      "required_kinds": ["failure", "recovery"],
+      "statement": "Retries, duplicate delivery, and dependency failure preserve idempotency and safe state."
+    }
+  ],
+  "candidate_evidence_role": "diagnostic_only",
+  "unknown_oracle_disposition": "INSUFFICIENT_EVIDENCE"
+}
