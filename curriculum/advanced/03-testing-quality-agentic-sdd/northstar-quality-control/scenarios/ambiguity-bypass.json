@@ -1,0 +1,1 @@
+{"id":"ambiguity-bypass","requirement":"QI-001","mutation":"IGNORE_AMBIGUITY","expected":"BLOCKED","safe_state":"authorized human review remains required"}

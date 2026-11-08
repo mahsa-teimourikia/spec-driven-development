@@ -2521,8 +2521,8 @@ const QUESTIONS = [
   },
   {
     category: 'Course 27 mutation testing',
-    question: 'The REMOVE_AUTHORIZATION mutant survives. What does that show?',
-    options: ['The suite does not detect removal of a critical protection', 'The implementation is authorized', 'Coverage is complete', 'The mutant should be silently excluded'],
+    question: 'The REMOVE_TENANT_FILTER mutant survives. What does that show?',
+    options: ['The suite does not detect removal of a critical tenant protection', 'The implementation is authorized', 'Coverage is complete', 'The mutant should be silently excluded'],
     answer: 0,
     explanation: 'A surviving critical mutant directly exposes a test-portfolio blind spot.'
   },
@@ -2591,9 +2591,37 @@ const QUESTIONS = [
   },
   {
     category: 'Course 27 authority boundary',
-    question: 'What does QUALITY_EVIDENCE_ACCEPTED authorize?',
+    question: 'What does a CONFORMANT quality decision authorize?',
     options: ['Nothing by itself; it is input to a separate protected release decision', 'Immediate production deployment', 'Permanent exception approval', 'Modification of the quality policy'],
     answer: 0,
     explanation: 'Quality verification and release authorization remain separate control domains.'
+  },
+  {
+    category: 'Course 27 concurrency',
+    question: 'Two concurrent requests use the same idempotency key and identical payload. What is the required durable outcome?',
+    options: ['One effect, with one request applied and the other replaying the result', 'Two effects because two requests arrived', 'A new idempotency key for every retry', 'Automatic cancellation of both requests'],
+    answer: 0,
+    explanation: 'The stable logical operation identity prevents duplicate consequential effects while allowing safe replay.'
+  },
+  {
+    category: 'Course 27 idempotency conflict',
+    question: 'The same idempotency key is reused with a different payload. What should the trusted service do?',
+    options: ['Reject it as an idempotency conflict', 'Return the existing result as if payloads matched', 'Overwrite the first effect', 'Let the coding agent choose'],
+    answer: 0,
+    explanation: 'A stable key cannot safely identify two different intended operations.'
+  },
+  {
+    category: 'Course 27 protected evaluation',
+    question: 'Model v2 raises holdout classification accuracy but bypasses review for an ambiguous high-confidence case. What should the gate do?',
+    options: ['Block because a protected invariant failed', 'Pass because the average improved', 'Average review safety with accuracy', 'Delete the ambiguous case'],
+    answer: 0,
+    explanation: 'Protected deterministic obligations are floors; aggregate quality cannot compensate for an authority violation.'
+  },
+  {
+    category: 'Course 27 impact analysis',
+    question: 'The dependency graph cannot determine whether a shared API change affects a downstream service. What is the safe test-selection result?',
+    options: ['Require impact review and retain mandatory protected checks', 'Treat the dependency as absent', 'Skip downstream tests', 'Allow the implementation agent to label the change low risk'],
+    answer: 0,
+    explanation: 'Unknown impact is uncertainty, not evidence of no impact.'
   }
 ];

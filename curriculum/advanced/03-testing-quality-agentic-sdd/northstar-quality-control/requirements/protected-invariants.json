@@ -1,0 +1,31 @@
+{
+  "revision": "NORTHSTAR-INVARIANTS@3",
+  "owner": "Underwriting Risk",
+  "invariants": [
+    {
+      "id": "QI-001",
+      "statement": "Ambiguous classifications require authorized human review regardless of confidence.",
+      "criticality": "critical"
+    },
+    {
+      "id": "QI-002",
+      "statement": "One tenant cannot access another tenant's documents or review state.",
+      "criticality": "critical"
+    },
+    {
+      "id": "QI-003",
+      "statement": "AI proposals cannot independently mutate authoritative underwriting state.",
+      "criticality": "critical"
+    },
+    {
+      "id": "QI-004",
+      "statement": "Retries and concurrent duplicates create at most one consequential effect.",
+      "criticality": "critical"
+    },
+    {
+      "id": "QI-005",
+      "statement": "Every classification proposal preserves evidence and model provenance.",
+      "criticality": "high"
+    }
+  ]
+}

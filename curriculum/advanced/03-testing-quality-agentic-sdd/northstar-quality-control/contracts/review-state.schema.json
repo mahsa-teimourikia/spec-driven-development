@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://northstar.example/contracts/review-state.schema.json",
+  "title": "Northstar review state",
+  "type": "object",
+  "required": ["operation_id", "tenant_id", "status", "effect_id"],
+  "properties": {
+    "operation_id": {"type": "string", "minLength": 1},
+    "tenant_id": {"type": "string", "minLength": 1},
+    "status": {"enum": ["APPLIED", "REPLAYED", "DENIED", "IDEMPOTENCY_CONFLICT", "APPROVAL_EXPIRED", "APPROVAL_REVOKED"]},
+    "effect_id": {"type": ["string", "null"]}
+  },
+  "additionalProperties": false
+}

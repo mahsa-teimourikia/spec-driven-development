@@ -1,0 +1,1 @@
+{"id":"stale-approval","requirement":"QI-003","mutation":"ACCEPT_EXPIRED_APPROVAL","expected":"BLOCKED","safe_state":"APPROVAL_EXPIRED"}

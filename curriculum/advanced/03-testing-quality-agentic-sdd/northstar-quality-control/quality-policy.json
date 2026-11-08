@@ -1,41 +1,61 @@
 {
-  "policy_version": "QUALITY-POLICY@1",
+  "policy_version": "QUALITY-POLICY@2",
   "observation_producer": "trusted-change-observer-v1",
   "observation_key_id": "change-observer-v1",
-  "evidence_producer": "independent-quality-harness-v1",
+  "evidence_producer": "trusted-quality-ci-v1",
   "evidence_key_id": "quality-harness-v1",
-  "suite_revision": "NORTHSTAR-QUALITY-SUITE@1",
+  "suite_revision": "NORTHSTAR-QUALITY-SUITE@2",
   "required_mutations": [
-    "REMOVE_AUTHORIZATION",
-    "ACCEPT_UNSUPPORTED",
+    "IGNORE_AMBIGUITY",
+    "REMOVE_TENANT_FILTER",
     "DROP_IDEMPOTENCY_KEY",
-    "TREAT_TIMEOUT_AS_SUCCESS"
+    "ACCEPT_EXPIRED_APPROVAL",
+    "DROP_EVIDENCE_REFERENCES",
+    "ALLOW_AI_STATE_MUTATION",
+    "TREAT_REVIEW_OUTAGE_AS_SUCCESS"
   ],
   "required_fault_experiments": [
-    "DEPENDENCY_TIMEOUT",
+    "REVIEW_SERVICE_UNAVAILABLE",
+    "DATABASE_INTERRUPTED_BEFORE_COMMIT",
     "DUPLICATE_DELIVERY",
-    "STALE_APPROVAL"
+    "STALE_APPROVAL",
+    "CONTRACT_CHANGED_DURING_RUN",
+    "UNSUPPORTED_EVIDENCE_REFERENCE"
   ],
   "requirements": [
     {
-      "id": "REQ-QUALITY-001",
-      "criticality": "high",
-      "required_kinds": ["unit", "property", "negative"],
-      "statement": "Classification proposals preserve unsupported and ambiguous outcomes without inventing authority."
-    },
-    {
-      "id": "REQ-QUALITY-002",
+      "id": "QI-001",
       "criticality": "critical",
-      "required_kinds": ["contract", "integration", "negative"],
-      "statement": "Only an authorized underwriter can persist the authoritative classification."
+      "required_kinds": ["unit", "property", "metamorphic", "integration", "negative"],
+      "statement": "Ambiguous classifications require authorized human review regardless of confidence."
     },
     {
-      "id": "REQ-QUALITY-003",
+      "id": "QI-002",
+      "criticality": "critical",
+      "required_kinds": ["security", "negative", "integration"],
+      "statement": "One tenant cannot access another tenant's documents or review state."
+    },
+    {
+      "id": "QI-003",
+      "criticality": "critical",
+      "required_kinds": ["contract", "negative", "integration"],
+      "statement": "AI proposals cannot independently mutate authoritative underwriting state."
+    },
+    {
+      "id": "QI-004",
+      "criticality": "critical",
+      "required_kinds": ["concurrency", "failure", "recovery"],
+      "statement": "Retries and concurrent duplicate delivery create one consequential effect."
+    },
+    {
+      "id": "QI-005",
       "criticality": "high",
-      "required_kinds": ["failure", "recovery"],
-      "statement": "Retries, duplicate delivery, and dependency failure preserve idempotency and safe state."
+      "required_kinds": ["contract", "evaluation", "negative"],
+      "statement": "Classification proposals preserve evidence and model provenance."
     }
   ],
   "candidate_evidence_role": "diagnostic_only",
-  "unknown_oracle_disposition": "INSUFFICIENT_EVIDENCE"
+  "unknown_impact_disposition": "INSUFFICIENT_EVIDENCE",
+  "unknown_oracle_disposition": "INSUFFICIENT_EVIDENCE",
+  "quality_decision_authority": "quality_only_not_merge_deploy_or_activation"
 }

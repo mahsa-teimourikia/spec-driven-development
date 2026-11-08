@@ -1,0 +1,1 @@
+{"id":"duplicate-effects","requirement":"QI-004","mutation":"DROP_IDEMPOTENCY_KEY","expected":"BLOCKED","safe_state":"one durable effect"}

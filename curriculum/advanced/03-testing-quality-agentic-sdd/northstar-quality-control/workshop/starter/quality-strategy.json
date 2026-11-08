@@ -1,15 +1,15 @@
 {
-  "change_id": "AI-2700",
-  "scenario": "An agent-generated classification change adds automatic persistence after a high-confidence proposal.",
+  "change_id": "AI-2605",
+  "scenario": "Model v2 improves fixture classification accuracy but creates high-confidence ambiguity-routing and evidence-support violations while an agent deletes a failing acceptance case.",
   "decisions": {
-    "requirement_risk_map": "TODO",
-    "independent_oracles": "TODO",
-    "negative_and_boundary_tests": "TODO",
-    "mutation_set": "TODO",
-    "failure_experiments": "TODO",
-    "flake_policy": "TODO",
-    "evidence_binding": "TODO",
-    "release_boundary": "TODO"
+    "requirement_verification_matrix": "TODO",
+    "protected_oracle_strategy": "TODO",
+    "risk_adaptive_test_selection": "TODO",
+    "ai_evaluation_slices": "TODO",
+    "mutation_portfolio": "TODO",
+    "evidence_provenance": "TODO",
+    "ci_quality_gate": "TODO",
+    "remediation_and_escalation": "TODO",
+    "what_remains_unproven": "TODO"
   }
 }
-

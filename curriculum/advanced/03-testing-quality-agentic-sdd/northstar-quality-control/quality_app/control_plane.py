@@ -10,7 +10,7 @@ from .models import QualityError, QualityFinding, QualityReport, SubjectObservat
 from .registry import digest_payload, load_json, parse_time, verify_signature
 
 
-VALID_ORACLES = {"specification", "independent_reference", "contract"}
+VALID_ORACLES = {"specification", "independent_reference", "contract", "protected_dataset"}
 
 
 class QualityControlPlane:
@@ -248,6 +248,10 @@ class QualityControlPlane:
             ),
             generated_at=now,
             release_authorized=False,
+            merge_authorized=False,
+            deployment_authorized=False,
+            activation_authorized=False,
+            delivery_state="READY_FOR_INTEGRATION_REVIEW",
         )
 
     def _validate_subject(self, subject: SubjectObservation) -> None:
@@ -351,11 +355,17 @@ class QualityControlPlane:
 
     @staticmethod
     def _evidence_finding(code: str, resource: str = "quality-evidence") -> QualityFinding:
+        disposition = "STALE" if code in {
+            "EVIDENCE_SUBJECT_MISMATCH",
+            "EVIDENCE_POLICY_STALE",
+            "EVIDENCE_SUITE_STALE",
+            "EVIDENCE_EXPIRED",
+        } else "EVIDENCE"
         return QualityFinding(
             code=code,
             requirement_id="QUALITY-EVIDENCE",
             resource=resource,
-            disposition="EVIDENCE",
+            disposition=disposition,
             message="The supplied record cannot establish independent quality evidence.",
         )
 
@@ -374,6 +384,8 @@ class QualityControlPlane:
             return "BLOCKED"
         if "REVIEW" in dispositions:
             return "REVIEW_REQUIRED"
+        if "STALE" in dispositions:
+            return "STALE_EVIDENCE"
         if "EVIDENCE" in dispositions:
             return "INSUFFICIENT_EVIDENCE"
-        return "QUALITY_EVIDENCE_ACCEPTED"
+        return "CONFORMANT"

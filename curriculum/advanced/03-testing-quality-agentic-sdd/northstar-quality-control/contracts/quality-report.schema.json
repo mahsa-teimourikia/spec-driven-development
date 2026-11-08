@@ -15,19 +15,29 @@
     "coverage",
     "metrics",
     "limitations",
-    "release_authorized"
+    "release_authorized",
+    "merge_authorized",
+    "deployment_authorized",
+    "activation_authorized",
+    "delivery_state"
   ],
   "properties": {
     "report_id": {"type": "string", "pattern": "^QUALITY-REPORT-[A-F0-9]{16}$"},
     "decision": {
       "enum": [
-        "QUALITY_EVIDENCE_ACCEPTED",
+        "CONFORMANT",
         "BLOCKED",
         "INSUFFICIENT_EVIDENCE",
-        "REVIEW_REQUIRED"
+        "REVIEW_REQUIRED",
+        "STALE_EVIDENCE",
+        "CONFORMANT_WITH_EXCEPTION"
       ]
     },
     "release_authorized": {"const": false},
+    "merge_authorized": {"const": false},
+    "deployment_authorized": {"const": false},
+    "activation_authorized": {"const": false},
+    "delivery_state": {"const": "READY_FOR_INTEGRATION_REVIEW"},
     "findings": {"type": "array", "items": {"type": "object"}},
     "evidence_ids": {"type": "array", "items": {"type": "string"}},
     "coverage": {"type": "object"},
@@ -36,4 +46,3 @@
   },
   "additionalProperties": true
 }
-

@@ -1,55 +1,21 @@
 {
-  "suite_id": "COURSE27-GOLDEN",
-  "claim": "deterministic scenario coverage, not production quality certification",
+  "suite_id": "COURSE27-GOLDEN@2",
+  "claim": "Git-backed deterministic scenario coverage, not production quality certification",
   "scenarios": [
-    {
-      "id": "passing",
-      "expected_decision": "QUALITY_EVIDENCE_ACCEPTED"
-    },
-    {
-      "id": "candidate-only",
-      "expected_decision": "INSUFFICIENT_EVIDENCE"
-    },
-    {
-      "id": "forged",
-      "expected_decision": "INSUFFICIENT_EVIDENCE"
-    },
-    {
-      "id": "wrong-subject",
-      "expected_decision": "INSUFFICIENT_EVIDENCE"
-    },
-    {
-      "id": "stale-suite",
-      "expected_decision": "INSUFFICIENT_EVIDENCE"
-    },
-    {
-      "id": "failed-test",
-      "expected_decision": "BLOCKED"
-    },
-    {
-      "id": "missing-negative",
-      "expected_decision": "INSUFFICIENT_EVIDENCE"
-    },
-    {
-      "id": "surviving-mutant",
-      "expected_decision": "BLOCKED"
-    },
-    {
-      "id": "flaky",
-      "expected_decision": "REVIEW_REQUIRED"
-    },
-    {
-      "id": "unsafe-failure",
-      "expected_decision": "BLOCKED"
-    },
-    {
-      "id": "missing-failure",
-      "expected_decision": "INSUFFICIENT_EVIDENCE"
-    },
-    {
-      "id": "unknown-requirement",
-      "expected_decision": "BLOCKED"
-    }
+    {"id": "clean-candidate", "expected_decision": "CONFORMANT"},
+    {"id": "ambiguity-bypass", "expected_decision": "BLOCKED"},
+    {"id": "tenant-leak", "expected_decision": "BLOCKED"},
+    {"id": "unauthorized-state-mutation", "expected_decision": "BLOCKED"},
+    {"id": "duplicate-concurrent-event", "expected_decision": "BLOCKED"},
+    {"id": "idempotency-conflict-accepted", "expected_decision": "BLOCKED"},
+    {"id": "expired-approval-accepted", "expected_decision": "BLOCKED"},
+    {"id": "missing-provenance", "expected_decision": "BLOCKED"},
+    {"id": "unsupported-citation", "expected_decision": "BLOCKED"},
+    {"id": "oracle-weakened", "expected_decision": "INSUFFICIENT_EVIDENCE"},
+    {"id": "mandatory-test-deleted", "expected_decision": "INSUFFICIENT_EVIDENCE"},
+    {"id": "stale-subject", "expected_decision": "STALE_EVIDENCE"},
+    {"id": "protected-slice-regression", "expected_decision": "BLOCKED"},
+    {"id": "unknown-impact", "expected_decision": "INSUFFICIENT_EVIDENCE"},
+    {"id": "flaky-protected-test", "expected_decision": "REVIEW_REQUIRED"}
   ]
 }
-
