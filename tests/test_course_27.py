@@ -1,4 +1,4 @@
-"""Focused invariants for Course 27 testing and quality."""
+"""Focused invariants for Course 27 quality engineering and verification."""
 
 from __future__ import annotations
 
@@ -13,260 +13,308 @@ SCENARIO = ROOT / "curriculum/advanced/03-testing-quality-agentic-sdd/northstar-
 sys.path.insert(0, str(SCENARIO))
 
 from quality_app.control_plane import QualityControlPlane  # noqa: E402
+from quality_app.evaluation_engine import compare_models, load_jsonl  # noqa: E402
 from quality_app.models import QualityError  # noqa: E402
+from quality_app.mutation_runner import MUTATION_TO_CHECK  # noqa: E402
+from quality_app.oracle_registry import OracleRegistry  # noqa: E402
 from quality_app.registry import digest_payload, sign_payload  # noqa: E402
 from quality_app.simulation import (  # noqa: E402
-    FUTURE,
+    ADVERSARIAL_CASES,
+    EXTRA_SCENARIOS,
     GOLDEN,
-    NOW,
     demonstrate_subject_tamper,
-    evidence_for,
-    passing_cases,
+    quality_context,
     run_evaluation,
     run_golden,
     run_reference,
-    run_scenario,
-    subject_for,
+    run_scenario_in_context,
 )
+from quality_app.test_selector import select_tests  # noqa: E402
 
 
 class Course27Tests(unittest.TestCase):
-    def setUp(self):
-        self.plane = QualityControlPlane(SCENARIO)
-        self.subject = subject_for(self.plane)
+    @classmethod
+    def setUpClass(cls):
+        cls.manager = quality_context(SCENARIO)
+        cls.context = cls.manager.__enter__()
+        cls.plane: QualityControlPlane = cls.context["plane"]
+        cls.subject = cls.context["subject"]
+        cls.record = cls.context["evidence"]
+        cls.observations = cls.context["observations"]
 
-    def evaluate(self, record=None):
-        return self.plane.evaluate(
-            self.subject,
-            [record or evidence_for(self.plane, self.subject)],
-            NOW,
+    @classmethod
+    def tearDownClass(cls):
+        cls.manager.__exit__(None, None, None)
+
+    def scenario(self, scenario_id: str):
+        return run_scenario_in_context(self.context, scenario_id)
+
+    def test_active_policy_is_external_and_current(self):
+        self.assertEqual(self.plane.policy_version, "QUALITY-POLICY@2")
+        self.assertEqual(self.plane.policy["suite_revision"], "NORTHSTAR-QUALITY-SUITE@2")
+
+    def test_oracle_registry_has_five_protected_invariants(self):
+        registry = OracleRegistry(SCENARIO)
+        self.assertEqual(registry.requirement_ids, {"QI-001", "QI-002", "QI-003", "QI-004", "QI-005"})
+
+    def test_oracle_registry_has_seventeen_requirement_kind_pairs(self):
+        self.assertEqual(len(OracleRegistry(SCENARIO).required_pairs()), 17)
+
+    def test_revision_set_contains_three_full_git_commits(self):
+        commits = dict(self.subject.component_commits)
+        self.assertEqual(set(commits), {"ai-service", "review-service", "underwriting-api"})
+        self.assertTrue(all(len(revision) == 40 for revision in commits.values()))
+
+    def test_git_revision_fixture_is_reproducible(self):
+        reference = run_reference(SCENARIO)
+        self.assertEqual(reference["revision_set"], dict(self.subject.component_commits))
+
+    def test_evidence_binds_contract_dataset_and_oracle_digests(self):
+        self.assertTrue(self.subject.contract_digest.startswith("sha256:"))
+        self.assertTrue(self.subject.dataset_digest.startswith("sha256:"))
+        self.assertTrue(self.subject.oracle_digest.startswith("sha256:"))
+
+    def test_clean_actual_behavior_is_conformant(self):
+        self.assertEqual(self.scenario("clean-candidate")["decision"], "CONFORMANT")
+
+    def test_quality_report_never_authorizes_delivery(self):
+        report = self.plane.evaluate(self.subject, [self.record], "2026-11-08T18:00:00Z")
+        self.assertFalse(report.merge_authorized)
+        self.assertFalse(report.deployment_authorized)
+        self.assertFalse(report.activation_authorized)
+        self.assertFalse(report.release_authorized)
+        self.assertEqual(report.delivery_state, "READY_FOR_INTEGRATION_REVIEW")
+
+    def test_ambiguity_property_and_metamorphic_populations(self):
+        self.assertEqual(self.observations["property"]["population"], 101)
+        self.assertTrue(self.observations["property"]["passed"])
+        self.assertEqual(self.observations["metamorphic"]["population"], 3)
+        self.assertTrue(self.observations["metamorphic"]["passed"])
+
+    def test_cross_tenant_access_is_denied(self):
+        self.assertTrue(self.observations["behavior"]["checks"]["cross_tenant_denied"])
+
+    def test_ai_service_cannot_mutate_authoritative_state(self):
+        self.assertTrue(self.observations["behavior"]["checks"]["ai_cannot_mutate_state"])
+
+    def test_concurrent_duplicate_has_one_durable_effect(self):
+        behavior = self.observations["behavior"]
+        self.assertEqual(behavior["concurrent_statuses"], ["APPLIED", "REPLAYED"])
+        self.assertEqual(behavior["effect_count"], 1)
+
+    def test_conflicting_idempotency_payload_is_rejected(self):
+        self.assertEqual(self.observations["behavior"]["conflict_status"], "IDEMPOTENCY_CONFLICT")
+
+    def test_expired_and_revoked_approvals_are_rejected(self):
+        checks = self.observations["behavior"]["checks"]
+        self.assertTrue(checks["expired_approval_rejected"])
+        self.assertTrue(checks["revoked_approval_rejected"])
+
+    def test_review_outage_preserves_safe_state(self):
+        self.assertEqual(
+            self.observations["behavior"]["outage_status"],
+            "REVIEW_UNAVAILABLE_SAFE_HOLD",
         )
 
-    def resign(self, record):
-        record["signature"] = sign_payload(record["payload"], self.plane.evidence_key)
-        return record
+    def test_unsupported_evidence_reference_is_rejected_by_behavior(self):
+        self.assertTrue(self.observations["behavior"]["checks"]["unsupported_evidence_rejected"])
 
-    def assert_error(self, code, operation):
-        with self.assertRaises(QualityError) as caught:
-            operation()
-        self.assertEqual(code, caught.exception.code)
+    def test_all_policy_selected_mutants_are_killed(self):
+        mutations = self.observations["mutations"]
+        self.assertEqual(len(mutations), 7)
+        self.assertEqual({item["mutation_id"] for item in mutations}, set(MUTATION_TO_CHECK))
+        self.assertTrue(all(item["outcome"] == "KILLED" for item in mutations))
 
-    def test_active_policy_is_external(self):
-        self.assertEqual(self.plane.policy_version, "QUALITY-POLICY@1")
+    def test_mutation_denominator_is_not_inflated(self):
+        report = self.plane.evaluate(self.subject, [self.record], "2026-11-08T18:00:00Z")
+        self.assertEqual(report.metrics["mutation"], {
+            "killed": 7,
+            "required": 7,
+            "value": 1.0,
+            "excluded_from_denominator": 0,
+        })
 
-    def test_passing_portfolio_is_accepted(self):
-        self.assertEqual(self.evaluate().decision, "QUALITY_EVIDENCE_ACCEPTED")
+    def test_six_failure_experiments_reach_safe_states(self):
+        faults = self.observations["fault_experiments"]
+        self.assertEqual(len(faults), 6)
+        self.assertTrue(all(item["outcome"] == "SAFE" for item in faults))
 
-    def test_quality_acceptance_does_not_authorize_release(self):
-        self.assertFalse(self.evaluate().release_authorized)
+    def test_model_v2_improves_fixture_accuracy_but_is_blocked(self):
+        comparison = compare_models(SCENARIO)
+        v1 = comparison["holdout"]["v1"]
+        v2 = comparison["holdout"]["v2"]
+        self.assertGreater(v2["accuracy"]["value"], v1["accuracy"]["value"])
+        self.assertEqual(v1["decision"], "CONFORMANT")
+        self.assertEqual(v2["decision"], "BLOCKED")
 
-    def test_observation_signature_is_required(self):
-        forged = replace(self.subject, signature="hmac-sha256:forged")
-        self.assert_error("SUBJECT_AUTHENTICITY_UNVERIFIED", lambda: self.plane.evaluate(forged, [], NOW))
+    def test_model_v2_reports_protected_slice_failures(self):
+        violations = compare_models(SCENARIO)["holdout"]["v2"]["protected_violations"]
+        self.assertIn("HOLD-005:REVIEW_ROUTING_BYPASS", violations)
+        self.assertIn("HOLD-008:UNSUPPORTED_EVIDENCE", violations)
 
-    def test_observation_producer_is_required(self):
-        forged = replace(self.subject, producer="candidate-agent")
-        forged = replace(forged, signature=sign_payload(forged.payload(), self.plane.observation_key))
-        self.assert_error("SUBJECT_PRODUCER_UNTRUSTED", lambda: self.plane.evaluate(forged, [], NOW))
+    def test_overfit_candidate_fails_independent_holdout(self):
+        comparison = compare_models(SCENARIO)
+        self.assertEqual(comparison["development"]["overfit"]["accuracy"]["value"], 1.0)
+        self.assertEqual(comparison["holdout"]["overfit"]["accuracy"], {
+            "numerator": 2,
+            "denominator": 8,
+            "value": 0.25,
+        })
 
-    def test_stale_quality_policy_is_rejected(self):
-        stale = replace(self.subject, policy_version="QUALITY-POLICY@0")
-        stale = replace(stale, signature=sign_payload(stale.payload(), self.plane.observation_key))
-        self.assert_error("QUALITY_POLICY_STALE", lambda: self.plane.evaluate(stale, [], NOW))
+    def test_evaluation_reports_per_class_precision_and_recall(self):
+        per_class = compare_models(SCENARIO)["holdout"]["v2"]["per_class"]
+        self.assertEqual(set(per_class), {"APPLICATION", "LOSS_HISTORY", "OTHER", "POLICY"})
+        self.assertTrue(all("precision" in value and "recall" in value for value in per_class.values()))
+
+    def test_evaluation_labels_have_owner_and_revision(self):
+        rows = load_jsonl(SCENARIO / "datasets/protected-holdout.jsonl")
+        self.assertTrue(all(item["label_owner"] == "Underwriting Quality" for item in rows))
+        self.assertTrue(all(item["label_revision"] == 3 for item in rows))
+
+    def test_authorization_change_selects_protected_negative_tests(self):
+        selection = select_tests({
+            "category": "authorization",
+            "protected_boundaries": ["tenant_isolation", "state_authority"],
+            "unknown_dependencies": False,
+        })
+        self.assertEqual(selection["status"], "READY")
+        self.assertTrue({"security", "negative", "contract", "integration"}.issubset(selection["selected_kinds"]))
+
+    def test_unknown_impact_requires_review_and_keeps_mandatory_tests(self):
+        selection = select_tests({
+            "category": "shared_api",
+            "protected_boundaries": ["human_review"],
+            "unknown_dependencies": True,
+        })
+        self.assertEqual(selection["status"], "IMPACT_REVIEW_REQUIRED")
+        self.assertIn("property", selection["selected_kinds"])
+        self.assertFalse(selection["unknown_impact_is_no_impact"])
 
     def test_candidate_tests_are_diagnostic_only(self):
-        report = self.evaluate(evidence_for(self.plane, self.subject, producer="candidate-agent"))
-        self.assertEqual(report.decision, "INSUFFICIENT_EVIDENCE")
-        self.assertIn("CANDIDATE_EVIDENCE_NOT_ATTESTATION", [item.code for item in report.findings])
+        self.assertEqual(self.scenario("candidate-only")["decision"], "INSUFFICIENT_EVIDENCE")
 
-    def test_forged_independent_evidence_is_rejected(self):
-        record = evidence_for(self.plane, self.subject)
-        record["signature"] = "hmac-sha256:forged"
-        self.assertIn("EVIDENCE_AUTHENTICITY_UNVERIFIED", [item.code for item in self.evaluate(record).findings])
+    def test_forged_evidence_is_insufficient(self):
+        result = self.scenario("forged-evidence")
+        self.assertEqual(result["decision"], "INSUFFICIENT_EVIDENCE")
+        self.assertIn("EVIDENCE_AUTHENTICITY_UNVERIFIED", result["finding_codes"])
 
-    def test_missing_evidence_id_is_rejected(self):
-        record = evidence_for(self.plane, self.subject)
-        record["payload"].pop("evidence_id")
-        self.resign(record)
-        self.assertIn("EVIDENCE_ID_MISSING", [item.code for item in self.evaluate(record).findings])
+    def test_stale_subject_is_explicit(self):
+        self.assertEqual(self.scenario("stale-subject")["decision"], "STALE_EVIDENCE")
 
-    def test_evidence_id_collision_blocks(self):
-        first = evidence_for(self.plane, self.subject)
-        second = evidence_for(self.plane, self.subject)
-        second["payload"]["cases"][0]["runs"] = ["PASS", "PASS"]
-        self.resign(second)
-        report = self.plane.evaluate(self.subject, [first, second], NOW)
-        self.assertIn("EVIDENCE_ID_COLLISION", [item.code for item in report.findings])
+    def test_stale_suite_and_policy_are_explicit(self):
+        self.assertEqual(self.scenario("stale-suite")["decision"], "STALE_EVIDENCE")
+        self.assertEqual(self.scenario("stale-policy")["decision"], "STALE_EVIDENCE")
 
-    def test_malformed_signed_evidence_is_insufficient(self):
-        record = evidence_for(self.plane, self.subject)
-        record["payload"]["cases"] = "not-a-list"
-        self.resign(record)
-        self.assertIn("EVIDENCE_SCHEMA_INVALID", [item.code for item in self.evaluate(record).findings])
+    def test_flaky_protected_test_requires_review(self):
+        result = self.scenario("flaky-protected-test")
+        self.assertEqual(result["decision"], "REVIEW_REQUIRED")
+        self.assertIn("FLAKY_TEST_NOT_EVIDENCE", result["finding_codes"])
 
-    def test_evidence_binds_exact_subject(self):
-        record = evidence_for(self.plane, self.subject, subject_digest="sha256:wrong")
-        self.assertIn("EVIDENCE_SUBJECT_MISMATCH", [item.code for item in self.evaluate(record).findings])
+    def test_deleted_mandatory_test_is_insufficient(self):
+        self.assertEqual(self.scenario("mandatory-test-deleted")["decision"], "INSUFFICIENT_EVIDENCE")
 
-    def test_evidence_binds_suite_revision(self):
-        record = evidence_for(self.plane, self.subject, suite_revision="NORTHSTAR-QUALITY-SUITE@0")
-        self.assertIn("EVIDENCE_SUITE_STALE", [item.code for item in self.evaluate(record).findings])
-
-    def test_evidence_binds_policy_revision(self):
-        record = evidence_for(self.plane, self.subject)
-        record["payload"]["policy_version"] = "QUALITY-POLICY@0"
-        self.resign(record)
-        self.assertIn("EVIDENCE_POLICY_STALE", [item.code for item in self.evaluate(record).findings])
-
-    def test_expired_evidence_is_rejected(self):
-        record = evidence_for(self.plane, self.subject, expires_at="2026-11-08T17:30:00Z")
-        self.assertIn("EVIDENCE_EXPIRED", [item.code for item in self.evaluate(record).findings])
-
-    def test_failed_independent_test_blocks(self):
-        self.assertEqual(run_scenario(SCENARIO, "failed-test")["decision"], "BLOCKED")
-
-    def test_missing_negative_test_is_insufficient(self):
-        self.assertEqual(run_scenario(SCENARIO, "missing-negative")["decision"], "INSUFFICIENT_EVIDENCE")
+    def test_weakened_oracle_is_insufficient(self):
+        self.assertEqual(self.scenario("oracle-weakened")["decision"], "INSUFFICIENT_EVIDENCE")
 
     def test_surviving_critical_mutant_blocks(self):
-        result = run_scenario(SCENARIO, "surviving-mutant")
+        result = self.scenario("ambiguity-bypass")
         self.assertEqual(result["decision"], "BLOCKED")
         self.assertIn("CRITICAL_MUTANT_SURVIVED", result["finding_codes"])
 
-    def test_missing_mutation_is_insufficient(self):
-        mutations = [
-            {"mutation_id": item, "outcome": "KILLED"}
-            for item in self.plane.policy["required_mutations"][1:]
-        ]
-        report = self.evaluate(evidence_for(self.plane, self.subject, mutations=mutations))
-        self.assertIn("REQUIRED_MUTATION_NOT_EXECUTED", [item.code for item in report.findings])
-
-    def test_unregistered_mutation_does_not_change_denominator(self):
-        record = evidence_for(self.plane, self.subject)
-        record["payload"]["mutations"].append({"mutation_id": "EASY_EXTRA", "outcome": "KILLED"})
-        self.resign(record)
-        report = self.evaluate(record)
-        self.assertEqual(report.metrics["mutation"]["required"], 4)
-        self.assertIn("UNREGISTERED_MUTATION", [item.code for item in report.findings])
-
     def test_unsafe_fault_experiment_blocks(self):
-        result = run_scenario(SCENARIO, "unsafe-failure")
+        result = self.scenario("unsafe-review-outage")
         self.assertEqual(result["decision"], "BLOCKED")
         self.assertIn("FAILURE_EXPERIMENT_UNSAFE", result["finding_codes"])
 
     def test_missing_fault_experiment_is_insufficient(self):
-        self.assertEqual(run_scenario(SCENARIO, "missing-failure")["decision"], "INSUFFICIENT_EVIDENCE")
-
-    def test_flaky_test_cannot_satisfy_obligation(self):
-        result = run_scenario(SCENARIO, "flaky")
-        self.assertEqual(result["decision"], "REVIEW_REQUIRED")
-        self.assertIn("FLAKY_TEST_NOT_EVIDENCE", result["finding_codes"])
-
-    def test_repeated_consistent_passes_are_not_flaky(self):
-        cases = passing_cases()
-        cases[0] = {**cases[0], "runs": ["PASS", "PASS"]}
-        report = self.evaluate(evidence_for(self.plane, self.subject, cases=cases))
-        self.assertEqual(report.decision, "QUALITY_EVIDENCE_ACCEPTED")
-
-    def test_conflicting_mutation_outcomes_block(self):
-        record = evidence_for(self.plane, self.subject)
-        record["payload"]["mutations"].append(
-            {"mutation_id": "REMOVE_AUTHORIZATION", "outcome": "SURVIVED"}
-        )
-        self.resign(record)
-        report = self.evaluate(record)
-        self.assertIn("MUTATION_OUTCOME_CONFLICT", [item.code for item in report.findings])
-
-    def test_unknown_oracle_is_insufficient(self):
-        cases = passing_cases()
-        cases[0] = {**cases[0], "oracle_source": "candidate"}
-        report = self.evaluate(evidence_for(self.plane, self.subject, cases=cases))
-        self.assertIn("ORACLE_INDEPENDENCE_UNPROVEN", [item.code for item in report.findings])
+        self.assertEqual(self.scenario("missing-failure-experiment")["decision"], "INSUFFICIENT_EVIDENCE")
 
     def test_unknown_requirement_reference_blocks(self):
-        self.assertEqual(run_scenario(SCENARIO, "unknown-requirement")["decision"], "BLOCKED")
+        self.assertEqual(self.scenario("unknown-requirement")["decision"], "BLOCKED")
 
-    def test_no_evidence_is_insufficient(self):
-        report = self.plane.evaluate(self.subject, [], NOW)
-        self.assertEqual(report.decision, "INSUFFICIENT_EVIDENCE")
+    def test_evidence_id_collision_blocks(self):
+        self.assertEqual(self.scenario("evidence-id-collision")["decision"], "BLOCKED")
 
-    def test_requirement_coverage_is_complete(self):
-        coverage = self.evaluate().coverage
-        self.assertEqual(coverage["covered_obligations"], coverage["required_obligations"])
-        self.assertEqual(coverage["value"], 1.0)
+    def test_malformed_authenticated_evidence_is_insufficient(self):
+        self.assertEqual(self.scenario("malformed-evidence")["decision"], "INSUFFICIENT_EVIDENCE")
 
-    def test_mutation_metric_has_explicit_denominator(self):
-        metric = self.evaluate().metrics["mutation"]
-        self.assertEqual(metric, {"killed": 4, "required": 4, "value": 1.0, "excluded_from_denominator": 0})
+    def test_subject_signature_is_required(self):
+        forged = replace(self.subject, signature="hmac-sha256:forged")
+        with self.assertRaises(QualityError) as caught:
+            self.plane.evaluate(forged, [], "2026-11-08T18:00:00Z")
+        self.assertEqual(caught.exception.code, "SUBJECT_AUTHENTICITY_UNVERIFIED")
 
-    def test_fault_metric_has_explicit_population(self):
-        metric = self.evaluate().metrics["fault_experiments"]
-        self.assertEqual(metric, {"safe": 3, "required": 3})
-
-    def test_report_declares_limitations(self):
-        report = self.evaluate()
-        self.assertTrue(any("does not authorize release" in item for item in report.limitations))
-        self.assertGreaterEqual(len(report.limitations), 3)
-
-    def test_report_is_bound_to_specification_revision(self):
-        self.assertEqual(self.evaluate().specification_revision, "CLASSIFICATION-SPEC@7")
-
-    def test_report_id_is_deterministic_for_same_evidence(self):
-        record = evidence_for(self.plane, self.subject)
-        self.assertEqual(self.evaluate(record).report_id, self.evaluate(record).report_id)
+    def test_subject_digest_changes_with_any_component_revision(self):
+        changed = replace(self.subject, component_commits=(("ai-service", "f" * 40), *self.subject.component_commits[1:]))
+        self.assertNotEqual(digest_payload(self.subject.payload()), digest_payload(changed.payload()))
 
     def test_subject_tamper_is_rejected(self):
         self.assertEqual(demonstrate_subject_tamper(SCENARIO), "SUBJECT_AUTHENTICITY_UNVERIFIED")
 
-    def test_all_golden_scenarios_match(self):
-        results = run_golden(SCENARIO)
-        self.assertEqual(len(results), 12)
+    def test_all_fifteen_golden_scenarios_match(self):
+        results = run_golden(SCENARIO, self.context)
+        self.assertEqual(len(results), 15)
         self.assertTrue(all(item["passed"] for item in results))
 
-    def test_evaluation_has_exact_populations(self):
-        evaluation = run_evaluation(SCENARIO)
-        metric = evaluation["metrics"]["exact_decision_accuracy"]
-        self.assertEqual(metric, {"numerator": 24, "denominator": 24, "value": 1.0})
+    def test_adversarial_evaluation_has_forty_two_cases(self):
+        evaluation = run_evaluation(SCENARIO, self.context)
+        self.assertEqual(len(evaluation["cases"]), 42)
+        self.assertEqual(evaluation["metrics"]["exact_decision_accuracy"], {
+            "numerator": 42,
+            "denominator": 42,
+            "value": 1.0,
+        })
 
-    def test_evaluation_reports_unsafe_recall(self):
-        metric = run_evaluation(SCENARIO)["metrics"]["unsafe_case_recall"]
-        self.assertEqual(metric, {"numerator": 8, "denominator": 8, "value": 1.0})
+    def test_adversarial_evaluation_reports_clean_false_positives(self):
+        metric = run_evaluation(SCENARIO, self.context)["metrics"]["clean_control_false_positives"]
+        self.assertEqual(metric, {"numerator": 0, "denominator": 3, "value": 0.0})
 
-    def test_reference_run_is_reproducible(self):
-        result = run_reference(SCENARIO)
-        self.assertTrue(result["golden_passed"])
-        self.assertEqual(result["course"], 27)
+    def test_static_golden_registry_matches_executable_registry(self):
+        registry = json.loads((SCENARIO / "conformance-suite.json").read_text())
+        self.assertEqual({item["id"] for item in registry["scenarios"]}, set(GOLDEN))
 
-    def test_policy_and_contract_are_machine_readable(self):
-        self.assertEqual(json.loads((SCENARIO / "quality-policy.json").read_text())["policy_version"], "QUALITY-POLICY@1")
-        self.assertEqual(json.loads((SCENARIO / "contracts/quality-report.schema.json").read_text())["type"], "object")
-
-    def test_every_required_kind_is_traced(self):
-        expected = {
-            (item["id"], kind)
-            for item in self.plane.policy["requirements"]
-            for kind in item["required_kinds"]
-        }
-        observed = {
-            (requirement_id, case["kind"])
-            for case in passing_cases()
-            for requirement_id in case["requirement_ids"]
-        }
-        self.assertEqual(expected, observed)
-
-    def test_golden_registry_is_stable(self):
+    def test_static_adversarial_registry_matches_executable_registry(self):
+        registry = json.loads((SCENARIO / "evaluation-cases.json").read_text())
         self.assertEqual(
-            set(GOLDEN),
-            {
-                "passing", "candidate-only", "forged", "wrong-subject", "stale-suite",
-                "failed-test", "missing-negative", "surviving-mutant", "flaky",
-                "unsafe-failure", "missing-failure", "unknown-requirement",
-            },
+            [(item["case_id"], item["scenario"]) for item in registry["cases"]],
+            ADVERSARIAL_CASES,
         )
 
-    def test_subject_digest_changes_with_spec_revision(self):
-        changed = replace(self.subject, specification_revision="CLASSIFICATION-SPEC@8")
-        self.assertNotEqual(digest_payload(self.subject.payload()), digest_payload(changed.payload()))
+    def test_report_contract_declares_all_decision_states(self):
+        contract = json.loads((SCENARIO / "contracts/quality-report.schema.json").read_text())
+        decisions = set(contract["properties"]["decision"]["enum"])
+        self.assertTrue({"CONFORMANT", "BLOCKED", "INSUFFICIENT_EVIDENCE", "REVIEW_REQUIRED", "STALE_EVIDENCE", "CONFORMANT_WITH_EXCEPTION"}.issubset(decisions))
+
+    def test_service_contracts_are_machine_readable(self):
+        for name in ("classification-v3.schema.json", "review-state.schema.json"):
+            contract = json.loads((SCENARIO / "contracts" / name).read_text())
+            self.assertEqual(contract["type"], "object")
+
+    def test_six_scenario_artifacts_exist(self):
+        self.assertEqual(len(list((SCENARIO / "scenarios").glob("*.json"))), 6)
+
+    def test_optional_hypothesis_path_is_documented(self):
+        dependencies = (SCENARIO / "optional-tools.txt").read_text()
+        self.assertIn("pytest", dependencies)
+        self.assertIn("hypothesis", dependencies)
+        self.assertTrue((SCENARIO / "tests/test_property_hypothesis.py").exists())
+
+    def test_reference_run_stops_at_integration_review(self):
+        result = run_reference(SCENARIO)
+        self.assertEqual(result["quality_decision"], "CONFORMANT")
+        self.assertEqual(result["delivery_state"], "READY_FOR_INTEGRATION_REVIEW")
+        self.assertTrue(result["golden_passed"])
+        self.assertFalse(result["release_authorized"])
+
+    def test_evaluation_registry_has_expected_scenario_vocabulary(self):
+        scenarios = {scenario for _, scenario in ADVERSARIAL_CASES}
+        self.assertTrue(scenarios.issubset(set(GOLDEN) | set(EXTRA_SCENARIOS)))
+
+    def test_evidence_signature_changes_when_results_change(self):
+        changed = json.loads(json.dumps(self.record))
+        changed["payload"]["cases"][0]["runs"] = ["PASS", "PASS"]
+        signature = sign_payload(changed["payload"], self.plane.evidence_key)
+        self.assertNotEqual(signature, self.record["signature"])
 
 
 if __name__ == "__main__":

@@ -4,7 +4,7 @@
 
 ## Start here
 
-Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through [Course 26: Enterprise Architecture Governance](curriculum/advanced/02-enterprise-architecture-governance-agentic-sdd/README.md), then complete [Course 27: Testing and Quality for Agentic SDD](curriculum/advanced/03-testing-quality-agentic-sdd/README.md) with its guided [notebook](curriculum/advanced/03-testing-quality-agentic-sdd/northstar-quality-control/testing_quality.ipynb), executable [quality-control lab](curriculum/advanced/03-testing-quality-agentic-sdd/northstar-quality-control/lab.py), [staff quality workshop](curriculum/advanced/03-testing-quality-agentic-sdd/northstar-quality-control/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
+Open the **[deployed Learning Hub](https://mahsa-teimourikia.github.io/spec-driven-development/hub/)** and begin with [Course 01: Why agentic coding changes the PDLC](curriculum/beginner/01-why-agentic-coding-changes-pdlc/README.md). Continue through [Course 26: Enterprise Architecture Governance](curriculum/advanced/02-enterprise-architecture-governance-agentic-sdd/README.md), then complete [Course 27: Testing, Quality Engineering, and Independent Verification](curriculum/advanced/03-testing-quality-agentic-sdd/README.md) with its guided [notebook](curriculum/advanced/03-testing-quality-agentic-sdd/northstar-quality-control/testing_quality.ipynb), executable [quality-engineering lab](curriculum/advanced/03-testing-quality-agentic-sdd/northstar-quality-control/lab.py), [staff quality workshop](curriculum/advanced/03-testing-quality-agentic-sdd/northstar-quality-control/README.md), and the cumulative [deployed knowledge check](https://mahsa-teimourikia.github.io/spec-driven-development/quiz/).
 
 This is not simply a tutorial for one specification framework. The central skill is turning organizational intent, architecture rules, product requirements, and engineering constraints into a hierarchy of durable specifications that agents can execute—and humans can govern.
 
@@ -387,21 +387,23 @@ Course 26 turns enterprise architecture intent into an independently evaluated c
 
 ## Course 27 outcome
 
-Course 27 turns testing activity into independently verifiable, specification-traceable quality evidence. You will:
+Course 27 turns testing activity into independently verifiable, specification-traceable quality evidence executed against exact multi-repository behavior. You will:
 
 - separate candidate tests, independent verification, evaluation, and release authorization;
-- map requirement risk to unit, property, contract, integration, negative, failure, and recovery evidence;
+- execute code from three reproducible Git revisions and bind evidence to the exact revision set;
+- map five protected invariants to example, property, metamorphic, contract, integration, security, concurrency, failure, recovery, and evaluation evidence;
 - govern expected results through specifications, independent references, and versioned contracts;
 - bind evidence to the exact implementation, specification, suite, policy, producer, and validity window;
-- require policy-selected critical mutations and reject denominator gaming;
-- inject timeout, duplicate-delivery, and stale-approval failures and verify safe state;
+- require seven policy-selected critical mutations and reject denominator gaming;
+- inject six failure modes and verify named safe states, including transactional rollback and duplicate delivery;
+- compare deterministic model predictions by overall, per-class, slice, support, and holdout metrics;
 - treat flaky, forged, stale, wrong-subject, and candidate-only results as non-passing evidence;
 - report metric populations, numerators, denominators, exclusions, and claim limits; and
-- produce a quality decision that remains separate from release authority.
+- produce a quality decision that stops at `READY_FOR_INTEGRATION_REVIEW` and remains separate from all delivery authority.
 
 ## Run locally
 
-Everything in Courses 01–27 is credential-free and uses the Python standard library. Courses 20–22 and 26 also invoke the installed Git executable to create isolated local repositories.
+Everything in Courses 01–27 is credential-free and uses the Python standard library. Courses 20–22 and 26–27 also invoke the installed Git executable to create isolated local repositories. Course 27 uses SQLite from the standard library for its concurrency exercise; pytest, Hypothesis, and jsonschema are optional extensions.
 
 ```bash
 python3 curriculum/beginner/01-why-agentic-coding-changes-pdlc/lab.py

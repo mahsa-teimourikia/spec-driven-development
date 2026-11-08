@@ -1,0 +1,45 @@
+{
+  "revision": "VERIFICATION-OBLIGATIONS@4",
+  "obligations": [
+    {
+      "id": "VO-2605-001",
+      "requirement_id": "QI-001",
+      "claim": "Ambiguity always requires review across the confidence domain.",
+      "test_population": ["ambiguous_low_confidence", "ambiguous_high_confidence", "conflicting_evidence", "missing_evidence"],
+      "required_kinds": ["unit", "property", "metamorphic", "integration", "negative"],
+      "oracle": {"owner": "Underwriting Risk", "revision": "NORTHSTAR-QUALITY-ORACLES@3"}
+    },
+    {
+      "id": "VO-2605-002",
+      "requirement_id": "QI-002",
+      "claim": "Tenant identity from authenticated state controls document and review access.",
+      "test_population": ["same_tenant", "cross_tenant_document", "cross_tenant_review"],
+      "required_kinds": ["security", "negative", "integration"],
+      "oracle": {"owner": "Identity Platform", "revision": "TENANT-AUTHZ@6"}
+    },
+    {
+      "id": "VO-2605-003",
+      "requirement_id": "QI-003",
+      "claim": "Only an authorized review result can mutate protected state.",
+      "test_population": ["authorized_underwriter", "ai_service", "expired_approval", "revoked_approval"],
+      "required_kinds": ["contract", "negative", "integration"],
+      "oracle": {"owner": "Underwriting Risk", "revision": "STATE-AUTHORITY@4"}
+    },
+    {
+      "id": "VO-2605-004",
+      "requirement_id": "QI-004",
+      "claim": "Concurrent duplicate delivery creates one effect and conflicting reuse is rejected.",
+      "test_population": ["same_payload_concurrent", "conflicting_payload", "post_success_redelivery"],
+      "required_kinds": ["concurrency", "failure", "recovery"],
+      "oracle": {"owner": "Reliability Engineering", "revision": "IDEMPOTENCY@5"}
+    },
+    {
+      "id": "VO-2605-005",
+      "requirement_id": "QI-005",
+      "claim": "Proposal evidence references and model revision remain complete and supported.",
+      "test_population": ["supported_evidence", "missing_evidence", "unknown_evidence", "unsupported_citation"],
+      "required_kinds": ["contract", "evaluation", "negative"],
+      "oracle": {"owner": "Underwriting Quality", "revision": "EVALUATION-LABELS@3"}
+    }
+  ]
+}

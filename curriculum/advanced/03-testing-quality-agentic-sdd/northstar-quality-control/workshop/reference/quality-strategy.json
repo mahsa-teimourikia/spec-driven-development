@@ -1,15 +1,15 @@
 {
-  "change_id": "AI-2700",
-  "scenario": "An agent-generated classification change adds automatic persistence after a high-confidence proposal.",
+  "change_id": "AI-2605",
+  "scenario": "Model v2 improves fixture classification accuracy but creates high-confidence ambiguity-routing and evidence-support violations while an agent deletes a failing acceptance case.",
   "decisions": {
-    "requirement_risk_map": "Map authorization and authoritative persistence to critical negative, contract, and integration evidence; map uncertainty behavior to unit, property, and negative evidence.",
-    "independent_oracles": "Use the approved specification, an independent reference classifier for algebraic properties, and the versioned authorization contract. Candidate snapshots are diagnostics only.",
-    "negative_and_boundary_tests": "Exercise unsupported type, ambiguity, unauthorized principal, stale approval, duplicate delivery, threshold boundaries, and exact-spec revision changes.",
-    "mutation_set": "Require removal of authorization, acceptance of unsupported input, loss of idempotency, and timeout-as-success mutations. The governed denominator is the policy-selected set.",
-    "failure_experiments": "Inject dependency timeout, duplicate delivery, and stale approval; assert safe state, bounded retry, and no unauthorized persistence.",
-    "flake_policy": "Mixed outcomes cannot satisfy a release obligation. Quarantine routes to owner review while preserving the missing-evidence finding.",
-    "evidence_binding": "Bind signed harness evidence to implementation digest, specification revision, suite revision, policy revision, producer, time window, and exact case/mutation/fault populations.",
-    "release_boundary": "QUALITY_EVIDENCE_ACCEPTED is evidence for Course 24 release governance; it never sets release_authorized to true."
+    "requirement_verification_matrix": "Map QI-001 through QI-005 to owned positive, negative, contract, concurrency, failure, recovery, property, metamorphic, and protected-dataset obligations; never infer coverage from test names.",
+    "protected_oracle_strategy": "Keep requirement, authorization, idempotency, and evaluation-label oracles in owner-controlled registries. The coding agent may propose tests but cannot edit oracle revisions or holdout labels.",
+    "risk_adaptive_test_selection": "Always select mandatory protected-boundary checks, then add impact-derived checks. Unknown dependencies yield IMPACT_REVIEW_REQUIRED rather than an empty test set.",
+    "ai_evaluation_slices": "Report overall and per-class precision/recall plus ambiguous, high-confidence, low-quality-scan, rare-document, and conflicting-evidence slices. Any protected routing or support violation blocks regardless of average accuracy.",
+    "mutation_portfolio": "Individually require ambiguity, tenant, authority, idempotency, approval-freshness, provenance, and outage-safe-state mutants; do not dilute them with trivial mutations.",
+    "evidence_provenance": "Bind authenticated receipts to all three full Git commits, contract, oracle, holdout dataset, policy and suite revisions, execution environment, producer, time interval, and exact result population.",
+    "ci_quality_gate": "Return CONFORMANT, BLOCKED, INSUFFICIENT_EVIDENCE, REVIEW_REQUIRED, or STALE_EVIDENCE. A conformant result stops at READY_FOR_INTEGRATION_REVIEW with all delivery authorization flags false.",
+    "remediation_and_escalation": "Restore the deleted case, repair review routing and citation support, rerun the protected holdout and exact revision-set suite, and route threshold or label changes to Underwriting Quality and Risk owners.",
+    "what_remains_unproven": "The synthetic fixture does not establish production defect absence, live model quality, legal compliance, operational SLOs, real tenant isolation, or release safety; Course 28 adds runtime evidence."
   }
 }
-

@@ -121,7 +121,7 @@ Each future course follows this learning arc, adapted where the subject demands 
 | --- | --- | --- | --- | --- | --- |
 | 25 | advanced/01 | Enterprise AI governance for agentic software development | **Available** | C15–C17, C23–C24 | AI-UC-2500 relational registry, contextual risk and policy floors, authenticated evidence, exact-subject governance approval, point-of-use enforcement, runtime suspension, 13 golden scenarios, and 13 adversarial decisions |
 | 26 | advanced/02 | Enterprise Architecture Governance for Agentic SDD | **Available** | C09, C16–C17, C20–C25 | Real-Git architecture facts, ADR lifecycle, fitness functions, exact exceptions, drift, and targeted impact |
-| 27 | advanced/03 | Testing and Quality for Agentic SDD | **Available** | C07–C10, C17–C19, C24–C26 | Exact-subject independent evidence, requirement/test-kind traceability, oracle governance, critical mutation testing, failure injection, flake handling, 12 golden scenarios, and 24-case evaluation |
+| 27 | advanced/03 | Testing, Quality Engineering, and Independent Verification for Agentic SDD | **Available** | C07–C10, C15, C17, C20–C21, C24–C26 | Three reproducible Git revisions, five protected invariants, SQLite concurrency, property/metamorphic testing, seven critical mutations, six failure experiments, protected AI-evaluation slices, 15 golden scenarios, and 42-case evaluation |
 | 28 | advanced/04 | Observability | Planned | C10, C27 | Delivery/runtime traces, redaction, correlation, SLOs |
 | 29 | advanced/05 | Compliance | Planned | C23–C28 | Control-to-evidence mapping and reproducible audit bundle |
 | 30 | advanced/06 | Supply-chain controls | Planned | C24, C27 | Provenance, dependency policy, attestations, release gate |

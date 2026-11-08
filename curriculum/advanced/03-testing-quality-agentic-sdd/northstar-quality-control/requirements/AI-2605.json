@@ -1,0 +1,9 @@
+{
+  "change_id": "AI-2605",
+  "title": "Improve Document Classification and Review Routing",
+  "specification_revision": "AI-2605@4",
+  "owner": "Underwriting Product",
+  "intent": "Improve classification quality without weakening human review, tenant isolation, state authority, idempotency, or provenance.",
+  "repositories": ["ai-service", "review-service", "underwriting-api"],
+  "protected_oracle_revision": "NORTHSTAR-QUALITY-ORACLES@3"
+}

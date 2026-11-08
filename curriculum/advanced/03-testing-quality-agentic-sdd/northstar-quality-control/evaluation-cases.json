@@ -1,127 +1,48 @@
 {
-  "evaluation_id": "COURSE27-EVALUATION",
-  "population": "24 deterministic labelled quality-control cases",
+  "evaluation_id": "COURSE27-ADVERSARIAL@2",
+  "population": "42 labelled positive, negative, boundary, failure, mutation, and evidence-integrity cases",
   "cases": [
-    {
-      "case_id": "EVAL-001",
-      "scenario": "passing",
-      "expected": "QUALITY_EVIDENCE_ACCEPTED"
-    },
-    {
-      "case_id": "EVAL-002",
-      "scenario": "candidate-only",
-      "expected": "INSUFFICIENT_EVIDENCE"
-    },
-    {
-      "case_id": "EVAL-003",
-      "scenario": "forged",
-      "expected": "INSUFFICIENT_EVIDENCE"
-    },
-    {
-      "case_id": "EVAL-004",
-      "scenario": "wrong-subject",
-      "expected": "INSUFFICIENT_EVIDENCE"
-    },
-    {
-      "case_id": "EVAL-005",
-      "scenario": "stale-suite",
-      "expected": "INSUFFICIENT_EVIDENCE"
-    },
-    {
-      "case_id": "EVAL-006",
-      "scenario": "failed-test",
-      "expected": "BLOCKED"
-    },
-    {
-      "case_id": "EVAL-007",
-      "scenario": "missing-negative",
-      "expected": "INSUFFICIENT_EVIDENCE"
-    },
-    {
-      "case_id": "EVAL-008",
-      "scenario": "surviving-mutant",
-      "expected": "BLOCKED"
-    },
-    {
-      "case_id": "EVAL-009",
-      "scenario": "flaky",
-      "expected": "REVIEW_REQUIRED"
-    },
-    {
-      "case_id": "EVAL-010",
-      "scenario": "unsafe-failure",
-      "expected": "BLOCKED"
-    },
-    {
-      "case_id": "EVAL-011",
-      "scenario": "missing-failure",
-      "expected": "INSUFFICIENT_EVIDENCE"
-    },
-    {
-      "case_id": "EVAL-012",
-      "scenario": "unknown-requirement",
-      "expected": "BLOCKED"
-    },
-    {
-      "case_id": "EVAL-013",
-      "scenario": "passing",
-      "expected": "QUALITY_EVIDENCE_ACCEPTED"
-    },
-    {
-      "case_id": "EVAL-014",
-      "scenario": "candidate-only",
-      "expected": "INSUFFICIENT_EVIDENCE"
-    },
-    {
-      "case_id": "EVAL-015",
-      "scenario": "forged",
-      "expected": "INSUFFICIENT_EVIDENCE"
-    },
-    {
-      "case_id": "EVAL-016",
-      "scenario": "wrong-subject",
-      "expected": "INSUFFICIENT_EVIDENCE"
-    },
-    {
-      "case_id": "EVAL-017",
-      "scenario": "stale-suite",
-      "expected": "INSUFFICIENT_EVIDENCE"
-    },
-    {
-      "case_id": "EVAL-018",
-      "scenario": "failed-test",
-      "expected": "BLOCKED"
-    },
-    {
-      "case_id": "EVAL-019",
-      "scenario": "missing-negative",
-      "expected": "INSUFFICIENT_EVIDENCE"
-    },
-    {
-      "case_id": "EVAL-020",
-      "scenario": "surviving-mutant",
-      "expected": "BLOCKED"
-    },
-    {
-      "case_id": "EVAL-021",
-      "scenario": "flaky",
-      "expected": "REVIEW_REQUIRED"
-    },
-    {
-      "case_id": "EVAL-022",
-      "scenario": "unsafe-failure",
-      "expected": "BLOCKED"
-    },
-    {
-      "case_id": "EVAL-023",
-      "scenario": "missing-failure",
-      "expected": "INSUFFICIENT_EVIDENCE"
-    },
-    {
-      "case_id": "EVAL-024",
-      "scenario": "unknown-requirement",
-      "expected": "BLOCKED"
-    }
+    {"case_id":"ADV-001","scenario":"clean-candidate","expected":"CONFORMANT"},
+    {"case_id":"ADV-002","scenario":"clean-candidate","expected":"CONFORMANT"},
+    {"case_id":"ADV-003","scenario":"clean-candidate","expected":"CONFORMANT"},
+    {"case_id":"ADV-004","scenario":"ambiguity-bypass","expected":"BLOCKED"},
+    {"case_id":"ADV-005","scenario":"ambiguity-bypass","expected":"BLOCKED"},
+    {"case_id":"ADV-006","scenario":"ambiguity-bypass","expected":"BLOCKED"},
+    {"case_id":"ADV-007","scenario":"tenant-leak","expected":"BLOCKED"},
+    {"case_id":"ADV-008","scenario":"tenant-leak","expected":"BLOCKED"},
+    {"case_id":"ADV-009","scenario":"tenant-leak","expected":"BLOCKED"},
+    {"case_id":"ADV-010","scenario":"unauthorized-state-mutation","expected":"BLOCKED"},
+    {"case_id":"ADV-011","scenario":"unauthorized-state-mutation","expected":"BLOCKED"},
+    {"case_id":"ADV-012","scenario":"unauthorized-state-mutation","expected":"BLOCKED"},
+    {"case_id":"ADV-013","scenario":"duplicate-concurrent-event","expected":"BLOCKED"},
+    {"case_id":"ADV-014","scenario":"duplicate-concurrent-event","expected":"BLOCKED"},
+    {"case_id":"ADV-015","scenario":"duplicate-concurrent-event","expected":"BLOCKED"},
+    {"case_id":"ADV-016","scenario":"idempotency-conflict-accepted","expected":"BLOCKED"},
+    {"case_id":"ADV-017","scenario":"idempotency-conflict-accepted","expected":"BLOCKED"},
+    {"case_id":"ADV-018","scenario":"idempotency-conflict-accepted","expected":"BLOCKED"},
+    {"case_id":"ADV-019","scenario":"expired-approval-accepted","expected":"BLOCKED"},
+    {"case_id":"ADV-020","scenario":"expired-approval-accepted","expected":"BLOCKED"},
+    {"case_id":"ADV-021","scenario":"expired-approval-accepted","expected":"BLOCKED"},
+    {"case_id":"ADV-022","scenario":"missing-provenance","expected":"BLOCKED"},
+    {"case_id":"ADV-023","scenario":"missing-provenance","expected":"BLOCKED"},
+    {"case_id":"ADV-024","scenario":"missing-provenance","expected":"BLOCKED"},
+    {"case_id":"ADV-025","scenario":"unsupported-citation","expected":"BLOCKED"},
+    {"case_id":"ADV-026","scenario":"unsupported-citation","expected":"BLOCKED"},
+    {"case_id":"ADV-027","scenario":"unsupported-citation","expected":"BLOCKED"},
+    {"case_id":"ADV-028","scenario":"oracle-weakened","expected":"INSUFFICIENT_EVIDENCE"},
+    {"case_id":"ADV-029","scenario":"mandatory-test-deleted","expected":"INSUFFICIENT_EVIDENCE"},
+    {"case_id":"ADV-030","scenario":"stale-subject","expected":"STALE_EVIDENCE"},
+    {"case_id":"ADV-031","scenario":"protected-slice-regression","expected":"BLOCKED"},
+    {"case_id":"ADV-032","scenario":"unknown-impact","expected":"INSUFFICIENT_EVIDENCE"},
+    {"case_id":"ADV-033","scenario":"flaky-protected-test","expected":"REVIEW_REQUIRED"},
+    {"case_id":"ADV-034","scenario":"forged-evidence","expected":"INSUFFICIENT_EVIDENCE"},
+    {"case_id":"ADV-035","scenario":"candidate-only","expected":"INSUFFICIENT_EVIDENCE"},
+    {"case_id":"ADV-036","scenario":"stale-suite","expected":"STALE_EVIDENCE"},
+    {"case_id":"ADV-037","scenario":"missing-failure-experiment","expected":"INSUFFICIENT_EVIDENCE"},
+    {"case_id":"ADV-038","scenario":"unsafe-review-outage","expected":"BLOCKED"},
+    {"case_id":"ADV-039","scenario":"malformed-evidence","expected":"INSUFFICIENT_EVIDENCE"},
+    {"case_id":"ADV-040","scenario":"stale-policy","expected":"STALE_EVIDENCE"},
+    {"case_id":"ADV-041","scenario":"unknown-requirement","expected":"BLOCKED"},
+    {"case_id":"ADV-042","scenario":"evidence-id-collision","expected":"BLOCKED"}
   ]
 }
-

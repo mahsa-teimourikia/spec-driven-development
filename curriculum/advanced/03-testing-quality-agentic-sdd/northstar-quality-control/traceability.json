@@ -1,15 +1,13 @@
 {
-  "specification": "openspec/changes/testing-quality/specs/quality-evidence/spec.md",
+  "specification": "openspec/changes/AI-2605/specs/quality-evidence/spec.md",
   "requirements": {
-    "QL-REQ-001": ["quality_app/models.py", "quality_app/control_plane.py", "test_evidence_binds_exact_subject"],
-    "QL-REQ-002": ["quality_app/control_plane.py", "test_candidate_tests_are_diagnostic_only", "test_forged_independent_evidence_is_rejected"],
-    "QL-REQ-003": ["quality-policy.json", "test_requirement_coverage_is_complete", "test_unknown_requirement_reference_blocks"],
-    "QL-REQ-004": ["quality_app/control_plane.py", "test_unknown_oracle_is_insufficient"],
-    "QL-REQ-005": ["quality_app/control_plane.py", "test_surviving_critical_mutant_blocks", "test_missing_mutation_is_insufficient"],
-    "QL-REQ-006": ["quality_app/simulation.py", "test_unsafe_fault_experiment_blocks", "test_missing_fault_experiment_is_insufficient"],
-    "QL-REQ-007": ["quality_app/control_plane.py", "test_flaky_test_cannot_satisfy_obligation"],
-    "QL-REQ-008": ["quality_app/models.py", "test_mutation_metric_has_explicit_denominator", "test_fault_metric_has_explicit_population"],
-    "QL-REQ-009": ["quality_app/models.py", "test_quality_acceptance_does_not_authorize_release"]
+    "QI-001": ["requirements/verification-obligations.json#VO-2605-001", "quality_app/behavior_harness.py", "test_ambiguity_property_and_metamorphic_populations"],
+    "QI-002": ["requirements/verification-obligations.json#VO-2605-002", "repositories/review-service/service.py", "test_cross_tenant_access_is_denied"],
+    "QI-003": ["requirements/verification-obligations.json#VO-2605-003", "repositories/underwriting-api/service.py", "test_ai_service_cannot_mutate_authoritative_state"],
+    "QI-004": ["requirements/verification-obligations.json#VO-2605-004", "repositories/review-service/service.py", "test_concurrent_duplicate_has_one_durable_effect"],
+    "QI-005": ["requirements/verification-obligations.json#VO-2605-005", "quality_app/evaluation_engine.py", "test_model_improvement_cannot_mask_protected_slice_regression"],
+    "QL-REQ-EXACT-SUBJECT": ["quality_app/evidence_registry.py", "quality_app/control_plane.py", "test_evidence_binds_exact_revision_set"],
+    "QL-REQ-INDEPENDENCE": ["quality_app/oracle_registry.py", "quality_app/control_plane.py", "test_candidate_tests_are_diagnostic_only"],
+    "QL-REQ-RELEASE-BOUNDARY": ["quality_app/models.py", "quality_app/simulation.py", "test_quality_report_never_authorizes_delivery"]
   }
 }
-

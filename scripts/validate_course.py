@@ -4161,14 +4161,35 @@ def check_course_27_testing_quality() -> list[str]:
         scenario / "quality_app/models.py",
         scenario / "quality_app/registry.py",
         scenario / "quality_app/control_plane.py",
+        scenario / "quality_app/repository_harness.py",
+        scenario / "quality_app/behavior_harness.py",
+        scenario / "quality_app/oracle_registry.py",
+        scenario / "quality_app/test_selector.py",
+        scenario / "quality_app/mutation_runner.py",
+        scenario / "quality_app/evaluation_engine.py",
+        scenario / "quality_app/evidence_registry.py",
+        scenario / "quality_app/quality_gate.py",
         scenario / "quality_app/simulation.py",
+        scenario / "requirements/AI-2605.json",
+        scenario / "requirements/protected-invariants.json",
+        scenario / "requirements/verification-obligations.json",
+        scenario / "contracts/classification-v3.schema.json",
+        scenario / "contracts/review-state.schema.json",
         scenario / "contracts/quality-report.schema.json",
+        scenario / "datasets/development.jsonl",
+        scenario / "datasets/protected-holdout.jsonl",
+        scenario / "datasets/adversarial.jsonl",
+        scenario / "repositories/ai-service/service.py",
+        scenario / "repositories/review-service/service.py",
+        scenario / "repositories/underwriting-api/service.py",
+        scenario / "optional-tools.txt",
+        scenario / "tests/test_property_hypothesis.py",
         scenario / "conformance-suite.json",
         scenario / "evaluation-cases.json",
-        scenario / "openspec/changes/testing-quality/proposal.md",
-        scenario / "openspec/changes/testing-quality/design.md",
-        scenario / "openspec/changes/testing-quality/specs/quality-evidence/spec.md",
-        scenario / "openspec/changes/testing-quality/tasks.md",
+        scenario / "openspec/changes/AI-2605/proposal.md",
+        scenario / "openspec/changes/AI-2605/design.md",
+        scenario / "openspec/changes/AI-2605/specs/quality-evidence/spec.md",
+        scenario / "openspec/changes/AI-2605/tasks.md",
         scenario / "traceability.json",
         scenario / "evidence/manifest.json",
         scenario / "trusted-harness/verification-keys.json",
@@ -4184,6 +4205,11 @@ def check_course_27_testing_quality() -> list[str]:
 
     json_paths = [
         scenario / "quality-policy.json",
+        scenario / "requirements/AI-2605.json",
+        scenario / "requirements/protected-invariants.json",
+        scenario / "requirements/verification-obligations.json",
+        scenario / "contracts/classification-v3.schema.json",
+        scenario / "contracts/review-state.schema.json",
         scenario / "contracts/quality-report.schema.json",
         scenario / "conformance-suite.json",
         scenario / "evaluation-cases.json",
@@ -4215,19 +4241,32 @@ def check_course_27_testing_quality() -> list[str]:
         errors.append("Course 27 lab did not produce its JSON report")
         return errors
 
-    golden = report.get("golden", [])
-    if len(golden) != 12 or not report.get("golden_passed") or not all(item.get("passed") for item in golden):
-        errors.append("Course 27 must retain twelve passing quality-control scenarios")
-    evaluation = report.get("evaluation", {})
-    cases = evaluation.get("cases", [])
-    metrics = evaluation.get("metrics", {})
+    golden = report.get("golden", {})
+    if golden.get("passed") != 15 or golden.get("total") != 15:
+        errors.append("Course 27 must retain fifteen passing quality-control scenarios")
+    metrics = report.get("adversarial", {})
     if (
-        len(cases) != 24
-        or metrics.get("exact_decision_accuracy", {}).get("numerator") != 24
-        or metrics.get("exact_decision_accuracy", {}).get("denominator") != 24
-        or metrics.get("unsafe_case_recall", {}).get("value") != 1.0
+        metrics.get("exact_decision_accuracy", {}).get("numerator") != 42
+        or metrics.get("exact_decision_accuracy", {}).get("denominator") != 42
+        or metrics.get("protected_invariant_detection", {}).get("value") != 1.0
+        or metrics.get("clean_control_false_positives", {}).get("value") != 0.0
     ):
-        errors.append("Course 27 must retain twenty-four exact labelled quality evaluations")
+        errors.append("Course 27 must retain forty-two exact labelled quality evaluations")
+    if (
+        report.get("quality_decision") != "CONFORMANT"
+        or report.get("delivery_state") != "READY_FOR_INTEGRATION_REVIEW"
+        or report.get("release_authorized") is not False
+        or len(report.get("revision_set", {})) != 3
+        or not all(len(value) == 40 for value in report.get("revision_set", {}).values())
+    ):
+        errors.append("Course 27 reference must retain exact revisions and the delivery-authority boundary")
+    model = report.get("model_comparison", {})
+    if (
+        model.get("v1_holdout", {}).get("decision") != "CONFORMANT"
+        or model.get("v2_holdout", {}).get("decision") != "BLOCKED"
+        or model.get("overfit_holdout", {}).get("accuracy", {}).get("value") != 0.25
+    ):
+        errors.append("Course 27 must preserve the protected-slice and holdout evaluation experiment")
     if report.get("subject_tamper_result") != "SUBJECT_AUTHENTICITY_UNVERIFIED":
         errors.append("Course 27 must reject subject changes without renewed trusted observation")
 
@@ -4252,25 +4291,35 @@ def check_course_27_testing_quality() -> list[str]:
         "FAILURE_EXPERIMENT_UNSAFE",
         "FAULT_OUTCOME_CONFLICT",
         "FLAKY_TEST_NOT_EVIDENCE",
+        "READY_FOR_INTEGRATION_REVIEW",
+        "IMPACT_REVIEW_REQUIRED",
+        "BEGIN IMMEDIATE",
         "release_authorized=False",
     ]
     if any(fragment not in source for fragment in required_controls):
         errors.append("Course 27 quality control plane is missing required trust and evidence controls")
     policy = json.loads((scenario / "quality-policy.json").read_text(encoding="utf-8"))
     if (
-        len(policy.get("requirements", [])) != 3
-        or len(policy.get("required_mutations", [])) != 4
-        or len(policy.get("required_fault_experiments", [])) != 3
+        len(policy.get("requirements", [])) != 5
+        or len(policy.get("required_mutations", [])) != 7
+        or len(policy.get("required_fault_experiments", [])) != 6
     ):
         errors.append("Course 27 policy must retain exact requirement, mutation, and fault populations")
     starter = json.loads((scenario / "workshop/starter/quality-strategy.json").read_text(encoding="utf-8"))
     reference = (scenario / "workshop/reference/quality-strategy.json").read_text(encoding="utf-8")
-    if len(starter.get("decisions", {})) != 8 or "TODO" in reference:
-        errors.append("Course 27 workshop must retain eight learner decisions and a complete reference")
+    if len(starter.get("decisions", {})) != 9 or "TODO" in reference:
+        errors.append("Course 27 workshop must retain nine learner decisions and a complete reference")
+
+    conformance = json.loads((scenario / "conformance-suite.json").read_text(encoding="utf-8"))
+    evaluation_cases = json.loads((scenario / "evaluation-cases.json").read_text(encoding="utf-8"))
+    if len(conformance.get("scenarios", [])) != 15 or len(evaluation_cases.get("cases", [])) != 42:
+        errors.append("Course 27 static scenario registries must match the executable populations")
+    if len(list((scenario / "scenarios").glob("*.json"))) != 6:
+        errors.append("Course 27 must retain six documented behavior-failure scenarios")
 
     quiz_source = (ROOT / "quiz/questions.js").read_text(encoding="utf-8")
-    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 371:
-        errors.append("Course 27 cumulative quiz must contain 371 questions")
+    if len(re.findall(r"^\s{4}category:", quiz_source, flags=re.MULTILINE)) != 375:
+        errors.append("Course 27 cumulative quiz must contain 375 questions")
     if "Courses 01–27" not in (ROOT / "quiz/index.html").read_text(encoding="utf-8"):
         errors.append("Course 27 cumulative quiz must identify Courses 01–27")
     hub = (ROOT / "hub/lessons.js").read_text(encoding="utf-8")
@@ -4278,7 +4327,7 @@ def check_course_27_testing_quality() -> list[str]:
         "const course27 = {",
         "03-testing-quality-agentic-sdd/northstar-quality-control/testing_quality.ipynb",
         "03-testing-quality-agentic-sdd/northstar-quality-control/workshop/starter/quality-strategy.json",
-        "12 golden scenarios and 24 labelled evaluations",
+        "15 golden scenarios and 42 labelled adversarial cases",
     ]
     if any(fragment not in hub for fragment in hub_fragments):
         errors.append("Course 27 Learning Hub entry is incomplete or points outside the workshop package")

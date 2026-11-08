@@ -1,24 +1,11 @@
 {
-  "manifest_id": "COURSE27-EVIDENCE-MANIFEST",
-  "subject": "AI-2700@9c7a2d1",
-  "specification_revision": "CLASSIFICATION-SPEC@7",
-  "policy_version": "QUALITY-POLICY@1",
-  "trusted_producers": [
-    "trusted-change-observer-v1",
-    "independent-quality-harness-v1"
-  ],
-  "evidence_domains": [
-    "requirement_to_test_kind_coverage",
-    "independent_oracle_results",
-    "critical_mutation_outcomes",
-    "failure_and_recovery_experiments",
-    "flake_observations"
-  ],
-  "excluded_claims": [
-    "production_defect_free",
-    "general_mutation_effectiveness",
-    "release_authorized",
-    "legal_compliance"
-  ]
+  "manifest_id": "COURSE27-EVIDENCE-MANIFEST@2",
+  "subject": "AI-2605 exact three-repository revision set",
+  "specification_revision": "AI-2605@4",
+  "policy_version": "QUALITY-POLICY@2",
+  "suite_revision": "NORTHSTAR-QUALITY-SUITE@2",
+  "trusted_producers": ["trusted-change-observer-v1", "trusted-quality-ci-v1"],
+  "bound_digests": ["component_commits", "contracts", "protected_oracles", "holdout_dataset", "results", "execution_environment"],
+  "evidence_domains": ["actual_service_behavior", "property_and_metamorphic_populations", "cross_repository_contracts", "sqlite_concurrency", "critical_mutations", "failure_recovery", "ai_evaluation_slices", "evidence_integrity"],
+  "excluded_claims": ["production_defect_free", "general_mutation_effectiveness", "production_model_quality", "merge_authorized", "deployment_authorized", "activation_authorized", "legal_compliance"]
 }
-

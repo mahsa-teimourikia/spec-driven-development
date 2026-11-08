@@ -1335,17 +1335,17 @@ const course26 = {
 
 const course27 = {
   id: 'c27', course: 27, level: 'advanced', part: 'V · Enterprise controls', status: 'available',
-  title: 'Testing and Quality for Agentic SDD',
-  summary: 'Turn candidate tests into exact-subject, independently produced, specification-traceable quality evidence with governed oracles, mutations, failure injection, flake handling, and explicit metric limits.',
+  title: 'Testing, Quality Engineering, and Independent Verification for Agentic SDD',
+  summary: 'Execute exact multi-repository behavior against protected requirements, transactional concurrency, governed oracles, critical mutations, failure states, and versioned AI-evaluation populations.',
   outcomes: [
     'Separate candidate tests, independent verification, evaluation, and release authorization.',
-    'Map requirement risk to unit, property, contract, integration, negative, failure, and recovery evidence.',
-    'Ground expected results in approved specifications, independent references, or versioned contracts.',
-    'Bind signed evidence to exact implementation, specification, suite, policy, producer, and time.',
-    'Use a policy-selected mutation denominator and block surviving critical faults.',
-    'Inject timeout, duplicate-delivery, and stale-approval behavior and verify safe state.',
-    'Reject forged, stale, wrong-subject, candidate-only, flaky, or missing evidence.',
-    'Report explicit metric populations and preserve the release-authority boundary.'
+    'Execute service code from three reproducible Git revisions rather than accepting configuration claims.',
+    'Map five protected invariants to property, metamorphic, contract, security, concurrency, recovery, and evaluation evidence.',
+    'Use SQLite transactions to verify duplicate delivery, conflicting idempotency reuse, rollback, and approval freshness.',
+    'Compare model versions by per-class metrics, protected slices, evidence support, and independent holdouts.',
+    'Kill seven policy-selected critical mutations and preserve six named failure safe states.',
+    'Reject forged, stale, incomplete, candidate-controlled, flaky, or oracle-weakened evidence.',
+    'Stop conformant work at READY_FOR_INTEGRATION_REVIEW with all delivery authority false.'
   ],
   readme: `${REPO}/blob/main/curriculum/advanced/03-testing-quality-agentic-sdd/README.md`,
   notebook: `${REPO}/blob/main/curriculum/advanced/03-testing-quality-agentic-sdd/northstar-quality-control/testing_quality.ipynb`,
@@ -1354,14 +1354,14 @@ const course27 = {
   run: 'python3 curriculum/advanced/03-testing-quality-agentic-sdd/northstar-quality-control/lab.py',
   labs: [
     {
-      title: 'Lab A — Execute the independent quality control plane',
-      description: 'Run 12 golden scenarios and 24 labelled evaluations across exact-subject evidence, oracle independence, mutation sensitivity, failure recovery, flaky tests, and metric integrity.',
+      title: 'Lab A — Execute the Git-backed quality engineering system',
+      description: 'Run 15 golden scenarios and 42 labelled adversarial cases over three Git revisions, SQLite concurrency, seven mutations, six faults, protected AI slices, and evidence integrity.',
       command: 'python3 curriculum/advanced/03-testing-quality-agentic-sdd/northstar-quality-control/lab.py',
       links: [['View the quality lab', `${REPO}/blob/main/curriculum/advanced/03-testing-quality-agentic-sdd/northstar-quality-control/lab.py`], ['Use the guided notebook', `${REPO}/blob/main/curriculum/advanced/03-testing-quality-agentic-sdd/northstar-quality-control/testing_quality.ipynb`]]
     },
     {
-      title: 'Lab B — Design the AI-2700 quality strategy',
-      description: 'Design requirement risk, independent oracles, negative evidence, critical mutations, failure experiments, flake treatment, evidence binding, and the release boundary.',
+      title: 'Lab B — Design the AI-2605 quality strategy',
+      description: 'Decide how a higher-accuracy model with protected routing and support failures should be tested, blocked, remediated, evidenced, and escalated.',
       command: 'Complete the starter strategy, run Lab A, then compare with the reference.',
       links: [['Open the workshop', `${REPO}/tree/main/curriculum/advanced/03-testing-quality-agentic-sdd/northstar-quality-control`], ['Complete the starter', `${REPO}/blob/main/curriculum/advanced/03-testing-quality-agentic-sdd/northstar-quality-control/workshop/starter/quality-strategy.json`], ['Inspect the reference', `${REPO}/blob/main/curriculum/advanced/03-testing-quality-agentic-sdd/northstar-quality-control/workshop/reference/quality-strategy.json`]]
     }
@@ -1371,18 +1371,20 @@ const course27 = {
     ['NIST Generative AI SSDF Community Profile', 'https://csrc.nist.gov/pubs/sp/800/218/a/final'],
     ['pytest flaky-test guidance', 'https://docs.pytest.org/en/stable/explanation/flaky.html'],
     ['Hypothesis property-based testing', 'https://hypothesis.readthedocs.io/en/latest/'],
+    ['Hypothesis stateful testing', 'https://hypothesis.readthedocs.io/en/latest/stateful.html'],
     ['Pact contract testing', 'https://docs.pact.io/'],
-    ['LLVM libFuzzer', 'https://llvm.org/docs/LibFuzzer.html']
+    ['SQLite conflict handling', 'https://www.sqlite.org/lang_conflict.html'],
+    ['GitHub artifact attestations', 'https://docs.github.com/en/actions/how-tos/secure-your-work/use-artifact-attestations/use-artifact-attestations']
   ],
   checkpoint: {
-    question: 'An agent-generated suite passes with 100% line coverage, but the test oracle was copied from the candidate implementation and removing authorization does not fail any test. What is the quality decision?',
+    question: 'Model v2 improves holdout classification accuracy, but bypasses review for a high-confidence ambiguous case and cites unsupported evidence. What is the quality decision?',
     options: [
-      'Block or require independent evidence because oracle independence is unproven and a critical mutant survived.',
-      'Accept because line coverage is 100%.',
-      'Release because the coding agent wrote both code and tests.'
+      'Block: aggregate improvement cannot offset protected routing or evidence-support violations.',
+      'Accept because holdout accuracy improved.',
+      'Average the violations into one composite score and let the coding agent decide.'
     ],
     answer: 0,
-    explanation: 'Coverage records execution, not correctness; a correlated oracle and surviving authorization mutant show that the suite cannot support the claim.'
+    explanation: 'Quality dimensions remain distinct. Protected deterministic obligations are floors, not weights in an average.'
   }
 };
 

@@ -1,0 +1,1 @@
+{"id":"model-quality-regression","requirement":"QI-001","population":"ambiguous+high_confidence","expected":"BLOCKED","safe_state":"aggregate improvement cannot offset protected-slice failure"}

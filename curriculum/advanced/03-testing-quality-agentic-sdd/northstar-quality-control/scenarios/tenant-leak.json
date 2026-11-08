@@ -1,0 +1,1 @@
+{"id":"tenant-leak","requirement":"QI-002","mutation":"REMOVE_TENANT_FILTER","expected":"BLOCKED","safe_state":"cross-tenant access denied"}

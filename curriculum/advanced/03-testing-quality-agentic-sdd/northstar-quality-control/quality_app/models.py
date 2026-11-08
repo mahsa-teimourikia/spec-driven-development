@@ -24,6 +24,10 @@ class SubjectObservation:
     policy_version: str
     producer: str
     issued_at: str
+    component_commits: tuple[tuple[str, str], ...] = ()
+    contract_digest: str = ""
+    dataset_digest: str = ""
+    oracle_digest: str = ""
     signature: str = field(default="", compare=False)
 
     def payload(self) -> dict[str, Any]:
@@ -62,6 +66,10 @@ class QualityReport:
     limitations: tuple[str, ...]
     generated_at: str
     release_authorized: bool = False
+    merge_authorized: bool = False
+    deployment_authorized: bool = False
+    activation_authorized: bool = False
+    delivery_state: str = "READY_FOR_INTEGRATION_REVIEW"
 
     def payload(self) -> dict[str, Any]:
         return {
@@ -78,5 +86,8 @@ class QualityReport:
             "limitations": list(self.limitations),
             "generated_at": self.generated_at,
             "release_authorized": self.release_authorized,
+            "merge_authorized": self.merge_authorized,
+            "deployment_authorized": self.deployment_authorized,
+            "activation_authorized": self.activation_authorized,
+            "delivery_state": self.delivery_state,
         }
-
