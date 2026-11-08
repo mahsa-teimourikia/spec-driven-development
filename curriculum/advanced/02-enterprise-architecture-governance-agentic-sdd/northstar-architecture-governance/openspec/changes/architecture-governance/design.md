@@ -2,7 +2,7 @@
 
 ## Decision
 
-Separate observation from decision. A trusted scanner binds the actual Git base and head, parses source and dependency artifacts, calculates resource digests, and signs an observation. A control plane resolves current policy, standards, ADR status, exception authority, and system impact from external registries.
+Separate observation from decision. A trusted scanner binds the actual Git base and head, reads source and dependency artifacts from the exact committed Git objects, calculates resource digests, records coverage and unresolved dependency categories, and signs an observation. A control plane resolves current policy, standards, ADR status, exception authority, and system impact from external registries.
 
 ## Alternatives
 
@@ -20,4 +20,4 @@ Separate observation from decision. A trusted scanner binds the actual Git base 
 
 ## Failure behavior
 
-Identity, signature, policy revision, Git binding, and exception ambiguity fail closed. Missing runtime egress evidence returns `INSUFFICIENT_EVIDENCE`. A novel technology returns `REVIEW_REQUIRED`. A superseded ADR returns `REASSESSMENT_REQUIRED`.
+Identity, signature, policy revision, Git binding, exception evidence, and enforcement-point ambiguity fail closed. Missing runtime egress evidence or unresolved scanner coverage returns `INSUFFICIENT_EVIDENCE`. A novel technology returns `REVIEW_REQUIRED`. A superseded ADR returns `REASSESSMENT_REQUIRED`. Unknown change impact returns `IMPACT_UNDETERMINED` for owner review.

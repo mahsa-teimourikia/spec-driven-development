@@ -225,14 +225,17 @@ The control plane must derive facts that matter to its decision. The Course 26 s
 
 - verifies the actual Git `HEAD`;
 - proves the base is an ancestor;
-- derives changed files from the commit range;
-- parses Python imports and literal URLs with the AST;
+- derives changed files from the commit range and reads all facts from the exact committed Git objects, never the mutable working tree;
+- parses committed Python imports and literal URLs with the AST and scans committed configuration for literal endpoints;
 - reads technology dependencies and service edges;
 - calculates resource digests;
 - resolves ADR status from an external registry; and
+- records scanner coverage and unresolved dependency categories; and
 - signs the observation as a trusted producer.
 
 Candidate labels, risk scores, expected outcomes, and self-issued exceptions are not decision inputs.
+
+This teaching scanner intentionally does not resolve transitive packages, generated code, reflection, computed configuration endpoints, or every language ecosystem. Unsupported source languages, dynamic imports, and nonliteral endpoint configuration produce `INSUFFICIENT_EVIDENCE`; a clean result is therefore scoped to the coverage recorded in the report, not a universal absence-of-violation claim.
 
 ## 12. Static dependency checks
 
@@ -260,7 +263,7 @@ Maintain a system architecture registry containing stable repository and service
 
 ## 14. Separate policy decision from enforcement
 
-The included [Rego policy](northstar-architecture-governance/policies/architecture.rego) illustrates declarative rules. The Python reference adds trust and lifecycle mechanics:
+The included [Rego policy](northstar-architecture-governance/policies/architecture.rego) is explicitly illustrative. The Python reference is the executable evaluator and reads canonical lists from `technology-standards.json`; a production Rego implementation must consume that same governed bundle rather than copy policy lists. The Python reference adds trust and lifecycle mechanics:
 
 - authoritative policy and ADR registries;
 - signed observation verification;
@@ -301,7 +304,7 @@ An architecture exception needs:
 - issue and expiry time;
 - status;
 - rationale and risk owner;
-- compensating controls with evidence; and
+- compensating controls with separately signed, exact-subject evidence receipts; and
 - remediation or retirement plan.
 
 The lab calculates the subject digest from rule, resource, resource-content digest, environment, and policy revision. A development exception does not apply to production. Changing one byte of the approved resource invalidates the waiver.
@@ -320,6 +323,7 @@ Course 26 proves that these do not waive a finding:
 - revoked status;
 - forged signature;
 - absent compensating-control evidence; and
+- invented evidence IDs or evidence bound to another exception, rule, resource, environment, or subject;
 - not-yet-valid time window.
 
 The control plane fails closed and reports why the exception was rejected.
@@ -335,7 +339,7 @@ The control plane fails closed and reports why the exception was rejected.
 | Implementation drift | Direct provider SDK appears | Source/dependency fitness function |
 | Decision drift | Service still cites superseded ADR | ADR registry comparison |
 | Policy drift | Report uses old policy revision | Revision binding |
-| Runtime drift | Network destination bypasses gateway | Trusted egress observation |
+| Runtime drift | Network destination bypasses gateway | Signed enforcement-point proof of default-deny policy, assessed bypass paths, workload, commit, and effective destinations |
 | System drift | New cross-service cycle | Architecture graph comparison |
 | Exception drift | Waiver expires while code remains | Time and status validation |
 
@@ -351,6 +355,8 @@ When Northstar replaces embedded retrieval stores with a managed platform, it sh
 - architecture, data, and supply-chain controls.
 
 This is continuous specification: governing decisions remain connected to the artifacts and evidence that depend on them.
+
+An unknown change ID is not evidence of no impact. It returns `IMPACT_UNDETERMINED` and requires owner review until the authority graph is updated.
 
 ## 22. Metrics that expose operating quality
 
@@ -376,8 +382,9 @@ The lab reports exact results only for deterministic training fixtures. Those fi
 candidate Git repository
           │
           ▼
-trusted scanner derives base/head, imports, URLs,
-technologies, dependencies, ADR refs, and digests
+trusted scanner reads exact Git objects and derives base/head,
+imports, URLs, technologies, dependencies, ADR refs,
+digests, coverage, and unresolved dependency categories
           │ signed observation
           ▼
 authority + policy + ADR + system registries
@@ -413,7 +420,7 @@ The scenario descriptions contain expected labels for learners. The evaluator ex
 
 ## 25. Evidence produced
 
-The reference run reports 13 golden scenarios, 16 independently executed adversarial cases, explicit numerator/denominator metrics, stale-report rejection, and targeted impact for the retrieval-platform decision. Tests additionally exercise forged observations and exceptions, wrong subjects, wrong environments, invalid time windows, and missing compensating-control evidence.
+The reference run reports 13 golden scenarios, 16 independently executed adversarial cases, explicit numerator/denominator metrics, stale-report rejection, and targeted impact for the retrieval-platform decision. Tests additionally exercise forged observations and exceptions, nonexistent control evidence, declaration-only runtime evidence, dirty working trees, registry-only policy changes, dynamic imports, typed ADR conflicts without author declarations, unknown impact, wrong subjects, wrong environments, and invalid time windows.
 
 ## 26. Production upgrades
 

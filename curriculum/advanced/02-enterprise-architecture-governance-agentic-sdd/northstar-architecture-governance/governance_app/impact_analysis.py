@@ -14,7 +14,8 @@ def impact_for(change_id: str, graph: dict[str, Any]) -> dict[str, Any]:
             "contracts": [],
             "evaluations": [],
             "controls": [],
-            "decision": "NO_REGISTERED_IMPACT",
+            "decision": "IMPACT_UNDETERMINED",
+            "owner_review_required": True,
         }
     record = impacts[0]
     return {
@@ -24,4 +25,5 @@ def impact_for(change_id: str, graph: dict[str, Any]) -> dict[str, Any]:
         "evaluations": sorted(record["evaluations"]),
         "controls": sorted(record["controls"]),
         "decision": "TARGETED_REASSESSMENT_REQUIRED",
+        "owner_review_required": False,
     }

@@ -4110,6 +4110,11 @@ def check_course_26_architecture_governance() -> list[str]:
         "EXCEPTION_ENVIRONMENT_MISMATCH",
         "EXCEPTION_SUBJECT_MISMATCH",
         "COMPENSATING_CONTROL_EVIDENCE_MISSING",
+        "COMPENSATING_CONTROL_EVIDENCE_UNVERIFIED",
+        "RUNTIME_EGRESS_ENFORCEMENT_UNPROVEN",
+        "SOURCE_SYMLINK_UNSUPPORTED",
+        "DYNAMIC_IMPORT",
+        "IMPACT_UNDETERMINED",
         "REPORT_STALE_FOR_HEAD",
     ]
     if any(fragment not in source for fragment in required_controls):

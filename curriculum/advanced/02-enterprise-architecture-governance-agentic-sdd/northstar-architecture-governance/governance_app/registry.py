@@ -63,6 +63,46 @@ def git(repo: Path, *args: str) -> str:
     return result.stdout.strip()
 
 
+def git_bytes(repo: Path, *args: str) -> bytes:
+    result = subprocess.run(
+        ["git", "-C", str(repo), *args],
+        check=False,
+        capture_output=True,
+    )
+    if result.returncode:
+        message = result.stderr.decode("utf-8", errors="replace").strip()
+        raise ArchitectureError("GIT_EVIDENCE_UNAVAILABLE", message or f"git {' '.join(args)} failed")
+    return result.stdout
+
+
+def git_tree_entries(repo: Path, commit: str) -> tuple[dict[str, str], ...]:
+    """Return the exact tracked tree at commit, including modes for symlink checks."""
+
+    raw = git_bytes(repo, "ls-tree", "-r", "-z", commit)
+    entries: list[dict[str, str]] = []
+    for record in raw.split(b"\0"):
+        if not record:
+            continue
+        try:
+            metadata, path = record.split(b"\t", 1)
+            mode, object_type, object_id = metadata.decode("ascii").split(" ", 2)
+        except ValueError as exc:
+            raise ArchitectureError("GIT_TREE_INVALID", "Could not parse committed Git tree") from exc
+        entries.append(
+            {
+                "mode": mode,
+                "type": object_type,
+                "object_id": object_id,
+                "path": path.decode("utf-8", errors="surrogateescape"),
+            }
+        )
+    return tuple(entries)
+
+
+def git_object(repo: Path, commit: str, path: str) -> bytes:
+    return git_bytes(repo, "show", f"{commit}:{path}")
+
+
 def current_head(repo: Path) -> str:
     return git(repo, "rev-parse", "HEAD")
 

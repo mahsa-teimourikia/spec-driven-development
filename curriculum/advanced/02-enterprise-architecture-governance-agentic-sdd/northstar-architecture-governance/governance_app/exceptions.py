@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from typing import Any
 
 from .models import ArchitectureError, Finding, Observation
@@ -21,12 +22,54 @@ def exception_subject_digest(observation: Observation, finding: Finding) -> str:
     )
 
 
+def _control_evidence_valid(
+    control: dict[str, Any],
+    records: Iterable[dict[str, Any]],
+    exception_payload: dict[str, Any],
+    observation: Observation,
+    now: str,
+    producer: str,
+    verification_key: str,
+) -> bool:
+    expected = {
+        "evidence_id": control.get("evidence_id"),
+        "producer": producer,
+        "control": control.get("control"),
+        "exception_id": exception_payload.get("exception_id"),
+        "rule_id": exception_payload.get("rule_id"),
+        "resource": exception_payload.get("resource"),
+        "environment": observation.environment,
+        "approved_subject_digest": exception_payload.get("approved_subject_digest"),
+        "result": "PASS",
+    }
+    for record in records:
+        payload = record.get("payload")
+        if not isinstance(payload, dict):
+            continue
+        if any(payload.get(field) != value for field, value in expected.items()):
+            continue
+        if not verify_signature(payload, str(record.get("signature", "")), verification_key):
+            continue
+        try:
+            issued = parse_time(str(payload["issued_at"]))
+            expires = parse_time(str(payload["expires_at"]))
+            moment = parse_time(now)
+        except (KeyError, ArchitectureError):
+            continue
+        if issued < expires and issued <= moment < expires:
+            return True
+    return False
+
+
 def validate_exception(
     record: dict[str, Any],
     finding: Finding,
     observation: Observation,
     now: str,
     authority_keys: dict[str, str],
+    control_evidence_records: Iterable[dict[str, Any]] = (),
+    control_evidence_producer: str = "",
+    control_evidence_key: str = "",
 ) -> tuple[bool, str]:
     payload = record.get("payload")
     signature = record.get("signature", "")
@@ -58,6 +101,22 @@ def validate_exception(
     if moment >= expires:
         return False, "EXCEPTION_EXPIRED"
     controls = payload.get("compensating_controls", [])
-    if not controls or not all(item.get("evidence_id") for item in controls):
+    if not controls or not all(isinstance(item, dict) and item.get("evidence_id") for item in controls):
         return False, "COMPENSATING_CONTROL_EVIDENCE_MISSING"
+    records = tuple(control_evidence_records)
+    if not control_evidence_producer or not control_evidence_key:
+        return False, "COMPENSATING_CONTROL_EVIDENCE_UNVERIFIED"
+    if not all(
+        _control_evidence_valid(
+            control,
+            records,
+            payload,
+            observation,
+            now,
+            control_evidence_producer,
+            control_evidence_key,
+        )
+        for control in controls
+    ):
+        return False, "COMPENSATING_CONTROL_EVIDENCE_UNVERIFIED"
     return True, str(payload["exception_id"])

@@ -1,16 +1,17 @@
 {
   "specification": "openspec/changes/architecture-governance/specs/architecture-conformance/spec.md",
   "requirements": {
-    "AG-REQ-001": ["governance_app/registry.py", "test_changed_files_are_derived_from_git", "test_wrong_head_is_rejected_before_scan"],
+    "AG-REQ-001": ["governance_app/registry.py", "governance_app/dependency_extractor.py", "test_changed_files_are_derived_from_git", "test_wrong_head_is_rejected_before_scan", "test_scanner_reads_committed_objects_not_working_tree"],
     "AG-REQ-002": ["governance_app/dependency_extractor.py", "test_forged_observation_is_rejected"],
     "AG-REQ-003": ["governance_app/control_plane.py", "test_candidate_cannot_select_old_policy"],
-    "AG-REQ-004": ["governance_app/fitness_functions.py", "test_direct_provider_dependency_blocks", "test_direct_provider_endpoint_blocks"],
+    "AG-REQ-004": ["governance_app/fitness_functions.py", "test_direct_provider_dependency_blocks", "test_direct_provider_endpoint_blocks", "test_provider_endpoint_in_committed_config_blocks"],
     "AG-REQ-005": ["governance_app/fitness_functions.py", "test_private_database_access_blocks"],
     "AG-REQ-006": ["governance_app/architecture_graph.py", "test_domain_to_infrastructure_dependency_blocks"],
     "AG-REQ-007": ["governance_app/architecture_graph.py", "test_new_service_cycle_blocks"],
-    "AG-REQ-008": ["governance_app/adr_validator.py", "test_conflicting_adr_requires_review", "test_superseded_adr_requires_reassessment"],
-    "AG-REQ-009": ["governance_app/exceptions.py", "test_valid_exception_is_exact_scope", "test_expired_exception_does_not_waive"],
+    "AG-REQ-008": ["governance_app/adr_validator.py", "test_conflicting_adr_requires_review", "test_typed_adr_conflict_is_detected_without_author_claim", "test_superseded_adr_requires_reassessment"],
+    "AG-REQ-009": ["governance_app/exceptions.py", "test_valid_exception_is_exact_scope", "test_nonexistent_compensating_control_evidence_id_does_not_waive", "test_expired_exception_does_not_waive"],
     "AG-REQ-010": ["governance_app/models.py", "test_conformance_report_is_not_execution_authority", "test_stale_report_is_rejected_after_new_commit"],
-    "AG-REQ-011": ["governance_app/impact_analysis.py", "test_retrieval_change_has_targeted_impact"]
+    "AG-REQ-011": ["governance_app/impact_analysis.py", "test_retrieval_change_has_targeted_impact", "test_unknown_change_requires_owner_review"],
+    "AG-REQ-012": ["governance_app/dependency_extractor.py", "governance_app/control_plane.py", "test_dynamic_import_is_explicitly_insufficient_evidence", "test_signed_allowlist_declaration_does_not_prove_enforcement"]
   }
 }

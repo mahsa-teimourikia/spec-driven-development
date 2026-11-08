@@ -48,7 +48,7 @@ expected scenario label     ──────X          executed mutation deter
 policy copy                 ──────X          external active policy registry
 ```
 
-The candidate cannot choose the base/head range, policy revision, scanner identity, exception authority, or decision. The report remains evidence only; no code path in this package deploys software.
+The candidate cannot choose the base/head range, policy revision, scanner identity, exception authority, or decision. The scanner reads committed Git objects rather than the working tree and reports its exact coverage and blind spots. Compensating controls require independently signed evidence receipts, while runtime egress requires proof from the configured enforcement point—not an allowlist declaration. The report remains evidence only; no code path in this package deploys software.
 
 ## Guided investigation
 

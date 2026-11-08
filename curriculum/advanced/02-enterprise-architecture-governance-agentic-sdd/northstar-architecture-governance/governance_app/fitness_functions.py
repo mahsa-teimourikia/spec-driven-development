@@ -8,8 +8,8 @@ from .architecture_graph import layer_findings, service_graph_findings
 from .models import Finding, Observation
 
 
-PROVIDER_MODULES = ("openai", "anthropic", "provider_sdk", "direct_model_client")
-HTTP_MODULES = ("httpx", "requests", "urllib3", "aiohttp")
+def _matches_module(module: str, names: tuple[str, ...]) -> bool:
+    return module in names or module.startswith(tuple(name + "." for name in names))
 
 
 def evaluate_fitness(
@@ -20,11 +20,15 @@ def evaluate_fitness(
     findings: list[Finding] = []
     direct_provider_seen = False
     http_seen = False
+    provider_modules = tuple(standards["prohibited_provider_modules"])
+    http_modules = tuple(standards["generic_http_modules"])
+    private_data_modules = tuple(standards["prohibited_private_data_modules"])
+    provider_hosts = tuple(standards["prohibited_provider_hosts"])
 
     for item in observation.imports:
         module = str(item["module"])
         resource = str(item["file"])
-        if module in PROVIDER_MODULES or module.startswith(tuple(name + "." for name in PROVIDER_MODULES)):
+        if _matches_module(module, provider_modules):
             direct_provider_seen = True
             findings.append(
                 Finding(
@@ -36,11 +40,11 @@ def evaluate_fitness(
                     evidence=(f"{resource}:{item['line']}", module),
                 )
             )
-        if module in HTTP_MODULES or module.startswith(tuple(name + "." for name in HTTP_MODULES)):
+        if _matches_module(module, http_modules):
             http_seen = True
 
     for item in observation.urls:
-        if "model-provider.example" in str(item["url"]):
+        if any(host in str(item["url"]) for host in provider_hosts):
             direct_provider_seen = True
             findings.append(
                 Finding(
@@ -67,7 +71,7 @@ def evaluate_fitness(
 
     for item in observation.imports:
         module = str(item["module"])
-        if module == "underwriting_database" or module.startswith("underwriting_database."):
+        if _matches_module(module, private_data_modules):
             findings.append(
                 Finding(
                     rule_id="EA-004",
@@ -112,6 +116,18 @@ def evaluate_fitness(
         for item in dependency_rules["allowed_service_edges"]
     }
     findings.extend(service_graph_findings(observation.service_edges, allowed))
+    for unresolved in observation.unresolved_dependency_categories:
+        code = unresolved.split(":", 1)[0]
+        findings.append(
+            Finding(
+                rule_id="EA-EVIDENCE-001",
+                code=code,
+                resource=unresolved,
+                disposition="EVIDENCE",
+                message="The scanner cannot resolve this dependency category; human or stronger evidence is required.",
+                evidence=(unresolved,),
+            )
+        )
     for path in observation.policy_shadow_paths:
         findings.append(
             Finding(

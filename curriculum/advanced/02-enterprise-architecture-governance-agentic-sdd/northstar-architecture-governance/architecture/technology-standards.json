@@ -19,9 +19,31 @@
   "approved_runtime_destinations": [
     "enterprise-ai-gateway.internal"
   ],
-  "prohibited_direct_dependencies": [
+  "runtime_egress_policy": {
+    "policy_revision": "EGRESS-POLICY@4",
+    "workloads": {
+      "ai-service": {
+        "workload_id": "northstar-ai-service",
+        "enforcement_point": "production-cluster-egress-gateway"
+      }
+    }
+  },
+  "prohibited_provider_modules": [
     "openai",
     "anthropic",
-    "provider-sdk"
+    "provider_sdk",
+    "direct_model_client"
+  ],
+  "generic_http_modules": [
+    "httpx",
+    "requests",
+    "urllib3",
+    "aiohttp"
+  ],
+  "prohibited_private_data_modules": [
+    "underwriting_database"
+  ],
+  "prohibited_provider_hosts": [
+    "model-provider.example"
   ]
 }

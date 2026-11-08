@@ -4,7 +4,8 @@
   "training_keys": {
     "architecture-scanner-v1": "course26-observation-training-key",
     "architecture-board-v1": "course26-architecture-board-training-key",
-    "network-policy-controller-v1": "course26-network-controller-training-key"
+    "network-policy-controller-v1": "course26-network-controller-training-key",
+    "control-evidence-service-v1": "course26-control-evidence-training-key"
   },
   "production_note": "Resolve public verification material from a protected trust service; never commit production signing secrets."
 }

@@ -54,6 +54,8 @@ class Observation:
     adr_proposal: dict[str, Any] | None
     architecture_context: dict[str, Any] | None
     policy_shadow_paths: tuple[str, ...]
+    scanner_coverage: dict[str, Any]
+    unresolved_dependency_categories: tuple[str, ...]
     runtime_egress_evidence: bool
     runtime_evidence_id: str | None
     producer: str
@@ -69,6 +71,7 @@ class Observation:
         result["technologies"] = list(self.technologies)
         result["service_edges"] = [asdict(edge) for edge in self.service_edges]
         result["policy_shadow_paths"] = list(self.policy_shadow_paths)
+        result["unresolved_dependency_categories"] = list(self.unresolved_dependency_categories)
         return result
 
 
@@ -84,6 +87,8 @@ class ConformanceReport:
     findings: tuple[Finding, ...]
     changed_files: tuple[str, ...]
     evidence_ids: tuple[str, ...]
+    scanner_coverage: dict[str, Any]
+    unresolved_dependency_categories: tuple[str, ...]
     limitations: tuple[str, ...]
     generated_at: str
     observation_signature_verified: bool
@@ -100,6 +105,8 @@ class ConformanceReport:
             "findings": [item.payload() for item in self.findings],
             "changed_files": list(self.changed_files),
             "evidence_ids": list(self.evidence_ids),
+            "scanner_coverage": self.scanner_coverage,
+            "unresolved_dependency_categories": list(self.unresolved_dependency_categories),
             "limitations": list(self.limitations),
             "generated_at": self.generated_at,
             "observation_signature_verified": self.observation_signature_verified,

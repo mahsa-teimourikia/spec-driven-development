@@ -107,7 +107,20 @@ def _conflicting_adr(repo: Path) -> None:
     _write(
         repo,
         "architecture/adr-proposal.json",
-        json.dumps({"id": "ADR-LOCAL-900", "decision": "call provider directly", "conflicts_with": ["EA-001"]}, indent=2) + "\n",
+        json.dumps(
+            {
+                "id": "ADR-LOCAL-900",
+                "decision_type": "dependency_selection",
+                "capability": "model_inference",
+                "selected_dependency": "provider_sdk",
+                "boundary": "model_provider_access",
+                "status": "PROPOSED",
+                "scope": "solution",
+                "decision": "call provider directly",
+                "conflicts_with": ["EA-001"],
+            },
+            indent=2,
+        ) + "\n",
     )
 
 
@@ -189,6 +202,35 @@ def exception_for(
     }
 
 
+def control_evidence_for(
+    plane: ArchitectureControlPlane,
+    observation: Observation,
+    exception_record: dict[str, Any],
+) -> list[dict[str, Any]]:
+    """Create training-only signed receipts from an authority separate from the approver."""
+
+    exception_payload = exception_record["payload"]
+    records = []
+    for control in exception_payload["compensating_controls"]:
+        payload = {
+            "evidence_id": control["evidence_id"],
+            "producer": plane.control_evidence_producer,
+            "control": control["control"],
+            "exception_id": exception_payload["exception_id"],
+            "rule_id": exception_payload["rule_id"],
+            "resource": exception_payload["resource"],
+            "environment": observation.environment,
+            "approved_subject_digest": exception_payload["approved_subject_digest"],
+            "result": "PASS",
+            "issued_at": "2026-11-02T00:00:00Z",
+            "expires_at": FUTURE,
+        }
+        records.append(
+            {"payload": payload, "signature": sign_payload(payload, plane.control_evidence_key)}
+        )
+    return records
+
+
 def _scenario(
     root: Path,
     mutation: str,
@@ -202,6 +244,7 @@ def _scenario(
         head = clean_head if mutation == "clean" else mutate_and_commit(repo, mutation)
         observation = plane.observe(repo, base, head, environment, NOW)
         exceptions: list[dict[str, Any]] = []
+        control_evidence: list[dict[str, Any]] = []
         if exception_variant:
             options: dict[str, Any] = {}
             if exception_variant == "expired":
@@ -212,8 +255,10 @@ def _scenario(
                 options["subject_digest"] = "sha256:wrong"
             elif exception_variant == "revoked":
                 options["status"] = "REVOKED"
-            exceptions.append(exception_for(plane, observation, **options))
-        return plane.evaluate(observation, NOW, exceptions)
+            record = exception_for(plane, observation, **options)
+            exceptions.append(record)
+            control_evidence.extend(control_evidence_for(plane, observation, record))
+        return plane.evaluate(observation, NOW, exceptions, control_evidence)
 
 
 GOLDEN_SCENARIOS = (

@@ -2,6 +2,10 @@ package northstar.architecture
 
 import rego.v1
 
+# Illustrative only: governance_app/fitness_functions.py is the executable
+# reference evaluator and reads the canonical technology-standards.json registry.
+# Production Rego should consume the same signed data bundle, not copy these lists.
+
 default allow := false
 
 deny contains finding if {

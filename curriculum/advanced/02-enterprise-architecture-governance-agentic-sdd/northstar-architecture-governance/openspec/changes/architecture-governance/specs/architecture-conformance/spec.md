@@ -4,7 +4,7 @@
 
 ### AG-REQ-001 — Revision-bound repository facts
 
-The trusted scanner SHALL verify the actual Git `HEAD`, prove the base is an ancestor, and derive changed paths from the exact base/head range.
+The trusted scanner SHALL verify the actual Git `HEAD`, prove the base is an ancestor, derive changed paths from the exact base/head range, and read evaluated content from committed Git objects rather than the mutable working tree.
 
 #### Scenario: caller names the wrong head
 
@@ -44,11 +44,11 @@ Candidate service edges SHALL match the approved graph, and the candidate graph 
 
 ### AG-REQ-008 — ADR authority and lifecycle
 
-A local ADR that conflicts with an enterprise standard SHALL require accountable review. A reference to a superseded ADR SHALL require reassessment.
+A typed local ADR that conflicts with an enterprise standard SHALL require accountable review even when its author omits a conflict declaration. A reference to a superseded ADR SHALL require reassessment.
 
 ### AG-REQ-009 — Exact architecture exceptions
 
-An exception SHALL have authenticated authority, approved status, exact rule, exact resource, matching environment, matching subject digest, valid time window, and compensating-control evidence.
+An exception SHALL have authenticated authority, approved status, exact rule, exact resource, matching environment, matching subject digest, valid time window, and independently signed compensating-control evidence bound to the exception and subject.
 
 ### AG-REQ-010 — Evidence, not release authority
 
@@ -57,3 +57,9 @@ The report SHALL bind repository, base, head, environment, policy revision, prod
 ### AG-REQ-011 — Targeted architecture impact
 
 The control plane SHALL map a changed registered architecture decision to affected repositories, contracts, evaluations, and controls without invalidating unrelated systems.
+
+An unknown change identifier SHALL return `IMPACT_UNDETERMINED` and require owner review rather than assert no impact.
+
+### AG-REQ-012 — Evidence coverage and runtime enforcement
+
+The report SHALL identify scanner coverage and unresolved dependency categories. Unsupported languages and dynamic imports SHALL produce insufficient evidence. Runtime egress evidence SHALL prove effective default-deny enforcement, assessed bypass paths, exact workload, commit, environment, policy revision, enforcement point, and destinations.

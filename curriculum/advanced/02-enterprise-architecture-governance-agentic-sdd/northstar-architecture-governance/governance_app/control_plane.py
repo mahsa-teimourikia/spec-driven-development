@@ -28,6 +28,8 @@ class ArchitectureControlPlane:
         self.observation_key = training_keys[authority["observation_key_id"]]
         self.runtime_evidence_producer = authority["runtime_evidence_producer"]
         self.runtime_evidence_key = training_keys[authority["runtime_evidence_key_id"]]
+        self.control_evidence_producer = authority["control_evidence_producer"]
+        self.control_evidence_key = training_keys[authority["control_evidence_key_id"]]
         self.exception_keys = {
             key_id: training_keys[key_id]
             for key_id in authority["exception_authority_key_ids"]
@@ -47,7 +49,7 @@ class ArchitectureControlPlane:
         runtime_evidence: dict[str, Any] | None = None,
     ) -> Observation:
         runtime_evidence_id = self._validate_runtime_evidence(
-            runtime_evidence, head_commit, environment, now
+            runtime_evidence, repo.name, head_commit, environment, now
         )
         return extract_observation(
             repo=repo,
@@ -67,6 +69,7 @@ class ArchitectureControlPlane:
         observation: Observation,
         now: str,
         exceptions: Iterable[dict[str, Any]] = (),
+        control_evidence: Iterable[dict[str, Any]] = (),
     ) -> ConformanceReport:
         if observation.policy_version != self.policy_version:
             raise ArchitectureError("POLICY_REVISION_STALE")
@@ -76,8 +79,9 @@ class ArchitectureControlPlane:
             raise ArchitectureError("OBSERVATION_AUTHENTICITY_UNVERIFIED")
 
         findings = evaluate_fitness(observation, self.standards, self.dependency_rules)
-        findings.extend(evaluate_adrs(observation, self.adr_registry))
+        findings.extend(evaluate_adrs(observation, self.adr_registry, self.standards))
         exception_records = list(exceptions)
+        control_evidence_records = list(control_evidence)
         exception_eligible = set(self.standards.get("exception_eligible_rules", []))
         resolved: list[Finding] = []
         exception_rejections: list[Finding] = []
@@ -96,7 +100,14 @@ class ArchitectureControlPlane:
             rejection_code: str | None = None
             for candidate in candidates:
                 valid, detail = validate_exception(
-                    candidate, finding, observation, now, self.exception_keys
+                    candidate,
+                    finding,
+                    observation,
+                    now,
+                    self.exception_keys,
+                    control_evidence_records,
+                    self.control_evidence_producer,
+                    self.control_evidence_key,
                 )
                 if valid:
                     accepted_id = detail
@@ -142,9 +153,12 @@ class ArchitectureControlPlane:
             evidence_ids=tuple(
                 item for item in (observation.observation_id, observation.runtime_evidence_id) if item
             ),
+            scanner_coverage=observation.scanner_coverage,
+            unresolved_dependency_categories=observation.unresolved_dependency_categories,
             limitations=(
-                "Static analysis cannot prove runtime network destinations without trusted egress evidence.",
-                "The training fixture models one repository and a declared cross-service dependency graph.",
+                "Static analysis covers committed Python imports, literal Python/config URLs, declared technologies, and declared service edges.",
+                "Transitive dependencies, generated code, reflection, and runtime dispatch are not assessed unless separately evidenced.",
+                "Runtime network conformance requires enforcement-point evidence bound to this workload and commit.",
                 "A conformance report is evidence for a release decision; it is not deployment authorization.",
             ),
             generated_at=now,
@@ -175,6 +189,7 @@ class ArchitectureControlPlane:
     def _validate_runtime_evidence(
         self,
         record: dict[str, Any] | None,
+        repository: str,
         head_commit: str,
         environment: str,
         now: str,
@@ -188,15 +203,40 @@ class ArchitectureControlPlane:
             raise ArchitectureError("RUNTIME_EGRESS_EVIDENCE_UNVERIFIED")
         if payload.get("producer") != self.runtime_evidence_producer:
             raise ArchitectureError("RUNTIME_EGRESS_PRODUCER_UNTRUSTED")
-        if payload.get("head_commit") != head_commit or payload.get("environment") != environment:
+        policy = self.standards["runtime_egress_policy"]
+        workload = policy["workloads"].get(repository)
+        if workload is None:
+            raise ArchitectureError("RUNTIME_EGRESS_WORKLOAD_UNKNOWN")
+        if (
+            payload.get("head_commit") != head_commit
+            or payload.get("environment") != environment
+            or payload.get("workload_id") != workload["workload_id"]
+        ):
             raise ArchitectureError("RUNTIME_EGRESS_SUBJECT_MISMATCH")
-        if not (parse_time(str(payload["issued_at"])) <= parse_time(now) < parse_time(str(payload["expires_at"]))):
+        if payload.get("control") != "NETWORK_EGRESS_ENFORCEMENT":
+            raise ArchitectureError("RUNTIME_EGRESS_CONTROL_INVALID")
+        if (
+            payload.get("enforcement_point") != workload["enforcement_point"]
+            or payload.get("policy_revision") != policy["policy_revision"]
+            or payload.get("result") != "PASS"
+            or payload.get("default_deny") is not True
+            or payload.get("bypass_paths_assessed") is not True
+        ):
+            raise ArchitectureError("RUNTIME_EGRESS_ENFORCEMENT_UNPROVEN")
+        try:
+            active = parse_time(str(payload["issued_at"])) <= parse_time(now) < parse_time(str(payload["expires_at"]))
+        except (KeyError, ArchitectureError) as exc:
+            raise ArchitectureError("RUNTIME_EGRESS_EVIDENCE_STALE") from exc
+        if not active:
             raise ArchitectureError("RUNTIME_EGRESS_EVIDENCE_STALE")
-        destinations = set(payload.get("allowed_destinations", []))
+        destinations = set(payload.get("enforced_destinations", []))
         approved = set(self.standards.get("approved_runtime_destinations", []))
         if not destinations or not destinations.issubset(approved):
             raise ArchitectureError("RUNTIME_EGRESS_DESTINATION_UNAPPROVED")
-        return str(payload["evidence_id"])
+        evidence_id = payload.get("evidence_id")
+        if not evidence_id:
+            raise ArchitectureError("RUNTIME_EGRESS_EVIDENCE_UNVERIFIED")
+        return str(evidence_id)
 
     @staticmethod
     def _decision(findings: list[Finding], waived_count: int) -> str:

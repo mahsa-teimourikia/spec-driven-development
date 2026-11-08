@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -26,6 +27,7 @@ from governance_app.simulation import (  # noqa: E402
     FUTURE,
     NOW,
     demonstrate_stale_report,
+    control_evidence_for,
     exception_for,
     initialize_repository,
     mutate_and_commit,
@@ -49,9 +51,21 @@ class Course26Tests(unittest.TestCase):
         head = self.head if mutation == "clean" else mutate_and_commit(self.repo, mutation)
         return self.plane.observe(self.repo, self.base, head, environment, NOW)
 
-    def report(self, mutation="clean", environment="development", exceptions=()):
+    def report(self, mutation="clean", environment="development", exceptions=(), control_evidence=()):
         observation = self.observation(mutation, environment)
-        return self.plane.evaluate(observation, NOW, exceptions)
+        return self.plane.evaluate(observation, NOW, exceptions, control_evidence)
+
+    def commit_file(self, relative, content, message="test mutation"):
+        path = self.repo / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding="utf-8")
+        subprocess.run(["git", "-C", str(self.repo), "add", "."], check=True, capture_output=True)
+        subprocess.run(
+            ["git", "-C", str(self.repo), "commit", "-q", "-m", message],
+            check=True,
+            capture_output=True,
+        )
+        return current_head(self.repo)
 
     def assert_error(self, code, operation):
         with self.assertRaises(ArchitectureError) as caught:
@@ -119,6 +133,15 @@ class Course26Tests(unittest.TestCase):
         report = self.report("endpoint_bypass")
         self.assertIn("DIRECT_MODEL_PROVIDER_ENDPOINT", [item.code for item in report.findings])
 
+    def test_provider_endpoint_in_committed_config_blocks(self):
+        head = self.commit_file(
+            "config/provider.json",
+            '{"endpoint": "https://model-provider.example/v1/classify"}\n',
+        )
+        observation = self.plane.observe(self.repo, self.base, head, "development", NOW)
+        report = self.plane.evaluate(observation, NOW)
+        self.assertIn("DIRECT_MODEL_PROVIDER_ENDPOINT", [item.code for item in report.findings])
+
     def test_generic_http_without_runtime_evidence_is_insufficient(self):
         report = self.report("generic_http")
         self.assertEqual(report.decision, "INSUFFICIENT_EVIDENCE")
@@ -133,9 +156,16 @@ class Course26Tests(unittest.TestCase):
         payload = {
             "evidence_id": "NET-EGRESS-2602",
             "producer": self.plane.runtime_evidence_producer,
+            "control": "NETWORK_EGRESS_ENFORCEMENT",
             "head_commit": head,
             "environment": "development",
-            "allowed_destinations": ["enterprise-ai-gateway.internal"],
+            "workload_id": "northstar-ai-service",
+            "enforcement_point": "production-cluster-egress-gateway",
+            "policy_revision": "EGRESS-POLICY@4",
+            "enforced_destinations": ["enterprise-ai-gateway.internal"],
+            "default_deny": True,
+            "bypass_paths_assessed": True,
+            "result": "PASS",
             "issued_at": "2026-11-03T17:00:00Z",
             "expires_at": FUTURE,
             **overrides,
@@ -151,6 +181,19 @@ class Course26Tests(unittest.TestCase):
         report = self.plane.evaluate(observation, NOW)
         self.assertEqual(report.decision, "CONFORMANT")
         self.assertIn("NET-EGRESS-2602", report.evidence_ids)
+
+    def test_signed_allowlist_declaration_does_not_prove_enforcement(self):
+        head = mutate_and_commit(self.repo, "generic_http")
+        evidence = self.runtime_evidence(head)
+        evidence["payload"].pop("default_deny")
+        evidence["payload"].pop("bypass_paths_assessed")
+        evidence["signature"] = sign_payload(evidence["payload"], self.plane.runtime_evidence_key)
+        self.assert_error(
+            "RUNTIME_EGRESS_ENFORCEMENT_UNPROVEN",
+            lambda: self.plane.observe(
+                self.repo, self.base, head, "development", NOW, runtime_evidence=evidence
+            ),
+        )
 
     def test_forged_runtime_egress_is_rejected(self):
         head = mutate_and_commit(self.repo, "generic_http")
@@ -208,6 +251,16 @@ class Course26Tests(unittest.TestCase):
         report = self.report("conflicting_adr")
         self.assertEqual(report.decision, "REVIEW_REQUIRED")
 
+    def test_typed_adr_conflict_is_detected_without_author_claim(self):
+        mutate_and_commit(self.repo, "conflicting_adr")
+        path = self.repo / "architecture/adr-proposal.json"
+        proposal = json.loads(path.read_text(encoding="utf-8"))
+        proposal.pop("conflicts_with")
+        head = self.commit_file("architecture/adr-proposal.json", json.dumps(proposal, indent=2) + "\n")
+        observation = self.plane.observe(self.repo, self.base, head, "development", NOW)
+        report = self.plane.evaluate(observation, NOW)
+        self.assertIn("ADR_CONFLICTS_WITH_ENTERPRISE_STANDARD", [item.code for item in report.findings])
+
     def test_superseded_adr_requires_reassessment(self):
         report = self.report("superseded_adr")
         self.assertEqual(report.decision, "REASSESSMENT_REQUIRED")
@@ -215,9 +268,25 @@ class Course26Tests(unittest.TestCase):
     def test_valid_exception_is_exact_scope(self):
         observation = self.observation("direct_provider")
         record = exception_for(self.plane, observation)
-        report = self.plane.evaluate(observation, NOW, [record])
+        evidence = control_evidence_for(self.plane, observation, record)
+        report = self.plane.evaluate(observation, NOW, [record], evidence)
         self.assertEqual(report.decision, "CONFORMANT_WITH_EXCEPTION")
         self.assertEqual(report.findings[0].exception_id, "ARCH-EX-2601")
+
+    def test_nonexistent_compensating_control_evidence_id_does_not_waive(self):
+        observation = self.observation("direct_provider")
+        record = exception_for(self.plane, observation)
+        evidence = control_evidence_for(self.plane, observation, record)
+        record["payload"]["compensating_controls"][0]["evidence_id"] = "DOES-NOT-EXIST"
+        record["signature"] = sign_payload(
+            record["payload"], self.plane.exception_keys["architecture-board-v1"]
+        )
+        report = self.plane.evaluate(observation, NOW, [record], evidence)
+        self.assertEqual(report.decision, "BLOCKED")
+        self.assertIn(
+            "COMPENSATING_CONTROL_EVIDENCE_UNVERIFIED",
+            [item.code for item in report.findings],
+        )
 
     def test_exception_subject_binds_resource_content(self):
         observation = self.observation("direct_provider")
@@ -291,6 +360,33 @@ class Course26Tests(unittest.TestCase):
         self.assertGreaterEqual(len(report.limitations), 3)
         self.assertTrue(any("not deployment authorization" in item for item in report.limitations))
 
+    def test_scanner_reads_committed_objects_not_working_tree(self):
+        head = mutate_and_commit(self.repo, "direct_provider")
+        (self.repo / "src/classification/provider.py").write_text(
+            "import northstar_ai_gateway\n", encoding="utf-8"
+        )
+        observation = self.plane.observe(self.repo, self.base, head, "development", NOW)
+        report = self.plane.evaluate(observation, NOW)
+        self.assertIn("DIRECT_MODEL_PROVIDER_DEPENDENCY", [item.code for item in report.findings])
+
+    def test_policy_registry_addition_changes_enforcement_without_code_change(self):
+        head = self.commit_file("src/classification/new_vendor.py", "import new_vendor_sdk\n")
+        self.plane.standards["prohibited_provider_modules"].append("new_vendor_sdk")
+        observation = self.plane.observe(self.repo, self.base, head, "development", NOW)
+        report = self.plane.evaluate(observation, NOW)
+        self.assertIn("DIRECT_MODEL_PROVIDER_DEPENDENCY", [item.code for item in report.findings])
+
+    def test_dynamic_import_is_explicitly_insufficient_evidence(self):
+        head = self.commit_file(
+            "src/classification/plugin.py",
+            'module = __import__("provider_" + "sdk")\n',
+        )
+        observation = self.plane.observe(self.repo, self.base, head, "development", NOW)
+        report = self.plane.evaluate(observation, NOW)
+        self.assertEqual(report.decision, "INSUFFICIENT_EVIDENCE")
+        self.assertIn("DYNAMIC_IMPORT", [item.code for item in report.findings])
+        self.assertEqual(report.scanner_coverage["source_basis"], "git_objects")
+
     def test_report_is_bound_to_policy_and_head(self):
         report = self.report()
         self.assertEqual(report.policy_version, "EA-POLICY@7")
@@ -305,9 +401,10 @@ class Course26Tests(unittest.TestCase):
         self.assertIn("ai-service", impact["repositories"])
         self.assertIn("retrieval-quality-suite", impact["evaluations"])
 
-    def test_unknown_change_does_not_invalidate_everything(self):
+    def test_unknown_change_requires_owner_review(self):
         impact = self.plane.impact("UNKNOWN")
-        self.assertEqual(impact["decision"], "NO_REGISTERED_IMPACT")
+        self.assertEqual(impact["decision"], "IMPACT_UNDETERMINED")
+        self.assertTrue(impact["owner_review_required"])
         self.assertEqual(impact["repositories"], [])
 
     def test_scenario_files_are_machine_readable(self):

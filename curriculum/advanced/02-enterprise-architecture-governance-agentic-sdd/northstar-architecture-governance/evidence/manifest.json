@@ -2,12 +2,14 @@
   "manifest_id": "COURSE26-EVIDENCE-MANIFEST",
   "producer": "trusted-architecture-scanner-v3",
   "derived_facts": [
-    "git_base_and_head",
+    "git_base_head_and_committed_objects",
     "changed_files",
     "python_imports_and_urls",
     "technology_dependencies",
     "service_dependency_edges",
-    "externally_authenticated_runtime_egress",
+    "externally_authenticated_runtime_egress_enforcement",
+    "scanner_coverage_and_unresolved_categories",
+    "independently_authenticated_compensating_controls",
     "adr_references",
     "candidate_policy_shadowing"
   ],
